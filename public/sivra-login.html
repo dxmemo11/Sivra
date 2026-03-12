@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sivra — The Commerce Platform You Own</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #F7F8FA; --white: #FFFFFF; --border: #E8EAED;
+      --text: #0F1117; --text-muted: #6B7280; --text-light: #9CA3AF;
+      --accent: #4F6EF7; --accent-hover: #3B5BDB; --accent-soft: #EEF2FF;
+      --success: #10B981; --warning: #F59E0B;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06); --shadow-md: 0 4px 16px rgba(0,0,0,0.08); --shadow-lg: 0 12px 40px rgba(0,0,0,0.1);
+      --radius: 10px;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(247,248,250,0.92); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 48px; height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-icon { width: 30px; height: 30px; background: var(--accent); border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+    .logo-name { font-size: 16px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
+    .nav-links { display: flex; align-items: center; gap: 28px; }
+    .nav-links a { font-size: 13px; color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta { display: flex; align-items: center; gap: 12px; }
+    .btn-ghost { font-size: 13px; color: var(--text-muted); background: none; border: none; cursor: pointer; font-family: 'Inter', sans-serif; transition: color 0.2s; }
+    .btn-ghost:hover { color: var(--text); }
+    .btn-nav { font-size: 13px; font-weight: 500; background: var(--accent); color: white; border: none; border-radius: 7px; padding: 8px 16px; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+    .btn-nav:hover { background: var(--accent-hover); }
+
+    /* ── HERO ── */
+    .hero {
+      max-width: 1100px; margin: 0 auto;
+      padding: 80px 48px 60px;
+      display: grid; grid-template-columns: 1fr 420px; gap: 60px; align-items: center;
+    }
+    .hero-badge { display: inline-flex; align-items: center; gap: 7px; background: var(--accent-soft); border: 1px solid #D1D9FF; border-radius: 20px; padding: 5px 12px; font-size: 12px; font-weight: 500; color: var(--accent); margin-bottom: 24px; }
+    .hero-badge .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+    .hero h1 { font-size: clamp(32px, 4vw, 46px); font-weight: 700; line-height: 1.15; letter-spacing: -0.03em; margin-bottom: 20px; }
+    .hero h1 span { color: var(--accent); }
+    .hero-sub { font-size: 16px; line-height: 1.7; color: var(--text-muted); font-weight: 400; margin-bottom: 32px; max-width: 480px; }
+    .hero-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .btn-primary-lg { height: 48px; padding: 0 28px; background: var(--accent); border: none; border-radius: 9px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; color: white; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-primary-lg:hover { background: var(--accent-hover); box-shadow: 0 4px 14px rgba(79,110,247,0.35); transform: translateY(-1px); }
+    .btn-outline-lg { height: 48px; padding: 0 28px; background: white; border: 1.5px solid var(--border); border-radius: 9px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 400; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+    .btn-outline-lg:hover { border-color: #D1D9FF; color: var(--text); background: var(--accent-soft); }
+    .hero-trust { display: flex; align-items: center; gap: 8px; margin-top: 24px; font-size: 12px; color: var(--text-light); }
+    .hero-trust span { color: var(--success); font-weight: 500; }
+
+    /* Hero login card */
+    .hero-card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 32px; box-shadow: var(--shadow-lg); opacity: 0; animation: fadeUp 0.6s ease 0.2s forwards; }
+    .hero-card-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+    .hero-card-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+    .form-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .label-link { font-size: 11px; color: var(--accent); text-decoration: none; }
+    .input-wrap { position: relative; }
+    .input-icon-left { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-light); pointer-events: none; }
+    input[type="email"], input[type="password"], input[type="text"] {
+      width: 100%; height: 40px; padding: 0 40px 0 38px;
+      background: var(--bg); border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 13px; font-family: 'Inter', sans-serif; color: var(--text); outline: none; transition: all 0.2s;
+    }
+    input::placeholder { color: var(--text-light); }
+    input:focus { border-color: var(--accent); background: white; box-shadow: 0 0 0 3px rgba(79,110,247,0.1); }
+    .toggle-pw { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-light); padding: 0; display: flex; align-items: center; }
+    .btn-signin { width: 100%; height: 42px; background: var(--accent); border: none; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; color: white; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 18px; }
+    .btn-signin:hover { background: var(--accent-hover); box-shadow: 0 4px 12px rgba(79,110,247,0.3); }
+    .btn-signin.loading { opacity: 0.7; pointer-events: none; }
+    .divider { display: flex; align-items: center; gap: 10px; margin: 16px 0; }
+    .divider-line { flex: 1; height: 1px; background: var(--border); }
+    .divider-text { font-size: 11px; color: var(--text-light); }
+    .sso-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .btn-sso { height: 36px; background: white; border: 1.5px solid var(--border); border-radius: 7px; font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; transition: all 0.2s; }
+    .btn-sso:hover { border-color: #D1D9FF; background: var(--accent-soft); color: var(--text); }
+    .card-footer-note { text-align: center; margin-top: 16px; font-size: 12px; color: var(--text-light); }
+    .card-footer-note a { color: var(--accent); text-decoration: none; font-weight: 500; }
+
+    /* ── STATS BAR ── */
+    .stats-bar { background: white; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .stats-bar-inner { max-width: 1100px; margin: 0 auto; padding: 28px 48px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+    .stat-item { padding: 0 32px; border-right: 1px solid var(--border); }
+    .stat-item:first-child { padding-left: 0; }
+    .stat-item:last-child { border-right: none; }
+    .stat-number { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; color: var(--text); }
+    .stat-number span { color: var(--accent); }
+    .stat-desc { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+    /* ── WHAT IS SIVRA ── */
+    .section { max-width: 1100px; margin: 0 auto; padding: 80px 48px; }
+    .section-tag { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+    .section-title { font-size: clamp(26px, 3vw, 36px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 16px; }
+    .section-sub { font-size: 15px; color: var(--text-muted); line-height: 1.7; max-width: 560px; }
+
+    .what-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; margin-top: 48px; }
+    .what-points { display: flex; flex-direction: column; gap: 20px; }
+    .what-point { display: flex; gap: 16px; align-items: flex-start; padding: 18px 20px; background: white; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-sm); transition: all 0.2s; }
+    .what-point:hover { border-color: #D1D9FF; box-shadow: var(--shadow-md); transform: translateX(4px); }
+    .what-point-icon { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .what-point-text h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .what-point-text p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+    .comparison-card { background: white; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow-md); }
+    .comparison-header { padding: 20px 24px; border-bottom: 1px solid var(--border); }
+    .comparison-header h3 { font-size: 14px; font-weight: 600; }
+    .comparison-header p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .comparison-row { display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 14px 24px; border-bottom: 1px solid var(--border); align-items: center; font-size: 13px; }
+    .comparison-row:last-child { border-bottom: none; }
+    .comparison-row.header-row { background: var(--bg); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-light); padding: 10px 24px; }
+    .comparison-row .feature { color: var(--text-muted); }
+    .check { color: var(--success); font-weight: 600; }
+    .cross { color: #EF4444; }
+    .sivra-col { color: var(--accent); font-weight: 500; }
+
+    /* ── HOW IT WORKS ── */
+    .how-section { background: white; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .how-inner { max-width: 1100px; margin: 0 auto; padding: 80px 48px; }
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; margin-top: 48px; position: relative; }
+    .steps::before { content: ''; position: absolute; top: 24px; left: 12.5%; right: 12.5%; height: 1px; background: linear-gradient(to right, var(--border), var(--accent), var(--border)); z-index: 0; }
+    .step { text-align: center; position: relative; z-index: 1; }
+    .step-num { width: 48px; height: 48px; background: white; border: 2px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: var(--accent); margin: 0 auto 16px; }
+    .step h4 { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+    .step p { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+
+    /* ── FEATURES GRID ── */
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 48px; }
+    .feature-card { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow-sm); transition: all 0.2s; }
+    .feature-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); border-color: #D1D9FF; }
+    .feature-card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+    .feature-card h4 { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+    .feature-card p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+    .feature-card .tag { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; margin-top: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .tag-included { background: #ECFDF5; color: var(--success); }
+    .tag-soon { background: #FFF7ED; color: var(--warning); }
+
+    /* ── PRICING ── */
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 48px; }
+    .pricing-card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 28px; box-shadow: var(--shadow-sm); transition: all 0.2s; position: relative; }
+    .pricing-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .pricing-card.featured { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(79,110,247,0.15), var(--shadow-md); }
+    .pricing-popular { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; font-size: 11px; font-weight: 600; padding: 4px 14px; border-radius: 20px; white-space: nowrap; }
+    .pricing-name { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+    .pricing-price { font-size: 36px; font-weight: 700; letter-spacing: -0.03em; color: var(--text); margin-bottom: 4px; }
+    .pricing-price sup { font-size: 18px; font-weight: 600; vertical-align: super; }
+    .pricing-price sub { font-size: 13px; font-weight: 400; color: var(--text-muted); }
+    .pricing-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; }
+    .pricing-divider { height: 1px; background: var(--border); margin-bottom: 20px; }
+    .pricing-features { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+    .pricing-features li { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; }
+    .pricing-features li::before { content: '✓'; color: var(--success); font-weight: 600; font-size: 12px; }
+    .btn-pricing { width: 100%; height: 40px; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .btn-pricing.primary { background: var(--accent); color: white; border: none; }
+    .btn-pricing.primary:hover { background: var(--accent-hover); }
+    .btn-pricing.outline { background: white; color: var(--text-muted); border: 1.5px solid var(--border); }
+    .btn-pricing.outline:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── CTA ── */
+    .cta-section { background: var(--accent); }
+    .cta-inner { max-width: 1100px; margin: 0 auto; padding: 72px 48px; display: grid; grid-template-columns: 1fr auto; gap: 48px; align-items: center; }
+    .cta-inner h2 { font-size: clamp(24px, 3vw, 34px); font-weight: 700; color: white; letter-spacing: -0.02em; line-height: 1.2; }
+    .cta-inner p { font-size: 15px; color: rgba(255,255,255,0.75); margin-top: 10px; line-height: 1.6; }
+    .cta-actions { display: flex; gap: 12px; align-items: center; }
+    .btn-cta-white { height: 48px; padding: 0 28px; background: white; color: var(--accent); border: none; border-radius: 9px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .btn-cta-white:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+    .btn-cta-ghost { height: 48px; padding: 0 24px; background: rgba(255,255,255,0.12); color: white; border: 1.5px solid rgba(255,255,255,0.25); border-radius: 9px; font-family: 'Inter', sans-serif; font-size: 14px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .btn-cta-ghost:hover { background: rgba(255,255,255,0.2); }
+
+    /* ── FOOTER ── */
+    footer { background: var(--text); padding: 48px; }
+    .footer-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; }
+    .footer-brand p { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.7; margin-top: 12px; max-width: 260px; }
+    .footer-col h5 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.4); margin-bottom: 14px; }
+    .footer-col a { display: block; font-size: 13px; color: rgba(255,255,255,0.55); text-decoration: none; margin-bottom: 10px; transition: color 0.2s; }
+    .footer-col a:hover { color: rgba(255,255,255,0.9); }
+    .footer-bottom { max-width: 1100px; margin: 32px auto 0; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: rgba(255,255,255,0.3); }
+
+    /* ── TOAST ── */
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text); color: white; padding: 12px 20px; border-radius: 10px; font-size: 13px; box-shadow: var(--shadow-lg); opacity: 0; transition: all 0.3s; pointer-events: none; white-space: nowrap; z-index: 1000; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Animations */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; } .hero-card { display: none; }
+      .what-grid, .steps, .features-grid, .pricing-grid { grid-template-columns: 1fr; }
+      .stats-bar-inner { grid-template-columns: 1fr 1fr; }
+      .cta-inner { grid-template-columns: 1fr; }
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+      nav { padding: 0 24px; } .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">
+    <div class="logo-icon">
+      <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 2L15 5.5V12.5L9 16L3 12.5V5.5L9 2Z" fill="white" opacity="0.9"/><circle cx="9" cy="9" r="2.5" fill="white" opacity="0.5"/></svg>
+    </div>
+    <span class="logo-name">Sivra</span>
+  </a>
+  <div class="nav-links">
+    <a href="#what">What is Sivra</a>
+    <a href="#how">How it works</a>
+    <a href="#features">Features</a>
+    <a href="#pricing">Pricing</a>
+  </div>
+  <div class="nav-cta">
+    <button class="btn-ghost" onclick="scrollToLogin()">Sign in</button>
+    <button class="btn-nav" onclick="showToast('Creating your account...')">Start free →</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div>
+    <div class="hero-badge"><div class="dot"></div> Now in development preview</div>
+    <h1>The commerce platform<br/><span>you actually own</span></h1>
+    <p class="hero-sub">Sivra lets anyone launch and run an online store — with full control over their data, their server, and their business. No monthly platform fees eating your margin. No one can shut you down.</p>
+    <div class="hero-actions">
+      <button class="btn-primary-lg" onclick="showToast('Opening registration...')">Get started free →</button>
+      <button class="btn-outline-lg" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">See how it works</button>
+    </div>
+    <div class="hero-trust">
+      <span>✓ Free to start</span> &nbsp;·&nbsp;
+      <span>✓ Self-hosted</span> &nbsp;·&nbsp;
+      <span>✓ No lock-in</span> &nbsp;·&nbsp;
+      No credit card required
+    </div>
+  </div>
+
+  <!-- Login card -->
+  <div class="hero-card" id="login-card">
+    <h2 class="hero-card-title">Sign in to Sivra</h2>
+    <p class="hero-card-sub">Access your merchant dashboard</p>
+    <div class="sso-grid">
+      <button class="btn-sso" onclick="showToast('Google SSO — coming soon')">
+        <svg width="14" height="14" viewBox="0 0 16 16"><path d="M15.68 8.18c0-.57-.05-1.11-.14-1.64H8v3.1h4.3a3.68 3.68 0 01-1.6 2.42v2h2.58c1.51-1.39 2.4-3.44 2.4-5.88z" fill="#4285F4"/><path d="M8 16c2.16 0 3.97-.72 5.3-1.94l-2.58-2a4.8 4.8 0 01-7.17-2.52H.86v2.07A8 8 0 008 16z" fill="#34A853"/><path d="M3.55 9.54A4.83 4.83 0 013.3 8c0-.54.09-1.06.25-1.54V4.39H.86A8 8 0 000 8c0 1.29.31 2.51.86 3.61l2.69-2.07z" fill="#FBBC05"/><path d="M8 3.18c1.21 0 2.3.42 3.16 1.24l2.37-2.37A8 8 0 00.86 4.39L3.55 6.46A4.77 4.77 0 018 3.18z" fill="#EA4335"/></svg>
+        Google
+      </button>
+      <button class="btn-sso" onclick="showToast('GitHub SSO — coming soon')">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub
+      </button>
+    </div>
+    <div class="divider"><div class="divider-line"></div><span class="divider-text">or email</span><div class="divider-line"></div></div>
+    <div class="form-group">
+      <label for="email">Email address</label>
+      <div class="input-wrap">
+        <svg class="input-icon-left" width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4a1 1 0 011-1h10a1 1 0 011 1v8a1 1 0 01-1 1H3a1 1 0 01-1-1V4z" stroke="currentColor" stroke-width="1.2"/><path d="M2 4l6 5 6-5" stroke="currentColor" stroke-width="1.2"/></svg>
+        <input type="email" id="email" placeholder="you@example.com"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="form-row">
+        <label for="password">Password</label>
+        <a href="#" class="label-link">Forgot?</a>
+      </div>
+      <div class="input-wrap">
+        <svg class="input-icon-left" width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="3" y="7" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.2"/></svg>
+        <input type="password" id="password" placeholder="••••••••"/>
+        <button class="toggle-pw" onclick="togglePw(this)" tabindex="-1">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.2"/></svg>
+        </button>
+      </div>
+    </div>
+    <button class="btn-signin" id="signin-btn" onclick="handleSignIn()">Sign in to dashboard</button>
+    <div class="card-footer-note">No account? <a href="#" onclick="showToast('Creating your account...')">Create one free</a></div>
+  </div>
+</div>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stats-bar-inner">
+    <div class="stat-item">
+      <div class="stat-number">4,821</div>
+      <div class="stat-desc">Active merchant stores</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">$128<span>K</span></div>
+      <div class="stat-desc">GMV processed today</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">99.99<span>%</span></div>
+      <div class="stat-desc">Platform uptime</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">0<span>%</span></div>
+      <div class="stat-desc">Transaction fees charged</div>
+    </div>
+  </div>
+</div>
+
+<!-- WHAT IS SIVRA -->
+<div class="section" id="what">
+  <p class="section-tag">What is Sivra</p>
+  <h2 class="section-title">Your store. Your server.<br/>Your rules.</h2>
+  <p class="section-sub">Sivra is a self-hosted e-commerce platform that gives merchants the power to build and run online stores — without paying platform fees, without being dependent on a third-party, and without the risk of being shut down.</p>
+
+  <div class="what-grid">
+    <div class="what-points">
+      <div class="what-point">
+        <div class="what-point-icon" style="background:#EEF2FF">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2l7 4v6l-7 4-7-4V6l7-4z" stroke="#4F6EF7" stroke-width="1.3"/><circle cx="9" cy="9" r="2.5" fill="#4F6EF7"/></svg>
+        </div>
+        <div class="what-point-text">
+          <h4>Built for independence</h4>
+          <p>Host Sivra on any server you choose. AWS, DigitalOcean, your own machine — you decide. No one can take your store offline.</p>
+        </div>
+      </div>
+      <div class="what-point">
+        <div class="what-point-icon" style="background:#ECFDF5">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 9h12M9 3v12" stroke="#10B981" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="what-point-text">
+          <h4>Designed for merchants</h4>
+          <p>Everything a merchant needs — products, orders, collections, pages, customers — in a clean, easy-to-use dashboard.</p>
+        </div>
+      </div>
+      <div class="what-point">
+        <div class="what-point-icon" style="background:#FDF4FF">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="4" width="14" height="10" rx="2" stroke="#A855F7" stroke-width="1.3"/><path d="M2 8h14" stroke="#A855F7" stroke-width="1.3"/></svg>
+        </div>
+        <div class="what-point-text">
+          <h4>Monetized from day one</h4>
+          <p>Sivra charges merchants a simple monthly subscription. You run the platform, they run their stores, everyone wins.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparison table -->
+    <div class="comparison-card">
+      <div class="comparison-header">
+        <h3>How Sivra compares</h3>
+        <p>vs. traditional hosted platforms</p>
+      </div>
+      <div class="comparison-row header-row">
+        <span>Feature</span><span class="sivra-col">Sivra</span><span>Shopify / Others</span>
+      </div>
+      <div class="comparison-row">
+        <span class="feature">Self-hosted</span><span class="check sivra-col">✓ Yes</span><span class="cross">✗ No</span>
+      </div>
+      <div class="comparison-row">
+        <span class="feature">Transaction fees</span><span class="check sivra-col">✓ None</span><span class="cross">✗ Up to 2%</span>
+      </div>
+      <div class="comparison-row">
+        <span class="feature">You own the data</span><span class="check sivra-col">✓ Always</span><span class="cross">✗ They do</span>
+      </div>
+      <div class="comparison-row">
+        <span class="feature">Can be shut down</span><span class="check sivra-col">✓ Never</span><span class="cross">✗ Any time</span>
+      </div>
+      <div class="comparison-row">
+        <span class="feature">Monthly platform fee</span><span class="check sivra-col">✓ You set it</span><span class="cross">✗ $29–$299+</span>
+      </div>
+      <div class="comparison-row">
+        <span class="feature">Custom branding</span><span class="check sivra-col">✓ Full</span><span class="cross">✗ Limited</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="how-section" id="how">
+  <div class="how-inner">
+    <p class="section-tag">How it works</p>
+    <h2 class="section-title">Up and running in four steps</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h4>Deploy Sivra</h4>
+        <p>Install Sivra on any server or cloud provider. Takes under 10 minutes with our setup guide.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h4>Invite merchants</h4>
+        <p>Merchants sign up, create their store, and start adding products — all within your platform.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h4>They sell, you earn</h4>
+        <p>Each merchant pays a monthly subscription fee. You keep 100% of it — Sivra takes nothing.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <h4>Scale freely</h4>
+        <p>Add more merchants, expand features, upgrade your server — grow at your own pace.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<div class="section" id="features">
+  <p class="section-tag">Features</p>
+  <h2 class="section-title">Everything a store needs,<br/>nothing it doesn't</h2>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-card-icon" style="background:#EEF2FF"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="2" fill="#4F6EF7"/><rect x="11" y="2" width="7" height="7" rx="2" fill="#4F6EF7" opacity="0.4"/><rect x="2" y="11" width="7" height="7" rx="2" fill="#4F6EF7" opacity="0.4"/><rect x="11" y="11" width="7" height="7" rx="2" fill="#4F6EF7" opacity="0.6"/></svg></div>
+      <h4>Dashboard</h4>
+      <p>A clean overview of orders, revenue, and store activity at a glance.</p>
+      <span class="tag tag-included">Included</span>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon" style="background:#ECFDF5"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M4 6h12M4 14h8" stroke="#10B981" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <h4>Product Management</h4>
+      <p>Add products, set prices, manage variants, and track inventory with ease.</p>
+      <span class="tag tag-included">Included</span>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon" style="background:#FFF7ED"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 5h14l-1.5 9H4.5L3 5z" stroke="#F97316" stroke-width="1.3"/><circle cx="8" cy="17" r="1.5" fill="#F97316"/><circle cx="14" cy="17" r="1.5" fill="#F97316"/></svg></div>
+      <h4>Orders</h4>
+      <p>View, manage, and fulfill customer orders. Track status from placement to delivery.</p>
+      <span class="tag tag-included">Included</span>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon" style="background:#F0FDF4"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="8" r="4" stroke="#22C55E" stroke-width="1.3"/><path d="M3 18c0-3.3 3.1-6 7-6s7 2.7 7 6" stroke="#22C55E" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+      <h4>Customers</h4>
+      <p>A full customer database with order history, contact info, and activity.</p>
+      <span class="tag tag-included">Included</span>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon" style="background:#FDF4FF"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="5" width="14" height="11" rx="2" stroke="#A855F7" stroke-width="1.3"/><path d="M3 9h14" stroke="#A855F7" stroke-width="1.3"/><path d="M7 13h3" stroke="#A855F7" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+      <h4>Billing via Stripe</h4>
+      <p>Collect subscription payments from your merchants automatically each month.</p>
+      <span class="tag tag-included">Included</span>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon" style="background:#FFF7ED"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3v14M3 10h14" stroke="#F59E0B" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <h4>Pages & Menus</h4>
+      <p>Build custom pages — About, Contact, FAQ — and manage storefront navigation.</p>
+      <span class="tag tag-soon">Coming soon</span>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon" style="background:#EEF2FF"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="4" y="3" width="12" height="14" rx="2" stroke="#4F6EF7" stroke-width="1.3"/><path d="M7 7h6M7 10h6M7 13h4" stroke="#4F6EF7" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+      <h4>Collections</h4>
+      <p>Group products into collections for better storefront organization and browsing.</p>
+      <span class="tag tag-included">Included</span>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon" style="background:#ECFDF5"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 4h5v5H4zM11 4h5v5h-5zM4 11h5v5H4zM11 11h5v5h-5z" stroke="#10B981" stroke-width="1.2"/></svg></div>
+      <h4>File Manager</h4>
+      <p>Upload and manage product images and store files directly in the dashboard.</p>
+      <span class="tag tag-included">Included</span>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card-icon" style="background:#FDF4FF"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#A855F7" stroke-width="1.3"/><path d="M10 7v3l2 2" stroke="#A855F7" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+      <h4>Analytics</h4>
+      <p>Sales charts, traffic data, and performance insights — all inside your dashboard.</p>
+      <span class="tag tag-soon">Coming soon</span>
+    </div>
+  </div>
+</div>
+
+<!-- PRICING -->
+<div class="how-section" id="pricing">
+  <div class="how-inner">
+    <p class="section-tag">Pricing</p>
+    <h2 class="section-title">Simple, transparent pricing<br/>for your merchants</h2>
+    <p class="section-sub" style="margin-top:12px">These are the plans you charge your merchants. You keep 100% of all subscription revenue.</p>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="pricing-name">Starter</div>
+        <div class="pricing-price"><sup>$</sup>19<sub>/mo</sub></div>
+        <div class="pricing-desc">Perfect for new merchants just getting started with their first online store.</div>
+        <div class="pricing-divider"></div>
+        <ul class="pricing-features">
+          <li>1 store</li>
+          <li>Up to 100 products</li>
+          <li>Basic analytics</li>
+          <li>File storage: 2GB</li>
+          <li>Email support</li>
+        </ul>
+        <button class="btn-pricing outline" onclick="showToast('Redirecting to registration...')">Get started</button>
+      </div>
+      <div class="pricing-card featured">
+        <div class="pricing-popular">Most popular</div>
+        <div class="pricing-name">Growth</div>
+        <div class="pricing-price"><sup>$</sup>49<sub>/mo</sub></div>
+        <div class="pricing-desc">For growing merchants who need more products, storage, and advanced tools.</div>
+        <div class="pricing-divider"></div>
+        <ul class="pricing-features">
+          <li>3 stores</li>
+          <li>Unlimited products</li>
+          <li>Full analytics</li>
+          <li>File storage: 20GB</li>
+          <li>Priority support</li>
+          <li>Custom domain</li>
+        </ul>
+        <button class="btn-pricing primary" onclick="showToast('Redirecting to registration...')">Get started</button>
+      </div>
+      <div class="pricing-card">
+        <div class="pricing-name">Pro</div>
+        <div class="pricing-price"><sup>$</sup>99<sub>/mo</sub></div>
+        <div class="pricing-desc">For serious merchants running multiple stores at scale.</div>
+        <div class="pricing-divider"></div>
+        <ul class="pricing-features">
+          <li>Unlimited stores</li>
+          <li>Unlimited products</li>
+          <li>Advanced analytics</li>
+          <li>File storage: 100GB</li>
+          <li>Dedicated support</li>
+          <li>API access</li>
+          <li>White-label option</li>
+        </ul>
+        <button class="btn-pricing outline" onclick="showToast('Redirecting to registration...')">Get started</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section">
+  <div class="cta-inner">
+    <div>
+      <h2>Ready to launch your<br/>commerce platform?</h2>
+      <p>Join the growing number of platform owners using Sivra to power independent online stores.</p>
+    </div>
+    <div class="cta-actions">
+      <button class="btn-cta-white" onclick="showToast('Opening registration...')">Start for free</button>
+      <button class="btn-cta-ghost" onclick="showToast('Opening docs...')">Read the docs</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="#" class="logo" style="text-decoration:none">
+        <div class="logo-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 2L15 5.5V12.5L9 16L3 12.5V5.5L9 2Z" fill="white" opacity="0.9"/><circle cx="9" cy="9" r="2.5" fill="white" opacity="0.5"/></svg></div>
+        <span class="logo-name" style="color:white">Sivra</span>
+      </a>
+      <p>The commerce platform you own. Self-hosted, independent, and built for merchants who want full control.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Product</h5>
+      <a href="#">Features</a><a href="#">Pricing</a><a href="#">Roadmap</a><a href="#">Changelog</a>
+    </div>
+    <div class="footer-col">
+      <h5>Resources</h5>
+      <a href="#">Documentation</a><a href="#">Setup guide</a><a href="#">API reference</a><a href="#">Status</a>
+    </div>
+    <div class="footer-col">
+      <h5>Company</h5>
+      <a href="#">About</a><a href="#">Blog</a><a href="#">Privacy</a><a href="#">Terms</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 Sivra. All rights reserved.</span>
+    <span>Built for independence.</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  function togglePw(btn) {
+    const input = document.getElementById('password');
+    const show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    btn.innerHTML = show
+      ? `<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M6.5 6.6A2 2 0 019.4 9.5M4.2 4.3C2.8 5.3 1.7 6.7 1 8c1.3 2.7 4 5 7 5 1.2 0 2.3-.3 3.3-.9M7 3.1C7.3 3 7.7 3 8 3c3 0 5.7 2.3 7 5-.5 1-1.2 2-2.1 2.8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`
+      : `<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.2"/></svg>`;
+  }
+
+  function handleSignIn() {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const btn = document.getElementById('signin-btn');
+    if (!email || !password) { showToast('Please enter your email and password'); return; }
+    btn.classList.add('loading');
+    btn.innerHTML = '<div class="spinner"></div> Signing in...';
+    setTimeout(() => {
+      btn.classList.remove('loading');
+      btn.innerHTML = 'Sign in to dashboard';
+      showToast('✓ Welcome back! Redirecting...');
+    }, 1800);
+  }
+
+  function scrollToLogin() {
+    document.getElementById('login-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => document.getElementById('email').focus(), 600);
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3200);
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') handleSignIn(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sivra — Create Your Store</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #F7F8FA; --white: #FFFFFF; --border: #E8EAED;
+      --text: #0F1117; --text-muted: #6B7280; --text-light: #9CA3AF;
+      --accent: #4F6EF7; --accent-hover: #3B5BDB; --accent-soft: #EEF2FF;
+      --success: #10B981; --error: #EF4444;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06); --shadow-md: 0 4px 16px rgba(0,0,0,0.08); --shadow-lg: 0 20px 60px rgba(0,0,0,0.12);
+      --radius: 10px;
+    }
+    html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+
+    /* NAV */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 56px; background: rgba(247,248,250,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; }
+    .logo { display: flex; align-items: center; gap: 9px; text-decoration: none; }
+    .logo-icon { width: 28px; height: 28px; background: var(--accent); border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+    .logo-name { font-size: 15px; font-weight: 600; color: var(--text); }
+    .nav-help { font-size: 13px; color: var(--text-muted); text-decoration: none; }
+    .nav-help:hover { color: var(--text); }
+
+    /* LAYOUT */
+    .page { min-height: 100vh; padding-top: 56px; display: flex; align-items: center; justify-content: center; padding-bottom: 40px; }
+    .container { width: 100%; max-width: 520px; padding: 40px 24px; }
+
+    /* PROGRESS */
+    .progress-wrap { margin-bottom: 36px; }
+    .progress-steps { display: flex; align-items: center; justify-content: center; gap: 0; margin-bottom: 14px; }
+    .progress-step { display: flex; align-items: center; }
+    .step-circle { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; transition: all 0.3s; border: 2px solid var(--border); background: white; color: var(--text-light); position: relative; z-index: 1; }
+    .step-circle.active { border-color: var(--accent); background: var(--accent); color: white; }
+    .step-circle.done { border-color: var(--success); background: var(--success); color: white; }
+    .step-line { width: 60px; height: 2px; background: var(--border); transition: background 0.3s; }
+    .step-line.done { background: var(--success); }
+    .progress-labels { display: flex; justify-content: space-between; padding: 0 4px; }
+    .progress-label { font-size: 11px; color: var(--text-light); text-align: center; width: 32px; transition: color 0.3s; }
+    .progress-label.active { color: var(--accent); font-weight: 500; }
+    .progress-label.done { color: var(--success); }
+
+    /* CARD */
+    .card { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 40px; box-shadow: var(--shadow-lg); }
+    .card-step { display: none; animation: fadeUp 0.4s ease forwards; }
+    .card-step.active { display: block; }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .step-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+    .step-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
+    .step-sub { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 28px; }
+
+    /* FORM ELEMENTS */
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 7px; }
+    .input-wrap { position: relative; }
+    .input-prefix { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--text-light); pointer-events: none; user-select: none; }
+    .input-suffix { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--text-light); pointer-events: none; background: var(--bg); padding: 3px 8px; border-radius: 5px; border: 1px solid var(--border); }
+    .input-icon-left { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--text-light); pointer-events: none; }
+
+    input[type="text"], input[type="email"], input[type="password"] {
+      width: 100%; height: 44px; padding: 0 16px;
+      background: var(--bg); border: 1.5px solid var(--border);
+      border-radius: 9px; font-size: 14px; font-family: 'Inter', sans-serif;
+      color: var(--text); outline: none; transition: all 0.2s;
+    }
+    input.has-prefix { padding-left: 42px; }
+    input.has-suffix { padding-right: 110px; }
+    input::placeholder { color: var(--text-light); }
+    input:focus { border-color: var(--accent); background: white; box-shadow: 0 0 0 3px rgba(79,110,247,0.1); }
+    input.error { border-color: var(--error); box-shadow: 0 0 0 3px rgba(239,68,68,0.1); }
+    input.success-input { border-color: var(--success); }
+
+    .field-hint { font-size: 12px; color: var(--text-light); margin-top: 6px; }
+    .field-hint.error-msg { color: var(--error); }
+    .field-hint.success-msg { color: var(--success); }
+
+    .form-row-two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* CATEGORY GRID */
+    .category-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 8px; }
+    .cat-item { background: white; border: 1.5px solid var(--border); border-radius: 10px; padding: 14px 10px; text-align: center; cursor: pointer; transition: all 0.2s; user-select: none; }
+    .cat-item:hover { border-color: #D1D9FF; background: var(--accent-soft); }
+    .cat-item.selected { border-color: var(--accent); background: var(--accent-soft); }
+    .cat-item .cat-emoji { font-size: 22px; display: block; margin-bottom: 6px; }
+    .cat-item .cat-name { font-size: 12px; font-weight: 500; color: var(--text-muted); }
+    .cat-item.selected .cat-name { color: var(--accent); }
+
+    /* TOGGLE SWITCH */
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: var(--bg); border: 1.5px solid var(--border); border-radius: 9px; margin-bottom: 12px; cursor: pointer; transition: border-color 0.2s; }
+    .toggle-row:hover { border-color: #D1D9FF; }
+    .toggle-row.active-row { border-color: var(--accent); background: var(--accent-soft); }
+    .toggle-info h4 { font-size: 13px; font-weight: 500; color: var(--text); }
+    .toggle-info p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .toggle { width: 40px; height: 22px; background: var(--border); border-radius: 11px; position: relative; transition: background 0.2s; flex-shrink: 0; }
+    .toggle::after { content: ''; position: absolute; width: 16px; height: 16px; background: white; border-radius: 50%; top: 3px; left: 3px; transition: left 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .toggle.on { background: var(--accent); }
+    .toggle.on::after { left: 21px; }
+
+    /* PASSWORD STRENGTH */
+    .strength-bar { display: flex; gap: 4px; margin-top: 8px; }
+    .strength-seg { height: 3px; flex: 1; border-radius: 2px; background: var(--border); transition: background 0.3s; }
+    .strength-label { font-size: 11px; margin-top: 5px; color: var(--text-light); }
+
+    /* BUTTONS */
+    .btn-primary { width: 100%; height: 46px; background: var(--accent); border: none; border-radius: 9px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; color: white; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 24px; }
+    .btn-primary:hover { background: var(--accent-hover); box-shadow: 0 4px 14px rgba(79,110,247,0.35); transform: translateY(-1px); }
+    .btn-primary:active { transform: none; box-shadow: none; }
+    .btn-primary:disabled { opacity: 0.6; pointer-events: none; }
+    .btn-back { background: none; border: none; font-family: 'Inter', sans-serif; font-size: 13px; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; gap: 6px; margin-top: 16px; padding: 8px 0; transition: color 0.2s; }
+    .btn-back:hover { color: var(--text); }
+    .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.35); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; }
+
+    /* AGREEMENT */
+    .agreement { font-size: 12px; color: var(--text-light); text-align: center; margin-top: 16px; line-height: 1.6; }
+    .agreement a { color: var(--accent); text-decoration: none; }
+
+    /* SUCCESS SCREEN */
+    .success-screen { text-align: center; padding: 20px 0; }
+    .success-icon { width: 72px; height: 72px; background: #ECFDF5; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; }
+    .success-title { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 10px; }
+    .success-sub { font-size: 14px; color: var(--text-muted); line-height: 1.7; margin-bottom: 32px; }
+    .store-url-box { background: var(--accent-soft); border: 1.5px solid #D1D9FF; border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .store-url-box span { font-size: 14px; font-weight: 500; color: var(--accent); }
+    .copy-btn { font-size: 12px; color: var(--accent); background: white; border: 1px solid #D1D9FF; border-radius: 6px; padding: 5px 12px; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+    .copy-btn:hover { background: var(--accent); color: white; }
+    .next-steps { text-align: left; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin-bottom: 24px; }
+    .next-steps h4 { font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+    .next-step-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); padding: 6px 0; }
+    .next-step-num { width: 22px; height: 22px; background: var(--accent-soft); color: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text); color: white; padding: 11px 18px; border-radius: 9px; font-size: 13px; box-shadow: var(--shadow-lg); opacity: 0; transition: all 0.3s; pointer-events: none; white-space: nowrap; z-index: 200; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 540px) { .container { padding: 24px 16px; } .card { padding: 28px 20px; } .category-grid { grid-template-columns: repeat(2,1fr); } }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="sivra-login.html" class="logo">
+    <div class="logo-icon">
+      <svg width="14" height="14" viewBox="0 0 18 18" fill="none"><path d="M9 2L15 5.5V12.5L9 16L3 12.5V5.5L9 2Z" fill="white" opacity="0.9"/><circle cx="9" cy="9" r="2.5" fill="white" opacity="0.5"/></svg>
+    </div>
+    <span class="logo-name">Sivra</span>
+  </a>
+  <a href="#" class="nav-help">Need help?</a>
+</nav>
+
+<div class="page">
+  <div class="container">
+
+    <!-- PROGRESS -->
+    <div class="progress-wrap">
+      <div class="progress-steps">
+        <div class="progress-step">
+          <div class="step-circle active" id="sc1">1</div>
+        </div>
+        <div class="step-line" id="sl1"></div>
+        <div class="progress-step">
+          <div class="step-circle" id="sc2">2</div>
+        </div>
+        <div class="step-line" id="sl2"></div>
+        <div class="progress-step">
+          <div class="step-circle" id="sc3">3</div>
+        </div>
+        <div class="step-line" id="sl3"></div>
+        <div class="progress-step">
+          <div class="step-circle" id="sc4">4</div>
+        </div>
+      </div>
+      <div class="progress-labels">
+        <span class="progress-label active" id="pl1">Account</span>
+        <span class="progress-label" id="pl2">Store</span>
+        <span class="progress-label" id="pl3">Category</span>
+        <span class="progress-label" id="pl4">Done</span>
+      </div>
+    </div>
+
+    <div class="card">
+
+      <!-- STEP 1: Account -->
+      <div class="card-step active" id="step1">
+        <div class="step-icon" style="background:#EEF2FF">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#4F6EF7" stroke-width="1.5"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#4F6EF7" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <h2 class="step-title">Create your account</h2>
+        <p class="step-sub">Start for free. No credit card required. Your store will be ready in minutes.</p>
+
+        <div class="form-row-two">
+          <div class="form-group">
+            <label>First name</label>
+            <input type="text" id="firstName" placeholder="Sarah" oninput="validateName()"/>
+          </div>
+          <div class="form-group">
+            <label>Last name</label>
+            <input type="text" id="lastName" placeholder="Johnson"/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Email address</label>
+          <div class="input-wrap">
+            <svg class="input-icon-left" width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 4a1 1 0 011-1h10a1 1 0 011 1v8a1 1 0 01-1 1H3a1 1 0 01-1-1V4z" stroke="currentColor" stroke-width="1.2"/><path d="M2 4l6 5 6-5" stroke="currentColor" stroke-width="1.2"/></svg>
+            <input type="email" id="email" placeholder="sarah@example.com" class="has-prefix" oninput="validateEmail()"/>
+          </div>
+          <p class="field-hint" id="email-hint"></p>
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <div class="input-wrap">
+            <svg class="input-icon-left" width="15" height="15" viewBox="0 0 16 16" fill="none"><rect x="3" y="7" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.2"/></svg>
+            <input type="password" id="password" placeholder="At least 8 characters" class="has-prefix" oninput="checkStrength()"/>
+          </div>
+          <div class="strength-bar">
+            <div class="strength-seg" id="seg1"></div>
+            <div class="strength-seg" id="seg2"></div>
+            <div class="strength-seg" id="seg3"></div>
+            <div class="strength-seg" id="seg4"></div>
+          </div>
+          <p class="strength-label" id="strength-label">Enter a password</p>
+        </div>
+
+        <button class="btn-primary" onclick="goStep(2)">Continue →</button>
+        <p class="agreement">By continuing you agree to Sivra's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></p>
+      </div>
+
+      <!-- STEP 2: Store Details -->
+      <div class="card-step" id="step2">
+        <div class="step-icon" style="background:#ECFDF5">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke="#10B981" stroke-width="1.5"/><path d="M9 22V12h6v10" stroke="#10B981" stroke-width="1.5"/></svg>
+        </div>
+        <h2 class="step-title">Name your store</h2>
+        <p class="step-sub">This is how customers will find you. You can always change it later.</p>
+
+        <div class="form-group">
+          <label>Store name</label>
+          <input type="text" id="storeName" placeholder="e.g. Sarah's Boutique" oninput="generateSlug()"/>
+        </div>
+
+        <div class="form-group">
+          <label>Your store URL</label>
+          <div class="input-wrap">
+            <input type="text" id="storeSlug" placeholder="sarahs-boutique" class="has-suffix" oninput="checkSlug()"/>
+            <span class="input-suffix">.sivra.com</span>
+          </div>
+          <p class="field-hint" id="slug-hint">Your customers will visit this address</p>
+        </div>
+
+        <div class="form-group">
+          <label>Store description <span style="color:var(--text-light);font-weight:400">(optional)</span></label>
+          <input type="text" id="storeDesc" placeholder="A short tagline for your store"/>
+          <p class="field-hint">Shown on your storefront header</p>
+        </div>
+
+        <button class="btn-primary" onclick="goStep(3)">Continue →</button>
+        <button class="btn-back" onclick="goStep(1)">← Back</button>
+      </div>
+
+      <!-- STEP 3: Category & Settings -->
+      <div class="card-step" id="step3">
+        <div class="step-icon" style="background:#FFF7ED">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="#F97316" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <h2 class="step-title">What are you selling?</h2>
+        <p class="step-sub">Help us set up the right tools for your store from day one.</p>
+
+        <div class="category-grid" id="catGrid">
+          <div class="cat-item" onclick="selectCat(this,'fashion')"><span class="cat-emoji">👗</span><span class="cat-name">Fashion</span></div>
+          <div class="cat-item" onclick="selectCat(this,'electronics')"><span class="cat-emoji">📱</span><span class="cat-name">Electronics</span></div>
+          <div class="cat-item" onclick="selectCat(this,'food')"><span class="cat-emoji">🍕</span><span class="cat-name">Food & Drink</span></div>
+          <div class="cat-item" onclick="selectCat(this,'beauty')"><span class="cat-emoji">💄</span><span class="cat-name">Beauty</span></div>
+          <div class="cat-item" onclick="selectCat(this,'digital')"><span class="cat-emoji">💻</span><span class="cat-name">Digital</span></div>
+          <div class="cat-item" onclick="selectCat(this,'home')"><span class="cat-emoji">🏠</span><span class="cat-name">Home & Garden</span></div>
+          <div class="cat-item" onclick="selectCat(this,'sports')"><span class="cat-emoji">⚽</span><span class="cat-name">Sports</span></div>
+          <div class="cat-item" onclick="selectCat(this,'art')"><span class="cat-emoji">🎨</span><span class="cat-name">Art & Crafts</span></div>
+          <div class="cat-item" onclick="selectCat(this,'other')"><span class="cat-emoji">📦</span><span class="cat-name">Other</span></div>
+        </div>
+
+        <div style="margin-top:24px">
+          <p style="font-size:13px;font-weight:500;margin-bottom:12px;color:var(--text)">Quick settings</p>
+
+          <div class="toggle-row" id="tr1" onclick="toggleRow('tr1','t1')">
+            <div class="toggle-info">
+              <h4>Accept payments immediately</h4>
+              <p>Connect Stripe or PayPal — no holds, ever</p>
+            </div>
+            <div class="toggle on" id="t1"></div>
+          </div>
+
+          <div class="toggle-row" id="tr2" onclick="toggleRow('tr2','t2')">
+            <div class="toggle-info">
+              <h4>Inventory tracking</h4>
+              <p>Track stock levels and get low-stock alerts</p>
+            </div>
+            <div class="toggle on" id="t2"></div>
+          </div>
+
+          <div class="toggle-row" id="tr3" onclick="toggleRow('tr3','t3')">
+            <div class="toggle-info">
+              <h4>Customer accounts</h4>
+              <p>Let customers create accounts and track orders</p>
+            </div>
+            <div class="toggle" id="t3"></div>
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="createStore()">Create my store →</button>
+        <button class="btn-back" onclick="goStep(2)">← Back</button>
+      </div>
+
+      <!-- STEP 4: Success -->
+      <div class="card-step" id="step4">
+        <div class="success-screen">
+          <div class="success-icon">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" fill="#10B981" opacity="0.15"/><path d="M10 16l4 4 8-8" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h2 class="success-title">Your store is ready! 🎉</h2>
+          <p class="success-sub">Welcome to Sivra, <span id="welcomeName">there</span>. Your store <strong id="welcomeStore"></strong> has been created and is ready to go.</p>
+
+          <div class="store-url-box">
+            <span id="storeUrlDisplay">mystore.sivra.com</span>
+            <button class="copy-btn" onclick="copyUrl()">Copy link</button>
+          </div>
+
+          <div class="next-steps">
+            <h4>What to do next</h4>
+            <div class="next-step-item"><div class="next-step-num">1</div>Add your first product</div>
+            <div class="next-step-item"><div class="next-step-num">2</div>Connect a payment method</div>
+            <div class="next-step-item"><div class="next-step-num">3</div>Customize your storefront</div>
+            <div class="next-step-item"><div class="next-step-num">4</div>Share your store link</div>
+          </div>
+
+          <button class="btn-primary" onclick="goToDashboard()" style="margin-top:0">Go to my dashboard →</button>
+        </div>
+      </div>
+
+    </div><!-- /card -->
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let currentStep = 1;
+  let selectedCat = '';
+
+  function goStep(n) {
+    // Validate before advancing
+    if (n > currentStep) {
+      if (currentStep === 1 && !validateStep1()) return;
+      if (currentStep === 2 && !validateStep2()) return;
+      if (currentStep === 3 && !selectedCat) { showToast('Please select a category'); return; }
+    }
+
+    // Update circles
+    for (let i = 1; i <= 4; i++) {
+      const sc = document.getElementById('sc' + i);
+      const pl = document.getElementById('pl' + i);
+      sc.classList.remove('active','done');
+      pl.classList.remove('active','done');
+      if (i < n) { sc.classList.add('done'); sc.innerHTML = '✓'; pl.classList.add('done'); }
+      else if (i === n) { sc.classList.add('active'); sc.innerHTML = i; pl.classList.add('active'); }
+      else { sc.innerHTML = i; }
+    }
+    // Lines
+    for (let i = 1; i <= 3; i++) {
+      const sl = document.getElementById('sl' + i);
+      sl.classList.toggle('done', i < n);
+    }
+    // Steps
+    document.querySelectorAll('.card-step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step' + n).classList.add('active');
+    currentStep = n;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function validateStep1() {
+    const fn = document.getElementById('firstName').value.trim();
+    const em = document.getElementById('email').value.trim();
+    const pw = document.getElementById('password').value;
+    if (!fn) { showToast('Please enter your first name'); return false; }
+    if (!em || !em.includes('@')) { showToast('Please enter a valid email'); return false; }
+    if (pw.length < 8) { showToast('Password must be at least 8 characters'); return false; }
+    return true;
+  }
+
+  function validateStep2() {
+    const name = document.getElementById('storeName').value.trim();
+    const slug = document.getElementById('storeSlug').value.trim();
+    if (!name) { showToast('Please enter a store name'); return false; }
+    if (!slug) { showToast('Please enter a store URL'); return false; }
+    return true;
+  }
+
+  function validateEmail() {
+    const em = document.getElementById('email');
+    const hint = document.getElementById('email-hint');
+    const val = em.value.trim();
+    if (!val) { hint.textContent = ''; em.classList.remove('error','success-input'); return; }
+    if (!val.includes('@') || !val.includes('.')) {
+      hint.textContent = 'Please enter a valid email address';
+      hint.className = 'field-hint error-msg';
+      em.classList.add('error'); em.classList.remove('success-input');
+    } else {
+      hint.textContent = '✓ Looks good';
+      hint.className = 'field-hint success-msg';
+      em.classList.remove('error'); em.classList.add('success-input');
+    }
+  }
+
+  function validateName() {}
+
+  function checkStrength() {
+    const pw = document.getElementById('password').value;
+    const segs = [document.getElementById('seg1'),document.getElementById('seg2'),document.getElementById('seg3'),document.getElementById('seg4')];
+    const label = document.getElementById('strength-label');
+    segs.forEach(s => s.style.background = 'var(--border)');
+    let score = 0;
+    if (pw.length >= 8) score++;
+    if (/[A-Z]/.test(pw)) score++;
+    if (/[0-9]/.test(pw)) score++;
+    if (/[^A-Za-z0-9]/.test(pw)) score++;
+    const colors = ['#EF4444','#F59E0B','#3B82F6','#10B981'];
+    const labels = ['Too short','Weak — add numbers or capitals','Good — add a symbol for stronger','Strong password ✓'];
+    for (let i = 0; i < score; i++) segs[i].style.background = colors[score-1];
+    label.textContent = pw.length === 0 ? 'Enter a password' : labels[score-1];
+    label.style.color = pw.length === 0 ? 'var(--text-light)' : colors[score-1];
+  }
+
+  function generateSlug() {
+    const name = document.getElementById('storeName').value;
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    document.getElementById('storeSlug').value = slug;
+    checkSlug();
+  }
+
+  function checkSlug() {
+    const slug = document.getElementById('storeSlug').value.trim();
+    const hint = document.getElementById('slug-hint');
+    if (!slug) { hint.textContent = 'Your customers will visit this address'; hint.className = 'field-hint'; return; }
+    hint.textContent = `✓ Your store will be at ${slug}.sivra.com`;
+    hint.className = 'field-hint success-msg';
+  }
+
+  function selectCat(el, cat) {
+    document.querySelectorAll('.cat-item').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedCat = cat;
+  }
+
+  function toggleRow(rowId, toggleId) {
+    const t = document.getElementById(toggleId);
+    const r = document.getElementById(rowId);
+    t.classList.toggle('on');
+    r.classList.toggle('active-row', t.classList.contains('on'));
+  }
+
+  function createStore() {
+    if (!selectedCat) { showToast('Please select what you are selling'); return; }
+    const btn = document.querySelector('#step3 .btn-primary');
+    btn.innerHTML = '<div class="spinner"></div> Creating your store...';
+    btn.disabled = true;
+
+    setTimeout(() => {
+      const name = document.getElementById('firstName').value || 'there';
+      const store = document.getElementById('storeName').value || 'My Store';
+      const slug = document.getElementById('storeSlug').value || 'my-store';
+      document.getElementById('welcomeName').textContent = name;
+      document.getElementById('welcomeStore').textContent = store;
+      document.getElementById('storeUrlDisplay').textContent = slug + '.sivra.com';
+      goStep(4);
+    }, 2200);
+  }
+
+  function copyUrl() {
+    const url = document.getElementById('storeUrlDisplay').textContent;
+    navigator.clipboard.writeText('https://' + url).then(() => showToast('✓ Link copied to clipboard'));
+  }
+
+  function goToDashboard() {
+    showToast('Opening your dashboard...');
+    setTimeout(() => { window.location.href = 'sivra-dashboard.html'; }, 1000);
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+</script>
+</body>
+</html>

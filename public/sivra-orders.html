@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sivra — Orders</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--sidebar-w:220px;--bg:#F4F5F7;--white:#fff;--border:#E5E7EB;--text:#111318;--text-muted:#6B7280;--text-light:#9CA3AF;--accent:#4F6EF7;--accent-hover:#3B5BDB;--accent-soft:#EEF2FF;--success:#10B981;--success-soft:#ECFDF5;--warning:#F59E0B;--warning-soft:#FFFBEB;--error:#EF4444;--error-soft:#FEF2F2;--sidebar-bg:#0F1117;--sidebar-text:rgba(255,255,255,.55);--sidebar-active:rgba(255,255,255,.1);--sidebar-hover:rgba(255,255,255,.06);--shadow-sm:0 1px 3px rgba(0,0,0,.06);--shadow-md:0 4px 16px rgba(0,0,0,.08);--shadow-lg:0 12px 32px rgba(0,0,0,.1);--radius:10px}
+    html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow:hidden}
+    .app{display:flex;height:100vh}
+    .sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--sidebar-bg);display:flex;flex-direction:column;height:100vh;overflow-y:auto}
+    .sidebar-top{padding:20px 16px 12px;border-bottom:1px solid rgba(255,255,255,.07)}
+    .store-switcher{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer}
+    .store-avatar{width:32px;height:32px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:white;flex-shrink:0}
+    .store-name{font-size:13px;font-weight:600;color:white}.store-plan{font-size:11px;color:var(--sidebar-text)}
+    .sidebar-nav{padding:12px 10px;flex:1}
+    .nav-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.25);padding:12px 8px 6px}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:7px;cursor:pointer;transition:all .15s;color:var(--sidebar-text);font-size:13px;margin-bottom:1px;text-decoration:none;position:relative}
+    .nav-item:hover{background:var(--sidebar-hover);color:rgba(255,255,255,.8)}
+    .nav-item.active{background:var(--sidebar-active);color:white;font-weight:500}
+    .nav-item.active::before{content:'';position:absolute;left:0;top:20%;height:60%;width:3px;background:var(--accent);border-radius:0 3px 3px 0}
+    .nav-badge{margin-left:auto;background:var(--warning);color:white;font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px}
+    .sidebar-bottom{padding:12px 10px;border-top:1px solid rgba(255,255,255,.07)}
+    .user-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer}
+    .user-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#667EEA,#764BA2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:white;flex-shrink:0}
+    .user-name{font-size:12px;font-weight:500;color:rgba(255,255,255,.7)}.user-email{font-size:11px;color:rgba(255,255,255,.3)}
+    .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+    .topbar{height:56px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-shrink:0}
+    .page-title{font-size:16px;font-weight:600}
+    .topbar-right{display:flex;align-items:center;gap:10px}
+    .btn-secondary{height:34px;padding:0 14px;background:white;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-muted);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+    .btn-secondary:hover{border-color:#D1D9FF;color:var(--accent)}
+    .btn-primary{height:34px;padding:0 16px;background:var(--accent);border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:white;cursor:pointer;display:flex;align-items:center;gap:7px}
+    .btn-primary:hover{background:var(--accent-hover)}
+    .content{flex:1;overflow-y:auto;padding:24px 28px}
+    .tab-bar{display:flex;gap:0;margin-bottom:20px;border-bottom:2px solid var(--border)}
+    .tab{padding:10px 18px;font-size:13px;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
+    .tab.active{color:var(--accent);font-weight:500;border-bottom-color:var(--accent)}
+    .filters-bar{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+    .search-wrap{position:relative;flex:1;min-width:200px;max-width:320px}
+    .search-wrap input{width:100%;height:36px;padding:0 12px 0 34px;background:white;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;transition:all .2s}
+    .search-wrap input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,110,247,.1)}
+    .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-light);pointer-events:none}
+    .filter-select{height:36px;padding:0 10px;background:white;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text-muted);cursor:pointer;outline:none}
+    .orders-card{background:white;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden}
+    table{width:100%;border-collapse:collapse}
+    th{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-light);padding:12px 18px;text-align:left;background:var(--bg);border-bottom:1px solid var(--border);white-space:nowrap}
+    td{font-size:13px;padding:14px 18px;border-bottom:1px solid var(--border);color:var(--text-muted);vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:#FAFBFC;cursor:pointer}
+    .order-id{font-weight:500;color:var(--accent)}
+    .customer-cell{display:flex;align-items:center;gap:9px}
+    .c-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:white;flex-shrink:0}
+    .c-name{font-size:13px;color:var(--text);font-weight:400}
+    .c-email{font-size:11px;color:var(--text-light)}
+    .badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;white-space:nowrap}
+    .badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+    .badge-paid{background:var(--success-soft);color:var(--success)}
+    .badge-pending{background:var(--bg);color:var(--text-muted);border:1px solid var(--border)}
+    .badge-processing{background:var(--warning-soft);color:var(--warning)}
+    .badge-fulfilled{background:#EEF2FF;color:var(--accent)}
+    .badge-refunded{background:var(--error-soft);color:var(--error)}
+    .amount-cell{font-weight:500;color:var(--text)}
+    .action-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--text-muted);cursor:pointer;transition:all .15s}
+    .action-btn:hover{border-color:var(--accent);color:var(--accent)}
+    /* ORDER DETAIL PANEL */
+    .detail-panel{position:fixed;top:0;right:-460px;width:460px;height:100vh;background:white;border-left:1px solid var(--border);box-shadow:var(--shadow-lg);z-index:300;transition:right .3s ease;overflow-y:auto;display:flex;flex-direction:column}
+    .detail-panel.open{right:0}
+    .detail-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+    .detail-title{font-size:16px;font-weight:600}
+    .detail-close{width:32px;height:32px;border:none;background:var(--bg);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-muted)}
+    .detail-close:hover{background:var(--error-soft);color:var(--error)}
+    .detail-body{padding:20px 24px;flex:1}
+    .detail-section{margin-bottom:22px}
+    .detail-section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text-light);margin-bottom:12px}
+    .detail-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+    .detail-row:last-child{border-bottom:none}
+    .detail-row-label{color:var(--text-muted)}
+    .detail-row-value{font-weight:500;color:var(--text)}
+    .order-item-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+    .order-item-row:last-child{border-bottom:none}
+    .order-item-img{width:44px;height:44px;border-radius:8px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+    .order-item-info{flex:1}
+    .order-item-name{font-size:13px;font-weight:500;color:var(--text)}
+    .order-item-meta{font-size:11px;color:var(--text-light);margin-top:2px}
+    .order-item-price{font-size:13px;font-weight:500;color:var(--text)}
+    .status-select{width:100%;height:38px;padding:0 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;outline:none;margin-top:8px}
+    .status-select:focus{border-color:var(--accent)}
+    .btn-fulfill{width:100%;height:40px;background:var(--success);border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:white;cursor:pointer;margin-top:16px;transition:all .2s}
+    .btn-fulfill:hover{background:#059669}
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.2);z-index:299;display:none}
+    .overlay.show{display:block}
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--text);color:white;padding:11px 18px;border-radius:9px;font-size:13px;box-shadow:var(--shadow-lg);opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;z-index:600}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="sidebar-top"><div class="store-switcher"><div class="store-avatar">S</div><div><div class="store-name">Sarah's Boutique</div><div class="store-plan">Growth plan</div></div></div></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="sivra-dashboard.html"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".5"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".5"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".5"/></svg>Dashboard</a>
+      <div class="nav-label">Store</div>
+      <a class="nav-item active" href="sivra-orders.html"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 2h2l2 7h7l1-4H5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="13" r="1" fill="currentColor"/><circle cx="12" cy="13" r="1" fill="currentColor"/></svg>Orders<span class="nav-badge">3</span></a>
+      <a class="nav-item" href="sivra-products.html"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 5l6-3 6 3v6l-6 3-6-3V5z" stroke="currentColor" stroke-width="1.2"/></svg>Products</a>
+      <a class="nav-item" href="#"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>Collections</a>
+      <a class="nav-item" href="sivra-customers.html"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Customers</a>
+      <div class="nav-label">Finance</div>
+      <a class="nav-item" href="#"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M1 7h14" stroke="currentColor" stroke-width="1.2"/></svg>Payments</a>
+      <a class="nav-item" href="#"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 12l3-4 3 2 3-5 3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Analytics</a>
+      <div class="nav-label">Store</div>
+      <a class="nav-item" href="#"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.2"/><path d="M8 2v2M8 12v2M2 8h2M12 8h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Customize</a>
+      <a class="nav-item" href="#"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Settings</a>
+    </nav>
+    <div class="sidebar-bottom"><div class="user-row"><div class="user-avatar">SJ</div><div><div class="user-name">Sarah Johnson</div><div class="user-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="dba8baa9bab39bbea3bab6abb7bef5b8b4b6">[email&#160;protected]</a></div></div></div></div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="page-title">Orders</span>
+        <span style="font-size:12px;background:var(--warning-soft);color:var(--warning);padding:2px 8px;border-radius:20px;font-weight:500">3 need attention</span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn-secondary" onclick="toast('Exporting orders to CSV...')"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 9V1M4 6l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Export</button>
+        <button class="btn-primary" onclick="toast('Creating manual order...')"><svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Create order</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="tab-bar">
+        <div class="tab active" onclick="filterTab(this,'all')">All orders <span style="font-size:11px;color:var(--text-light)">(48)</span></div>
+        <div class="tab" onclick="filterTab(this,'pending')">Pending <span style="font-size:11px;color:var(--warning)">(3)</span></div>
+        <div class="tab" onclick="filterTab(this,'processing')">Processing <span style="font-size:11px;color:var(--text-light)">(8)</span></div>
+        <div class="tab" onclick="filterTab(this,'fulfilled')">Fulfilled <span style="font-size:11px;color:var(--text-light)">(35)</span></div>
+        <div class="tab" onclick="filterTab(this,'refunded')">Refunded <span style="font-size:11px;color:var(--text-light)">(2)</span></div>
+      </div>
+
+      <div class="filters-bar">
+        <div class="search-wrap">
+          <svg class="search-icon" width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.3"/><path d="M11 11l3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <input type="text" placeholder="Search orders or customers..." oninput="searchOrders(this.value)"/>
+        </div>
+        <select class="filter-select" onchange="toast('Filter applied')">
+          <option>All payment status</option>
+          <option>Paid</option><option>Unpaid</option><option>Refunded</option>
+        </select>
+        <select class="filter-select" onchange="toast('Date filter applied')">
+          <option>All time</option>
+          <option>Today</option><option>Last 7 days</option><option>Last 30 days</option>
+        </select>
+      </div>
+
+      <div class="orders-card">
+        <table>
+          <thead>
+            <tr>
+              <th><input type="checkbox" onchange="selectAll(this)" style="accent-color:var(--accent)"/></th>
+              <th>Order</th><th>Customer</th><th>Date</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="ordersBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Order Detail Panel -->
+<div class="overlay" id="overlay" onclick="closeDetail()"></div>
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-header">
+    <div>
+      <div class="detail-title" id="detailOrderId">Order #1094</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:2px" id="detailDate">Today at 9:14 AM</div>
+    </div>
+    <button class="detail-close" onclick="closeDetail()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+  </div>
+  <div class="detail-body">
+    <div class="detail-section">
+      <div class="detail-section-title">Items ordered</div>
+      <div id="detailItems"></div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Payment summary</div>
+      <div class="detail-row"><span class="detail-row-label">Subtotal</span><span class="detail-row-value" id="dSubtotal">$89.00</span></div>
+      <div class="detail-row"><span class="detail-row-label">Shipping</span><span class="detail-row-value">$4.99</span></div>
+      <div class="detail-row"><span class="detail-row-label">Tax</span><span class="detail-row-value">$7.12</span></div>
+      <div class="detail-row" style="font-size:14px"><span style="font-weight:600">Total</span><span style="font-weight:600;color:var(--text)" id="dTotal">$101.11</span></div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Customer</div>
+      <div class="detail-row"><span class="detail-row-label">Name</span><span class="detail-row-value" id="dCustomer">Emma Wilson</span></div>
+      <div class="detail-row"><span class="detail-row-label">Email</span><span class="detail-row-value" id="dEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ddb8b0b0bc9db8a5bcb0adb1b8f3beb2b0">[email&#160;protected]</a></span></div>
+      <div class="detail-row"><span class="detail-row-label">Phone</span><span class="detail-row-value">+1 (555) 012-3456</span></div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Update status</div>
+      <select class="status-select" onchange="toast('Order status updated')">
+        <option>Pending</option><option>Processing</option><option selected>Paid</option><option>Fulfilled</option><option>Refunded</option>
+      </select>
+      <button class="btn-fulfill" onclick="toast('✓ Order marked as fulfilled and customer notified!')">Mark as fulfilled & notify customer</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toastEl"></div>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+const orders=[
+  {id:'#1094',customer:'Emma Wilson',email:'emma@example.com',color:'#4F6EF7',initials:'EW',date:'Today 9:14 AM',items:[{name:'Summer Floral Dress',qty:1,price:'$89.00',emoji:'👗'}],total:'$89.00',payment:'paid',status:'paid'},
+  {id:'#1093',customer:'James Park',email:'james@example.com',color:'#10B981',initials:'JP',date:'Today 8:02 AM',items:[{name:'Silver Hoop Earrings',qty:1,price:'$35.00',emoji:'💍'},{name:'Silk Scarf',qty:1,price:'$55.00',emoji:'🧣'}],total:'$90.00',payment:'paid',status:'processing'},
+  {id:'#1092',customer:'Amara Osei',email:'amara@example.com',color:'#A855F7',initials:'AO',date:'Yesterday',items:[{name:'Linen Blazer',qty:1,price:'$145.00',emoji:'🧥'}],total:'$145.00',payment:'paid',status:'pending'},
+  {id:'#1091',customer:'Luca Ferrari',email:'luca@example.com',color:'#F97316',initials:'LF',date:'Yesterday',items:[{name:'Canvas Sneakers',qty:1,price:'$65.00',emoji:'👟'}],total:'$65.00',payment:'pending',status:'pending'},
+  {id:'#1090',customer:'Priya Nair',email:'priya@example.com',color:'#EF4444',initials:'PN',date:'Jun 8',items:[{name:'Cashmere Sweater',qty:2,price:'$390.00',emoji:'🧶'}],total:'$390.00',payment:'paid',status:'fulfilled'},
+  {id:'#1089',customer:'Tom Bradley',email:'tom@example.com',color:'#F59E0B',initials:'TB',date:'Jun 8',items:[{name:'Minimalist Watch',qty:1,price:'$220.00',emoji:'⌚'}],total:'$220.00',payment:'paid',status:'fulfilled'},
+  {id:'#1088',customer:'Yuki Tanaka',email:'yuki@example.com',color:'#06B6D4',initials:'YT',date:'Jun 7',items:[{name:'Sunglasses',qty:1,price:'$95.00',emoji:'🕶️'}],total:'$95.00',payment:'refunded',status:'refunded'},
+  {id:'#1087',customer:'Carlos Ruiz',email:'carlos@example.com',color:'#8B5CF6',initials:'CR',date:'Jun 7',items:[{name:'Yoga Leggings',qty:1,price:'$75.00',emoji:'🩱'}],total:'$75.00',payment:'paid',status:'fulfilled'},
+];
+
+let filtered=[...orders];
+
+function render(list){
+  const statusMap={paid:['badge-paid','Paid'],pending:['badge-pending','Pending'],processing:['badge-processing','Processing'],fulfilled:['badge-fulfilled','Fulfilled'],refunded:['badge-refunded','Refunded']};
+  document.getElementById('ordersBody').innerHTML=list.map(o=>{
+    const[pc,pl]=statusMap[o.payment]||['badge-pending','Pending'];
+    const[sc,sl]=statusMap[o.status]||['badge-pending','Pending'];
+    return`<tr onclick="openDetail('${o.id}')">
+      <td onclick="event.stopPropagation()"><input type="checkbox" style="accent-color:var(--accent)"/></td>
+      <td><span class="order-id">${o.id}</span></td>
+      <td><div class="customer-cell"><div class="c-avatar" style="background:${o.color}">${o.initials}</div><div><div class="c-name">${o.customer}</div><div class="c-email">${o.email}</div></div></div></td>
+      <td>${o.date}</td>
+      <td>${o.items.length} item${o.items.length>1?'s':''}</td>
+      <td><span class="amount-cell">${o.total}</span></td>
+      <td><span class="badge ${pc}">${pl}</span></td>
+      <td><span class="badge ${sc}">${sl}</span></td>
+      <td onclick="event.stopPropagation()"><button class="action-btn" onclick="openDetail('${o.id}')">View →</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterTab(el,type){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  filtered=type==='all'?[...orders]:orders.filter(o=>o.status===type);
+  render(filtered);
+}
+
+function searchOrders(q){
+  render(orders.filter(o=>o.customer.toLowerCase().includes(q.toLowerCase())||o.id.includes(q)));
+}
+
+function selectAll(cb){
+  document.querySelectorAll('#ordersBody input[type=checkbox]').forEach(c=>c.checked=cb.checked);
+  if(cb.checked) toast(orders.length+' orders selected');
+}
+
+function openDetail(id){
+  const o=orders.find(x=>x.id===id);
+  document.getElementById('detailOrderId').textContent='Order '+o.id;
+  document.getElementById('detailDate').textContent=o.date;
+  document.getElementById('dCustomer').textContent=o.customer;
+  document.getElementById('dEmail').textContent=o.email;
+  document.getElementById('dSubtotal').textContent=o.total;
+  document.getElementById('dTotal').textContent=o.total;
+  document.getElementById('detailItems').innerHTML=o.items.map(i=>`
+    <div class="order-item-row">
+      <div class="order-item-img">${i.emoji}</div>
+      <div class="order-item-info"><div class="order-item-name">${i.name}</div><div class="order-item-meta">Qty: ${i.qty}</div></div>
+      <div class="order-item-price">${i.price}</div>
+    </div>`).join('');
+  document.getElementById('detailPanel').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+}
+
+functio
