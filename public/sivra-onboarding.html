@@ -348,154 +348,44 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="app.js"></script>
 <script>
-  let currentStep = 1;
-  let selectedCat = '';
 
-  function goStep(n) {
-    // Validate before advancing
-    if (n > currentStep) {
-      if (currentStep === 1 && !validateStep1()) return;
-      if (currentStep === 2 && !validateStep2()) return;
-      if (currentStep === 3 && !selectedCat) { showToast('Please select a category'); return; }
-    }
+let currentStep = 1; let selectedCat = '';
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
+function goStep(n) {
+  if (n > currentStep) { if (currentStep === 1 && !validateStep1()) return; if (currentStep === 2 && !validateStep2()) return; if (currentStep === 3 && !selectedCat) return showToast('Please select a category'); }
+  for (let i = 1; i <= 4; i++) { const sc = document.getElementById('sc'+i), pl = document.getElementById('pl'+i); sc.classList.remove('active','done'); pl.classList.remove('active','done'); if (i < n) { sc.classList.add('done'); sc.innerHTML = '✓'; pl.classList.add('done'); } else if (i === n) { sc.classList.add('active'); sc.innerHTML = i; pl.classList.add('active'); } else sc.innerHTML = i; }
+  for (let i = 1; i <= 3; i++) document.getElementById('sl'+i).classList.toggle('done', i < n);
+  document.querySelectorAll('.card-step').forEach(s => s.classList.remove('active')); document.getElementById('step'+n).classList.add('active'); currentStep = n; window.scrollTo({ top:0, behavior:'smooth' });
+}
+function validateStep1() { const fn = firstName.value.trim(), em = email.value.trim(), pw = password.value; if (!fn) return showToast('Please enter your first name'), false; if (!em || !em.includes('@')) return showToast('Please enter a valid email'), false; if (pw.length < 8) return showToast('Password must be at least 8 characters'), false; return true; }
+function validateStep2() { const name = storeName.value.trim(), slug = storeSlug.value.trim(); if (!name) return showToast('Please enter a store name'), false; if (!slug) return showToast('Please enter a store URL'), false; return true; }
+function validateEmail() { const hint = document.getElementById('email-hint'); const val = email.value.trim(); if (!val) { hint.textContent=''; email.classList.remove('error','success-input'); return; } if (!val.includes('@') || !val.includes('.')) { hint.textContent='Please enter a valid email address'; hint.className='field-hint error-msg'; email.classList.add('error'); email.classList.remove('success-input'); } else { hint.textContent='✓ Looks good'; hint.className='field-hint success-msg'; email.classList.remove('error'); email.classList.add('success-input'); } }
+function checkStrength() { const pw = password.value; const segs = [seg1,seg2,seg3,seg4]; const label = document.getElementById('strength-label'); segs.forEach(s => s.style.background='var(--border)'); let score = 0; if (pw.length >= 8) score++; if (/[A-Z]/.test(pw)) score++; if (/[0-9]/.test(pw)) score++; if (/[^A-Za-z0-9]/.test(pw)) score++; if (!pw.length) { label.textContent='Enter a password'; label.style.color='var(--text-light)'; return; } const colors=['#EF4444','#F59E0B','#3B82F6','#10B981']; const labels=['Too short','Weak — add numbers or capitals','Good — add a symbol for stronger','Strong password ✓']; const idx=Math.max(score,1)-1; for (let i=0;i<=idx;i++) segs[i].style.background=colors[idx]; label.textContent=labels[idx]; label.style.color=colors[idx]; }
+function generateSlug() { storeSlug.value = storeName.value.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); checkSlug(); }
+function checkSlug() { const slug = storeSlug.value.trim(); const hint = document.getElementById('slug-hint'); if (!slug) { hint.textContent = 'Your customers will visit this address'; hint.className='field-hint'; return; } hint.textContent = `✓ Your store will be at ${slug}.sivra.com`; hint.className='field-hint success-msg'; }
+function selectCat(el, cat) { document.querySelectorAll('.cat-item').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); selectedCat = cat; }
+function toggleRow(rowId, toggleId) { const t=document.getElementById(toggleId), r=document.getElementById(rowId); t.classList.toggle('on'); r.classList.toggle('active-row', t.classList.contains('on')); }
+async function createStore() {
+  if (!selectedCat) return showToast('Please select what you are selling');
+  const btn = document.querySelector('#step3 .btn-primary'); btn.innerHTML = '<div class="spinner"></div> Creating your store...'; btn.disabled = true;
+  try {
+    const signup = await Sivra.request('/api/auth/signup', { method:'POST', body: JSON.stringify({ firstName:firstName.value.trim(), lastName:lastName.value.trim(), email:email.value.trim(), password:password.value, storeName:storeName.value.trim() }) });
+    Sivra.saveSession(signup);
+    await Sivra.request('/api/store/settings', { method:'PATCH', body: JSON.stringify({ description: storeDesc.value.trim(), category: selectedCat }) });
+    const session = await Sivra.requireAuth('sivra-login.html');
+    document.getElementById('welcomeName').textContent = firstName.value.trim() || 'there';
+    document.getElementById('welcomeStore').textContent = session?.store?.name || storeName.value.trim();
+    document.getElementById('storeUrlDisplay').textContent = (session?.store?.slug || storeSlug.value.trim() || 'my-store') + '.sivra.com';
+    goStep(4);
+  } catch (err) { showToast(err.message || 'Unable to create your store.'); }
+  finally { btn.innerHTML = 'Create my store →'; btn.disabled = false; }
+}
+function copyUrl() { const url = document.getElementById('storeUrlDisplay').textContent; navigator.clipboard.writeText('https://' + url).then(() => showToast('✓ Link copied to clipboard')); }
+function goToDashboard() { window.location.href = 'sivra-dashboard.html'; }
+(async function init() { if (Sivra.getToken()) { const session = await Sivra.requireAuth(); if (session) window.location.href = 'sivra-dashboard.html'; } Object.assign(window, { goStep, validateEmail, checkStrength, generateSlug, checkSlug, selectCat, toggleRow, createStore, copyUrl, goToDashboard, showToast }); })();
 
-    // Update circles
-    for (let i = 1; i <= 4; i++) {
-      const sc = document.getElementById('sc' + i);
-      const pl = document.getElementById('pl' + i);
-      sc.classList.remove('active','done');
-      pl.classList.remove('active','done');
-      if (i < n) { sc.classList.add('done'); sc.innerHTML = '✓'; pl.classList.add('done'); }
-      else if (i === n) { sc.classList.add('active'); sc.innerHTML = i; pl.classList.add('active'); }
-      else { sc.innerHTML = i; }
-    }
-    // Lines
-    for (let i = 1; i <= 3; i++) {
-      const sl = document.getElementById('sl' + i);
-      sl.classList.toggle('done', i < n);
-    }
-    // Steps
-    document.querySelectorAll('.card-step').forEach(s => s.classList.remove('active'));
-    document.getElementById('step' + n).classList.add('active');
-    currentStep = n;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function validateStep1() {
-    const fn = document.getElementById('firstName').value.trim();
-    const em = document.getElementById('email').value.trim();
-    const pw = document.getElementById('password').value;
-    if (!fn) { showToast('Please enter your first name'); return false; }
-    if (!em || !em.includes('@')) { showToast('Please enter a valid email'); return false; }
-    if (pw.length < 8) { showToast('Password must be at least 8 characters'); return false; }
-    return true;
-  }
-
-  function validateStep2() {
-    const name = document.getElementById('storeName').value.trim();
-    const slug = document.getElementById('storeSlug').value.trim();
-    if (!name) { showToast('Please enter a store name'); return false; }
-    if (!slug) { showToast('Please enter a store URL'); return false; }
-    return true;
-  }
-
-  function validateEmail() {
-    const em = document.getElementById('email');
-    const hint = document.getElementById('email-hint');
-    const val = em.value.trim();
-    if (!val) { hint.textContent = ''; em.classList.remove('error','success-input'); return; }
-    if (!val.includes('@') || !val.includes('.')) {
-      hint.textContent = 'Please enter a valid email address';
-      hint.className = 'field-hint error-msg';
-      em.classList.add('error'); em.classList.remove('success-input');
-    } else {
-      hint.textContent = '✓ Looks good';
-      hint.className = 'field-hint success-msg';
-      em.classList.remove('error'); em.classList.add('success-input');
-    }
-  }
-
-  function validateName() {}
-
-  function checkStrength() {
-    const pw = document.getElementById('password').value;
-    const segs = [document.getElementById('seg1'),document.getElementById('seg2'),document.getElementById('seg3'),document.getElementById('seg4')];
-    const label = document.getElementById('strength-label');
-    segs.forEach(s => s.style.background = 'var(--border)');
-    let score = 0;
-    if (pw.length >= 8) score++;
-    if (/[A-Z]/.test(pw)) score++;
-    if (/[0-9]/.test(pw)) score++;
-    if (/[^A-Za-z0-9]/.test(pw)) score++;
-    const colors = ['#EF4444','#F59E0B','#3B82F6','#10B981'];
-    const labels = ['Too short','Weak — add numbers or capitals','Good — add a symbol for stronger','Strong password ✓'];
-    for (let i = 0; i < score; i++) segs[i].style.background = colors[score-1];
-    label.textContent = pw.length === 0 ? 'Enter a password' : labels[score-1];
-    label.style.color = pw.length === 0 ? 'var(--text-light)' : colors[score-1];
-  }
-
-  function generateSlug() {
-    const name = document.getElementById('storeName').value;
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-    document.getElementById('storeSlug').value = slug;
-    checkSlug();
-  }
-
-  function checkSlug() {
-    const slug = document.getElementById('storeSlug').value.trim();
-    const hint = document.getElementById('slug-hint');
-    if (!slug) { hint.textContent = 'Your customers will visit this address'; hint.className = 'field-hint'; return; }
-    hint.textContent = `✓ Your store will be at ${slug}.sivra.com`;
-    hint.className = 'field-hint success-msg';
-  }
-
-  function selectCat(el, cat) {
-    document.querySelectorAll('.cat-item').forEach(c => c.classList.remove('selected'));
-    el.classList.add('selected');
-    selectedCat = cat;
-  }
-
-  function toggleRow(rowId, toggleId) {
-    const t = document.getElementById(toggleId);
-    const r = document.getElementById(rowId);
-    t.classList.toggle('on');
-    r.classList.toggle('active-row', t.classList.contains('on'));
-  }
-
-  function createStore() {
-    if (!selectedCat) { showToast('Please select what you are selling'); return; }
-    const btn = document.querySelector('#step3 .btn-primary');
-    btn.innerHTML = '<div class="spinner"></div> Creating your store...';
-    btn.disabled = true;
-
-    setTimeout(() => {
-      const name = document.getElementById('firstName').value || 'there';
-      const store = document.getElementById('storeName').value || 'My Store';
-      const slug = document.getElementById('storeSlug').value || 'my-store';
-      document.getElementById('welcomeName').textContent = name;
-      document.getElementById('welcomeStore').textContent = store;
-      document.getElementById('storeUrlDisplay').textContent = slug + '.sivra.com';
-      goStep(4);
-    }, 2200);
-  }
-
-  function copyUrl() {
-    const url = document.getElementById('storeUrlDisplay').textContent;
-    navigator.clipboard.writeText('https://' + url).then(() => showToast('✓ Link copied to clipboard'));
-  }
-
-  function goToDashboard() {
-    showToast('Opening your dashboard...');
-    setTimeout(() => { window.location.href = 'sivra-dashboard.html'; }, 1000);
-  }
-
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3000);
-  }
 </script>
 </body>
 </html>

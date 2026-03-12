@@ -28,7 +28,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Serve the frontend HTML files in production
 // (put your HTML files in a /public folder)
 app.use(express.static(path.join(__dirname, 'public')));
-app.get('/', (req, res) => res.sendFile(__dirname + '/public/sivra-login.html'));
+
 
 // ── ROUTES ──────────────────────────────────────────────────────────────────
 
@@ -44,11 +44,14 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', platform: 'Sivra', time: new Date().toISOString() });
 });
 
-// Catch-all: send index.html for any unknown route (SPA routing)
+// Root route — open the login page by default
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'sivra-login.html'));
+});
+
+// Catch-all for unknown routes
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'), err => {
-    if (err) res.status(404).json({ error: 'Not found' });
-  });
+  res.status(404).json({ error: 'Not found' });
 });
 
 

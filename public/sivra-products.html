@@ -170,7 +170,7 @@
       <a class="nav-item" href="#" onclick="toast('Settings coming soon')"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.5 3.5l1.4 1.4M11.1 11.1l1.4 1.4M3.5 12.5l1.4-1.4M11.1 4.9l1.4-1.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Settings</a>
     </nav>
     <div class="sidebar-bottom">
-      <div class="user-row"><div class="user-avatar">SJ</div><div><div class="user-name">Sarah Johnson</div><div class="user-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d0a3b1a2b1b890b5a8b1bda0bcb5feb3bfbd">[email&#160;protected]</a></div></div></div>
+      <div class="user-row" onclick="logout()" title="Log out"><div class="user-avatar">SJ</div><div><div class="user-name">Sarah Johnson</div><div class="user-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d0a3b1a2b1b890b5a8b1bda0bcb5feb3bfbd">[email&#160;protected]</a></div></div></div>
     </div>
   </aside>
 
@@ -200,9 +200,9 @@
       <div class="filters-bar">
         <div class="search-wrap">
           <svg class="search-icon" width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.3"/><path d="M11 11l3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-          <input type="text" placeholder="Search products..." oninput="searchProducts(this.value)"/>
+          <input type="text" placeholder="Search products..." id="searchInput"/>
         </div>
-        <select class="filter-select" onchange="filterCategory(this.value)">
+        <select class="filter-select" id="categoryFilter">
           <option value="">All categories</option>
           <option>Fashion</option><option>Accessories</option><option>Digital</option><option>Beauty</option>
         </select>
@@ -225,9 +225,9 @@
 <!-- Bulk action bar -->
 <div class="bulk-bar" id="bulkBar">
   <span id="bulkCount">0 selected</span>
-  <button class="bulk-action" onclick="toast('Publishing selected products...')">Publish</button>
-  <button class="bulk-action" onclick="toast('Archiving selected products...')">Archive</button>
-  <button class="bulk-action danger" onclick="toast('Deleting selected products...')">Delete</button>
+  <button class="bulk-action" onclick="bulkUpdateStatus('active')">Publish</button>
+  <button class="bulk-action" onclick="bulkUpdateStatus('archived')">Archive</button>
+  <button class="bulk-action danger" onclick="showToast('Bulk delete is not wired yet')">Delete</button>
   <button class="bulk-action" onclick="clearSelection()">✕ Cancel</button>
 </div>
 
@@ -307,130 +307,29 @@
 
 <div class="toast" id="toastEl"></div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-let products=[
-  {id:1,name:'Summer Floral Dress',price:'$89.00',category:'Fashion',qty:24,status:'active',emoji:'👗'},
-  {id:2,name:'Linen Blazer — Cream',price:'$145.00',category:'Fashion',qty:12,status:'active',emoji:'🧥'},
-  {id:3,name:'Canvas Sneakers White',price:'$65.00',category:'Fashion',qty:2,status:'low',emoji:'👟'},
-  {id:4,name:'Silver Hoop Earrings',price:'$35.00',category:'Accessories',qty:50,status:'active',emoji:'💍'},
-  {id:5,name:'Silk Scarf — Ivory',price:'$55.00',category:'Accessories',qty:18,status:'active',emoji:'🧣'},
-  {id:6,name:'Oversized Tote Bag',price:'$79.00',category:'Accessories',qty:0,status:'draft',emoji:'👜'},
-  {id:7,name:'Cashmere Sweater',price:'$195.00',category:'Fashion',qty:8,status:'active',emoji:'🧶'},
-  {id:8,name:'Minimalist Watch',price:'$220.00',category:'Accessories',qty:3,status:'low',emoji:'⌚'},
-  {id:9,name:'Yoga Leggings',price:'$75.00',category:'Fashion',qty:30,status:'active',emoji:'🩱'},
-  {id:10,name:'Sunglasses — Tortoise',price:'$95.00',category:'Accessories',qty:15,status:'active',emoji:'🕶️'},
-  {id:11,name:'E-Book: Style Guide',price:'$19.00',category:'Digital',qty:999,status:'active',emoji:'📖'},
-  {id:12,name:'Denim Jacket',price:'$130.00',category:'Fashion',qty:0,status:'draft',emoji:'🫙'},
-];
-let selected=new Set();
-let currentFilter='all';
+<script src="app.js"></script>
+<script>
 
-function render(list){
-  const grid=document.getElementById('productsGrid');
-  if(!list.length){
-    grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📦</div><div class="empty-title">No products found</div><div class="empty-sub">Try adjusting your search or filters</div><button class="btn-primary" onclick="openModal()" style="display:inline-flex;margin:0 auto">Add your first product</button></div>`;
-    return;
-  }
-  grid.innerHTML=list.map(p=>{
-    const statusClass=p.status==='active'?'dot-active':p.status==='low'?'dot-low':'dot-draft';
-    const statusLabel=p.status==='active'?'Active':p.status==='low'?'Low stock':'Draft';
-    const isSel=selected.has(p.id);
-    return`<div class="product-card${isSel?' selected':''}" id="pc${p.id}">
-      <div class="product-img">
-        <div class="product-select" onclick="toggleSelect(event,${p.id})">${isSel?'<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</div>
-        <span>${p.emoji}</span>
-        <div class="product-status-dot ${statusClass}">${statusLabel}</div>
-      </div>
-      <div class="product-body">
-        <div class="product-name">${p.name}</div>
-        <div class="product-price">${p.price}</div>
-        <div class="product-meta"><span>${p.category}</span><span>${p.qty} in stock</span></div>
-      </div>
-      <div class="product-actions">
-        <button class="product-action-btn btn-edit" onclick="editProduct(${p.id})">Edit</button>
-        <button class="product-action-btn btn-delete" onclick="deleteProduct(${p.id})">Delete</button>
-      </div>
-    </div>`;
-  }).join('');
-}
+let products = []; let selected = new Set(); let currentFilter = 'all'; let editingId = null;
+function showToast(msg) { const t=document.getElementById('toastEl'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+function escapeHtml(v) { return String(v ?? '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
+function setUserContext() { const s=Sivra.getSession(); if(!s) return; const name=[s.merchant?.firstName,s.merchant?.lastName].filter(Boolean).join(' ')||s.merchant?.email||'Merchant'; document.querySelectorAll('.user-name').forEach(el=>el.textContent=name); document.querySelectorAll('.user-email').forEach(el=>el.textContent=s.merchant?.email||''); document.querySelectorAll('.user-avatar').forEach(el=>el.textContent=name.split(/\s+/).slice(0,2).map(v=>v[0]?.toUpperCase()||'').join('')||'SV'); }
+function normalizeProduct(p) { const qty=Number(p.quantity||0); let status=p.status||'draft'; if(status==='active' && Number(p.track_qty)===1 && qty<5) status='low'; return { id:p.id, name:p.title, price:Sivra.formatMoney(p.price), rawPrice:Number(p.price||0), category:p.category||'Other', qty, status, backendStatus:p.status||'draft', emoji:Array.isArray(p.images)&&p.images[0]?'🖼️':'📦', description:p.description||'', comparePrice:p.compare_price, trackQty:Number(p.track_qty)===1, images:p.images||[] }; }
+async function loadProducts() { const data=await Sivra.request('/api/products'); products=data.products.map(normalizeProduct); document.getElementById('countBadge').textContent=`${data.total} products`; applyFilters(); }
+function render(list) { const grid=document.getElementById('productsGrid'); if(!list.length){ grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📦</div><div class="empty-title">No products found</div><div class="empty-sub">Try adjusting your search or filters</div><button class="btn-primary" onclick="openModal()" style="display:inline-flex;margin:0 auto">Add your first product</button></div>`; return; } grid.innerHTML=list.map(p=>{ const statusClass=p.status==='active'?'dot-active':p.status==='low'?'dot-low':'dot-draft'; const statusLabel=p.status==='active'?'Active':p.status==='low'?'Low stock':'Draft'; const isSel=selected.has(p.id); return `<div class="product-card${isSel?' selected':''}"><div class="product-img"><div class="product-select" onclick="toggleSelect(event,'${escapeHtml(p.id)}')">${isSel?'<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</div><span>${p.emoji}</span><div class="product-status-dot ${statusClass}">${statusLabel}</div></div><div class="product-body"><div class="product-name">${escapeHtml(p.name)}</div><div class="product-price">${escapeHtml(p.price)}</div><div class="product-meta"><span>${escapeHtml(p.category)}</span><span>${p.qty} in stock</span></div></div><div class="product-actions"><button class="product-action-btn btn-edit" onclick="editProduct('${escapeHtml(p.id)}')">Edit</button><button class="product-action-btn btn-delete" onclick="deleteProduct('${escapeHtml(p.id)}')">Delete</button></div></div>`; }).join(''); }
+function applyFilters(){ const q=document.getElementById('searchInput')?.value.trim().toLowerCase()||''; const cat=document.getElementById('categoryFilter')?.value||''; let list=products.slice(); if(currentFilter==='active') list=list.filter(p=>p.backendStatus==='active'); else if(currentFilter==='draft') list=list.filter(p=>p.backendStatus==='draft'); else if(currentFilter==='low') list=list.filter(p=>p.status==='low'); if(cat) list=list.filter(p=>p.category===cat); if(q) list=list.filter(p=>p.name.toLowerCase().includes(q)); render(list); }
+function filterTab(el,type){ document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); el.classList.add('active'); currentFilter=type; applyFilters(); }
+function toggleSelect(e,id){ e.stopPropagation(); if(selected.has(id)) selected.delete(id); else selected.add(id); const bar=document.getElementById('bulkBar'); if(selected.size>0){ bar.classList.add('show'); document.getElementById('bulkCount').textContent=`${selected.size} selected`; } else bar.classList.remove('show'); applyFilters(); }
+function clearSelection(){ selected.clear(); document.getElementById('bulkBar').classList.remove('show'); applyFilters(); }
+function openModal(){ editingId=null; document.getElementById('modalTitle').textContent='Add product'; ['pTitle','pDesc','pPrice','pCompare','pQty'].forEach(id=>document.getElementById(id).value=''); document.getElementById('pCat').value=''; document.getElementById('tPublish').classList.add('on'); document.getElementById('tTrack').classList.add('on'); document.getElementById('modal').classList.add('open'); }
+function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+function toggleSwitch(id){ document.getElementById(id).classList.toggle('on'); }
+function editProduct(id){ const p=products.find(x=>x.id===id); if(!p) return; editingId=id; document.getElementById('modalTitle').textContent='Edit product'; document.getElementById('pTitle').value=p.name; document.getElementById('pDesc').value=p.description||''; document.getElementById('pPrice').value=p.rawPrice; document.getElementById('pCompare').value=p.comparePrice||''; document.getElementById('pQty').value=p.qty; document.getElementById('pCat').value=p.category||''; document.getElementById('tPublish').classList.toggle('on', p.backendStatus==='active'); document.getElementById('tTrack').classList.toggle('on', p.trackQty); document.getElementById('modal').classList.add('open'); }
+async function deleteProduct(id){ if(!confirm('Delete this product?')) return; try{ await Sivra.request(`/api/products/${id}`,{method:'DELETE'}); products=products.filter(p=>p.id!==id); document.getElementById('countBadge').textContent=`${products.length} products`; applyFilters(); showToast('Product deleted'); } catch(err){ showToast(err.message||'Unable to delete product'); } }
+async function saveProduct(publish){ const payload={ title:pTitle.value.trim(), description:pDesc.value.trim(), price:pPrice.value.trim(), comparePrice:pCompare.value.trim()||null, quantity:pQty.value.trim()||0, category:pCat.value||'Other', status:publish&&document.getElementById('tPublish').classList.contains('on')?'active':'draft', trackQty:document.getElementById('tTrack').classList.contains('on'), images:[] }; if(!payload.title) return showToast('Please enter a product title'); if(payload.price==='') return showToast('Please enter a price'); try{ if(editingId){ const updated=await Sivra.request(`/api/products/${editingId}`,{method:'PATCH', body:JSON.stringify(payload)}); const idx=products.findIndex(p=>p.id===editingId); if(idx>=0) products[idx]=normalizeProduct(updated); showToast('Product updated'); } else { const created=await Sivra.request('/api/products',{method:'POST', body:JSON.stringify(payload)}); products.unshift(normalizeProduct(created)); showToast(payload.status==='active'?'Product published to your store':'Product saved as draft'); } document.getElementById('countBadge').textContent=`${products.length} products`; closeModal(); applyFilters(); } catch(err){ showToast(err.message||'Unable to save product'); } }
+async function bulkUpdateStatus(status){ if(!selected.size) return; try{ await Sivra.request('/api/products/bulk/status',{method:'PATCH',body:JSON.stringify({ ids:Array.from(selected), status })}); clearSelection(); await loadProducts(); showToast(`Products updated to ${status}`); } catch(err){ showToast(err.message||'Bulk update failed'); } }
+function logout(){ Sivra.clearSession(); window.location.href='sivra-login.html'; }
+(async function init(){ const session=await Sivra.requireAuth('sivra-login.html'); if(!session) return; setUserContext(); Object.assign(window,{ filterTab,toggleSelect,clearSelection,editProduct,deleteProduct,openModal,closeModal,saveProduct,toggleSwitch,showToast,bulkUpdateStatus,logout }); document.getElementById('searchInput')?.addEventListener('input',applyFilters); document.getElementById('categoryFilter')?.addEventListener('change',applyFilters); await loadProducts(); })();
 
-function filterTab(el,type){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  currentFilter=type;
-  applyFilters();
-}
-
-function applyFilters(){
-  let list=products;
-  if(currentFilter==='active') list=list.filter(p=>p.status==='active');
-  else if(currentFilter==='draft') list=list.filter(p=>p.status==='draft');
-  else if(currentFilter==='low') list=list.filter(p=>p.status==='low');
-  render(list);
-}
-
-function searchProducts(q){
-  const list=products.filter(p=>p.name.toLowerCase().includes(q.toLowerCase()));
-  render(list);
-}
-
-function filterCategory(cat){
-  const list=cat?products.filter(p=>p.category===cat):products;
-  render(list);
-}
-
-function toggleSelect(e,id){
-  e.stopPropagation();
-  if(selected.has(id)) selected.delete(id);
-  else selected.add(id);
-  const bar=document.getElementById('bulkBar');
-  if(selected.size>0){bar.classList.add('show');document.getElementById('bulkCount').textContent=selected.size+' selected';}
-  else bar.classList.remove('show');
-  applyFilters();
-}
-
-function clearSelection(){selected.clear();document.getElementById('bulkBar').classList.remove('show');applyFilters()}
-
-function editProduct(id){
-  const p=products.find(x=>x.id===id);
-  document.getElementById('modalTitle').textContent='Edit product';
-  document.getElementById('pTitle').value=p.name;
-  document.getElementById('pPrice').value=p.price;
-  document.getElementById('pQty').value=p.qty;
-  document.getElementById('modal').classList.add('open');
-}
-
-function deleteProduct(id){
-  products=products.filter(p=>p.id!==id);
-  document.getElementById('countBadge').textContent=products.length+' products';
-  applyFilters();
-  toast('Product deleted');
-}
-
-function openModal(){
-  document.getElementById('modalTitle').textContent='Add product';
-  document.getElementById('pTitle').value='';
-  document.getElementById('pPrice').value='';
-  document.getElementById('pQty').value='';
-  document.getElementById('modal').classList.add('open');
-}
-
-function closeModal(){document.getElementById('modal').classList.remove('open')}
-
-function saveProduct(publish){
-  const title=document.getElementById('pTitle').value.trim();
-  const price=document.getElementById('pPrice').value.trim();
-  if(!title){toast('Please enter a product title');return}
-  if(!price){toast('Please enter a price');return}
-  const qty=parseInt(document.getElementById('pQty').value)||0;
-  const cat=document.getElementById('pCat').value||'Other';
-  const emojis=['📦','🛍️','✨','🎁','💫'];
-  products.unshift({id:Date.now(),name:title,price:price,category:cat,qty:qty,status:publish?'active':'draft',emoji:emojis[Math.floor(Math.random()*emojis.length)]});
-  document.getElementById('countBadge').textContent=products.length+' products';
-  closeModal();
-  applyFilters();
-  toast(publish?'✓ Product published to your store':'✓ Product saved as draft');
-}
-
-function toggleSwitch(id){const t=document.getElementById(id);t.classList.toggle('on')}
-function toggleView(){toast('List vie
+</script>
+e

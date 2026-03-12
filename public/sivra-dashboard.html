@@ -262,7 +262,7 @@
         <span class="nav-badge warn">3</span>
       </div>
 
-      <div class="nav-item" onclick="setActive(this,'Products')">
+      <div class="nav-item" onclick="setActive(this,'Products', 'sivra-products.html')">
         <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 5l6-3 6 3v6l-6 3-6-3V5z" stroke="currentColor" stroke-width="1.2"/></svg>
         Products
       </div>
@@ -611,135 +611,24 @@
 
 <div class="toast" id="toast"></div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-  // ── DATA ──
-  const orders = [
-    { id:'#1094', customer:'Emma Wilson', color:'#4F6EF7', initials:'EW', date:'Today, 9:14 AM', items:2, amount:'$89.00', status:'paid' },
-    { id:'#1093', customer:'James Park', color:'#10B981', initials:'JP', date:'Today, 8:02 AM', items:1, amount:'$45.00', status:'paid' },
-    { id:'#1092', customer:'Amara Osei', color:'#A855F7', initials:'AO', date:'Yesterday', items:3, amount:'$134.00', status:'processing' },
-    { id:'#1091', customer:'Luca Ferrari', color:'#F97316', initials:'LF', date:'Yesterday', items:1, amount:'$29.00', status:'pending' },
-    { id:'#1090', customer:'Priya Nair', color:'#EF4444', initials:'PN', date:'Jun 8', items:4, amount:'$210.00', status:'fulfilled' },
-    { id:'#1089', customer:'Tom Bradley', color:'#F59E0B', initials:'TB', date:'Jun 8', items:2, amount:'$76.00', status:'fulfilled' },
-  ];
+<script src="app.js"></script>
+<script>
 
-  const products = [
-    { name:'Summer Dress — Blue', meta:'Fashion · 24 sold', revenue:'$1,440', emoji:'👗' },
-    { name:'Linen Blazer', meta:'Fashion · 18 sold', revenue:'$1,260', emoji:'🧥' },
-    { name:'Canvas Sneakers', meta:'Fashion · 15 sold', revenue:'$750', emoji:'👟' },
-    { name:'Silver Earrings Set', meta:'Accessories · 12 sold', revenue:'$360', emoji:'💍' },
-    { name:'Silk Scarf', meta:'Accessories · 9 sold', revenue:'$270', emoji:'🧣' },
-  ];
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+function setUserContext(){ const s=Sivra.getSession(); if(!s) return; const name=[s.merchant?.firstName,s.merchant?.lastName].filter(Boolean).join(' ')||s.merchant?.email||'Merchant'; document.querySelectorAll('.user-name').forEach(el=>el.textContent=name); document.querySelectorAll('.user-email').forEach(el=>el.textContent=s.merchant?.email||''); document.querySelectorAll('.user-avatar').forEach(el=>el.textContent=name.split(/\s+/).slice(0,2).map(v=>v[0]?.toUpperCase()||'').join('')||'SV'); }
+function updateStatCards(data){ const cards=document.querySelectorAll('.stat-card'); if(cards[0]) cards[0].querySelector('.stat-value').textContent=Sivra.formatMoney(data.revenue.total||0); if(cards[1]) cards[1].querySelector('.stat-value').textContent=String(data.orders.total||0); if(cards[2]) cards[2].querySelector('.stat-value').textContent=String(data.customers.total||0); if(cards[3]) cards[3].querySelector('.stat-value').textContent=String(data.products.lowStock||0); }
+function renderOrders(recentOrders){ const tbody=document.getElementById('ordersBody'); const statusMap={ paid:['badge-success','Paid'], processing:['badge-warning','Processing'], pending:['badge-neutral','Pending'], fulfilled:['badge-success','Fulfilled'], unpaid:['badge-neutral','Unpaid'] }; tbody.innerHTML=(recentOrders||[]).map(o=>{ const [cls,label]=statusMap[o.payment_status]||['badge-neutral',o.payment_status||o.status]; const customerName=[o.first_name,o.last_name].filter(Boolean).join(' ')||o.customer_email||'Guest'; const initials=customerName.split(/\s+/).slice(0,2).map(v=>v[0]?.toUpperCase()||'').join('')||'GU'; return `<tr><td><span class="order-id">#${o.order_number}</span></td><td><div class="order-customer"><div class="cust-avatar" style="background:#4F6EF7">${initials}</div><span class="cust-name">${customerName}</span></div></td><td>${new Date(o.created_at).toLocaleDateString()}</td><td>—</td><td><span class="order-amount">${Sivra.formatMoney(o.total)}</span></td><td><span class="badge ${cls}">${label}</span></td><td><button style="background:none;border:none;cursor:pointer;color:var(--text-light);font-size:13px" onclick="showToast('Order details page is next.')">→</button></td></tr>`; }).join('') || `<tr><td colspan="7" style="padding:24px;color:var(--text-muted);text-align:center">No orders yet</td></tr>`; }
+function renderProducts(topProducts){ document.getElementById('topProducts').innerHTML=(topProducts||[]).map((p,i)=>`<div class="product-row"><div class="product-rank">${i+1}</div><div class="product-thumb">${p.images?.[0]?'🖼️':'📦'}</div><div class="product-info"><div class="product-name">${p.title}</div><div class="product-meta">${p.units_sold||0} sold</div></div><div><div class="product-revenue">${Sivra.formatMoney(p.revenue||0)}</div><div class="product-units">all time</div></div></div>`).join('') || `<div style="padding:12px;color:var(--text-muted)">No sales yet</div>`; }
+function renderChart(points){ const area=document.getElementById('chartArea'); const values=Array.isArray(points)&&points.length?points.map(d=>Number(d.revenue||0)):[0,0,0,0,0,0,0]; const labels=Array.isArray(points)&&points.length?points.map(d=>new Date(d.day).toLocaleDateString('en-US',{weekday:'short'})):['Mon','Tue','Wed','Thu','Fri','Sat','Sun']; const max=Math.max(...values,1); area.innerHTML=values.map((val,i)=>`<div class="chart-bar-wrap"><div class="chart-bar" style="height:${(val/max)*140}px;background:${i===values.length-1?'var(--accent)':'#D1D9FF'}" onclick="showToast('${labels[i]}: ${Sivra.formatMoney(val)}')"></div><span class="chart-bar-label">${labels[i]}</span></div>`).join(''); }
+function setActive(el,title,href){ if(href) return window.location.href=href; document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active')); if(el) el.classList.add('active'); document.getElementById('pageTitle').textContent=title; }
+function setTab(el){ document.querySelectorAll('.chart-tab').forEach(t=>t.classList.remove('active')); el.classList.add('active'); }
+function toggleTask(){ showToast('Checklist is still static.'); }
+function openModal(){ window.location.href='sivra-products.html'; }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function closeModalOnBg(e){ if(e.target===e.currentTarget) closeModal('productModal'); }
+function saveProduct(){ window.location.href='sivra-products.html'; }
+function logout(){ Sivra.clearSession(); window.location.href='sivra-login.html'; }
+(async function init(){ const session=await Sivra.requireAuth('sivra-login.html'); if(!session) return; setUserContext(); Object.assign(window,{ setActive,setTab,toggleTask,openModal,closeModal,closeModalOnBg,saveProduct,showToast,logout }); const data=await Sivra.request('/api/store/dashboard'); updateStatCards(data); renderOrders(data.recentOrders); renderProducts(data.topProducts); renderChart(data.revenue.last7Days); })();
 
-  const tasks = [
-    { text:'Add your first product', done:true, tag:null },
-    { text:'Connect a payment method', done:true, tag:null },
-    { text:'Set up your store domain', done:true, tag:null },
-    { text:'Customize your storefront', done:false, tag:{label:'Recommended', color:'#4F6EF7', bg:'#EEF2FF'} },
-    { text:'Add shipping rates', done:false, tag:null },
-    { text:'Launch your store', done:false, tag:{label:'Last step', color:'#10B981', bg:'#ECFDF5'} },
-  ];
-
-  const chartData = [
-    { label:'Mon', val:65 }, { label:'Tue', val:80 }, { label:'Wed', val:55 },
-    { label:'Thu', val:90 }, { label:'Fri', val:75 }, { label:'Sat', val:95 }, { label:'Sun', val:100 },
-  ];
-
-  // ── RENDER ──
-  function renderOrders() {
-    const tbody = document.getElementById('ordersBody');
-    const statusMap = {
-      paid: ['badge-success','Paid'],
-      processing: ['badge-warning','Processing'],
-      pending: ['badge-neutral','Pending'],
-      fulfilled: ['badge-success','Fulfilled'],
-    };
-    tbody.innerHTML = orders.map(o => {
-      const [cls, label] = statusMap[o.status];
-      return `<tr>
-        <td><span class="order-id" onclick="showToast('Opening order ${o.id}...')">${o.id}</span></td>
-        <td><div class="order-customer"><div class="cust-avatar" style="background:${o.color}">${o.initials}</div><span class="cust-name">${o.customer}</span></div></td>
-        <td>${o.date}</td>
-        <td>${o.items} item${o.items>1?'s':''}</td>
-        <td><span class="order-amount">${o.amount}</span></td>
-        <td><span class="badge ${cls}">${label}</span></td>
-        <td><button style="background:none;border:none;cursor:pointer;color:var(--text-light);font-size:13px" onclick="showToast('Opening order ${o.id}...')">→</button></td>
-      </tr>`;
-    }).join('');
-  }
-
-  function renderProducts() {
-    document.getElementById('topProducts').innerHTML = products.map((p, i) => `
-      <div class="product-row">
-        <div class="product-rank">${i+1}</div>
-        <div class="product-thumb">${p.emoji}</div>
-        <div class="product-info">
-          <div class="product-name">${p.name}</div>
-          <div class="product-meta">${p.meta}</div>
-        </div>
-        <div>
-          <div class="product-revenue">${p.revenue}</div>
-          <div class="product-units">this week</div>
-        </div>
-      </div>`).join('');
-  }
-
-  function renderTasks() {
-    document.getElementById('taskList').innerHTML = tasks.map((t,i) => `
-      <div class="task-item ${t.done?'done':''}" onclick="toggleTask(this,${i})">
-        <div class="task-check">${t.done?'<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</div>
-        <span class="task-text">${t.text}</span>
-        ${t.tag?`<span class="task-badge" style="color:${t.tag.color};background:${t.tag.bg}">${t.tag.label}</span>`:''}
-      </div>`).join('');
-  }
-
-  function renderChart() {
-    const area = document.getElementById('chartArea');
-    const max = Math.max(...chartData.map(d=>d.val));
-    area.innerHTML = chartData.map(d => `
-      <div class="chart-bar-wrap">
-        <div class="chart-bar" style="height:${(d.val/max)*140}px;background:${d.label==='Sun'?'var(--accent)':'#D1D9FF'}" onclick="showToast('${d.label}: $${Math.round(d.val*124.3/100).toLocaleString()}')"></div>
-        <span class="chart-bar-label">${d.label}</span>
-      </div>`).join('');
-  }
-
-  // ── INTERACTIONS ──
-  function setActive(el, title) {
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    if(el) el.classList.add('active');
-    document.getElementById('pageTitle').textContent = title;
-    if(title !== 'Dashboard') showToast(`${title} page — coming soon`);
-  }
-
-  function setTab(el) {
-    document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
-    showToast(`Showing ${el.textContent} data`);
-  }
-
-  function toggleTask(el, idx) {
-    if(tasks[idx].done) return;
-    tasks[idx].done = true;
-    renderTasks();
-    showToast('✓ Task completed!');
-  }
-
-  function openModal(type) {
-    document.getElementById('productModal').classList.add('open');
-  }
-
-  function closeModal(id) {
-    document.getElementById(id).classList.remove('open');
-  }
-
-  function closeModalOnBg(e) {
-    if(e.target === e.currentTarget) closeModal('productModal');
-  }
-
-  function saveProduct() {
-    closeModal('productModal');
-    showToast('✓ Product added to your store!');
-  }
-
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.tex
+</script>
+x
