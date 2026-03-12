@@ -74,4 +74,22 @@ router.patch('/info', async (req, res) => {
   }
 });
 
+// SETTINGS alias (onboarding uses /api/store/settings)
+router.patch('/settings', async (req, res) => {
+  try {
+    const db = getDB();
+    const { name, description, category, currency, storeName } = req.body;
+    const finalName = name || storeName || null;
+    await db.execute({
+      sql: 'UPDATE stores SET name = COALESCE(?, name), description = COALESCE(?, description), category = COALESCE(?, category), currency = COALESCE(?, currency), updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      args: [finalName, description || null, category || null, currency || null, req.storeId]
+    });
+    const updated = await db.execute({ sql: 'SELECT * FROM stores WHERE id = ?', args: [req.storeId] });
+    res.json(updated.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update settings.' });
+  }
+});
+
 module.exports = router;
