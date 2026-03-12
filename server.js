@@ -28,7 +28,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Serve the frontend HTML files in production
 // (put your HTML files in a /public folder)
 app.use(express.static(path.join(__dirname, 'public')));
-
+app.get('/', (req, res) => res.sendFile(__dirname + '/public/sivra-login.html'));
 
 // ── ROUTES ──────────────────────────────────────────────────────────────────
 
