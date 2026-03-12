@@ -1,154 +1,119 @@
-// routes/storefront.js
-// Public routes — no login needed
-// These power the actual shop customers see at yourdomain.com/shop/:slug
-
+// routes/storefront.js — public routes, no auth needed
 const express = require('express');
 const router = express.Router();
+const { v4: uuid } = require('uuid');
 const { getDB } = require('../db/database');
 
-
-// ── GET STORE INFO ─────────────────────────────────────────────────────────
-// GET /api/storefront/:slug
-router.get('/:slug', (req, res) => {
-  const db = getDB();
-  const store = db.prepare("SELECT id, name, slug, description, category, currency, logo_url FROM stores WHERE slug = ? AND status = 'active'")
-    .get(req.params.slug);
-  if (!store) return res.status(404).json({ error: 'Store not found.' });
-  res.json(store);
+// GET STORE INFO
+router.get('/:slug', async (req, res) => {
+  try {
+    const db = getDB();
+    const result = await db.execute({ sql: "SELECT id, name, slug, description, category, currency, logo_url FROM stores WHERE slug = ? AND status = 'active'", args: [req.params.slug] });
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Store not found.' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch store.' });
+  }
 });
 
-
-// ── LIST PRODUCTS (public) ─────────────────────────────────────────────────
-// GET /api/storefront/:slug/products
-// Query: category, search, page, limit, sort
-router.get('/:slug/products', (req, res) => {
-  const db = getDB();
-  const store = db.prepare("SELECT id FROM stores WHERE slug = ? AND status = 'active'").get(req.params.slug);
-  if (!store) return res.status(404).json({ error: 'Store not found.' });
-
-  const { category, search, page = 1, limit = 24, sort = 'newest' } = req.query;
-
-  const sortMap = {
-    newest:     'created_at DESC',
-    oldest:     'created_at ASC',
-    price_asc:  'price ASC',
-    price_desc: 'price DESC',
-  };
-  const orderBy = sortMap[sort] || 'created_at DESC';
-
-  let query = `SELECT id, title, description, price, compare_price, images, category FROM products WHERE store_id = ? AND status = 'active'`;
-  const params = [store.id];
-
-  if (category) { query += ' AND category = ?'; params.push(category); }
-  if (search)   { query += ' AND title LIKE ?'; params.push(`%${search}%`); }
-
-  query += ` ORDER BY ${orderBy} LIMIT ? OFFSET ?`;
-  params.push(parseInt(limit), (parseInt(page) - 1) * parseInt(limit));
-
-  const products = db.prepare(query).all(...params).map(p => ({
-    ...p, images: JSON.parse(p.images || '[]')
-  }));
-
-  const { total } = db.prepare("SELECT COUNT(*) as total FROM products WHERE store_id = ? AND status = 'active'").get(store.id);
-  res.json({ products, total });
+// LIST PRODUCTS (public)
+router.get('/:slug/products', async (req, res) => {
+  try {
+    const db = getDB();
+    const storeResult = await db.execute({ sql: "SELECT id FROM stores WHERE slug = ? AND status = 'active'", args: [req.params.slug] });
+    if (storeResult.rows.length === 0) return res.status(404).json({ error: 'Store not found.' });
+    const store = storeResult.rows[0];
+    const { category, search, page = 1, limit = 24 } = req.query;
+    let query = "SELECT id, title, description, price, compare_price, images, category FROM products WHERE store_id = ? AND status = 'active'";
+    const params = [store.id];
+    if (category) { query += ' AND category = ?'; params.push(category); }
+    if (search)   { query += ' AND title LIKE ?'; params.push(`%${search}%`); }
+    query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
+    params.push(parseInt(limit), (parseInt(page) - 1) * parseInt(limit));
+    const result = await db.execute({ sql: query, args: params });
+    const products = result.rows.map(p => ({ ...p, images: JSON.parse(p.images || '[]') }));
+    res.json({ products, total: products.length });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch products.' });
+  }
 });
 
-
-// ── GET ONE PRODUCT (public) ───────────────────────────────────────────────
-// GET /api/storefront/:slug/products/:productId
-router.get('/:slug/products/:productId', (req, res) => {
-  const db = getDB();
-  const store = db.prepare('SELECT id FROM stores WHERE slug = ?').get(req.params.slug);
-  if (!store) return res.status(404).json({ error: 'Store not found.' });
-
-  const product = db.prepare("SELECT * FROM products WHERE id = ? AND store_id = ? AND status = 'active'")
-    .get(req.params.productId, store.id);
-  if (!product) return res.status(404).json({ error: 'Product not found.' });
-
-  res.json({ ...product, images: JSON.parse(product.images || '[]') });
+// GET ONE PRODUCT (public)
+router.get('/:slug/products/:productId', async (req, res) => {
+  try {
+    const db = getDB();
+    const storeResult = await db.execute({ sql: 'SELECT id FROM stores WHERE slug = ?', args: [req.params.slug] });
+    if (storeResult.rows.length === 0) return res.status(404).json({ error: 'Store not found.' });
+    const store = storeResult.rows[0];
+    const result = await db.execute({ sql: "SELECT * FROM products WHERE id = ? AND store_id = ? AND status = 'active'", args: [req.params.productId, store.id] });
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Product not found.' });
+    const p = result.rows[0];
+    res.json({ ...p, images: JSON.parse(p.images || '[]') });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch product.' });
+  }
 });
 
+// CHECKOUT
+router.post('/:slug/checkout', async (req, res) => {
+  try {
+    const db = getDB();
+    const storeResult = await db.execute({ sql: "SELECT * FROM stores WHERE slug = ? AND status = 'active'", args: [req.params.slug] });
+    if (storeResult.rows.length === 0) return res.status(404).json({ error: 'Store not found.' });
+    const store = storeResult.rows[0];
+    const { customerEmail, firstName, lastName, phone, items, shippingAddress = {} } = req.body;
+    if (!customerEmail) return res.status(400).json({ error: 'Email is required.' });
+    if (!items?.length) return res.status(400).json({ error: 'Your cart is empty.' });
 
-// ── PLACE ORDER (checkout) ─────────────────────────────────────────────────
-// POST /api/storefront/:slug/checkout
-// Body: { customerEmail, firstName, lastName, phone, items: [{productId, quantity}], shippingAddress }
-router.post('/:slug/checkout', (req, res) => {
-  const db = getDB();
-  const store = db.prepare("SELECT * FROM stores WHERE slug = ? AND status = 'active'").get(req.params.slug);
-  if (!store) return res.status(404).json({ error: 'Store not found.' });
-
-  const { customerEmail, firstName, lastName, phone, items, shippingAddress = {} } = req.body;
-
-  if (!customerEmail) return res.status(400).json({ error: 'Email is required.' });
-  if (!items?.length) return res.status(400).json({ error: 'Your cart is empty.' });
-
-  const { v4: uuid } = require('uuid');
-
-  // Validate & price items
-  let subtotal = 0;
-  const resolved = [];
-
-  for (const item of items) {
-    const product = db.prepare("SELECT * FROM products WHERE id = ? AND store_id = ? AND status = 'active'")
-      .get(item.productId, store.id);
-    if (!product) return res.status(400).json({ error: `Product not found.` });
-
-    if (product.track_qty && product.quantity < item.quantity) {
-      return res.status(400).json({ error: `${product.title} only has ${product.quantity} left in stock.` });
+    let subtotal = 0;
+    const resolved = [];
+    for (const item of items) {
+      const pResult = await db.execute({ sql: "SELECT * FROM products WHERE id = ? AND store_id = ? AND status = 'active'", args: [item.productId, store.id] });
+      if (pResult.rows.length === 0) return res.status(400).json({ error: 'Product not found.' });
+      const product = pResult.rows[0];
+      if (product.track_qty && product.quantity < item.quantity) {
+        return res.status(400).json({ error: `${product.title} only has ${product.quantity} left in stock.` });
+      }
+      const qty = parseInt(item.quantity) || 1;
+      subtotal += product.price * qty;
+      resolved.push({ product, qty });
     }
 
-    const qty = parseInt(item.quantity) || 1;
-    subtotal += product.price * qty;
-    resolved.push({ product, qty });
-  }
+    const shipping = subtotal >= 75 ? 0 : 4.99;
+    const tax = subtotal * 0.08;
+    const total = subtotal + shipping + tax;
 
-  const shipping = subtotal >= 75 ? 0 : 4.99; // free shipping over $75
-  const tax = subtotal * 0.08;
-  const total = subtotal + shipping + tax;
+    // Get or create customer
+    let customerId;
+    const custResult = await db.execute({ sql: 'SELECT id FROM customers WHERE store_id = ? AND email = ?', args: [store.id, customerEmail.toLowerCase()] });
+    if (custResult.rows.length > 0) {
+      customerId = custResult.rows[0].id;
+    } else {
+      customerId = uuid();
+      await db.execute({ sql: 'INSERT INTO customers (id, store_id, email, first_name, last_name, phone) VALUES (?, ?, ?, ?, ?, ?)', args: [customerId, store.id, customerEmail.toLowerCase(), firstName || null, lastName || null, phone || null] });
+    }
 
-  // Get or create customer
-  let customer = db.prepare('SELECT * FROM customers WHERE store_id = ? AND email = ?')
-    .get(store.id, customerEmail.toLowerCase());
+    const countResult = await db.execute({ sql: 'SELECT COUNT(*) as cnt FROM orders WHERE store_id = ?', args: [store.id] });
+    const orderNumber = (countResult.rows[0].cnt || 0) + 1001;
+    const orderId = uuid();
 
-  if (!customer) {
-    const customerId = uuid();
-    db.prepare('INSERT INTO customers (id, store_id, email, first_name, last_name, phone) VALUES (?, ?, ?, ?, ?, ?)')
-      .run(customerId, store.id, customerEmail.toLowerCase(), firstName || null, lastName || null, phone || null);
-    customer = db.prepare('SELECT * FROM customers WHERE id = ?').get(customerId);
-  }
-
-  const { maxNum } = db.prepare('SELECT MAX(order_number) as maxNum FROM orders WHERE store_id = ?').get(store.id);
-  const orderNumber = (maxNum || 1000) + 1;
-  const orderId = uuid();
-
-  const placeOrder = db.transaction(() => {
-    db.prepare(`
-      INSERT INTO orders (id, store_id, customer_id, order_number, status, payment_status, subtotal, shipping, tax, total, shipping_name, shipping_addr, shipping_city, shipping_country)
-      VALUES (?, ?, ?, ?, 'pending', 'unpaid', ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(orderId, store.id, customer.id, orderNumber, subtotal, shipping, tax, total,
-      shippingAddress.name || `${firstName || ''} ${lastName || ''}`.trim() || null,
-      shippingAddress.address || null, shippingAddress.city || null, shippingAddress.country || null);
+    await db.execute({
+      sql: "INSERT INTO orders (id, store_id, customer_id, order_number, status, payment_status, subtotal, shipping, tax, total, shipping_name, shipping_addr, shipping_city, shipping_country) VALUES (?, ?, ?, ?, 'pending', 'unpaid', ?, ?, ?, ?, ?, ?, ?, ?)",
+      args: [orderId, store.id, customerId, orderNumber, subtotal, shipping, tax, total, shippingAddress.name || `${firstName || ''} ${lastName || ''}`.trim() || null, shippingAddress.address || null, shippingAddress.city || null, shippingAddress.country || null]
+    });
 
     for (const { product, qty } of resolved) {
-      db.prepare('INSERT INTO order_items (id, order_id, product_id, title, price, quantity) VALUES (?, ?, ?, ?, ?, ?)')
-        .run(uuid(), orderId, product.id, product.title, product.price, qty);
-
+      await db.execute({ sql: 'INSERT INTO order_items (id, order_id, product_id, title, price, quantity) VALUES (?, ?, ?, ?, ?, ?)', args: [uuid(), orderId, product.id, product.title, product.price, qty] });
       if (product.track_qty) {
-        db.prepare('UPDATE products SET quantity = quantity - ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
-          .run(qty, product.id);
+        await db.execute({ sql: 'UPDATE products SET quantity = quantity - ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', args: [qty, product.id] });
       }
     }
-  });
 
-  placeOrder();
-
-  res.status(201).json({
-    message: 'Order placed successfully!',
-    orderNumber,
-    orderId,
-    total,
-    estimatedDelivery: '3–5 business days'
-  });
+    res.status(201).json({ message: 'Order placed successfully!', orderNumber, orderId, total, estimatedDelivery: '3–5 business days' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Checkout failed. Please try again.' });
+  }
 });
 
 module.exports = router;
