@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sivra — Log in</title>
+  <title>Product</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,450;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
   <style>
 /* ═══════════════════════════════════════════════
@@ -545,85 +545,177 @@ body{background:#fff;}
 </head>
 <body>
 
-<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f6f6f7">
-  <div style="width:100%;max-width:420px;padding:24px">
-    <!-- Logo -->
-    <div style="text-align:center;margin-bottom:32px">
-      <div style="width:48px;height:48px;background:#1a1a1a;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:20px;font-weight:800;color:white">S</div>
-      <div style="font-size:22px;font-weight:700;color:#1a1a1a">Sivra</div>
-      <div style="font-size:13px;color:#6d7175;margin-top:4px">Commerce without limits</div>
+<style>
+:root { --store-accent: #1a1a1a; }
+.store-nav { position:sticky;top:0;z-index:100;background:white;border-bottom:1px solid #e3e3e3;padding:0 24px;height:60px;display:flex;align-items:center;gap:24px; }
+.store-nav-logo { font-size:16px;font-weight:700;color:#1a1a1a;text-decoration:none; }
+.store-nav-links { display:flex;gap:20px;flex:1;margin-left:16px; }
+.store-nav-link { font-size:14px;color:#6d7175;text-decoration:none;transition:color 0.1s; }
+.store-nav-link:hover { color:#1a1a1a; }
+.store-nav-right { display:flex;align-items:center;gap:12px;margin-left:auto; }
+.store-nav-icon { width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#6d7175;cursor:pointer;transition:background 0.1s;position:relative;background:none;border:none; }
+.store-nav-icon:hover { background:#f6f6f7;color:#1a1a1a; }
+.cart-count { position:absolute;top:4px;right:4px;width:16px;height:16px;background:#1a1a1a;border-radius:50%;font-size:9px;font-weight:700;color:white;display:flex;align-items:center;justify-content:center; }
+.store-footer { background:#1a1a1a;color:rgba(255,255,255,0.7);padding:48px 24px 24px;margin-top:80px; }
+.store-footer-bottom { border-top:1px solid rgba(255,255,255,0.1);padding-top:20px;text-align:center;font-size:12px;max-width:1200px;margin:0 auto; }
+.add-to-cart-btn { width:100%;height:48px;background:#1a1a1a;color:white;border:none;border-radius:8px;font-size:15px;font-weight:500;font-family:inherit;cursor:pointer;transition:background 0.1s; }
+.add-to-cart-btn:hover { background:#303030; }
+.qty-btn { width:36px;height:36px;border:1px solid #e3e3e3;border-radius:8px;background:white;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit; }
+.qty-btn:hover { background:#f6f6f7; }
+</style>
+<nav class="store-nav">
+  <a href="sivra-storefront.html" class="store-nav-logo" id="storeNavLogo">Store</a>
+  <div class="store-nav-links">
+    <a href="sivra-storefront.html" class="store-nav-link">Home</a>
+    <a href="sivra-storefront.html" class="store-nav-link">All products</a>
+    <a href="#" class="store-nav-link">About</a>
+  </div>
+  <div class="store-nav-right">
+    <button class="store-nav-icon" onclick="sivraToast('Search coming soon')">
+      <svg width="17" height="17" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+    <button class="store-nav-icon" onclick="location.href='sivra-cart.html'">
+      <svg width="17" height="17" viewBox="0 0 16 16" fill="none"><path d="M2 2h1.5l2.5 8h7l1.5-5H5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6.5" cy="13" r="1.2" fill="currentColor"/><circle cx="11.5" cy="13" r="1.2" fill="currentColor"/></svg>
+      <span class="cart-count" id="cartCount" style="display:none">0</span>
+    </button>
+    <button class="store-nav-icon" onclick="sivraToast('Account coming soon')">
+      <svg width="17" height="17" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</nav>
+
+<div style="max-width:1200px;margin:0 auto;padding:32px 24px">
+  <!-- Breadcrumb -->
+  <div style="display:flex;gap:8px;font-size:13px;color:#6d7175;margin-bottom:24px;align-items:center">
+    <a href="sivra-storefront.html" style="color:#6d7175;text-decoration:none">Home</a>
+    <span>/</span>
+    <span id="prodBreadcrumb" style="color:#303030">Product</span>
+  </div>
+
+  <!-- Product layout -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start" id="productLayout">
+    <!-- Images -->
+    <div>
+      <div id="mainImage" style="aspect-ratio:1;background:#f6f6f7;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:12px">
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" opacity="0.15"><rect x="8" y="8" width="64" height="64" rx="6" stroke="#303030" stroke-width="3"/><path d="M8 54l16-16 12 12 16-18 20 22" stroke="#303030" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="26" r="7" stroke="#303030" stroke-width="3"/></svg>
+      </div>
+      <div id="thumbGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
     </div>
 
-    <div class="p-card" style="padding:0">
-      <div style="padding:24px">
-        <div style="font-size:17px;font-weight:600;color:#1a1a1a;margin-bottom:20px">Log in to your store</div>
-
-        <div id="loginError" style="display:none;background:#fde8e8;border:1px solid #f5c6c6;border-radius:8px;padding:10px 12px;font-size:13px;color:#c0392b;margin-bottom:16px"></div>
-
-        <div style="margin-bottom:14px">
-          <label class="p-label">Email</label>
-          <input class="p-input" id="loginEmail" type="email" placeholder="you@example.com" autocomplete="email"/>
-        </div>
-        <div style="margin-bottom:20px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-            <label class="p-label" style="margin:0">Password</label>
-            <a href="#" style="font-size:12px;color:#005bd3" onclick="sivraToast('Password reset coming soon');return false">Forgot password?</a>
-          </div>
-          <input class="p-input" id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password"
-            onkeydown="if(event.key==='Enter')doLogin()"/>
-        </div>
-        <button class="p-btn p-btn-primary" style="width:100%;justify-content:center;height:36px;font-size:14px" id="loginBtn" onclick="doLogin()">
-          Log in
-        </button>
+    <!-- Info -->
+    <div>
+      <div style="font-size:13px;color:#6d7175;margin-bottom:6px" id="prodVendor"></div>
+      <h1 style="font-size:26px;font-weight:700;color:#1a1a1a;margin-bottom:10px;line-height:1.2" id="prodTitle">Loading...</h1>
+      <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:20px">
+        <span style="font-size:24px;font-weight:700" id="prodPrice">—</span>
+        <span style="font-size:16px;color:#8c9196;text-decoration:line-through" id="prodCompare"></span>
+        <span class="p-badge p-badge-critical" id="prodSaleBadge" style="display:none">Sale</span>
       </div>
-      <div style="border-top:1px solid #e3e3e3;padding:16px 24px;text-align:center">
-        <span style="font-size:13px;color:#6d7175">Don't have a store? </span>
-        <a href="sivra-signup.html" style="font-size:13px;color:#005bd3;font-weight:500">Create one free</a>
-      </div>
-    </div>
 
-    <div style="text-align:center;margin-top:20px;font-size:11px;color:#8c9196">
-      By continuing you agree to Sivra's <a href="#" style="color:#6d7175">Terms of Service</a> and <a href="#" style="color:#6d7175">Privacy Policy</a>
+      <!-- Description -->
+      <div style="font-size:14px;color:#6d7175;line-height:1.7;margin-bottom:24px" id="prodDesc"></div>
+
+      <!-- Variants (if any) -->
+      <div id="prodVariants" style="margin-bottom:20px"></div>
+
+      <!-- Qty + Add to cart -->
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:0;border:1px solid #e3e3e3;border-radius:8px;overflow:hidden">
+          <button class="qty-btn" onclick="changeQty(-1)">−</button>
+          <div style="width:44px;text-align:center;font-size:14px;font-weight:500" id="qtyDisplay">1</div>
+          <button class="qty-btn" onclick="changeQty(1)">+</button>
+        </div>
+        <button class="add-to-cart-btn" id="addCartBtn" onclick="doAddToCart()" style="flex:1">Add to cart</button>
+      </div>
+      <button style="width:100%;height:48px;background:#008060;color:white;border:none;border-radius:8px;font-size:15px;font-weight:500;font-family:inherit;cursor:pointer;margin-bottom:20px" onclick="buyNow()">Buy it now</button>
+
+      <!-- Trust badges -->
+      <div style="display:flex;gap:20px;flex-wrap:wrap;padding:16px;background:#f9f9f9;border-radius:8px">
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#6d7175">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.5 3.5L12 5l-2.5 2.5.5 3.5L7 9.5 4 11l.5-3.5L2 5l3.5-.5L7 1z" stroke="currentColor" stroke-width="1.2"/></svg>
+          Free shipping over $100
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#6d7175">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v4l3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.3"/></svg>
+          2–5 day delivery
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#6d7175">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l4-4v3h6v2H6v3L2 7z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Easy 30-day returns
+        </div>
+      </div>
     </div>
   </div>
 </div>
+
+<footer class="store-footer">
+  <div style="max-width:1200px;margin:0 auto 32px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px">
+    <div><div style="font-size:16px;font-weight:700;color:white;margin-bottom:10px" id="footerStoreName">Store</div><div style="font-size:13px;line-height:1.6">Quality products, fast delivery, zero hassle.</div></div>
+    <div><h4 style="font-size:13px;font-weight:600;color:white;margin-bottom:12px">Help</h4><a href="#" style="display:block;font-size:13px;color:rgba(255,255,255,0.55);text-decoration:none;margin-bottom:8px">FAQ</a><a href="#" style="display:block;font-size:13px;color:rgba(255,255,255,0.55);text-decoration:none;margin-bottom:8px">Shipping</a><a href="#" style="display:block;font-size:13px;color:rgba(255,255,255,0.55);text-decoration:none">Returns</a></div>
+    <div><h4 style="font-size:13px;font-weight:600;color:white;margin-bottom:12px">About</h4><a href="#" style="display:block;font-size:13px;color:rgba(255,255,255,0.55);text-decoration:none;margin-bottom:8px">Our story</a><a href="#" style="display:block;font-size:13px;color:rgba(255,255,255,0.55);text-decoration:none">Contact</a></div>
+  </div>
+  <div class="store-footer-bottom">© 2026 · Powered by <a href="#" style="color:rgba(255,255,255,0.4)">Sivra</a></div>
+</footer>
+
 <div class="toast" id="sivraToast"></div>
 <script>function sivraToast(m){const t=document.getElementById('sivraToast');if(!t)return;t.textContent=m;t.classList.add('show');clearTimeout(t._tid);t._tid=setTimeout(()=>t.classList.remove('show'),2500);}window.showToast=sivraToast;</script>
 <script>if(typeof Sivra==='undefined'){window.Sivra={requireAuth:async(r)=>{const t=localStorage.getItem('sivra_token');if(!t&&r){location.href=r;return null;}return t?{merchant:{firstName:'Admin'},store:{name:'My Store'}}:null;},request:async(m,u,d)=>{const t=localStorage.getItem('sivra_token');const o={method:m,headers:{'Content-Type':'application/json','Authorization':'Bearer '+t}};if(d)o.body=JSON.stringify(d);const r=await fetch(u,o);return r.ok?r.json():null;},getSession:()=>{try{return JSON.parse(localStorage.getItem('sivra_session')||'null');}catch(e){return null;}}}};}</script>
 <script src="app.js" onerror="console.log('no app.js')"></script>
 <script>
-async function doLogin() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const password = document.getElementById('loginPassword').value;
-  const btn = document.getElementById('loginBtn');
-  const err = document.getElementById('loginError');
-  err.style.display = 'none';
-  if (!email || !password) { err.textContent = 'Please enter your email and password.'; err.style.display = ''; return; }
-  btn.textContent = 'Logging in...'; btn.disabled = true;
+function getCart(){try{return JSON.parse(localStorage.getItem('sivra_cart')||'[]');}catch(e){return[];}}
+function saveCart(c){localStorage.setItem('sivra_cart',JSON.stringify(c));updateCartCount();}
+function updateCartCount(){const c=getCart();const n=c.reduce((s,i)=>s+i.qty,0);const el=document.getElementById('cartCount');if(el){el.textContent=n;el.style.display=n>0?'':'none';}}
+function addToCart(id,title,price,image){const c=getCart();const ex=c.find(i=>i.id===id);if(ex)ex.qty++;else c.push({id,title,price,image,qty:1});saveCart(c);sivraToast(title+' added to cart');}
+updateCartCount();
+
+let _product = null;
+let _qty = 1;
+
+function changeQty(delta) {
+  _qty = Math.max(1, _qty + delta);
+  document.getElementById('qtyDisplay').textContent = _qty;
+}
+
+function doAddToCart() {
+  if (!_product) return;
+  addToCart(_product.id, _product.title, _product.price, _product.image_url);
+}
+
+function buyNow() {
+  if (!_product) return;
+  addToCart(_product.id, _product.title, _product.price, _product.image_url);
+  location.href = 'sivra-checkout.html';
+}
+
+async function loadProduct() {
+  const params = new URLSearchParams(location.search);
+  const id = params.get('id');
+  if (!id) { location.href = 'sivra-storefront.html'; return; }
   try {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({email, password})
-    });
+    const res = await fetch(`/api/storefront/products/${id}`);
     const data = await res.json();
-    if (data.token) {
-      localStorage.setItem('sivra_token', data.token);
-      localStorage.setItem('sivra_session', JSON.stringify(data));
-      location.href = 'sivra-dashboard.html';
-    } else {
-      err.textContent = data.error || 'Invalid email or password.';
-      err.style.display = '';
-      btn.textContent = 'Log in'; btn.disabled = false;
+    _product = data.product || data;
+    if (!_product) return;
+    document.title = _product.title + ' — Store';
+    document.getElementById('prodBreadcrumb').textContent = _product.title;
+    document.getElementById('prodTitle').textContent = _product.title;
+    document.getElementById('prodVendor').textContent = _product.vendor || '';
+    document.getElementById('prodDesc').textContent = _product.description || 'No description available.';
+    document.getElementById('prodPrice').textContent = '$' + parseFloat(_product.price||0).toFixed(2);
+    if (_product.compare_at_price && _product.compare_at_price > _product.price) {
+      document.getElementById('prodCompare').textContent = '$' + parseFloat(_product.compare_at_price).toFixed(2);
+      document.getElementById('prodSaleBadge').style.display = '';
     }
+    if (_product.image_url) {
+      document.getElementById('mainImage').innerHTML = `<img src="${_product.image_url}" style="width:100%;height:100%;object-fit:cover"/>`;
+    }
+    const sn = document.getElementById('storeNavLogo');
+    if (sn) sn.textContent = data.store?.name || 'Store';
   } catch(e) {
-    err.textContent = 'Connection error. Please try again.';
-    err.style.display = '';
-    btn.textContent = 'Log in'; btn.disabled = false;
+    document.getElementById('prodTitle').textContent = 'Product not found';
   }
 }
-// Auto-focus
-document.getElementById('loginEmail').focus();
+loadProduct();
 </script>
 </body>
 </html>

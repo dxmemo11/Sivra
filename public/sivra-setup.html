@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sivra — Log in</title>
+  <title>Sivra — Set up your store</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,450;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
   <style>
 /* ═══════════════════════════════════════════════
@@ -545,45 +545,175 @@ body{background:#fff;}
 </head>
 <body>
 
-<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f6f6f7">
-  <div style="width:100%;max-width:420px;padding:24px">
-    <!-- Logo -->
-    <div style="text-align:center;margin-bottom:32px">
-      <div style="width:48px;height:48px;background:#1a1a1a;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:20px;font-weight:800;color:white">S</div>
-      <div style="font-size:22px;font-weight:700;color:#1a1a1a">Sivra</div>
-      <div style="font-size:13px;color:#6d7175;margin-top:4px">Commerce without limits</div>
+<div style="min-height:100vh;background:#f6f6f7;display:flex;flex-direction:column">
+  <!-- Top bar -->
+  <div style="background:#1a1a1a;height:52px;display:flex;align-items:center;padding:0 24px;gap:12px">
+    <div style="width:24px;height:24px;background:white;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#1a1a1a">S</div>
+    <span style="color:white;font-size:14px;font-weight:600">Sivra</span>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button onclick="skipSetup()" style="background:none;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer">Skip for now</button>
     </div>
+  </div>
 
-    <div class="p-card" style="padding:0">
-      <div style="padding:24px">
-        <div style="font-size:17px;font-weight:600;color:#1a1a1a;margin-bottom:20px">Log in to your store</div>
+  <!-- Content -->
+  <div style="flex:1;display:flex;align-items:flex-start;justify-content:center;padding:40px 24px">
+    <div style="width:100%;max-width:640px">
+      <div style="margin-bottom:28px">
+        <div style="font-size:22px;font-weight:700;color:#1a1a1a;margin-bottom:6px">Let's set up your store</div>
+        <div style="font-size:13px;color:#6d7175">Complete these steps to start selling. Takes about 5 minutes.</div>
+      </div>
 
-        <div id="loginError" style="display:none;background:#fde8e8;border:1px solid #f5c6c6;border-radius:8px;padding:10px 12px;font-size:13px;color:#c0392b;margin-bottom:16px"></div>
+      <!-- Progress -->
+      <div style="display:flex;gap:4px;margin-bottom:28px" id="stepDots">
+        <div style="height:4px;flex:1;border-radius:2px;background:#1a1a1a" data-step="0"></div>
+        <div style="height:4px;flex:1;border-radius:2px;background:#e3e3e3" data-step="1"></div>
+        <div style="height:4px;flex:1;border-radius:2px;background:#e3e3e3" data-step="2"></div>
+        <div style="height:4px;flex:1;border-radius:2px;background:#e3e3e3" data-step="3"></div>
+      </div>
 
-        <div style="margin-bottom:14px">
-          <label class="p-label">Email</label>
-          <input class="p-input" id="loginEmail" type="email" placeholder="you@example.com" autocomplete="email"/>
-        </div>
-        <div style="margin-bottom:20px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-            <label class="p-label" style="margin:0">Password</label>
-            <a href="#" style="font-size:12px;color:#005bd3" onclick="sivraToast('Password reset coming soon');return false">Forgot password?</a>
+      <!-- Step 0: Store details -->
+      <div id="step0" class="setup-step">
+        <div class="p-card" style="padding:0">
+          <div style="padding:24px">
+            <div style="font-size:17px;font-weight:600;margin-bottom:4px">Tell us about your store</div>
+            <div style="font-size:13px;color:#6d7175;margin-bottom:20px">This helps us personalize your experience.</div>
+            <div style="margin-bottom:14px">
+              <label class="p-label">What will you sell?</label>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px" id="categoryGrid">
+                <div class="cat-btn" onclick="selectCat(this,'physical')" style="border:1px solid #e3e3e3;border-radius:8px;padding:12px;cursor:pointer;transition:all 0.1s;display:flex;align-items:center;gap:10px">
+                  <div style="font-size:20px">📦</div><div><div style="font-size:13px;font-weight:500">Physical products</div><div style="font-size:11px;color:#6d7175">Clothes, electronics, etc.</div></div>
+                </div>
+                <div class="cat-btn" onclick="selectCat(this,'digital')" style="border:1px solid #e3e3e3;border-radius:8px;padding:12px;cursor:pointer;transition:all 0.1s;display:flex;align-items:center;gap:10px">
+                  <div style="font-size:20px">💻</div><div><div style="font-size:13px;font-weight:500">Digital products</div><div style="font-size:11px;color:#6d7175">Downloads, software, etc.</div></div>
+                </div>
+                <div class="cat-btn" onclick="selectCat(this,'services')" style="border:1px solid #e3e3e3;border-radius:8px;padding:12px;cursor:pointer;transition:all 0.1s;display:flex;align-items:center;gap:10px">
+                  <div style="font-size:20px">🎯</div><div><div style="font-size:13px;font-weight:500">Services</div><div style="font-size:11px;color:#6d7175">Consulting, coaching, etc.</div></div>
+                </div>
+                <div class="cat-btn" onclick="selectCat(this,'dropshipping')" style="border:1px solid #e3e3e3;border-radius:8px;padding:12px;cursor:pointer;transition:all 0.1s;display:flex;align-items:center;gap:10px">
+                  <div style="font-size:20px">🚚</div><div><div style="font-size:13px;font-weight:500">Dropshipping</div><div style="font-size:11px;color:#6d7175">Sell without holding stock</div></div>
+                </div>
+              </div>
+            </div>
+            <div style="margin-bottom:14px">
+              <label class="p-label">Your store's country</label>
+              <select class="p-select" id="setupCountry" style="width:100%">
+                <option value="">Select country...</option>
+                <option value="AU">Australia</option>
+                <option value="US">United States</option>
+                <option value="GB">United Kingdom</option>
+                <option value="CA">Canada</option>
+                <option value="AE">United Arab Emirates</option>
+                <option value="SA">Saudi Arabia</option>
+                <option value="IQ">Iraq</option>
+                <option value="DE">Germany</option>
+                <option value="FR">France</option>
+                <option value="NL">Netherlands</option>
+              </select>
+            </div>
+            <div>
+              <label class="p-label">Currency</label>
+              <select class="p-select" id="setupCurrency" style="width:100%">
+                <option value="USD">USD — US Dollar</option>
+                <option value="AUD">AUD — Australian Dollar</option>
+                <option value="GBP">GBP — British Pound</option>
+                <option value="EUR">EUR — Euro</option>
+                <option value="CAD">CAD — Canadian Dollar</option>
+                <option value="AED">AED — UAE Dirham</option>
+                <option value="SAR">SAR — Saudi Riyal</option>
+                <option value="IQD">IQD — Iraqi Dinar</option>
+              </select>
+            </div>
           </div>
-          <input class="p-input" id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password"
-            onkeydown="if(event.key==='Enter')doLogin()"/>
+          <div style="padding:16px 24px;border-top:1px solid #e3e3e3;display:flex;justify-content:flex-end">
+            <button class="p-btn p-btn-primary" onclick="nextStep(1)">Continue</button>
+          </div>
         </div>
-        <button class="p-btn p-btn-primary" style="width:100%;justify-content:center;height:36px;font-size:14px" id="loginBtn" onclick="doLogin()">
-          Log in
-        </button>
       </div>
-      <div style="border-top:1px solid #e3e3e3;padding:16px 24px;text-align:center">
-        <span style="font-size:13px;color:#6d7175">Don't have a store? </span>
-        <a href="sivra-signup.html" style="font-size:13px;color:#005bd3;font-weight:500">Create one free</a>
-      </div>
-    </div>
 
-    <div style="text-align:center;margin-top:20px;font-size:11px;color:#8c9196">
-      By continuing you agree to Sivra's <a href="#" style="color:#6d7175">Terms of Service</a> and <a href="#" style="color:#6d7175">Privacy Policy</a>
+      <!-- Step 1: Add first product -->
+      <div id="step1" class="setup-step" style="display:none">
+        <div class="p-card" style="padding:0">
+          <div style="padding:24px">
+            <div style="font-size:17px;font-weight:600;margin-bottom:4px">Add your first product</div>
+            <div style="font-size:13px;color:#6d7175;margin-bottom:20px">You can add more later. Just start with one to get going.</div>
+            <div style="margin-bottom:14px">
+              <label class="p-label">Product name</label>
+              <input class="p-input" id="setupProdName" placeholder="e.g. Classic White T-Shirt"/>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+              <div>
+                <label class="p-label">Price</label>
+                <div style="position:relative"><span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#6d7175">$</span>
+                <input class="p-input" id="setupProdPrice" type="number" placeholder="0.00" style="padding-left:24px"/></div>
+              </div>
+              <div>
+                <label class="p-label">Quantity</label>
+                <input class="p-input" id="setupProdQty" type="number" placeholder="0"/>
+              </div>
+            </div>
+          </div>
+          <div style="padding:16px 24px;border-top:1px solid #e3e3e3;display:flex;justify-content:space-between">
+            <button class="p-btn p-btn-secondary" onclick="nextStep(0)">Back</button>
+            <div style="display:flex;gap:8px">
+              <button class="p-btn p-btn-secondary" onclick="nextStep(2)">Skip</button>
+              <button class="p-btn p-btn-primary" onclick="saveSetupProduct()">Add product</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Payment setup -->
+      <div id="step2" class="setup-step" style="display:none">
+        <div class="p-card" style="padding:0">
+          <div style="padding:24px">
+            <div style="font-size:17px;font-weight:600;margin-bottom:4px">Set up payments</div>
+            <div style="font-size:13px;color:#6d7175;margin-bottom:20px">Connect a payment provider so you can get paid.</div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div onclick="selectPayment(this,'stripe')" style="border:1px solid #e3e3e3;border-radius:8px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all 0.1s" class="pay-opt">
+                <div style="width:40px;height:28px;background:#635bff;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                  <span style="color:white;font-size:11px;font-weight:700">stripe</span>
+                </div>
+                <div style="flex:1"><div style="font-size:13px;font-weight:500">Stripe</div><div style="font-size:12px;color:#6d7175">Cards, Apple Pay, Google Pay</div></div>
+                <div class="pay-check" style="display:none;color:#008060"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+              </div>
+              <div onclick="selectPayment(this,'paypal')" style="border:1px solid #e3e3e3;border-radius:8px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all 0.1s" class="pay-opt">
+                <div style="width:40px;height:28px;background:#003087;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                  <span style="color:white;font-size:10px;font-weight:700">PayPal</span>
+                </div>
+                <div style="flex:1"><div style="font-size:13px;font-weight:500">PayPal</div><div style="font-size:12px;color:#6d7175">PayPal balance and cards</div></div>
+                <div class="pay-check" style="display:none;color:#008060"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+              </div>
+              <div onclick="selectPayment(this,'manual')" style="border:1px solid #e3e3e3;border-radius:8px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all 0.1s" class="pay-opt">
+                <div style="width:40px;height:28px;background:#f6f6f7;border-radius:6px;border:1px solid #e3e3e3;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px">🏦</div>
+                <div style="flex:1"><div style="font-size:13px;font-weight:500">Manual / Bank transfer</div><div style="font-size:12px;color:#6d7175">Customers pay via bank transfer</div></div>
+                <div class="pay-check" style="display:none;color:#008060"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:16px 24px;border-top:1px solid #e3e3e3;display:flex;justify-content:space-between">
+            <button class="p-btn p-btn-secondary" onclick="nextStep(1)">Back</button>
+            <div style="display:flex;gap:8px">
+              <button class="p-btn p-btn-secondary" onclick="nextStep(3)">Skip</button>
+              <button class="p-btn p-btn-primary" onclick="nextStep(3)">Continue</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Done -->
+      <div id="step3" class="setup-step" style="display:none">
+        <div class="p-card" style="padding:40px;text-align:center">
+          <div style="width:64px;height:64px;background:#e8f8f0;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M5 14l6 6L23 8" stroke="#008060" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div style="font-size:20px;font-weight:700;color:#1a1a1a;margin-bottom:8px">Your store is ready! 🎉</div>
+          <div style="font-size:13px;color:#6d7175;margin-bottom:28px">Everything is set up. Time to start selling.</div>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <button class="p-btn p-btn-secondary" onclick="location.href='sivra-add-product.html'">Add more products</button>
+            <button class="p-btn p-btn-primary" onclick="location.href='sivra-dashboard.html'">Go to dashboard</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -592,38 +722,50 @@ body{background:#fff;}
 <script>if(typeof Sivra==='undefined'){window.Sivra={requireAuth:async(r)=>{const t=localStorage.getItem('sivra_token');if(!t&&r){location.href=r;return null;}return t?{merchant:{firstName:'Admin'},store:{name:'My Store'}}:null;},request:async(m,u,d)=>{const t=localStorage.getItem('sivra_token');const o={method:m,headers:{'Content-Type':'application/json','Authorization':'Bearer '+t}};if(d)o.body=JSON.stringify(d);const r=await fetch(u,o);return r.ok?r.json():null;},getSession:()=>{try{return JSON.parse(localStorage.getItem('sivra_session')||'null');}catch(e){return null;}}}};}</script>
 <script src="app.js" onerror="console.log('no app.js')"></script>
 <script>
-async function doLogin() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const password = document.getElementById('loginPassword').value;
-  const btn = document.getElementById('loginBtn');
-  const err = document.getElementById('loginError');
-  err.style.display = 'none';
-  if (!email || !password) { err.textContent = 'Please enter your email and password.'; err.style.display = ''; return; }
-  btn.textContent = 'Logging in...'; btn.disabled = true;
-  try {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({email, password})
-    });
-    const data = await res.json();
-    if (data.token) {
-      localStorage.setItem('sivra_token', data.token);
-      localStorage.setItem('sivra_session', JSON.stringify(data));
-      location.href = 'sivra-dashboard.html';
-    } else {
-      err.textContent = data.error || 'Invalid email or password.';
-      err.style.display = '';
-      btn.textContent = 'Log in'; btn.disabled = false;
-    }
-  } catch(e) {
-    err.textContent = 'Connection error. Please try again.';
-    err.style.display = '';
-    btn.textContent = 'Log in'; btn.disabled = false;
-  }
+let _currentStep = 0;
+let _selectedCat = null;
+let _selectedPayment = null;
+
+function nextStep(n) {
+  document.getElementById('step'+_currentStep).style.display = 'none';
+  _currentStep = n;
+  document.getElementById('step'+n).style.display = '';
+  document.querySelectorAll('[data-step]').forEach((d,i) => {
+    d.style.background = i <= n ? '#1a1a1a' : '#e3e3e3';
+  });
+  window.scrollTo(0,0);
 }
-// Auto-focus
-document.getElementById('loginEmail').focus();
+
+function selectCat(el, cat) {
+  document.querySelectorAll('.cat-btn').forEach(b => {
+    b.style.borderColor = '#e3e3e3'; b.style.background = '';
+  });
+  el.style.borderColor = '#1a1a1a'; el.style.background = '#f9f9f9';
+  _selectedCat = cat;
+}
+
+function selectPayment(el, method) {
+  document.querySelectorAll('.pay-opt').forEach(b => {
+    b.style.borderColor = '#e3e3e3';
+    b.querySelector('.pay-check').style.display = 'none';
+  });
+  el.style.borderColor = '#1a1a1a';
+  el.querySelector('.pay-check').style.display = '';
+  _selectedPayment = method;
+}
+
+async function saveSetupProduct() {
+  const name = document.getElementById('setupProdName').value.trim();
+  const price = parseFloat(document.getElementById('setupProdPrice').value)||0;
+  const qty = parseInt(document.getElementById('setupProdQty').value)||0;
+  if (!name) { sivraToast('Please enter a product name'); return; }
+  try {
+    await Sivra.request('POST','/api/products', {title:name, price, inventory_quantity:qty, status:'active'});
+    nextStep(2);
+  } catch(e) { nextStep(2); }
+}
+
+function skipSetup() { location.href = 'sivra-dashboard.html'; }
 </script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sivra — Log in</title>
+  <title>Cart — Store</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,450;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
   <style>
 /* ═══════════════════════════════════════════════
@@ -540,50 +540,63 @@ input, textarea, select { font-family: inherit; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 body{background:#fff;}
+
+.store-nav{position:sticky;top:0;z-index:100;background:white;border-bottom:1px solid #e3e3e3;padding:0 24px;height:60px;display:flex;align-items:center;gap:24px;}
+.store-nav-logo{font-size:16px;font-weight:700;color:#1a1a1a;text-decoration:none;}
+.store-nav-links{display:flex;gap:20px;flex:1;margin-left:16px;}
+.store-nav-link{font-size:14px;color:#6d7175;text-decoration:none;transition:color 0.1s;}
+.store-nav-link:hover{color:#1a1a1a;}
+.store-nav-right{display:flex;align-items:center;gap:12px;margin-left:auto;}
+.store-nav-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#6d7175;cursor:pointer;transition:background 0.1s;position:relative;background:none;border:none;}
+.store-nav-icon:hover{background:#f6f6f7;color:#1a1a1a;}
+.cart-count{position:absolute;top:4px;right:4px;width:16px;height:16px;background:#1a1a1a;border-radius:50%;font-size:9px;font-weight:700;color:white;display:flex;align-items:center;justify-content:center;}
+
   </style>
-  
 </head>
 <body>
 
-<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f6f6f7">
-  <div style="width:100%;max-width:420px;padding:24px">
-    <!-- Logo -->
-    <div style="text-align:center;margin-bottom:32px">
-      <div style="width:48px;height:48px;background:#1a1a1a;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:20px;font-weight:800;color:white">S</div>
-      <div style="font-size:22px;font-weight:700;color:#1a1a1a">Sivra</div>
-      <div style="font-size:13px;color:#6d7175;margin-top:4px">Commerce without limits</div>
+<nav class="store-nav">
+  <a href="sivra-storefront.html" class="store-nav-logo" id="storeNavLogo">Store</a>
+  <div class="store-nav-links"><a href="sivra-storefront.html" class="store-nav-link">Home</a><a href="sivra-storefront.html" class="store-nav-link">All products</a></div>
+  <div class="store-nav-right">
+    <button class="store-nav-icon" onclick="location.href='sivra-cart.html'">
+      <svg width="17" height="17" viewBox="0 0 16 16" fill="none"><path d="M2 2h1.5l2.5 8h7l1.5-5H5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6.5" cy="13" r="1.2" fill="currentColor"/><circle cx="11.5" cy="13" r="1.2" fill="currentColor"/></svg>
+      <span class="cart-count" id="cartCount" style="display:none">0</span>
+    </button>
+  </div>
+</nav>
+<div style="max-width:900px;margin:0 auto;padding:40px 24px">
+  <h1 style="font-size:24px;font-weight:700;margin-bottom:28px">Your cart</h1>
+  <div style="display:grid;grid-template-columns:1fr 320px;gap:32px;align-items:start" id="cartLayout">
+    <div id="cartItems">
+      <div style="text-align:center;padding:64px;color:#8c9196">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin:0 auto 12px;display:block;opacity:0.2"><path d="M6 6h5l7 24h21l5-16H15" stroke="#303030" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="38" r="4" stroke="#303030" stroke-width="3"/><circle cx="34" cy="38" r="4" stroke="#303030" stroke-width="3"/></svg>
+        <div style="font-size:16px;font-weight:600;color:#303030;margin-bottom:8px">Your cart is empty</div>
+        <div style="margin-bottom:20px">Looks like you haven't added anything yet.</div>
+        <a href="sivra-storefront.html" class="p-btn p-btn-primary" style="display:inline-flex;align-items:center">Continue shopping</a>
+      </div>
     </div>
-
-    <div class="p-card" style="padding:0">
-      <div style="padding:24px">
-        <div style="font-size:17px;font-weight:600;color:#1a1a1a;margin-bottom:20px">Log in to your store</div>
-
-        <div id="loginError" style="display:none;background:#fde8e8;border:1px solid #f5c6c6;border-radius:8px;padding:10px 12px;font-size:13px;color:#c0392b;margin-bottom:16px"></div>
-
-        <div style="margin-bottom:14px">
-          <label class="p-label">Email</label>
-          <input class="p-input" id="loginEmail" type="email" placeholder="you@example.com" autocomplete="email"/>
+    <div id="cartSummary" style="display:none">
+      <div class="p-card" style="padding:20px">
+        <div style="font-size:15px;font-weight:600;margin-bottom:16px">Order summary</div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:13px;color:#6d7175">Subtotal</span>
+          <span style="font-size:13px;font-weight:500" id="cartSubtotal">$0.00</span>
         </div>
-        <div style="margin-bottom:20px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-            <label class="p-label" style="margin:0">Password</label>
-            <a href="#" style="font-size:12px;color:#005bd3" onclick="sivraToast('Password reset coming soon');return false">Forgot password?</a>
-          </div>
-          <input class="p-input" id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password"
-            onkeydown="if(event.key==='Enter')doLogin()"/>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:13px;color:#6d7175">Shipping</span>
+          <span style="font-size:13px;color:#1a7f37">Calculated at checkout</span>
         </div>
-        <button class="p-btn p-btn-primary" style="width:100%;justify-content:center;height:36px;font-size:14px" id="loginBtn" onclick="doLogin()">
-          Log in
+        <div style="height:1px;background:#e3e3e3;margin:12px 0"></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:20px">
+          <span style="font-size:15px;font-weight:600">Total</span>
+          <span style="font-size:15px;font-weight:700" id="cartTotal">$0.00</span>
+        </div>
+        <button style="width:100%;height:48px;background:#1a1a1a;color:white;border:none;border-radius:8px;font-size:15px;font-weight:500;font-family:inherit;cursor:pointer" onclick="location.href='sivra-checkout.html'">
+          Proceed to checkout
         </button>
+        <a href="sivra-storefront.html" style="display:block;text-align:center;margin-top:12px;font-size:13px;color:#6d7175;text-decoration:none">← Continue shopping</a>
       </div>
-      <div style="border-top:1px solid #e3e3e3;padding:16px 24px;text-align:center">
-        <span style="font-size:13px;color:#6d7175">Don't have a store? </span>
-        <a href="sivra-signup.html" style="font-size:13px;color:#005bd3;font-weight:500">Create one free</a>
-      </div>
-    </div>
-
-    <div style="text-align:center;margin-top:20px;font-size:11px;color:#8c9196">
-      By continuing you agree to Sivra's <a href="#" style="color:#6d7175">Terms of Service</a> and <a href="#" style="color:#6d7175">Privacy Policy</a>
     </div>
   </div>
 </div>
@@ -592,38 +605,60 @@ body{background:#fff;}
 <script>if(typeof Sivra==='undefined'){window.Sivra={requireAuth:async(r)=>{const t=localStorage.getItem('sivra_token');if(!t&&r){location.href=r;return null;}return t?{merchant:{firstName:'Admin'},store:{name:'My Store'}}:null;},request:async(m,u,d)=>{const t=localStorage.getItem('sivra_token');const o={method:m,headers:{'Content-Type':'application/json','Authorization':'Bearer '+t}};if(d)o.body=JSON.stringify(d);const r=await fetch(u,o);return r.ok?r.json():null;},getSession:()=>{try{return JSON.parse(localStorage.getItem('sivra_session')||'null');}catch(e){return null;}}}};}</script>
 <script src="app.js" onerror="console.log('no app.js')"></script>
 <script>
-async function doLogin() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const password = document.getElementById('loginPassword').value;
-  const btn = document.getElementById('loginBtn');
-  const err = document.getElementById('loginError');
-  err.style.display = 'none';
-  if (!email || !password) { err.textContent = 'Please enter your email and password.'; err.style.display = ''; return; }
-  btn.textContent = 'Logging in...'; btn.disabled = true;
-  try {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({email, password})
-    });
-    const data = await res.json();
-    if (data.token) {
-      localStorage.setItem('sivra_token', data.token);
-      localStorage.setItem('sivra_session', JSON.stringify(data));
-      location.href = 'sivra-dashboard.html';
-    } else {
-      err.textContent = data.error || 'Invalid email or password.';
-      err.style.display = '';
-      btn.textContent = 'Log in'; btn.disabled = false;
-    }
-  } catch(e) {
-    err.textContent = 'Connection error. Please try again.';
-    err.style.display = '';
-    btn.textContent = 'Log in'; btn.disabled = false;
+function getCart(){try{return JSON.parse(localStorage.getItem('sivra_cart')||'[]');}catch(e){return[];}}
+function saveCart(c){localStorage.setItem('sivra_cart',JSON.stringify(c));updateCartCount();}
+function updateCartCount(){const c=getCart();const n=c.reduce((s,i)=>s+i.qty,0);const el=document.getElementById('cartCount');if(el){el.textContent=n;el.style.display=n>0?'':'none';}}
+function addToCart(id,title,price,image){const c=getCart();const ex=c.find(i=>i.id===id);if(ex)ex.qty++;else c.push({id,title,price,image,qty:1});saveCart(c);sivraToast(title+' added to cart');}
+updateCartCount();
+
+function renderCart() {
+  const cart = getCart();
+  const itemsEl = document.getElementById('cartItems');
+  const summaryEl = document.getElementById('cartSummary');
+  if (!cart.length) {
+    itemsEl.innerHTML = `<div style="text-align:center;padding:64px;color:#8c9196">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin:0 auto 12px;display:block;opacity:0.2"><path d="M6 6h5l7 24h21l5-16H15" stroke="#303030" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="38" r="4" stroke="#303030" stroke-width="3"/><circle cx="34" cy="38" r="4" stroke="#303030" stroke-width="3"/></svg>
+      <div style="font-size:16px;font-weight:600;color:#303030;margin-bottom:8px">Your cart is empty</div>
+      <div style="margin-bottom:20px">Looks like you haven't added anything yet.</div>
+      <a href="sivra-storefront.html" style="display:inline-flex;align-items:center;height:40px;padding:0 20px;background:#1a1a1a;color:white;border-radius:8px;font-size:14px;font-weight:500;text-decoration:none">Continue shopping</a>
+    </div>`;
+    summaryEl.style.display = 'none';
+    return;
   }
+  summaryEl.style.display = '';
+  const total = cart.reduce((s,i)=>s+parseFloat(i.price||0)*i.qty,0);
+  document.getElementById('cartSubtotal').textContent = '$'+total.toFixed(2);
+  document.getElementById('cartTotal').textContent = '$'+total.toFixed(2);
+  itemsEl.innerHTML = cart.map((item,idx) => `
+    <div style="display:flex;gap:16px;padding:16px 0;border-bottom:1px solid #f0f0f0;align-items:center">
+      <div style="width:72px;height:72px;border-radius:8px;background:#f6f6f7;border:1px solid #e3e3e3;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center">
+        ${item.image ? `<img src="${item.image}" style="width:100%;height:100%;object-fit:cover"/>` : `<svg width="28" height="28" viewBox="0 0 28 28" fill="none" opacity="0.2"><rect x="2" y="2" width="24" height="24" rx="3" stroke="#303030" stroke-width="2"/></svg>`}
+      </div>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:500;margin-bottom:4px">${item.title}</div>
+        <div style="font-size:13px;color:#6d7175">$${parseFloat(item.price||0).toFixed(2)}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="display:flex;align-items:center;border:1px solid #e3e3e3;border-radius:8px;overflow:hidden">
+          <button style="width:32px;height:32px;border:none;background:none;font-size:16px;cursor:pointer;font-family:inherit" onclick="updateQty(${idx},-1)">−</button>
+          <span style="width:32px;text-align:center;font-size:13px;font-weight:500">${item.qty}</span>
+          <button style="width:32px;height:32px;border:none;background:none;font-size:16px;cursor:pointer;font-family:inherit" onclick="updateQty(${idx},1)">+</button>
+        </div>
+        <div style="font-size:14px;font-weight:600;width:60px;text-align:right">$${(parseFloat(item.price||0)*item.qty).toFixed(2)}</div>
+        <button onclick="removeItem(${idx})" style="background:none;border:none;color:#8c9196;cursor:pointer;padding:4px;border-radius:4px" title="Remove">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>`).join('');
 }
-// Auto-focus
-document.getElementById('loginEmail').focus();
+
+function updateQty(idx, delta) {
+  const c = getCart(); c[idx].qty = Math.max(1, c[idx].qty+delta); saveCart(c); renderCart();
+}
+function removeItem(idx) {
+  const c = getCart(); c.splice(idx,1); saveCart(c); renderCart();
+}
+renderCart();
 </script>
 </body>
 </html>
