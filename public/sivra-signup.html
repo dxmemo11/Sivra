@@ -692,14 +692,14 @@ async function doSignup() {
       localStorage.setItem('sivra_session', JSON.stringify(data));
       location.href = 'sivra-setup.html';
     } else {
-      err.textContent = data.error || data.message || ('Status: ' + res.status + ' — Could not create account.');
+      err.textContent = data.error || data.message || ('Status: ' + res.status + ' - Could not create account.');
       err.style.display = '';
-      btn.textContent = 'Create your store — it's free'; btn.disabled = false;
+      btn.textContent = "Create your store - it's free"; btn.disabled = false;
     }
   } catch(e) {
     err.textContent = 'Connection error. Is the server running?';
     err.style.display = '';
-    btn.textContent = 'Create your store — it's free'; btn.disabled = false;
+    btn.textContent = "Create your store - it's free"; btn.disabled = false;
   }
 }
 document.getElementById('signupFirst').focus();
