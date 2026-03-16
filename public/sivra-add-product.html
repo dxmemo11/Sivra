@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sivra — Products</title>
+  <title>Sivra — Add product</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,450;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
   <style>
 /* ═══════════════════════════════════════════════
@@ -573,74 +573,258 @@ input, textarea, select { font-family: inherit; }
     <div class="topbar" id="sivraTopbar"></div>
     <div class="page-scroll" id="pageScroll">
 
-      <div class="page-header">
-        <h1 class="page-title">Products</h1>
+      <!-- Breadcrumb -->
+      <div style="padding:16px 20px 0;display:flex;align-items:center;gap:6px">
+        <a href="sivra-products.html" style="color:#6d7175;font-size:13px;display:flex;align-items:center;gap:4px;text-decoration:none">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 3L5 7l4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Products
+        </a>
+        <span style="color:#8c9196;font-size:13px">/</span>
+        <span style="font-size:13px;color:#303030">Add product</span>
+      </div>
+
+      <div class="page-header" style="padding-top:8px">
+        <h1 class="page-title">Add product</h1>
         <div style="display:flex;gap:8px">
-          <button class="p-btn p-btn-secondary" onclick="sivraToast('Import coming soon')">Import</button>
-          <button class="p-btn p-btn-secondary" onclick="sivraToast('Export coming soon')">Export</button>
-          <button class="p-btn p-btn-primary" onclick="location.href='sivra-add-product.html'">Add product</button>
+          <button class="p-btn p-btn-secondary" onclick="sivraToast('Discarded')">Discard</button>
+          <button class="p-btn p-btn-secondary" onclick="saveProduct('draft')">Save as draft</button>
+          <button class="p-btn p-btn-primary" onclick="saveProduct('active')" id="saveBtn">Save</button>
         </div>
       </div>
 
-      <div class="page-body" style="padding-top:12px">
-        <div class="p-card">
-          <!-- Tabs -->
-          <div class="p-tabs">
-            <div class="p-tab active" onclick="setProdTab(this,'all')">All</div>
-            <div class="p-tab" onclick="setProdTab(this,'active')">Active</div>
-            <div class="p-tab" onclick="setProdTab(this,'draft')">Draft</div>
-            <div class="p-tab" onclick="setProdTab(this,'archived')">Archived</div>
+      <div class="page-body" style="padding-top:16px">
+        <div style="display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:start">
+
+          <!-- LEFT COLUMN -->
+          <div style="display:flex;flex-direction:column;gap:16px">
+
+            <!-- Title & Description -->
+            <div class="p-card">
+              <div class="p-card-section">
+                <label class="p-label">Title</label>
+                <input class="p-input" id="pTitle" placeholder="Short sleeve t-shirt" style="margin-bottom:12px"/>
+                <label class="p-label">Description</label>
+                <div style="border:1px solid #e3e3e3;border-radius:8px;overflow:hidden">
+                  <!-- Rich text toolbar -->
+                  <div style="display:flex;gap:1px;padding:6px 8px;border-bottom:1px solid #e3e3e3;background:#f9f9f9;flex-wrap:wrap">
+                    <button class="p-btn p-btn-sm" style="border:none;background:none;width:28px;padding:0;font-weight:700" title="Bold" onclick="sivraToast('Bold')">B</button>
+                    <button class="p-btn p-btn-sm" style="border:none;background:none;width:28px;padding:0;font-style:italic" title="Italic" onclick="sivraToast('Italic')"><em>I</em></button>
+                    <button class="p-btn p-btn-sm" style="border:none;background:none;width:28px;padding:0;text-decoration:underline" title="Underline" onclick="sivraToast('Underline')"><u>U</u></button>
+                    <div style="width:1px;background:#e3e3e3;margin:2px 4px"></div>
+                    <button class="p-btn p-btn-sm" style="border:none;background:none;width:28px;padding:0" title="Bullet list" onclick="sivraToast('List')">
+                      <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M5 3h8M5 7h8M5 11h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="2" cy="3" r="1" fill="currentColor"/><circle cx="2" cy="7" r="1" fill="currentColor"/><circle cx="2" cy="11" r="1" fill="currentColor"/></svg>
+                    </button>
+                    <button class="p-btn p-btn-sm" style="border:none;background:none;width:28px;padding:0" title="Link" onclick="sivraToast('Link')">
+                      <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M5.5 8.5l3-3M3.5 9.5l-1 1a2.5 2.5 0 000 3.5 2.5 2.5 0 003.5 0l1-1M10.5 4.5l1-1a2.5 2.5 0 000-3.5 2.5 2.5 0 00-3.5 0l-1 1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                    </button>
+                  </div>
+                  <textarea class="p-textarea" id="pDesc" placeholder="Add a description to help customers understand this product..."
+                    style="border:none;border-radius:0;min-height:120px;resize:vertical"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Media -->
+            <div class="p-card">
+              <div class="p-card-section">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+                  <label class="p-label" style="margin:0">Media</label>
+                  <button class="p-btn p-btn-secondary p-btn-sm" onclick="sivraToast('Add from URL coming soon')">Add from URL</button>
+                </div>
+                <div id="mediaZone" style="border:2px dashed #e3e3e3;border-radius:10px;padding:40px;text-align:center;cursor:pointer;transition:all 0.15s;background:#fafafa"
+                  onclick="document.getElementById('fileInput').click()"
+                  ondragover="event.preventDefault();this.style.borderColor='#005bd3';this.style.background='#f0f5ff'"
+                  ondragleave="this.style.borderColor='#e3e3e3';this.style.background='#fafafa'"
+                  ondrop="handleMediaDrop(event)">
+                  <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFileSelect(event)"/>
+                  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style="margin:0 auto 10px;display:block;opacity:0.3"><rect x="3" y="3" width="26" height="26" rx="3" stroke="#303030" stroke-width="2"/><path d="M3 21l7-7 5 5 4-4 7 7" stroke="#303030" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="10" r="2.5" stroke="#303030" stroke-width="2"/></svg>
+                  <div style="font-size:13px;color:#303030;font-weight:500;margin-bottom:4px">Drag and drop files to upload</div>
+                  <div style="font-size:12px;color:#8c9196">or click to browse — Accepts images, video, or 3D models</div>
+                </div>
+                <div id="mediaPreview" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-top:8px"></div>
+              </div>
+            </div>
+
+            <!-- Pricing -->
+            <div class="p-card">
+              <div class="p-card-section">
+                <div class="p-text-heading-sm" style="margin-bottom:14px">Pricing</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+                  <div>
+                    <label class="p-label">Price</label>
+                    <div style="position:relative">
+                      <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#6d7175;font-size:13px">$</span>
+                      <input class="p-input" id="pPrice" type="number" step="0.01" min="0" placeholder="0.00" style="padding-left:24px"/>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="p-label">Compare-at price <span style="color:#8c9196;font-weight:400">(optional)</span></label>
+                    <div style="position:relative">
+                      <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#6d7175;font-size:13px">$</span>
+                      <input class="p-input" id="pComparePrice" type="number" step="0.01" min="0" placeholder="0.00" style="padding-left:24px"/>
+                    </div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+                  <input type="checkbox" id="pChargeTax" style="width:16px;height:16px;accent-color:#303030"/>
+                  <label for="pChargeTax" style="font-size:13px;cursor:pointer">Charge tax on this product</label>
+                </div>
+                <div>
+                  <label class="p-label">Cost per item <span style="color:#8c9196;font-weight:400">(optional)</span></label>
+                  <div class="p-label-hint">Customers won't see this.</div>
+                  <div style="position:relative">
+                    <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#6d7175;font-size:13px">$</span>
+                    <input class="p-input" id="pCost" type="number" step="0.01" min="0" placeholder="0.00" style="padding-left:24px;width:calc(50% - 6px)"/>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Inventory -->
+            <div class="p-card">
+              <div class="p-card-section">
+                <div class="p-text-heading-sm" style="margin-bottom:14px">Inventory</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+                  <div>
+                    <label class="p-label">SKU (Stock Keeping Unit)</label>
+                    <input class="p-input" id="pSku" placeholder="e.g. SKU-001"/>
+                  </div>
+                  <div>
+                    <label class="p-label">Barcode (ISBN, UPC, GTIN, etc.)</label>
+                    <input class="p-input" id="pBarcode" placeholder=""/>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+                  <input type="checkbox" id="pTrackQty" style="width:16px;height:16px;accent-color:#303030" checked onchange="toggleQty(this)"/>
+                  <label for="pTrackQty" style="font-size:13px;cursor:pointer">Track quantity</label>
+                </div>
+                <div id="qtySection">
+                  <label class="p-label">Quantity</label>
+                  <input class="p-input" id="pQty" type="number" min="0" placeholder="0" style="width:200px"/>
+                  <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
+                    <input type="checkbox" id="pContinueSelling" style="width:16px;height:16px;accent-color:#303030"/>
+                    <label for="pContinueSelling" style="font-size:13px;cursor:pointer">Continue selling when out of stock</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Shipping -->
+            <div class="p-card">
+              <div class="p-card-section">
+                <div class="p-text-heading-sm" style="margin-bottom:14px">Shipping</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+                  <input type="checkbox" id="pPhysical" style="width:16px;height:16px;accent-color:#303030" checked onchange="toggleShipping(this)"/>
+                  <label for="pPhysical" style="font-size:13px;cursor:pointer">This is a physical product</label>
+                </div>
+                <div id="shippingSection">
+                  <label class="p-label">Weight</label>
+                  <div style="display:flex;gap:8px">
+                    <input class="p-input" id="pWeight" type="number" step="0.01" min="0" placeholder="0.0" style="flex:1"/>
+                    <select class="p-select" id="pWeightUnit" style="width:100px">
+                      <option>kg</option><option>g</option><option>lb</option><option>oz</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Variants -->
+            <div class="p-card">
+              <div class="p-card-section">
+                <div class="p-text-heading-sm" style="margin-bottom:4px">Variants</div>
+                <div class="p-text-body-sm p-text-secondary" style="margin-bottom:14px">Add options like size or color</div>
+                <div id="variantOptions"></div>
+                <button class="p-btn p-btn-secondary p-btn-sm" onclick="addVariantOption()" style="margin-top:8px">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                  Add option
+                </button>
+              </div>
+            </div>
+
           </div>
 
-          <!-- Filters -->
-          <div class="p-filters">
-            <div class="p-filter-input" style="flex:0 1 280px">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="#8c9196" stroke-width="1.4"/><path d="M10.5 10.5L14 14" stroke="#8c9196" stroke-width="1.4" stroke-linecap="round"/></svg>
-              <input type="text" placeholder="Search products" id="productSearch" oninput="filterProducts()"/>
-            </div>
-            <button class="p-btn p-btn-secondary p-btn-sm" onclick="sivraToast('Filters coming soon')">
-              <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M1 3h12M3 7h8M5 11h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-              Filter
-            </button>
-            <div style="margin-left:auto">
-              <button class="p-btn p-btn-secondary p-btn-sm" onclick="sivraToast('Sort coming soon')">
-                Sort
-                <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-              </button>
-            </div>
-          </div>
+          <!-- RIGHT COLUMN -->
+          <div style="display:flex;flex-direction:column;gap:16px">
 
-          <!-- Table -->
-          <div style="overflow-x:auto">
-            <table class="p-index" id="productsTable">
-              <thead>
-                <tr>
-                  <th class="col-check"><input type="checkbox" onchange="document.querySelectorAll('.prod-check').forEach(c=>c.checked=this.checked)"/></th>
-                  <th style="width:40px"></th>
-                  <th>Product</th>
-                  <th>Status</th>
-                  <th>Inventory</th>
-                  <th>Category</th>
-                  <th>Vendor</th>
-                </tr>
-              </thead>
-              <tbody id="productsBody">
-                <tr><td colspan="7" style="text-align:center;padding:48px;color:#8c9196">Loading products...</td></tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Pagination -->
-          <div style="padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e3e3e3">
-            <div class="p-text-body-sm p-text-secondary" id="productsCount">0 products</div>
-            <div style="display:flex;gap:4px">
-              <button class="p-btn p-btn-secondary p-btn-sm p-btn-icon" onclick="sivraToast('Previous')">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-              </button>
-              <button class="p-btn p-btn-secondary p-btn-sm p-btn-icon" onclick="sivraToast('Next')">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-              </button>
+            <!-- Status -->
+            <div class="p-card">
+              <div class="p-card-section">
+                <label class="p-label" style="margin-bottom:8px">Status</label>
+                <select class="p-select" id="pStatus" style="width:100%">
+                  <option value="active">Active</option>
+                  <option value="draft">Draft</option>
+                </select>
+              </div>
             </div>
+
+            <!-- Sales channels -->
+            <div class="p-card">
+              <div class="p-card-section" style="padding-bottom:8px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                  <span class="p-text-heading-xs">Sales channels and apps</span>
+                  <button class="p-btn p-btn-sm" style="border:none;background:none;color:#005bd3;font-size:12px;padding:0" onclick="sivraToast('Manage channels coming soon')">Manage</button>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div style="width:28px;height:28px;background:#f6f6f7;border-radius:6px;border:1px solid #e3e3e3;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 5.5l1.5-4h9L14 5.5H2zm0 0V14a1 1 0 001 1h10a1 1 0 001-1V5.5H2zm4 7v-4h4v4H6z" stroke="#5c5f62" stroke-width="1.2"/></svg>
+                  </div>
+                  <span style="font-size:13px;color:#303030">Online Store</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Product organization -->
+            <div class="p-card">
+              <div class="p-card-section">
+                <div class="p-text-heading-xs" style="margin-bottom:14px">Product organization</div>
+                <div style="display:flex;flex-direction:column;gap:12px">
+                  <div>
+                    <label class="p-label">Product category</label>
+                    <input class="p-input" id="pCategory" placeholder="Search categories" list="categorySuggestions"/>
+                    <datalist id="categorySuggestions">
+                      <option value="Apparel & Accessories"/>
+                      <option value="Electronics"/>
+                      <option value="Home & Garden"/>
+                      <option value="Sports & Outdoors"/>
+                      <option value="Toys & Games"/>
+                      <option value="Health & Beauty"/>
+                      <option value="Books & Media"/>
+                      <option value="Food & Beverage"/>
+                    </datalist>
+                  </div>
+                  <div>
+                    <label class="p-label">Product type</label>
+                    <input class="p-input" id="pType" placeholder="e.g. T-shirt"/>
+                  </div>
+                  <div>
+                    <label class="p-label">Vendor</label>
+                    <input class="p-input" id="pVendor" placeholder="e.g. Nike"/>
+                  </div>
+                  <div>
+                    <label class="p-label">Collections</label>
+                    <input class="p-input" id="pCollections" placeholder="Search collections"/>
+                  </div>
+                  <div>
+                    <label class="p-label">Tags</label>
+                    <input class="p-input" id="pTags" placeholder="Vintage, cotton, summer"/>
+                    <div class="p-label-hint" style="margin-top:4px">Separate tags with commas</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Theme template -->
+            <div class="p-card">
+              <div class="p-card-section">
+                <div class="p-text-heading-xs" style="margin-bottom:10px">Theme template</div>
+                <label class="p-label">Default product</label>
+                <select class="p-select" style="width:100%">
+                  <option>Default product</option>
+                </select>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
@@ -801,74 +985,107 @@ function initSivra(activeId) {
 <script src="app.js"></script>
 <script>
 
-let _allProducts = [];
-let _prodTab = 'all';
+let _variantCount = 0;
+let _mediaFiles = [];
 
-function setProdTab(el, tab) {
-  document.querySelectorAll('.p-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  _prodTab = tab;
-  renderProducts();
+function toggleQty(cb) {
+  document.getElementById('qtySection').style.display = cb.checked ? '' : 'none';
+}
+function toggleShipping(cb) {
+  document.getElementById('shippingSection').style.display = cb.checked ? '' : 'none';
 }
 
-function filterProducts() { renderProducts(); }
-
-function renderProducts() {
-  const q = (document.getElementById('productSearch')?.value||'').toLowerCase();
-  let list = _allProducts;
-  if (_prodTab === 'active') list = list.filter(p=>p.status==='active'||!p.status);
-  if (_prodTab === 'draft') list = list.filter(p=>p.status==='draft');
-  if (_prodTab === 'archived') list = list.filter(p=>p.status==='archived');
-  if (q) list = list.filter(p=>(p.title||'').toLowerCase().includes(q)||(p.vendor||'').toLowerCase().includes(q));
-
-  const body = document.getElementById('productsBody');
-  document.getElementById('productsCount').textContent = `${list.length} product${list.length!==1?'s':''}`;
-
-  if (!list.length) {
-    const msg = _allProducts.length === 0
-      ? `<div style="text-align:center;padding:64px 32px">
-          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" style="margin:0 auto 12px;display:block;opacity:0.25"><path d="M20 5L35 13V27L20 35 5 27V13L20 5z" stroke="#303030" stroke-width="2.5" stroke-linejoin="round"/></svg>
-          <div style="font-size:15px;font-weight:600;color:#303030;margin-bottom:6px">No products yet</div>
-          <div style="color:#6d7175;margin-bottom:16px;font-size:13px">Start by adding a product to your store</div>
-          <button class="p-btn p-btn-primary" onclick="location.href='sivra-add-product.html'">Add your first product</button>
-        </div>`
-      : `<tr><td colspan="7" style="text-align:center;padding:48px;color:#8c9196">No products match your search</td></tr>`;
-    body.innerHTML = msg;
-    return;
+function handleFileSelect(e) {
+  Array.from(e.target.files).forEach(addMediaPreview);
+}
+function handleMediaDrop(e) {
+  e.preventDefault();
+  document.getElementById('mediaZone').style.borderColor = '#e3e3e3';
+  document.getElementById('mediaZone').style.background = '#fafafa';
+  Array.from(e.dataTransfer.files).forEach(f => { if(f.type.startsWith('image/')) addMediaPreview(f); });
+}
+function addMediaPreview(file) {
+  _mediaFiles.push(file);
+  const reader = new FileReader();
+  reader.onload = e => {
+    const div = document.createElement('div');
+    div.style.cssText = 'position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid #e3e3e3;cursor:pointer;background:#f6f6f7';
+    div.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover"/>
+      <button onclick="removeMedia(this)" style="position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.5);border:none;color:white;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">×</button>`;
+    document.getElementById('mediaPreview').appendChild(div);
+    if (_mediaFiles.length === 1) document.getElementById('mediaZone').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+function removeMedia(btn) {
+  btn.parentElement.remove();
+  if (document.getElementById('mediaPreview').children.length === 0) {
+    document.getElementById('mediaZone').style.display = '';
+    _mediaFiles = [];
   }
-
-  body.innerHTML = list.map(p => {
-    const status = p.status || 'active';
-    const badgeCls = status === 'active' ? 'p-badge-success' : status === 'draft' ? 'p-badge-default' : 'p-badge-warning';
-    const inv = p.inventory_quantity != null ? `${p.inventory_quantity} in stock` : '—';
-    const thumb = p.image_url
-      ? `<img src="${p.image_url}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid #e3e3e3"/>`
-      : `<div style="width:36px;height:36px;border-radius:6px;background:#f6f6f7;border:1px solid #e3e3e3;display:flex;align-items:center;justify-content:center;color:#8c9196"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M2 10l3-3 2 2 3-4 4 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
-    return `<tr onclick="location.href='sivra-edit-product.html?id=${p.id}'">
-      <td class="col-check"><input type="checkbox" class="prod-check" onclick="event.stopPropagation()"/></td>
-      <td>${thumb}</td>
-      <td style="font-weight:500;color:#005bd3">${p.title||'Untitled'}</td>
-      <td><span class="p-badge ${badgeCls}" style="text-transform:capitalize">${status}</span></td>
-      <td style="color:#6d7175">${inv}</td>
-      <td style="color:#6d7175">${p.product_type||'—'}</td>
-      <td style="color:#6d7175">${p.vendor||'—'}</td>
-    </tr>`;
-  }).join('');
 }
 
-async function initProducts() {
-  initSivra('products');
-  const s = await Sivra.requireAuth('sivra-login.html');
-  if (!s) return;
+function addVariantOption() {
+  _variantCount++;
+  const id = `variant_${_variantCount}`;
+  const div = document.createElement('div');
+  div.style.cssText = 'margin-bottom:12px;padding:12px;background:#f9f9f9;border-radius:8px;border:1px solid #e3e3e3';
+  div.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <label class="p-label" style="margin:0">Option name</label>
+      <button onclick="this.closest('[data-variant]').remove()" style="background:none;border:none;color:#8c9196;cursor:pointer;font-size:18px;line-height:1">×</button>
+    </div>
+    <input class="p-input" placeholder="e.g. Size, Color, Material" style="margin-bottom:8px"/>
+    <label class="p-label">Option values</label>
+    <input class="p-input" placeholder="Separate with Enter or comma"/>`;
+  div.setAttribute('data-variant', _variantCount);
+  document.getElementById('variantOptions').appendChild(div);
+}
+
+async function saveProduct(status) {
+  const title = document.getElementById('pTitle').value.trim();
+  if (!title) { sivraToast('Please enter a product title'); document.getElementById('pTitle').focus(); return; }
+
+  const btn = document.getElementById('saveBtn');
+  btn.textContent = 'Saving...'; btn.disabled = true;
+
+  const data = {
+    title,
+    description: document.getElementById('pDesc').value,
+    price: parseFloat(document.getElementById('pPrice').value)||0,
+    compare_at_price: parseFloat(document.getElementById('pComparePrice').value)||null,
+    cost: parseFloat(document.getElementById('pCost').value)||null,
+    sku: document.getElementById('pSku').value,
+    barcode: document.getElementById('pBarcode').value,
+    inventory_quantity: parseInt(document.getElementById('pQty').value)||0,
+    track_quantity: document.getElementById('pTrackQty').checked,
+    weight: parseFloat(document.getElementById('pWeight').value)||null,
+    weight_unit: document.getElementById('pWeightUnit').value,
+    product_type: document.getElementById('pType').value,
+    vendor: document.getElementById('pVendor').value,
+    tags: document.getElementById('pTags').value,
+    status: document.getElementById('pStatus').value || status,
+  };
+
   try {
-    const res = await Sivra.request('GET','/api/products');
-    _allProducts = res?.products || [];
-    renderProducts();
+    const res = await Sivra.request('POST','/api/products', data);
+    if (res?.product || res?.id) {
+      sivraToast('Product saved!');
+      setTimeout(() => location.href = 'sivra-products.html', 800);
+    } else {
+      throw new Error('Save failed');
+    }
   } catch(e) {
-    document.getElementById('productsBody').innerHTML = `<tr><td colspan="7" style="text-align:center;padding:48px;color:#c0392b">Error loading products</td></tr>`;
+    sivraToast('Error saving product — check your connection');
+    btn.textContent = 'Save'; btn.disabled = false;
   }
 }
-initProducts();
+
+async function init() {
+  initSivra('products');
+  await Sivra.requireAuth('sivra-login.html');
+}
+init();
 </script>
 </body>
 </html>
