@@ -681,7 +681,7 @@ async function doSignup() {
 
   btn.textContent = 'Creating your store...'; btn.disabled = true;
   try {
-    const res = await fetch('/api/auth/register', {
+    const res = await fetch('/api/auth/signup', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({firstName:first, lastName:last, email, password, storeName:store})
@@ -692,7 +692,7 @@ async function doSignup() {
       localStorage.setItem('sivra_session', JSON.stringify(data));
       location.href = 'sivra-setup.html';
     } else {
-      err.textContent = data.error || 'Could not create account. Please try again.';
+      err.textContent = data.error || data.message || ('Status: ' + res.status + ' — Could not create account.');
       err.style.display = '';
       btn.textContent = 'Create your store — it's free'; btn.disabled = false;
     }
