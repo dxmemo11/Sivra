@@ -984,23 +984,23 @@ function initSivra(activeId) {
 }
 </script>
 <script>
-// app.js fallback — sidebar renders regardless
+// app.js fallback
 if (typeof Sivra === 'undefined') {
   window.Sivra = {
-    requireAuth: async (redirect) => {
-      const token = localStorage.getItem('sivra_token');
+    requireAuth: async function(redirect) {
+      var token = localStorage.getItem('sivra_token');
       if (!token && redirect) { window.location.href = redirect; return null; }
       return token ? {merchant:{firstName:'Admin'},store:{name:'My Store'}} : null;
     },
-    request: async (method, url, data) => {
-      const token = localStorage.getItem('sivra_token');
-      const opts = { method, headers: {'Content-Type':'application/json','Authorization':'Bearer '+token} };
+    request: async function(method, url, data) {
+      var token = localStorage.getItem('sivra_token');
+      var opts = { method: method, headers: {'Content-Type':'application/json','Authorization':'Bearer '+token} };
       if (data) opts.body = JSON.stringify(data);
-      const res = await fetch(url, opts);
-      return res.ok ? res.json() : null;
+      var r = await fetch(url, opts);
+      return r.ok ? r.json() : null;
     },
-    getSession: () => {
-      try { return JSON.parse(localStorage.getItem('sivra_session')||'null'); } catch(e) { return null; }
+    getSession: function() {
+      try { return JSON.parse(localStorage.getItem('sivra_session') || 'null'); } catch(e) { return null; }
     }
   };
 }
@@ -1076,15 +1076,15 @@ async function saveProduct(status) {
     title,
     description: document.getElementById('pDesc').value,
     price: parseFloat(document.getElementById('pPrice').value)||0,
-    compare_at_price: parseFloat(document.getElementById('pComparePrice').value)||null,
+    comparePrice: parseFloat(document.getElementById('pComparePrice').value)||null,
     cost: parseFloat(document.getElementById('pCost').value)||null,
     sku: document.getElementById('pSku').value,
     barcode: document.getElementById('pBarcode').value,
-    inventory_quantity: parseInt(document.getElementById('pQty').value)||0,
-    track_quantity: document.getElementById('pTrackQty').checked,
+    quantity: parseInt(document.getElementById('pQty').value)||0,
+    trackQty: document.getElementById('pTrackQty').checked,
     weight: parseFloat(document.getElementById('pWeight').value)||null,
     weight_unit: document.getElementById('pWeightUnit').value,
-    product_type: document.getElementById('pType').value,
+    category: document.getElementById('pType').value,
     vendor: document.getElementById('pVendor').value,
     tags: document.getElementById('pTags').value,
     status: document.getElementById('pStatus').value || status,
@@ -1092,7 +1092,7 @@ async function saveProduct(status) {
 
   try {
     const res = await Sivra.request('POST','/api/products', data);
-    if (res?.product || res?.id) {
+    if (res?.id || res?.title) {
       sivraToast('Product saved!');
       setTimeout(() => location.href = 'sivra-products.html', 800);
     } else {
