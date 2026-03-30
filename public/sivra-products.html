@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sivra — Settings</title>
+  <title>Sivra — Products</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,450;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
   <style>
 /* ═══════════════════════════════════════════════
@@ -543,7 +543,7 @@ input, textarea, select { font-family: inherit; }
 </head>
 <body>
 <div class="app">
-<script>document.addEventListener('DOMContentLoaded',()=>{if(typeof initSivra==='function')initSivra('settings');});</script>
+<script>document.addEventListener('DOMContentLoaded',()=>{ if(typeof initSivra==='function') initSivra('products'); });</script>
   <aside class="sidebar">
     <div class="sb-brand">
       <div class="sb-brand-mark">S</div>
@@ -572,169 +572,75 @@ input, textarea, select { font-family: inherit; }
   </aside>
   <div class="main">
     <div class="topbar" id="sivraTopbar"></div>
-    <div class="page-scroll">
+    <div class="page-scroll" id="pageScroll">
 
       <div class="page-header">
-        <h1 class="page-title">Settings</h1>
+        <h1 class="page-title">Products</h1>
+        <div style="display:flex;gap:8px">
+          <button class="p-btn p-btn-secondary" onclick="sivraToast('Import coming soon')">Import</button>
+          <button class="p-btn p-btn-secondary" onclick="sivraToast('Export coming soon')">Export</button>
+          <button class="p-btn p-btn-primary" onclick="location.href='sivra-add-product.html'">Add product</button>
+        </div>
       </div>
-      <div class="page-body" style="padding-top:16px">
-        <div style="display:grid;grid-template-columns:220px 1fr;gap:20px;align-items:start">
-          <!-- Settings nav -->
-          <div class="p-card" style="padding:8px">
-            <div id="settingsNav"></div>
+
+      <div class="page-body" style="padding-top:12px">
+        <div class="p-card">
+          <!-- Tabs -->
+          <div class="p-tabs">
+            <div class="p-tab active" onclick="setProdTab(this,'all')">All</div>
+            <div class="p-tab" onclick="setProdTab(this,'active')">Active</div>
+            <div class="p-tab" onclick="setProdTab(this,'draft')">Draft</div>
+            <div class="p-tab" onclick="setProdTab(this,'archived')">Archived</div>
           </div>
-          <!-- Settings panels -->
-          <div id="settingsPanel">
-            <!-- General (default) -->
-            <div id="panel-general" class="settings-panel">
-              <div class="p-card" style="margin-bottom:16px">
-                <div style="padding:16px 20px;border-bottom:1px solid #e3e3e3"><span class="p-text-heading-md">Store details</span></div>
-                <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
-                  <div><label class="p-label">Store name</label><input class="p-input" id="settStoreName" placeholder="My Store"/></div>
-                  <div><label class="p-label">Store email</label><input class="p-input" id="settEmail" type="email" placeholder="contact@mystore.com"/></div>
-                  <div><label class="p-label">Store phone (optional)</label><input class="p-input" id="settPhone" type="tel" placeholder="+1 555 000 0000"/></div>
-                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-                    <div><label class="p-label">Country/Region</label>
-                      <select class="p-select" id="settCountry" style="width:100%">
-                        <option>Australia</option><option>United States</option><option>United Kingdom</option>
-                        <option>Canada</option><option>UAE</option><option>Saudi Arabia</option><option>Iraq</option>
-                      </select>
-                    </div>
-                    <div><label class="p-label">Currency</label>
-                      <select class="p-select" id="settCurrency" style="width:100%">
-                        <option>AUD</option><option>USD</option><option>GBP</option><option>EUR</option><option>AED</option><option>SAR</option><option>IQD</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div><label class="p-label">Timezone</label>
-                    <select class="p-select" id="settTimezone" style="width:100%">
-                      <option>(GMT+10:00) Sydney</option><option>(GMT-5:00) New York</option><option>(GMT+0:00) London</option>
-                      <option>(GMT+4:00) Dubai</option><option>(GMT+3:00) Baghdad</option>
-                    </select>
-                  </div>
-                </div>
-                <div style="padding:14px 20px;border-top:1px solid #e3e3e3;display:flex;justify-content:flex-end">
-                  <button class="p-btn p-btn-primary" onclick="saveSettings()">Save</button>
-                </div>
-              </div>
 
-              <div class="p-card">
-                <div style="padding:16px 20px;border-bottom:1px solid #e3e3e3"><span class="p-text-heading-md">Store address</span></div>
-                <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
-                  <div><label class="p-label">Address</label><input class="p-input" placeholder="123 Main St"/></div>
-                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-                    <div><label class="p-label">City</label><input class="p-input" placeholder="Sydney"/></div>
-                    <div><label class="p-label">Postcode</label><input class="p-input" placeholder="2000"/></div>
-                  </div>
-                </div>
-                <div style="padding:14px 20px;border-top:1px solid #e3e3e3;display:flex;justify-content:flex-end">
-                  <button class="p-btn p-btn-primary" onclick="saveSettings()">Save</button>
-                </div>
-              </div>
+          <!-- Filters -->
+          <div class="p-filters">
+            <div class="p-filter-input" style="flex:0 1 280px">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="#8c9196" stroke-width="1.4"/><path d="M10.5 10.5L14 14" stroke="#8c9196" stroke-width="1.4" stroke-linecap="round"/></svg>
+              <input type="text" placeholder="Search products" id="productSearch" oninput="filterProducts()"/>
             </div>
-
-            <!-- Billing -->
-            <div id="panel-billing" class="settings-panel" style="display:none">
-              <div class="p-card">
-                <div style="padding:16px 20px;border-bottom:1px solid #e3e3e3"><span class="p-text-heading-md">Billing & subscription</span></div>
-                <div style="padding:20px">
-                  <div style="background:#f0f8f4;border:1px solid #c3e6cb;border-radius:10px;padding:16px;margin-bottom:20px">
-                    <div style="font-size:14px;font-weight:600;color:#1a7f37;margin-bottom:2px">Growth Plan — $49/month</div>
-                    <div style="font-size:13px;color:#2d6a4f">Next billing: April 1, 2026 · Your card ending in 4242</div>
-                  </div>
-                  <div style="display:flex;flex-direction:column;gap:10px">
-                    <button class="p-btn p-btn-secondary" onclick="sivraToast('Plan management coming soon')">Change plan</button>
-                    <button class="p-btn p-btn-secondary" onclick="sivraToast('Billing history coming soon')">View invoices</button>
-                    <button class="p-btn p-btn-sm" style="border:none;background:none;color:#c0392b;font-size:13px;cursor:pointer;text-align:left;padding:0" onclick="sivraToast('Contact support to cancel')">Cancel subscription</button>
-                  </div>
-                </div>
-              </div>
+            <button class="p-btn p-btn-secondary p-btn-sm" onclick="sivraToast('Filters coming soon')">
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M1 3h12M3 7h8M5 11h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              Filter
+            </button>
+            <div style="margin-left:auto">
+              <button class="p-btn p-btn-secondary p-btn-sm" onclick="sivraToast('Sort coming soon')">
+                Sort
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              </button>
             </div>
+          </div>
 
-            <!-- Payments -->
-            <div id="panel-payments" class="settings-panel" style="display:none">
-              <div class="p-card">
-                <div style="padding:16px 20px;border-bottom:1px solid #e3e3e3"><span class="p-text-heading-md">Payment providers</span></div>
-                <div style="padding:20px">
-                  <div style="border:1px solid #e3e3e3;border-radius:8px;padding:16px;margin-bottom:12px;display:flex;align-items:center;gap:14px">
-                    <div style="width:48px;height:32px;background:#635bff;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="color:white;font-size:12px;font-weight:700">stripe</span></div>
-                    <div style="flex:1"><div style="font-size:13px;font-weight:500">Stripe</div><div style="font-size:12px;color:#6d7175">Accept cards, Apple Pay, Google Pay</div></div>
-                    <button class="p-btn p-btn-secondary p-btn-sm" onclick="sivraToast('Stripe Connect coming soon')">Connect</button>
-                  </div>
-                  <div style="border:1px solid #e3e3e3;border-radius:8px;padding:16px;display:flex;align-items:center;gap:14px">
-                    <div style="width:48px;height:32px;background:#003087;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="color:white;font-size:10px;font-weight:700">PayPal</span></div>
-                    <div style="flex:1"><div style="font-size:13px;font-weight:500">PayPal</div><div style="font-size:12px;color:#6d7175">Accept PayPal and Venmo</div></div>
-                    <button class="p-btn p-btn-secondary p-btn-sm" onclick="sivraToast('PayPal Connect coming soon')">Connect</button>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <!-- Table -->
+          <div style="overflow-x:auto">
+            <table class="p-index" id="productsTable">
+              <thead>
+                <tr>
+                  <th class="col-check"><input type="checkbox" onchange="document.querySelectorAll('.prod-check').forEach(c=>c.checked=this.checked)"/></th>
+                  <th style="width:40px"></th>
+                  <th>Product</th>
+                  <th>Status</th>
+                  <th>Inventory</th>
+                  <th>Category</th>
+                  <th>Vendor</th>
+                </tr>
+              </thead>
+              <tbody id="productsBody">
+                <tr><td colspan="7" style="text-align:center;padding:48px;color:#8c9196">Loading products...</td></tr>
+              </tbody>
+            </table>
+          </div>
 
-            <!-- Notifications -->
-            <div id="panel-notifications" class="settings-panel" style="display:none">
-              <div class="p-card">
-                <div style="padding:16px 20px;border-bottom:1px solid #e3e3e3"><span class="p-text-heading-md">Notifications</span></div>
-                <div style="padding:20px;display:flex;flex-direction:column;gap:16px">
-                  <div style="display:flex;align-items:center;justify-content:space-between">
-                    <div><div style="font-size:13px;font-weight:500">New order</div><div style="font-size:12px;color:#6d7175">Email me when a new order is placed</div></div>
-                    <input type="checkbox" checked style="width:16px;height:16px;accent-color:#008060"/>
-                  </div>
-                  <div style="height:1px;background:#e3e3e3"></div>
-                  <div style="display:flex;align-items:center;justify-content:space-between">
-                    <div><div style="font-size:13px;font-weight:500">Low stock</div><div style="font-size:12px;color:#6d7175">Alert when inventory drops below threshold</div></div>
-                    <input type="checkbox" checked style="width:16px;height:16px;accent-color:#008060"/>
-                  </div>
-                  <div style="height:1px;background:#e3e3e3"></div>
-                  <div style="display:flex;align-items:center;justify-content:space-between">
-                    <div><div style="font-size:13px;font-weight:500">Customer signup</div><div style="font-size:12px;color:#6d7175">Email me when a new customer registers</div></div>
-                    <input type="checkbox" style="width:16px;height:16px;accent-color:#008060"/>
-                  </div>
-                </div>
-                <div style="padding:14px 20px;border-top:1px solid #e3e3e3;display:flex;justify-content:flex-end">
-                  <button class="p-btn p-btn-primary" onclick="saveSettings()">Save</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Shipping -->
-            <div id="panel-shipping" class="settings-panel" style="display:none">
-              <div class="p-card">
-                <div style="padding:16px 20px;border-bottom:1px solid #e3e3e3;display:flex;align-items:center;justify-content:space-between">
-                  <span class="p-text-heading-md">Shipping zones</span>
-                  <button class="p-btn p-btn-primary p-btn-sm" onclick="sivraToast('Add zone coming soon')">Add zone</button>
-                </div>
-                <div style="padding:20px">
-                  <div style="border:1px solid #e3e3e3;border-radius:8px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
-                    <div><div style="font-size:13px;font-weight:500">Domestic</div><div style="font-size:12px;color:#6d7175">Australia · Free over $100, else $9.95</div></div>
-                    <button class="p-btn p-btn-secondary p-btn-sm" onclick="sivraToast('Edit zone coming soon')">Edit</button>
-                  </div>
-                  <div style="border:1px solid #e3e3e3;border-radius:8px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between">
-                    <div><div style="font-size:13px;font-weight:500">International</div><div style="font-size:12px;color:#6d7175">Rest of World · $24.95 flat rate</div></div>
-                    <button class="p-btn p-btn-secondary p-btn-sm" onclick="sivraToast('Edit zone coming soon')">Edit</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Taxes -->
-            <div id="panel-taxes" class="settings-panel" style="display:none">
-              <div class="p-card">
-                <div style="padding:16px 20px;border-bottom:1px solid #e3e3e3"><span class="p-text-heading-md">Taxes & duties</span></div>
-                <div style="padding:20px;display:flex;flex-direction:column;gap:16px">
-                  <div style="display:flex;align-items:center;justify-content:space-between">
-                    <div><div style="font-size:13px;font-weight:500">Charge taxes on products</div><div style="font-size:12px;color:#6d7175">Applied automatically based on customer location</div></div>
-                    <input type="checkbox" checked style="width:16px;height:16px;accent-color:#008060"/>
-                  </div>
-                  <div style="display:flex;align-items:center;justify-content:space-between">
-                    <div><div style="font-size:13px;font-weight:500">Include tax in prices</div><div style="font-size:12px;color:#6d7175">Prices shown will already include tax</div></div>
-                    <input type="checkbox" style="width:16px;height:16px;accent-color:#008060"/>
-                  </div>
-                  <div><label class="p-label">Tax number (GST / VAT)</label><input class="p-input" placeholder="e.g. AU12345678"/></div>
-                </div>
-                <div style="padding:14px 20px;border-top:1px solid #e3e3e3;display:flex;justify-content:flex-end">
-                  <button class="p-btn p-btn-primary" onclick="saveSettings()">Save</button>
-                </div>
-              </div>
+          <!-- Pagination -->
+          <div style="padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e3e3e3">
+            <div class="p-text-body-sm p-text-secondary" id="productsCount">0 products</div>
+            <div style="display:flex;gap:4px">
+              <button class="p-btn p-btn-secondary p-btn-sm p-btn-icon" onclick="sivraToast('Previous')">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+              </button>
+              <button class="p-btn p-btn-secondary p-btn-sm p-btn-icon" onclick="sivraToast('Next')">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+              </button>
             </div>
           </div>
         </div>
@@ -748,28 +654,28 @@ input, textarea, select { font-family: inherit; }
 
 const SIVRA_NAV = [
   { id:'home', label:'Home', href:'sivra-dashboard.html',
-    icon:'<svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2.5L2.5 8.5V18h4.75v-5.5h5.5V18H17.5V8.5L10 2.5z"/></svg>' },
+    icon:'<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2.5L2.5 8.5V18h4.75v-5.5h5.5V18H17.5V8.5L10 2.5z"/></svg>' },
   { id:'orders', label:'Orders', href:'sivra-orders.html', badge:'sbOrderBadge',
-    icon:'<svg viewBox="0 0 20 20" fill="currentColor"><path d="M3.5 2.5H5l.5 1.5m0 0L7 10h9.5l1.5-5H5.5m0 0h11M7 14a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm7 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/></svg>',
+    icon:'<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M3.5 2.5H5l.5 1.5m0 0L7 10h9.5l1.5-5H5.5m0 0h11M7 14a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm7 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/></svg>',
     children:['Drafts','Shipping labels','Abandoned checkouts'] },
   { id:'products', label:'Products', href:'sivra-products.html',
-    icon:'<svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2L18 6.5V13.5L10 18 2 13.5V6.5L10 2zm0 2.24L4 7.84l6 3.6 6-3.6L10 4.24zM4 9.44v4.12L9.25 16.5V12.38L4 9.44zm5.25 7.06L10 16.76l.75-.26V12.38L9.25 16.5zM10.75 16.5L16 13.56V9.44l-5.25 2.94v4.12z"/></svg>',
+    icon:'<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2L18 6.5V13.5L10 18 2 13.5V6.5L10 2zm0 2.24L4 7.84l6 3.6 6-3.6L10 4.24zM4 9.44v4.12L9.25 16.5V12.38L4 9.44zm5.25 7.06L10 16.76l.75-.26V12.38L9.25 16.5zM10.75 16.5L16 13.56V9.44l-5.25 2.94v4.12z"/></svg>',
     children:['Collections','Inventory','Purchase orders','Transfers','Gift cards','Catalogs'] },
   { id:'customers', label:'Customers', href:'sivra-customers.html',
-    icon:'<svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 11a4 4 0 100-8 4 4 0 000 8zm-7 7a7 7 0 1114 0H3z"/></svg>',
+    icon:'<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10 11a4 4 0 100-8 4 4 0 000 8zm-7 7a7 7 0 1114 0H3z"/></svg>',
     children:['Segments','Companies'] },
   { id:'content', label:'Content', href:'#',
-    icon:'<svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm1 4h10v1.5H5V6zm0 3h10v1.5H5V9zm0 3h7v1.5H5V12z"/></svg>',
+    icon:'<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm1 4h10v1.5H5V6zm0 3h10v1.5H5V9zm0 3h7v1.5H5V12z"/></svg>',
     children:['Metaobjects','Files','Menus','Blog posts'] },
   { id:'finance', label:'Finance', href:'#',
-    icon:'<svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v1H2V5zm0 3h16v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8zm3 3v2h2v-2H5zm4 0v2h2v-2H9z"/></svg>' },
+    icon:'<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v1H2V5zm0 3h16v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8zm3 3v2h2v-2H5zm4 0v2h2v-2H9z"/></svg>' },
   { id:'analytics', label:'Analytics', href:'#',
-    icon:'<svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 16.5L6 10l3.5 4L13 7l5 9.5H2z"/></svg>',
+    icon:'<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M2 16.5L6 10l3.5 4L13 7l5 9.5H2z"/></svg>',
     children:['Reports','Live View'] },
   { id:'marketing', label:'Marketing', href:'#',
-    icon:'<svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 11.5V9l11-5.5v13L3 11.5zm11 1.62V7.38L5.88 10 14 13.12zM3 9v2.5l2 1V8L3 9z"/></svg>' },
+    icon:'<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M3 11.5V9l11-5.5v13L3 11.5zm11 1.62V7.38L5.88 10 14 13.12zM3 9v2.5l2 1V8L3 9z"/></svg>' },
   { id:'discounts', label:'Discounts', href:'#',
-    icon:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="5.5" cy="5.5" r="2" fill="currentColor"/><circle cx="14.5" cy="14.5" r="2" fill="currentColor"/><path d="M3 17L17 3"/></svg>' },
+    icon:'<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="5.5" cy="5.5" r="2" fill="currentColor"/><circle cx="14.5" cy="14.5" r="2" fill="currentColor"/><path d="M3 17L17 3"/></svg>' },
 ];
 
 const C = (cls='') => `<span class="sb-caret ${cls}"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
@@ -785,7 +691,7 @@ function buildSidebar(activeId) {
     return `
       <div class="sb-item${active?' active':''}${open?' open':''}" data-id="${item.id}"
         onclick="sivraNav(this,'${item.href}',${hasKids})">
-        <span class="sb-icon"><svg width="20" height="20">${item.icon.replace(/<svg[^>]*>/,'')}</span>
+        <span class="sb-icon">${item.icon}</span>
         <span class="sb-label">${item.label}</span>
         ${item.badge ? `<span class="sb-badge" id="${item.badge}" style="display:none"></span>` : ''}
         ${hasKids ? C() : ''}
@@ -893,73 +799,99 @@ function initSivra(activeId) {
   } catch(e) {}
 }
 </script>
-<script>if (typeof Sivra === 'undefined') {
+<script>
+// app.js fallback — sidebar renders regardless
+if (typeof Sivra === 'undefined') {
   window.Sivra = {
-    requireAuth: async function(redirect) {
-      var s = JSON.parse(localStorage.getItem('sivra_session')||'null');
-      var token = s && s.token;
+    requireAuth: async (redirect) => {
+      const token = localStorage.getItem('sivra_token');
       if (!token && redirect) { window.location.href = redirect; return null; }
-      return s || null;
+      return token ? {merchant:{firstName:'Admin'},store:{name:'My Store'}} : null;
     },
-    request: async function(url, options) {
-      var s = JSON.parse(localStorage.getItem('sivra_session')||'null');
-      var token = s && s.token;
-      var headers = {'Content-Type':'application/json'};
-      if (token) headers['Authorization'] = 'Bearer ' + token;
-      var opts = Object.assign({}, options, {headers: Object.assign(headers, (options&&options.headers)||{})});
-      var r = await fetch(url, opts);
-      var json = await r.json();
-      if (!r.ok) throw new Error(json.error || ('HTTP ' + r.status));
-      return json;
+    request: async (method, url, data) => {
+      const token = localStorage.getItem('sivra_token');
+      const opts = { method, headers: {'Content-Type':'application/json','Authorization':'Bearer '+token} };
+      if (data) opts.body = JSON.stringify(data);
+      const res = await fetch(url, opts);
+      return res.ok ? res.json() : null;
     },
-    getSession: function() {
+    getSession: () => {
       try { return JSON.parse(localStorage.getItem('sivra_session')||'null'); } catch(e) { return null; }
     }
   };
-}</script>
-<script src="app.js" onerror="console.log('app.js fallback')"></script>
+}
+</script>
+<script src="app.js" onerror="console.log('app.js not found, using fallback')"></script>
 <script>
-const SETTINGS_NAV = [
-  {id:'general', label:'General', icon:'🏪'},
-  {id:'billing', label:'Billing', icon:'💳'},
-  {id:'payments', label:'Payments', icon:'💰'},
-  {id:'notifications', label:'Notifications', icon:'🔔'},
-  {id:'shipping', label:'Shipping', icon:'📦'},
-  {id:'taxes', label:'Taxes & duties', icon:'🧾'},
-];
 
-function buildSettingsNav(activeId) {
-  const nav = document.getElementById('settingsNav');
-  nav.innerHTML = SETTINGS_NAV.map(item => `
-    <div class="sb-item${item.id===activeId?' active':''}" onclick="showPanel('${item.id}')"
-      style="font-size:13px;border-radius:6px;margin-bottom:1px">
-      <span style="font-size:14px">${item.icon}</span>
-      <span>${item.label}</span>
-    </div>`).join('');
+let _allProducts = [];
+let _prodTab = 'all';
+
+function setProdTab(el, tab) {
+  document.querySelectorAll('.p-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  _prodTab = tab;
+  renderProducts();
 }
 
-function showPanel(id) {
-  document.querySelectorAll('.settings-panel').forEach(p => p.style.display = 'none');
-  document.getElementById('panel-'+id).style.display = '';
-  buildSettingsNav(id);
+function filterProducts() { renderProducts(); }
+
+function renderProducts() {
+  const q = (document.getElementById('productSearch')?.value||'').toLowerCase();
+  let list = _allProducts;
+  if (_prodTab === 'active') list = list.filter(p=>p.status==='active'||!p.status);
+  if (_prodTab === 'draft') list = list.filter(p=>p.status==='draft');
+  if (_prodTab === 'archived') list = list.filter(p=>p.status==='archived');
+  if (q) list = list.filter(p=>(p.title||'').toLowerCase().includes(q)||(p.vendor||'').toLowerCase().includes(q));
+
+  const body = document.getElementById('productsBody');
+  document.getElementById('productsCount').textContent = `${list.length} product${list.length!==1?'s':''}`;
+
+  if (!list.length) {
+    const msg = _allProducts.length === 0
+      ? `<div style="text-align:center;padding:64px 32px">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" style="margin:0 auto 12px;display:block;opacity:0.25"><path d="M20 5L35 13V27L20 35 5 27V13L20 5z" stroke="#303030" stroke-width="2.5" stroke-linejoin="round"/></svg>
+          <div style="font-size:15px;font-weight:600;color:#303030;margin-bottom:6px">No products yet</div>
+          <div style="color:#6d7175;margin-bottom:16px;font-size:13px">Start by adding a product to your store</div>
+          <button class="p-btn p-btn-primary" onclick="location.href='sivra-add-product.html'">Add your first product</button>
+        </div>`
+      : `<tr><td colspan="7" style="text-align:center;padding:48px;color:#8c9196">No products match your search</td></tr>`;
+    body.innerHTML = msg;
+    return;
+  }
+
+  body.innerHTML = list.map(p => {
+    const status = p.status || 'active';
+    const badgeCls = status === 'active' ? 'p-badge-success' : status === 'draft' ? 'p-badge-default' : 'p-badge-warning';
+    const inv = p.inventory_quantity != null ? `${p.inventory_quantity} in stock` : '—';
+    const thumb = p.image_url
+      ? `<img src="${p.image_url}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid #e3e3e3"/>`
+      : `<div style="width:36px;height:36px;border-radius:6px;background:#f6f6f7;border:1px solid #e3e3e3;display:flex;align-items:center;justify-content:center;color:#8c9196"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M2 10l3-3 2 2 3-4 4 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
+    return `<tr onclick="location.href='sivra-edit-product.html?id=${p.id}'">
+      <td class="col-check"><input type="checkbox" class="prod-check" onclick="event.stopPropagation()"/></td>
+      <td>${thumb}</td>
+      <td style="font-weight:500;color:#005bd3">${p.title||'Untitled'}</td>
+      <td><span class="p-badge ${badgeCls}" style="text-transform:capitalize">${status}</span></td>
+      <td style="color:#6d7175">${inv}</td>
+      <td style="color:#6d7175">${p.product_type||'—'}</td>
+      <td style="color:#6d7175">${p.vendor||'—'}</td>
+    </tr>`;
+  }).join('');
 }
 
-function saveSettings() {
-  sivraToast('Settings saved');
-}
-
-async function init() {
-  initSivra('settings');
-  await Sivra.requireAuth('sivra-login.html');
-  buildSettingsNav('general');
+async function initProducts() {
+  initSivra('products');
+  const s = await Sivra.requireAuth('sivra-login.html');
+  if (!s) return;
   try {
-    const res = await (await (async()=>{const _token=(JSON.parse(localStorage.getItem('sivra_session')||'{}').token || localStorage.getItem('sivra_token'));const _r=await fetch('/api/store',{method:"GET",headers:{"Content-Type":"application/json","Authorization":"Bearer "+_token}});const _d=await _r.json();if(!_r.ok)throw new Error(_d.error||"HTTP "+_r.status);return _d;})());
-    const s = res?.store || res;
-    if (s?.name) document.getElementById('settStoreName').value = s.name;
-    if (s?.email) document.getElementById('settEmail').value = s.email;
-  } catch(e) {}
+    const res = await (await (async()=>{const _token=(JSON.parse(localStorage.getItem('sivra_session')||'{}').token || localStorage.getItem('sivra_token'));const _r=await fetch('/api/products',{method:"GET",headers:{"Content-Type":"application/json","Authorization":"Bearer "+_token}});const _d=await _r.json();if(!_r.ok)throw new Error(_d.error||"HTTP "+_r.status);return _d;})());
+    _allProducts = res?.products || [];
+    renderProducts();
+  } catch(e) {
+    document.getElementById('productsBody').innerHTML = `<tr><td colspan="7" style="text-align:center;padding:48px;color:#c0392b">Error loading products</td></tr>`;
+  }
 }
-init();
+initProducts();
 </script>
 </body>
 </html>

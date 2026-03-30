@@ -862,8 +862,8 @@ async function init() {
   await Sivra.requireAuth('sivra-login.html');
   try {
     const [orders, customers] = await Promise.all([
-      Sivra.request('/api/orders', {method: "GET"}),
-      Sivra.request('/api/customers', {method: "GET"}),
+      (await (async()=>{const _token=(JSON.parse(localStorage.getItem('sivra_session')||'{}').token || localStorage.getItem('sivra_token'));const _r=await fetch('/api/orders',{method:"GET",headers:{"Content-Type":"application/json","Authorization":"Bearer "+_token}});const _d=await _r.json();if(!_r.ok)throw new Error(_d.error||"HTTP "+_r.status);return _d;})()),
+      (await (async()=>{const _token=(JSON.parse(localStorage.getItem('sivra_session')||'{}').token || localStorage.getItem('sivra_token'));const _r=await fetch('/api/customers',{method:"GET",headers:{"Content-Type":"application/json","Authorization":"Bearer "+_token}});const _d=await _r.json();if(!_r.ok)throw new Error(_d.error||"HTTP "+_r.status);return _d;})()),
     ]);
     const ol = orders?.orders||[];
     const cl = customers?.customers||[];
@@ -874,7 +874,7 @@ async function init() {
     document.getElementById('kpiCustomers').textContent = cl.length;
     if (ol.length) document.getElementById('kpiRevDelta').textContent = '+12% vs last period';
     // Top products
-    const prods = await Sivra.request('/api/products', {method: "GET"});
+    const prods = await (await (async()=>{const _token=(JSON.parse(localStorage.getItem('sivra_session')||'{}').token || localStorage.getItem('sivra_token'));const _r=await fetch('/api/products',{method:"GET",headers:{"Content-Type":"application/json","Authorization":"Bearer "+_token}});const _d=await _r.json();if(!_r.ok)throw new Error(_d.error||"HTTP "+_r.status);return _d;})());
     const pl = (prods?.products||[]).slice(0,5);
     if (pl.length) {
       document.getElementById('topProducts').innerHTML = pl.map((p,i)=>`

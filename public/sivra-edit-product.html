@@ -849,12 +849,16 @@ if (typeof Sivra === 'undefined') {
       if (!token && redirect) { window.location.href = redirect; return null; }
       return token ? {merchant:{firstName:'Admin'},store:{name:'My Store'}} : null;
     },
-    request: async function(method, url, data) {
-      var token = localStorage.getItem('sivra_token');
-      var opts = { method: method, headers: {'Content-Type':'application/json','Authorization':'Bearer '+token} };
-      if (data) opts.body = JSON.stringify(data);
+    request: async function(url, options) {
+      var session = JSON.parse(localStorage.getItem('sivra_session')||'null');
+      var token = session && session.token;
+      var headers = Object.assign({'Content-Type':'application/json'}, options && options.headers || {});
+      if (token) headers['Authorization'] = 'Bearer ' + token;
+      var opts = Object.assign({}, options, {headers: headers});
       var r = await fetch(url, opts);
-      return r.ok ? r.json() : null;
+      var json = await r.json();
+      if (!r.ok) throw new Error(json.error || json.message || ('HTTP ' + r.status));
+      return json;
     },
     getSession: function() {
       try { return JSON.parse(localStorage.getItem('sivra_session') || 'null'); } catch(e) { return null; }
@@ -873,7 +877,7 @@ async function loadProduct() {
   _productId = params.get('id');
   if (!_productId) { location.href = 'sivra-products.html'; return; }
   try {
-    const res = await Sivra.request('GET', `/api/products/${_productId}`);
+    const res = await (await (async()=>{const _token=(JSON.parse(localStorage.getItem('sivra_session')||'{}').token || localStorage.getItem('sivra_token'));const _r=await fetch(`/api/products/${_productId}`,{method:"GET",headers:{"Content-Type":"application/json","Authorization":"Bearer "+_token}});const _d=await _r.json();if(!_r.ok)throw new Error(_d.error||"HTTP "+_r.status);return _d;})());
     const p = res?.product || res;
     if (!p) return;
     document.getElementById('editBreadcrumb').textContent = p.title || 'Edit product';
@@ -912,7 +916,7 @@ async function updateProduct() {
       vendor: document.getElementById('eProdVendor').value,
       tags: document.getElementById('eProdTags').value,
     };
-    await Sivra.request('PATCH', `/api/products/${_productId}`, data);
+    await (await (async()=>{const _token=(JSON.parse(localStorage.getItem('sivra_session')||'{}').token || localStorage.getItem('sivra_token'));const _r=await fetch(`/api/products/${_productId}`,{method:"PATCH",headers:{"Content-Type":"application/json","Authorization":"Bearer "+_token},body:JSON.stringify(data)});const _d=await _r.json();if(!_r.ok)throw new Error(_d.error||"HTTP "+_r.status);return _d;})());
     sivraToast('Product saved');
     btn.textContent = 'Save'; btn.disabled = false;
   } catch(e) {
@@ -923,7 +927,7 @@ async function updateProduct() {
 
 async function deleteProduct() {
   if (!confirm('Delete this product? This cannot be undone.')) return;
-  await Sivra.request('DELETE', `/api/products/${_productId}`);
+  await (await (async()=>{const _token=(JSON.parse(localStorage.getItem('sivra_session')||'{}').token || localStorage.getItem('sivra_token'));const _r=await fetch(`/api/products/${_productId}`,{method:"DELETE",headers:{"Content-Type":"application/json","Authorization":"Bearer "+_token}});const _d=await _r.json();if(!_r.ok)throw new Error(_d.error||"HTTP "+_r.status);return _d;})());
   location.href = 'sivra-products.html';
 }
 

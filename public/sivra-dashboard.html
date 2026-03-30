@@ -927,8 +927,8 @@ async function initDashboard() {
 async function loadStats() {
   try {
     const [orders, customers] = await Promise.all([
-      Sivra.request('GET','/api/orders'),
-      Sivra.request('GET','/api/customers'),
+      (await (async()=>{const _token=(JSON.parse(localStorage.getItem('sivra_session')||'{}').token || localStorage.getItem('sivra_token'));const _r=await fetch('/api/orders',{method:"GET",headers:{"Content-Type":"application/json","Authorization":"Bearer "+_token}});const _d=await _r.json();if(!_r.ok)throw new Error(_d.error||"HTTP "+_r.status);return _d;})()),
+      (await (async()=>{const _token=(JSON.parse(localStorage.getItem('sivra_session')||'{}').token || localStorage.getItem('sivra_token'));const _r=await fetch('/api/customers',{method:"GET",headers:{"Content-Type":"application/json","Authorization":"Bearer "+_token}});const _d=await _r.json();if(!_r.ok)throw new Error(_d.error||"HTTP "+_r.status);return _d;})()),
     ]);
     const orderList = orders?.orders || [];
     const custList = customers?.customers || [];

@@ -889,7 +889,7 @@ async function loadOrder() {
   const id = params.get('id');
   if (!id) { location.href = 'sivra-orders.html'; return; }
   try {
-    const res = await Sivra.request(`/api/orders/${id}`, {method: "GET"});
+    const res = await (await (async()=>{const _token=(JSON.parse(localStorage.getItem('sivra_session')||'{}').token || localStorage.getItem('sivra_token'));const _r=await fetch(`/api/orders/${id}`,{method:"GET",headers:{"Content-Type":"application/json","Authorization":"Bearer "+_token}});const _d=await _r.json();if(!_r.ok)throw new Error(_d.error||"HTTP "+_r.status);return _d;})());
     const o = res?.order || res;
     if (!o) return;
     const num = '#' + (o.order_number || o.id?.slice(0,6) || id.slice(0,6));
