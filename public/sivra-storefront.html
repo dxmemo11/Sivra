@@ -722,13 +722,16 @@ function renderGrid(products) {
 
 async function init() {
   const params = new URLSearchParams(location.search);
-  const storeSlug = params.get('store') || localStorage.getItem('sivra_store_slug');
+  const storeSlug = params.get('store') || localStorage.getItem('sivra_store_slug') || 'mo';
   try {
-    const url = storeSlug ? `/api/storefront/${storeSlug}/products` : '/api/storefront/products';
-    const res = await fetch(url);
-    const data = await res.json();
-    _storeProducts = data.products || [];
-    _storeName = data.store?.name || 'My Store';
+    const [storeRes, prodsRes] = await Promise.all([
+      fetch(`/api/storefront/${storeSlug}`),
+      fetch(`/api/storefront/${storeSlug}/products`)
+    ]);
+    const storeData = await storeRes.json();
+    const prodsData = await prodsRes.json();
+    _storeProducts = prodsData.products || [];
+    _storeName = storeData.name || 'My Store';
     document.getElementById('storeBanner').textContent = `Welcome to ${_storeName}`;
     document.getElementById('footerLogo').textContent = _storeName;
     document.querySelectorAll('.store-nav-logo').forEach(el => el.textContent = _storeName);

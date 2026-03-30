@@ -746,23 +746,29 @@ async function placeOrder() {
   btn.textContent = 'Placing order...'; btn.disabled = true;
   const sub = cart.reduce((s,i)=>s+parseFloat(i.price||0)*i.qty,0);
   try {
-    const res = await fetch('/api/storefront/orders', {
+    const storeSlug = localStorage.getItem('sivra_store_slug') || 'mo';
+    const res = await fetch(`/api/storefront/${storeSlug}/checkout`, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        customer_email:email, customer_first_name:first, customer_last_name:last,
-        shipping_address:address+', '+document.getElementById('chkCity').value,
-        shipping_country:document.getElementById('chkCountry').value,
-        items:cart, total: (sub+9.95).toFixed(2),
-        payment_status:'pending', fulfillment_status:'unfulfilled'
+        customerEmail: email,
+        firstName: first,
+        lastName: last,
+        items: cart.map(i => ({productId: i.id, quantity: i.qty})),
+        shippingAddress: {
+          name: first + ' ' + last,
+          address: address,
+          city: document.getElementById('chkCity').value,
+          country: document.getElementById('chkCountry').value
+        }
       })
     });
     const data = await res.json();
-    if (data.order || data.id) {
+    if (data.orderId || data.orderNumber) {
       localStorage.removeItem('sivra_cart');
       updateCartCount();
-      location.href = 'sivra-order-confirm.html?id='+(data.order?.id||data.id||'');
-    } else throw new Error('Order failed');
+      location.href = 'sivra-order-confirm.html?id='+(data.orderId||'')+'&num='+(data.orderNumber||'');
+    } else throw new Error(data.error || 'Order failed');
   } catch(e) {
     err.textContent = 'Could not place order. Please try again.';
     err.style.display = '';

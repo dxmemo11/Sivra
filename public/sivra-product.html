@@ -715,7 +715,8 @@ async function loadProduct() {
   const id = params.get('id');
   if (!id) { location.href = 'sivra-storefront.html'; return; }
   try {
-    const res = await fetch(`/api/storefront/products/${id}`);
+    const storeSlug = new URLSearchParams(location.search).get('store') || localStorage.getItem('sivra_store_slug') || 'mo';
+    const res = await fetch(`/api/storefront/${storeSlug}/products/${id}`);
     const data = await res.json();
     _product = data.product || data;
     if (!_product) return;
