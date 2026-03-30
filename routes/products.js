@@ -51,7 +51,7 @@ router.post('/', async (req, res) => {
     const id = uuid();
     await db.execute({
       sql: 'INSERT INTO products (id, store_id, title, description, price, compare_price, sku, quantity, track_qty, weight, category, status, images) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      args: [id, req.storeId, title, description || null, parseFloat(price), comparePrice ? parseFloat(comparePrice) : null, sku || null, parseInt(quantity), trackQty ? 1 : 0, parseFloat(weight), category || null, status, JSON.stringify(images)]
+      args: [id, req.storeId, title, description || null, parseFloat(price) || 0, comparePrice ? parseFloat(comparePrice) : null, sku || null, parseInt(quantity) || 0, trackQty ? 1 : 0, parseFloat(weight) || 0, category || null, status, JSON.stringify(images)]
     });
     const created = await db.execute({ sql: 'SELECT * FROM products WHERE id = ?', args: [id] });
     const p = created.rows[0];
