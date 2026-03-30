@@ -893,7 +893,30 @@ function initSivra(activeId) {
   } catch(e) {}
 }
 </script>
-<script>if(typeof Sivra==='undefined'){window.Sivra={requireAuth:async(r)=>{const t=localStorage.getItem('sivra_token');if(!t&&r){location.href=r;return null;}return t?{merchant:{firstName:'Admin'},store:{name:'My Store'}}:null;},request:async(m,u,d)=>{const t=localStorage.getItem('sivra_token');const o={method:m,headers:{'Content-Type':'application/json','Authorization':'Bearer '+t}};if(d)o.body=JSON.stringify(d);const r=await fetch(u,o);return r.ok?r.json():null;},getSession:()=>{try{return JSON.parse(localStorage.getItem('sivra_session')||'null');}catch(e){return null;}}}};}</script>
+<script>if (typeof Sivra === 'undefined') {
+  window.Sivra = {
+    requireAuth: async function(redirect) {
+      var s = JSON.parse(localStorage.getItem('sivra_session')||'null');
+      var token = s && s.token;
+      if (!token && redirect) { window.location.href = redirect; return null; }
+      return s || null;
+    },
+    request: async function(url, options) {
+      var s = JSON.parse(localStorage.getItem('sivra_session')||'null');
+      var token = s && s.token;
+      var headers = {'Content-Type':'application/json'};
+      if (token) headers['Authorization'] = 'Bearer ' + token;
+      var opts = Object.assign({}, options, {headers: Object.assign(headers, (options&&options.headers)||{})});
+      var r = await fetch(url, opts);
+      var json = await r.json();
+      if (!r.ok) throw new Error(json.error || ('HTTP ' + r.status));
+      return json;
+    },
+    getSession: function() {
+      try { return JSON.parse(localStorage.getItem('sivra_session')||'null'); } catch(e) { return null; }
+    }
+  };
+}</script>
 <script src="app.js" onerror="console.log('app.js fallback')"></script>
 <script>
 const SETTINGS_NAV = [
@@ -930,7 +953,7 @@ async function init() {
   await Sivra.requireAuth('sivra-login.html');
   buildSettingsNav('general');
   try {
-    const res = await Sivra.request('GET','/api/store');
+    const res = await Sivra.request('/api/store', {method: "GET"});
     const s = res?.store || res;
     if (s?.name) document.getElementById('settStoreName').value = s.name;
     if (s?.email) document.getElementById('settEmail').value = s.email;
