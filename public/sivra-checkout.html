@@ -746,7 +746,7 @@ async function placeOrder() {
   btn.textContent = 'Placing order...'; btn.disabled = true;
   const sub = cart.reduce((s,i)=>s+parseFloat(i.price||0)*i.qty,0);
   try {
-    const storeSlug = localStorage.getItem('sivra_store_slug') || 'mo';
+    const storeSlug = localStorage.getItem('sivra_store_slug') || localStorage.getItem('sivra_store_slug') || 'mo';
     const res = await fetch(`/api/storefront/${storeSlug}/checkout`, {
       method:'POST',
       headers:{'Content-Type':'application/json'},

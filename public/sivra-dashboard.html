@@ -917,6 +917,8 @@ async function initDashboard() {
   try {
     const s = await Sivra.requireAuth('sivra-login.html');
     if (!s) return;
+    // Save store slug so storefront knows which store to show
+    if (s.store?.slug) localStorage.setItem('sivra_store_slug', s.store.slug);
     const h = new Date().getHours();
     document.getElementById('dashGreeting').textContent =
       (h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening') + ', let's get started.';
