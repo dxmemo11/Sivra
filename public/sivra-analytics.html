@@ -560,7 +560,7 @@ input, textarea, select { font-family: inherit; }
     </div>
     <div class="sb-scroll"><div id="sbNav"></div></div>
     <div class="sb-bottom">
-      <div class="sb-item" onclick="sivraToast('Settings coming soon')">
+      <div class="sb-item" onclick="location.href='sivra-settings.html'">
         <span class="sb-icon">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
             <path d="M10.9 2.1a1 1 0 00-1.8 0l-.4 1.6a6 6 0 00-1.4.6l-1.5-.9a1 1 0 00-1.2.2l-.9.9a1 1 0 00-.2 1.2l.9 1.5a6 6 0 00-.6 1.4l-1.6.4a1 1 0 000 1.8l1.6.4c.1.5.3 1 .6 1.4l-.9 1.5a1 1 0 00.2 1.2l.9.9a1 1 0 001.2.2l1.5-.9a6 6 0 001.4.6l.4 1.6a1 1 0 001.8 0l.4-1.6a6 6 0 001.4-.6l1.5.9a1 1 0 001.2-.2l.9-.9a1 1 0 00.2-1.2l-.9-1.5c.3-.4.5-.9.6-1.4l1.6-.4a1 1 0 000-1.8l-1.6-.4a6 6 0 00-.6-1.4l.9-1.5a1 1 0 00-.2-1.2l-.9-.9a1 1 0 00-1.2-.2l-1.5.9a6 6 0 00-1.4-.6l-.4-1.6zM10 13a3 3 0 110-6 3 3 0 010 6z"/>
@@ -862,8 +862,8 @@ async function init() {
   await Sivra.requireAuth('sivra-login.html');
   try {
     const [orders, customers] = await Promise.all([
-      (await (async()=>{const _token=(JSON.parse(localStorage.getItem('sivra_session')||'{}').token || localStorage.getItem('sivra_token'));const _r=await fetch('/api/orders',{method:"GET",headers:{"Content-Type":"application/json","Authorization":"Bearer "+_token}});const _d=await _r.json();if(!_r.ok)throw new Error(_d.error||"HTTP "+_r.status);return _d;})()),
-      (await (async()=>{const _token=(JSON.parse(localStorage.getItem('sivra_session')||'{}').token || localStorage.getItem('sivra_token'));const _r=await fetch('/api/customers',{method:"GET",headers:{"Content-Type":"application/json","Authorization":"Bearer "+_token}});const _d=await _r.json();if(!_r.ok)throw new Error(_d.error||"HTTP "+_r.status);return _d;})()),
+      (await await fetch('/api/orders', {method:"GET",headers:{"Content-Type":"application/json","Authorization":"Bearer "+(JSON.parse(localStorage.getItem('sivra_session')||'{}').token || localStorage.getItem('sivra_token'))}}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||"HTTP "+r.status);return d;})),
+      (await await fetch('/api/customers', {method:"GET",headers:{"Content-Type":"application/json","Authorization":"Bearer "+(JSON.parse(localStorage.getItem('sivra_session')||'{}').token || localStorage.getItem('sivra_token'))}}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||"HTTP "+r.status);return d;})),
     ]);
     const ol = orders?.orders||[];
     const cl = customers?.customers||[];
@@ -874,7 +874,7 @@ async function init() {
     document.getElementById('kpiCustomers').textContent = cl.length;
     if (ol.length) document.getElementById('kpiRevDelta').textContent = '+12% vs last period';
     // Top products
-    const prods = await (await (async()=>{const _token=(JSON.parse(localStorage.getItem('sivra_session')||'{}').token || localStorage.getItem('sivra_token'));const _r=await fetch('/api/products',{method:"GET",headers:{"Content-Type":"application/json","Authorization":"Bearer "+_token}});const _d=await _r.json();if(!_r.ok)throw new Error(_d.error||"HTTP "+_r.status);return _d;})());
+    const prods = await (await await fetch('/api/products', {method:"GET",headers:{"Content-Type":"application/json","Authorization":"Bearer "+(JSON.parse(localStorage.getItem('sivra_session')||'{}').token || localStorage.getItem('sivra_token'))}}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||"HTTP "+r.status);return d;}));
     const pl = (prods?.products||[]).slice(0,5);
     if (pl.length) {
       document.getElementById('topProducts').innerHTML = pl.map((p,i)=>`
