@@ -701,12 +701,12 @@ function changeQty(delta) {
 
 function doAddToCart() {
   if (!_product) return;
-  addToCart(_product.id, _product.title, _product.price, _product.image_url);
+  addToCart(_product.id, _product.title, _product.price, (_imgs&&_imgs[0])||"");
 }
 
 function buyNow() {
   if (!_product) return;
-  addToCart(_product.id, _product.title, _product.price, _product.image_url);
+  addToCart(_product.id, _product.title, _product.price, (_imgs&&_imgs[0])||"");
   location.href = 'sivra-checkout.html';
 }
 

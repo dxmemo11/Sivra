@@ -710,14 +710,68 @@ function formatExpiry(el) {
   el.value = v;
 }
 
+let _shippingRate = 0;
+let _shippingZones = [];
+
+async function loadShippingZones() {
+  const storeSlug = localStorage.getItem('sivra_store_slug') || 'mo';
+  try {
+    const res = await fetch(`/api/storefront/${storeSlug}`);
+    const store = await res.json();
+    const zonesRaw = store.shipping_zones;
+    _shippingZones = zonesRaw ? (typeof zonesRaw === 'string' ? JSON.parse(zonesRaw) : zonesRaw) : [];
+  } catch(e) { _shippingZones = []; }
+
+  const cart = getCart();
+  const sub = cart.reduce((s,i)=>s+parseFloat(i.price||0)*i.qty,0);
+  const methodsEl = document.getElementById('shippingMethods');
+
+  if (!_shippingZones.length) {
+    // No zones set = free shipping
+    _shippingRate = 0;
+    methodsEl.innerHTML = `<label style="display:flex;align-items:center;gap:12px;border:1px solid #1a1a1a;border-radius:8px;padding:12px 14px;cursor:pointer">
+      <input type="radio" name="shipping" checked style="accent-color:#1a1a1a"/>
+      <div style="flex:1"><div style="font-size:13px;font-weight:500">Standard shipping</div></div>
+      <span style="font-size:13px;font-weight:500">Free</span>
+    </label>`;
+  } else {
+    methodsEl.innerHTML = _shippingZones.map((z, i) => {
+      const rate = parseFloat(z.rate) || 0;
+      const isFree = z.free_over && sub >= parseFloat(z.free_over);
+      const displayRate = isFree ? 'Free' : (rate === 0 ? 'Free' : '$'+rate.toFixed(2));
+      if (i === 0) _shippingRate = isFree ? 0 : rate;
+      return `<label style="display:flex;align-items:center;gap:12px;border:1px solid ${i===0?'#1a1a1a':'#e3e3e3'};border-radius:8px;padding:12px 14px;cursor:pointer">
+        <input type="radio" name="shipping" value="${rate}" ${i===0?'checked':''} style="accent-color:#1a1a1a" onchange="selectShipping(${isFree?0:rate})"/>
+        <div style="flex:1"><div style="font-size:13px;font-weight:500">${z.name||'Standard shipping'}</div>
+        <div style="font-size:12px;color:#6d7175">${z.countries||''}</div></div>
+        <span style="font-size:13px;font-weight:500">${displayRate}</span>
+      </label>`;
+    }).join('');
+  }
+
+  updateTotals();
+}
+
+function selectShipping(rate) {
+  _shippingRate = rate;
+  updateTotals();
+}
+
+function updateTotals() {
+  const cart = getCart();
+  const sub = cart.reduce((s,i)=>s+parseFloat(i.price||0)*i.qty,0);
+  document.getElementById('chkSubtotal').textContent = '$'+sub.toFixed(2);
+  document.getElementById('chkShipping').textContent = _shippingRate === 0 ? 'Free' : '$'+_shippingRate.toFixed(2);
+  document.getElementById('chkTotal').textContent = '$'+(sub+_shippingRate).toFixed(2);
+}
+
 function renderCheckoutSummary() {
   const cart = getCart();
   if (!cart.length) { location.href = 'sivra-storefront.html'; return; }
   const items = document.getElementById('chkOrderItems');
   const sub = cart.reduce((s,i)=>s+parseFloat(i.price||0)*i.qty,0);
-  const shipping = 9.95;
   document.getElementById('chkSubtotal').textContent = '$'+sub.toFixed(2);
-  document.getElementById('chkTotal').textContent = '$'+(sub+shipping).toFixed(2);
+  document.getElementById('chkTotal').textContent = '$'+sub.toFixed(2);
   items.innerHTML = cart.map(i=>`
     <div style="display:flex;gap:10px;margin-bottom:10px;align-items:center">
       <div style="width:44px;height:44px;background:#f0f0f0;border-radius:6px;flex-shrink:0;overflow:hidden;position:relative">
@@ -776,6 +830,7 @@ async function placeOrder() {
   }
 }
 renderCheckoutSummary();
+loadShippingZones();
 </script>
 </body>
 </html>
