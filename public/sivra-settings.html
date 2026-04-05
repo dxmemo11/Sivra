@@ -858,10 +858,37 @@ function initSivra(activeId) {
 // app.js fallback — sidebar renders regardless
 if (typeof Sivra === 'undefined') {
   window.Sivra = {
-    requireAuth: async (redirect) => {
-      const token = localStorage.getItem('sivra_token');
-      if (!token && redirect) { window.location.href = redirect; return null; }
-      return token ? {merchant:{firstName:'Admin'},store:{name:'My Store'}} : null;
+    requireAuth: async function(redirect) {
+      // Try session first, then raw token
+      var s = null;
+      try { s = JSON.parse(localStorage.getItem('sivra_session') || 'null'); } catch(e) {}
+      var token = (s && s.token) || localStorage.getItem('sivra_token');
+      if (!token) {
+        if (redirect) window.location.href = redirect;
+        return null;
+      }
+      // Verify token is still valid by calling /api/auth/me
+      try {
+        var r = await fetch('/api/auth/me', {headers:{'Authorization':'Bearer '+token}});
+        if (r.ok) {
+          var me = await r.json();
+          // Refresh session with latest data
+          var freshSession = {token: token, merchant: me.merchant, store: me.store};
+          localStorage.setItem('sivra_token', token);
+          localStorage.setItem('sivra_session', JSON.stringify(freshSession));
+          if (me.store && me.store.slug) localStorage.setItem('sivra_store_slug', me.store.slug);
+          return freshSession;
+        } else {
+          // Token expired or invalid
+          localStorage.removeItem('sivra_token');
+          localStorage.removeItem('sivra_session');
+          if (redirect) window.location.href = redirect;
+          return null;
+        }
+      } catch(e) {
+        // Network error — use cached session
+        return s || {token: token, merchant: {firstName:'User'}, store: {name:'My Store'}};
+      }
     },
     request: async (method, url, data) => {
       const token = localStorage.getItem('sivra_token');

@@ -20,38 +20,35 @@ router.post('/signup', async (req, res) => {
 
     const db = getDB();
 
-    // Check if email already registered
-    const existing = await db.execute({
-      sql: 'SELECT id FROM merchants WHERE email = ?',
-      args: [email.toLowerCase()]
-    });
-    if (existing.rows.length > 0) {
-      return res.status(409).json({ error: 'An account with this email already exists.' });
+    // Generate store slug and check if taken
+    let slug = storeName.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
+    const slugExists = await db.execute({ sql: 'SELECT id FROM stores WHERE slug = ?', args: [slug] });
+    if (slugExists.rows.length > 0) {
+      return res.status(409).json({ error: 'That store name is already taken. Please choose a different name.' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 12);
+    // Check if merchant already exists
+    const existing = await db.execute({ sql: 'SELECT * FROM merchants WHERE email = ?', args: [email.toLowerCase()] });
 
-    // Generate store slug
-    let slug = storeName
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .trim()
-      .replace(/\s+/g, '-');
+    let merchantId;
+    if (existing.rows.length > 0) {
+      // Verify password matches before adding store
+      const valid = await bcrypt.compare(password, existing.rows[0].password);
+      if (!valid) {
+        return res.status(401).json({ error: 'That email is already registered. Use your correct password to add a new store.' });
+      }
+      merchantId = existing.rows[0].id;
+    } else {
+      // New merchant
+      merchantId = uuid();
+      const hashedPassword = await bcrypt.hash(password, 12);
+      await db.execute({
+        sql: 'INSERT INTO merchants (id, email, password, first_name, last_name) VALUES (?, ?, ?, ?, ?)',
+        args: [merchantId, email.toLowerCase(), hashedPassword, firstName, lastName || '']
+      });
+    }
 
-    const slugExists = await db.execute({
-      sql: 'SELECT id FROM stores WHERE slug = ?',
-      args: [slug]
-    });
-    if (slugExists.rows.length > 0) slug = `${slug}-${Date.now().toString(36)}`;
-
-    const merchantId = uuid();
     const storeId = uuid();
-
-    await db.execute({
-      sql: 'INSERT INTO merchants (id, email, password, first_name, last_name) VALUES (?, ?, ?, ?, ?)',
-      args: [merchantId, email.toLowerCase(), hashedPassword, firstName, lastName || '']
-    });
-
     await db.execute({
       sql: 'INSERT INTO stores (id, merchant_id, name, slug) VALUES (?, ?, ?, ?)',
       args: [storeId, merchantId, storeName, slug]
@@ -64,7 +61,7 @@ router.post('/signup', async (req, res) => {
     );
 
     res.status(201).json({
-      message: 'Account created successfully!',
+      message: 'Store created successfully!',
       token,
       merchant: { id: merchantId, firstName, lastName, email: email.toLowerCase() },
       store: { id: storeId, name: storeName, slug }
@@ -76,7 +73,7 @@ router.post('/signup', async (req, res) => {
 });
 
 
-// ── LOG IN ─────────────────────────────────────────────────────────────────
+
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -148,8 +145,8 @@ router.get('/me', requireAuth, async (req, res) => {
       args: [req.merchantId]
     });
     const storeResult = await db.execute({
-      sql: 'SELECT * FROM stores WHERE merchant_id = ? LIMIT 1',
-      args: [req.merchantId]
+      sql: 'SELECT * FROM stores WHERE id = ?',
+      args: [req.storeId]
     });
 
     if (merchantResult.rows.length === 0) {

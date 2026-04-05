@@ -19,7 +19,7 @@
     .card-footer a{color:#005bd3;font-weight:500;text-decoration:none}
     .card-title{font-size:17px;font-weight:600;color:#1a1a1a;margin-bottom:20px}
     .field{margin-bottom:14px}
-    .field-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+    .field-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
     label{font-size:13px;font-weight:500;color:#303030}
     .forgot{font-size:12px;color:#005bd3;text-decoration:none}
     input{width:100%;height:36px;padding:0 12px;border:1px solid #e3e3e3;border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border-color 0.15s,box-shadow 0.15s;color:#303030}
@@ -28,8 +28,7 @@
     .btn:hover{background:#303030}
     .btn:disabled{background:#8c9196;cursor:not-allowed}
     .error{display:none;background:#fde8e8;border:1px solid #f5c6c6;border-radius:8px;padding:10px 12px;font-size:13px;color:#c0392b;margin-bottom:16px}
-    .terms{text-align:center;margin-top:20px;font-size:11px;color:#8c9196}
-    .terms a{color:#6d7175}
+    .debug{display:none;background:#f0f8ff;border:1px solid #c3e0f5;border-radius:8px;padding:10px 12px;font-size:12px;color:#1458a2;margin-bottom:16px;word-break:break-all}
   </style>
 </head>
 <body>
@@ -43,16 +42,17 @@
     <div class="card-body">
       <div class="card-title">Log in to your store</div>
       <div class="error" id="err"></div>
+      <div class="debug" id="debug"></div>
       <div class="field">
         <label>Email</label>
         <input type="email" id="email" placeholder="you@example.com" autocomplete="email"/>
       </div>
       <div class="field">
-        <div class="field-header">
+        <div class="field-row">
           <label>Password</label>
-          <a href="#" class="forgot" onclick="alert('Contact support to reset your password');return false">Forgot password?</a>
         </div>
-        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()"/>
+        <input type="password" id="password" placeholder="Your password" autocomplete="current-password"
+          onkeydown="if(event.key==='Enter')login()"/>
       </div>
       <button class="btn" id="btn" onclick="login()">Log in</button>
     </div>
@@ -60,51 +60,74 @@
       Don't have a store? <a href="sivra-signup.html">Create one free</a>
     </div>
   </div>
-  <div class="terms">By continuing you agree to Sivra's <a href="#">Terms</a> and <a href="#">Privacy Policy</a></div>
 </div>
+
 <script>
-// Clear any bad session on load
-if(location.search.includes('logout')) {
-  localStorage.removeItem('sivra_token');
-  localStorage.removeItem('sivra_session');
+// Clear bad session if ?logout in URL
+if (location.search.includes('logout')) {
+  localStorage.clear();
+}
+
+// If already logged in, go to dashboard
+var existing = localStorage.getItem('sivra_token');
+if (existing && !location.search.includes('logout') && !location.search.includes('force')) {
+  location.href = 'sivra-dashboard.html';
 }
 
 async function login() {
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-  const btn = document.getElementById('btn');
-  const err = document.getElementById('err');
+  var email = document.getElementById('email').value.trim();
+  var password = document.getElementById('password').value;
+  var btn = document.getElementById('btn');
+  var err = document.getElementById('err');
+  var dbg = document.getElementById('debug');
+
   err.style.display = 'none';
+  dbg.style.display = 'none';
 
   if (!email || !password) {
     err.textContent = 'Please enter your email and password.';
-    err.style.display = ''; return;
+    err.style.display = '';
+    return;
   }
 
   btn.textContent = 'Logging in...';
   btn.disabled = true;
 
   try {
-    const res = await fetch('/api/auth/login', {
+    var res = await fetch('/api/auth/login', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({email, password})
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, password: password })
     });
-    const data = await res.json();
+
+    var data = await res.json();
 
     if (data.token) {
-      // Save session in format app.js expects
-      const session = {
+      // Save token and session — three ways to be safe
+      localStorage.setItem('sivra_token', data.token);
+
+      var session = {
         token: data.token,
         merchant: data.merchant || null,
         store: data.store || null
       };
-      localStorage.setItem('sivra_token', data.token);
       localStorage.setItem('sivra_session', JSON.stringify(session));
+
       // Save store slug for storefront
-      if (data.store?.slug) {
+      if (data.store && data.store.slug) {
         localStorage.setItem('sivra_store_slug', data.store.slug);
       }
+
+      // Verify it saved correctly
+      var saved = localStorage.getItem('sivra_token');
+      if (!saved) {
+        err.textContent = 'Browser storage error. Try disabling private/incognito mode.';
+        err.style.display = '';
+        btn.textContent = 'Log in';
+        btn.disabled = false;
+        return;
+      }
+
       location.href = 'sivra-dashboard.html';
     } else {
       err.textContent = data.error || 'Invalid email or password.';
@@ -113,7 +136,7 @@ async function login() {
       btn.disabled = false;
     }
   } catch(e) {
-    err.textContent = 'Connection error. Is the server running?';
+    err.textContent = 'Connection error: ' + e.message;
     err.style.display = '';
     btn.textContent = 'Log in';
     btn.disabled = false;
