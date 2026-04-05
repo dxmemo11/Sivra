@@ -543,8 +543,8 @@ input, textarea, select { font-family: inherit; }
 </head>
 <body>
 <div class="app">
-<script>document.addEventListener('DOMContentLoaded',()=>{ if(typeof initSivra==='function') initSivra('products'); });</script>
-  <aside class="sidebar">
+<script>document.addEventListener('DOMContentLoaded',()=>{if(typeof initSivra==='function')initSivra('products');});</script>
+<aside class="sidebar">
     <div class="sb-brand">
       <div class="sb-brand-mark">S</div>
       <span class="sb-brand-name">Sivra</span>
@@ -572,76 +572,47 @@ input, textarea, select { font-family: inherit; }
   </aside>
   <div class="main">
     <div class="topbar" id="sivraTopbar"></div>
-    <div class="page-scroll" id="pageScroll">
+    <div class="page-scroll">
 
       <div class="page-header">
         <h1 class="page-title">Products</h1>
         <div style="display:flex;gap:8px">
-          <button class="p-btn p-btn-secondary" onclick="sivraToast('Import coming soon')">Import</button>
           <button class="p-btn p-btn-secondary" onclick="sivraToast('Export coming soon')">Export</button>
           <button class="p-btn p-btn-primary" onclick="location.href='sivra-add-product.html'">Add product</button>
         </div>
       </div>
-
       <div class="page-body" style="padding-top:12px">
         <div class="p-card">
-          <!-- Tabs -->
           <div class="p-tabs">
-            <div class="p-tab active" onclick="setProdTab(this,'all')">All</div>
-            <div class="p-tab" onclick="setProdTab(this,'active')">Active</div>
-            <div class="p-tab" onclick="setProdTab(this,'draft')">Draft</div>
-            <div class="p-tab" onclick="setProdTab(this,'archived')">Archived</div>
+            <div class="p-tab active" onclick="setTab(this,'all')">All</div>
+            <div class="p-tab" onclick="setTab(this,'active')">Active</div>
+            <div class="p-tab" onclick="setTab(this,'draft')">Draft</div>
+            <div class="p-tab" onclick="setTab(this,'archived')">Archived</div>
           </div>
-
-          <!-- Filters -->
           <div class="p-filters">
             <div class="p-filter-input" style="flex:0 1 280px">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="#8c9196" stroke-width="1.4"/><path d="M10.5 10.5L14 14" stroke="#8c9196" stroke-width="1.4" stroke-linecap="round"/></svg>
-              <input type="text" placeholder="Search products" id="productSearch" oninput="filterProducts()"/>
-            </div>
-            <button class="p-btn p-btn-secondary p-btn-sm" onclick="sivraToast('Filters coming soon')">
-              <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M1 3h12M3 7h8M5 11h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-              Filter
-            </button>
-            <div style="margin-left:auto">
-              <button class="p-btn p-btn-secondary p-btn-sm" onclick="sivraToast('Sort coming soon')">
-                Sort
-                <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-              </button>
+              <input type="text" placeholder="Search products" id="searchInput" oninput="render()"/>
             </div>
           </div>
-
-          <!-- Table -->
           <div style="overflow-x:auto">
-            <table class="p-index" id="productsTable">
-              <thead>
-                <tr>
-                  <th class="col-check"><input type="checkbox" onchange="document.querySelectorAll('.prod-check').forEach(c=>c.checked=this.checked)"/></th>
-                  <th style="width:40px"></th>
-                  <th>Product</th>
-                  <th>Status</th>
-                  <th>Inventory</th>
-                  <th>Category</th>
-                  <th>Vendor</th>
-                </tr>
-              </thead>
-              <tbody id="productsBody">
-                <tr><td colspan="7" style="text-align:center;padding:48px;color:#8c9196">Loading products...</td></tr>
+            <table class="p-index">
+              <thead><tr>
+                <th class="col-check"><input type="checkbox" onchange="document.querySelectorAll('.rc').forEach(c=>c.checked=this.checked)"/></th>
+                <th style="width:44px"></th>
+                <th>Product</th>
+                <th>Status</th>
+                <th>Inventory</th>
+                <th>Price</th>
+                <th>Vendor</th>
+              </tr></thead>
+              <tbody id="tbody">
+                <tr><td colspan="7" style="text-align:center;padding:48px;color:#8c9196">Loading...</td></tr>
               </tbody>
             </table>
           </div>
-
-          <!-- Pagination -->
           <div style="padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e3e3e3">
-            <div class="p-text-body-sm p-text-secondary" id="productsCount">0 products</div>
-            <div style="display:flex;gap:4px">
-              <button class="p-btn p-btn-secondary p-btn-sm p-btn-icon" onclick="sivraToast('Previous')">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-              </button>
-              <button class="p-btn p-btn-secondary p-btn-sm p-btn-icon" onclick="sivraToast('Next')">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-              </button>
-            </div>
+            <div class="p-text-body-sm p-text-secondary" id="countEl">0 products</div>
           </div>
         </div>
       </div>
@@ -649,7 +620,8 @@ input, textarea, select { font-family: inherit; }
   </div>
 </div>
 <div class="toast" id="sivraToast"></div>
-<script>// SIVRA — Shopify-exact sidebar + topbar
+<script>document.addEventListener('DOMContentLoaded',()=>{ if(typeof initSivra==='function') initSivra('home'); });
+// SIVRA — Shopify-exact sidebar + topbar
 // Include once. Call: initSivra('pageId')
 
 const SIVRA_NAV = [
@@ -798,8 +770,8 @@ function initSivra(activeId) {
     }
   } catch(e) {}
 }
-</script>
-<script>
+
+
 // app.js fallback — sidebar renders regardless
 if (typeof Sivra === 'undefined') {
   window.Sivra = {
@@ -821,77 +793,76 @@ if (typeof Sivra === 'undefined') {
   };
 }
 </script>
-<script src="app.js" onerror="console.log('app.js not found, using fallback')"></script>
 <script>
+if (typeof Sivra === 'undefined') {
+  window.Sivra = {
+    requireAuth: async function(redirect) {
+      var s = JSON.parse(localStorage.getItem('sivra_session')||'null');
+      var token = s && s.token;
+      if (!token && redirect) { window.location.href = redirect; return null; }
+      return s || null;
+    },
+    getSession: function() {
+      try { return JSON.parse(localStorage.getItem('sivra_session')||'null'); } catch(e) { return null; }
+    }
+  };
+}</script>
+<script src="app.js" onerror="console.log('no app.js')"></script>
+<script>
+const TOKEN = (JSON.parse(localStorage.getItem('sivra_session')||'{}').token || localStorage.getItem('sivra_token'));
+let _all = [], _tab = 'all';
 
-let _allProducts = [];
-let _prodTab = 'all';
-
-function setProdTab(el, tab) {
+function setTab(el, tab) {
   document.querySelectorAll('.p-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  _prodTab = tab;
-  renderProducts();
+  el.classList.add('active'); _tab = tab; render();
 }
 
-function filterProducts() { renderProducts(); }
-
-function renderProducts() {
-  const q = (document.getElementById('productSearch')?.value||'').toLowerCase();
-  let list = _allProducts;
-  if (_prodTab === 'active') list = list.filter(p=>p.status==='active'||!p.status);
-  if (_prodTab === 'draft') list = list.filter(p=>p.status==='draft');
-  if (_prodTab === 'archived') list = list.filter(p=>p.status==='archived');
-  if (q) list = list.filter(p=>(p.title||'').toLowerCase().includes(q)||(p.vendor||'').toLowerCase().includes(q));
-
-  const body = document.getElementById('productsBody');
-  document.getElementById('productsCount').textContent = `${list.length} product${list.length!==1?'s':''}`;
-
+function render() {
+  const q = (document.getElementById('searchInput')?.value||'').toLowerCase();
+  let list = _all;
+  if (_tab !== 'all') list = list.filter(p=>p.status===_tab);
+  if (q) list = list.filter(p=>(p.title||'').toLowerCase().includes(q));
+  const tbody = document.getElementById('tbody');
+  document.getElementById('countEl').textContent = list.length + ' product' + (list.length!==1?'s':'');
   if (!list.length) {
-    const msg = _allProducts.length === 0
-      ? `<div style="text-align:center;padding:64px 32px">
-          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" style="margin:0 auto 12px;display:block;opacity:0.25"><path d="M20 5L35 13V27L20 35 5 27V13L20 5z" stroke="#303030" stroke-width="2.5" stroke-linejoin="round"/></svg>
-          <div style="font-size:15px;font-weight:600;color:#303030;margin-bottom:6px">No products yet</div>
-          <div style="color:#6d7175;margin-bottom:16px;font-size:13px">Start by adding a product to your store</div>
-          <button class="p-btn p-btn-primary" onclick="location.href='sivra-add-product.html'">Add your first product</button>
-        </div>`
-      : `<tr><td colspan="7" style="text-align:center;padding:48px;color:#8c9196">No products match your search</td></tr>`;
-    body.innerHTML = msg;
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:64px">
+      <div style="font-size:32px;margin-bottom:12px">📦</div>
+      <div style="font-size:15px;font-weight:600;color:#303030;margin-bottom:6px">No products${_tab!=='all'?' in this category':''}</div>
+      <div style="color:#6d7175;margin-bottom:16px;font-size:13px">${_all.length===0?'Add your first product to start selling':'No products match your filter'}</div>
+      ${_all.length===0?'<button class="p-btn p-btn-primary" onclick="location.href=\'sivra-add-product.html\'">Add product</button>':''}
+    </td></tr>`;
     return;
   }
-
-  body.innerHTML = list.map(p => {
-    const status = p.status || 'active';
-    const badgeCls = status === 'active' ? 'p-badge-success' : status === 'draft' ? 'p-badge-default' : 'p-badge-warning';
-    const inv = p.inventory_quantity != null ? `${p.inventory_quantity} in stock` : '—';
-    const thumb = p.image_url
-      ? `<img src="${p.image_url}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid #e3e3e3"/>`
-      : `<div style="width:36px;height:36px;border-radius:6px;background:#f6f6f7;border:1px solid #e3e3e3;display:flex;align-items:center;justify-content:center;color:#8c9196"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M2 10l3-3 2 2 3-4 4 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
+  tbody.innerHTML = list.map(p => {
+    const badgeCls = p.status==='active'?'p-badge-success':p.status==='draft'?'p-badge-default':'p-badge-warning';
+    const qty = p.quantity != null ? p.quantity + ' in stock' : '—';
+    const img = p.images && p.images[0]
+      ? `<img src="${p.images[0]}" style="width:38px;height:38px;object-fit:cover;border-radius:6px;border:1px solid #e3e3e3"/>`
+      : `<div style="width:38px;height:38px;border-radius:6px;background:#f6f6f7;border:1px solid #e3e3e3;display:flex;align-items:center;justify-content:center;color:#c9cccf"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M2 10l3-3 2 2 3-4 4 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div>`;
     return `<tr onclick="location.href='sivra-edit-product.html?id=${p.id}'">
-      <td class="col-check"><input type="checkbox" class="prod-check" onclick="event.stopPropagation()"/></td>
-      <td>${thumb}</td>
+      <td class="col-check"><input type="checkbox" class="rc" onclick="event.stopPropagation()"/></td>
+      <td>${img}</td>
       <td style="font-weight:500;color:#005bd3">${p.title||'Untitled'}</td>
-      <td><span class="p-badge ${badgeCls}" style="text-transform:capitalize">${status}</span></td>
-      <td style="color:#6d7175">${inv}</td>
-      <td style="color:#6d7175">${p.product_type||'—'}</td>
+      <td><span class="p-badge ${badgeCls}" style="text-transform:capitalize">${p.status||'active'}</span></td>
+      <td style="color:#6d7175">${qty}</td>
+      <td style="color:#303030">${p.price!=null?'$'+parseFloat(p.price).toFixed(2):'—'}</td>
       <td style="color:#6d7175">${p.vendor||'—'}</td>
     </tr>`;
   }).join('');
 }
 
-async function initProducts() {
+async function init() {
   initSivra('products');
-  const s = await Sivra.requireAuth('sivra-login.html');
-  if (!s) return;
+  await Sivra.requireAuth('sivra-login.html');
   try {
-    const res = await (await (async()=>{const _token=(JSON.parse(localStorage.getItem('sivra_session')||'{}').token || localStorage.getItem('sivra_token'));const _r=await fetch('/api/products',{method:"GET",headers:{"Content-Type":"application/json","Authorization":"Bearer "+_token}});const _d=await _r.json();if(!_r.ok)throw new Error(_d.error||"HTTP "+_r.status);return _d;})());
-    _allProducts = res?.products || [];
-    renderProducts();
+    const data = await fetch('/api/products', {headers:{'Authorization':'Bearer '+TOKEN}}).then(r=>r.json());
+    _all = data.products || [];
+    render();
   } catch(e) {
-    document.getElementById('productsBody').innerHTML = `<tr><td colspan="7" style="text-align:center;padding:48px;color:#c0392b">Error loading products</td></tr>`;
+    document.getElementById('tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:48px;color:#c0392b">Error loading products. Please refresh.</td></tr>';
   }
 }
-initProducts();
+init();
 </script>
 </body>
 </html>

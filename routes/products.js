@@ -7,6 +7,36 @@ const { requireAuth } = require('../middleware/auth');
 
 router.use(requireAuth);
 
+// IMAGE UPLOAD
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = path.join(__dirname, '../uploads');
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
+  }
+});
+const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB
+
+router.post('/upload-image', upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No image provided.' });
+    const imageUrl = `/uploads/${req.file.filename}`;
+    res.json({ url: imageUrl, filename: req.file.filename });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Image upload failed.' });
+  }
+});
+
+
 // LIST PRODUCTS
 router.get('/', async (req, res) => {
   try {
