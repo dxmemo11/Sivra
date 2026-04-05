@@ -1,0 +1,110 @@
+/* ═══════════════════════════════════════════════
+   SIVRA ADMIN — Design Tokens
+   Polaris-compatible token system
+   ═══════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,450;0,500;0,600;0,700;1,400&display=swap');
+
+:root {
+  /* ── Color — Background ── */
+  --p-color-bg:                    #f1f1f1;
+  --p-color-bg-surface:            #ffffff;
+  --p-color-bg-surface-secondary:  #f6f6f7;
+  --p-color-bg-surface-tertiary:   #f1f1f1;
+  --p-color-bg-fill:               #303030;
+  --p-color-bg-fill-hover:         rgba(0,0,0,0.06);
+  --p-color-bg-fill-selected:      rgba(0,0,0,0.09);
+  --p-color-bg-fill-active:        rgba(0,0,0,0.13);
+  --p-color-bg-success:            #cff0c4;
+  --p-color-bg-caution:            #ffefc8;
+  --p-color-bg-critical:           #fde8e8;
+  --p-color-bg-info:               #e1edff;
+  --p-color-bg-warning:            #fff3cd;
+
+  /* ── Color — Text ── */
+  --p-color-text:            #1a1a1a;
+  --p-color-text-secondary:  #6d7175;
+  --p-color-text-disabled:   #8c9196;
+  --p-color-text-success:    #1a7f37;
+  --p-color-text-caution:    #7d5c00;
+  --p-color-text-critical:   #c0392b;
+  --p-color-text-info:       #1458a2;
+  --p-color-text-emphasis:   #005bd3;
+
+  /* ── Color — Border ── */
+  --p-color-border:           #e3e3e3;
+  --p-color-border-secondary: #ebebeb;
+  --p-color-border-emphasis:  #005bd3;
+
+  /* ── Color — Icon ── */
+  --p-color-icon:          #6d7175;
+  --p-color-icon-emphasis: #1a1a1a;
+
+  /* ── Color — Interactive ── */
+  --p-color-btn-primary-bg:    #404040;
+  --p-color-btn-primary-hover: #303030;
+  --p-color-btn-success-bg:    #008060;
+  --p-color-btn-success-hover: #006b50;
+  --p-color-btn-critical-bg:   #c0392b;
+  --p-color-btn-critical-hover:#a93226;
+
+  /* ── Color — Brand ── */
+  --p-color-brand:        #008060;
+  --p-color-topbar:       #1a1a1a;
+  --p-color-sidebar-bg:   #f6f6f7;
+
+  /* ── Spacing — 4px base grid ── */
+  --p-space-025: 1px;
+  --p-space-050: 2px;
+  --p-space-100: 4px;
+  --p-space-150: 6px;
+  --p-space-200: 8px;
+  --p-space-300: 12px;
+  --p-space-400: 16px;
+  --p-space-500: 20px;
+  --p-space-600: 24px;
+  --p-space-800: 32px;
+  --p-space-1000: 40px;
+  --p-space-1200: 48px;
+  --p-space-1600: 64px;
+
+  /* ── Border radius ── */
+  --p-border-radius-050: 2px;
+  --p-border-radius-100: 4px;
+  --p-border-radius-150: 6px;
+  --p-border-radius-200: 8px;
+  --p-border-radius-300: 12px;
+  --p-border-radius-400: 16px;
+  --p-border-radius-full: 9999px;
+
+  /* ── Shadows ── */
+  --p-shadow-100: 0px 1px 0px rgba(0,0,0,0.07);
+  --p-shadow-200: 0px 3px 1px -1px rgba(0,0,0,0.07), 0px 0px 0px 1px rgba(0,0,0,0.08);
+  --p-shadow-300: 0px 4px 6px -2px rgba(0,0,0,0.2);
+  --p-shadow-bevel: inset 0px -1px 0px rgba(0,0,0,0.1);
+  --p-shadow-card: 0px 0px 0px 1px rgba(0,0,0,0.08), 0px 1px 3px rgba(0,0,0,0.06);
+
+  /* ── Typography ── */
+  --p-font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --p-font-size-75:  11px;
+  --p-font-size-80:  12px;
+  --p-font-size-100: 13px;
+  --p-font-size-200: 14px;
+  --p-font-size-300: 16px;
+  --p-font-size-400: 20px;
+  --p-font-size-500: 24px;
+  --p-font-size-600: 28px;
+  --p-font-weight-regular:  400;
+  --p-font-weight-medium:   500;
+  --p-font-weight-semibold: 600;
+  --p-font-weight-bold:     700;
+  --p-line-height-1: 1;
+  --p-line-height-2: 1.25;
+  --p-line-height-3: 1.5;
+
+  /* ── Layout ── */
+  --sidebar-w:   243px;
+  --topbar-h:    56px;
+  --page-max-w:  1280px;
+  --content-w:   860px;
+}
