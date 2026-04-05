@@ -80,9 +80,14 @@ router.post('/:slug/checkout', async (req, res) => {
     }
 
     // Get shipping from store zones
-    let shipping = 0; // default free
+    let shipping = 0;
     try {
-      const zonesRaw = store.shipping_zones;
+      // Try to get shipping_zones column (may not exist in older DBs)
+      const shippingResult = await db.execute({
+        sql: 'SELECT shipping_zones FROM stores WHERE id = ?',
+        args: [store.id]
+      });
+      const zonesRaw = shippingResult.rows[0]?.shipping_zones;
       const zones = zonesRaw ? (typeof zonesRaw === 'string' ? JSON.parse(zonesRaw) : zonesRaw) : [];
       if (zones && zones.length > 0) {
         const zone = zones[0];

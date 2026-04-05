@@ -1031,37 +1031,32 @@ function handleMediaDrop(e) {
   document.getElementById('mediaZone').style.background = '#fafafa';
   Array.from(e.dataTransfer.files).forEach(f => { if(f.type.startsWith('image/')) addMediaPreview(f); });
 }
-async function addMediaPreview(file) {
-  _mediaFiles.push(file);
+function addMediaPreview(file) {
+  // Resize image before storing to keep size small
   const reader = new FileReader();
   reader.onload = e => {
-    const div = document.createElement('div');
-    div.style.cssText = 'position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid #e3e3e3;cursor:pointer;background:#f6f6f7';
-    div.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover"/>
-      <div style="position:absolute;top:4px;left:4px;background:rgba(0,0,0,0.5);color:white;font-size:9px;padding:2px 5px;border-radius:3px">Uploading...</div>
-      <button onclick="removeMedia(this)" style="position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.5);border:none;color:white;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">×</button>`;
-    div.dataset.uploaded = 'false';
-    document.getElementById('mediaPreview').appendChild(div);
-    if (_mediaFiles.length === 1) document.getElementById('mediaZone').style.display = 'none';
-    // Upload to server
-    const token = (JSON.parse(localStorage.getItem('sivra_session')||'{}').token || localStorage.getItem('sivra_token'));
-    const formData = new FormData();
-    formData.append('image', file);
-    fetch('/api/products/upload-image', {
-      method: 'POST',
-      headers: {'Authorization': 'Bearer ' + token},
-      body: formData
-    }).then(r=>r.json()).then(data => {
-      if (data.url) {
-        div.dataset.imageUrl = data.url;
-        div.dataset.uploaded = 'true';
-        const label = div.querySelector('div');
-        if (label) label.remove();
+    const img = new Image();
+    img.onload = () => {
+      // Resize to max 800px wide
+      const maxW = 800;
+      const scale = img.width > maxW ? maxW / img.width : 1;
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.8); // 80% quality JPEG
+
+      const div = document.createElement('div');
+      div.style.cssText = 'position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid #e3e3e3;cursor:pointer;background:#f6f6f7';
+      div.innerHTML = `<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover"/>
+        <button onclick="removeMedia(this)" style="position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.5);border:none;color:white;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">×</button>`;
+      div.dataset.imageUrl = dataUrl; // stored as base64, sent with product
+      document.getElementById('mediaPreview').appendChild(div);
+      if (document.getElementById('mediaPreview').children.length === 1) {
+        document.getElementById('mediaZone').style.display = 'none';
       }
-    }).catch(() => {
-      const label = div.querySelector('div');
-      if (label) label.textContent = 'Upload failed';
-    });
+    };
+    img.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }

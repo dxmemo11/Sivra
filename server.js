@@ -19,7 +19,8 @@ app.use(cors({
 }));
 
 // Parse JSON request bodies
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Serve uploaded images as static files
 // e.g. GET /uploads/product-abc123.jpg
@@ -44,14 +45,11 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', platform: 'Sivra', time: new Date().toISOString() });
 });
 
-// Root route — open the login page by default
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'sivra-login.html'));
-});
-
-// Catch-all for unknown routes
+// Catch-all: send index.html for any unknown route (SPA routing)
 app.get('*', (req, res) => {
-  res.status(404).json({ error: 'Not found' });
+  res.sendFile(path.join(__dirname, 'public', 'index.html'), err => {
+    if (err) res.status(404).json({ error: 'Not found' });
+  });
 });
 
 
