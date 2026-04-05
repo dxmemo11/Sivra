@@ -79,7 +79,18 @@ router.post('/:slug/checkout', async (req, res) => {
       resolved.push({ product, qty });
     }
 
-    const shipping = subtotal >= 75 ? 0 : 4.99;
+    // Get shipping from store zones
+    let shipping = 0; // default free
+    try {
+      const zonesRaw = store.shipping_zones;
+      const zones = zonesRaw ? (typeof zonesRaw === 'string' ? JSON.parse(zonesRaw) : zonesRaw) : [];
+      if (zones && zones.length > 0) {
+        const zone = zones[0];
+        const rate = parseFloat(zone.rate) || 0;
+        const freeOver = zone.free_over ? parseFloat(zone.free_over) : null;
+        shipping = (freeOver !== null && subtotal >= freeOver) ? 0 : rate;
+      }
+    } catch(e) { shipping = 0; }
     const tax = subtotal * 0.08;
     const total = subtotal + shipping + tax;
 

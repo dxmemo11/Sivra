@@ -7,31 +7,25 @@ const { requireAuth } = require('../middleware/auth');
 
 router.use(requireAuth);
 
-// IMAGE UPLOAD
+// IMAGE UPLOAD — stored as base64 in database (no external service needed)
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const dir = path.join(__dirname, '../uploads');
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    cb(null, dir);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
-  }
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB max
 });
-const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB
 
 router.post('/upload-image', upload.single('image'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No image provided.' });
-    const imageUrl = `/uploads/${req.file.filename}`;
-    res.json({ url: imageUrl, filename: req.file.filename });
+    
+    // Convert to base64 data URL — stored directly in database
+    const base64 = req.file.buffer.toString('base64');
+    const mimeType = req.file.mimetype || 'image/jpeg';
+    const dataUrl = `data:${mimeType};base64,${base64}`;
+    
+    res.json({ url: dataUrl });
   } catch (err) {
-    console.error(err);
+    console.error('Image upload error:', err);
     res.status(500).json({ error: 'Image upload failed.' });
   }
 });
