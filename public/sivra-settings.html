@@ -580,34 +580,24 @@ input, textarea, select { font-family: inherit; }
       <div class="page-body" style="padding-top:16px">
         <div style="display:grid;grid-template-columns:200px 1fr;gap:20px;align-items:start">
 
-          <!-- Settings nav -->
-          <div class="p-card" style="padding:8px">
-            <div class="sb-item active" id="nav-general" onclick="showPanel('general')" style="border-radius:6px;font-size:13px;margin-bottom:1px">
-              <span style="font-size:15px">🏪</span> General
-            </div>
-            <div class="sb-item" id="nav-shipping" onclick="showPanel('shipping')" style="border-radius:6px;font-size:13px;margin-bottom:1px">
-              <span style="font-size:15px">📦</span> Shipping
-            </div>
-            <div class="sb-item" id="nav-payments" onclick="showPanel('payments')" style="border-radius:6px;font-size:13px;margin-bottom:1px">
-              <span style="font-size:15px">💳</span> Payments
-            </div>
-            <div class="sb-item" id="nav-notifications" onclick="showPanel('notifications')" style="border-radius:6px;font-size:13px;margin-bottom:1px">
-              <span style="font-size:15px">🔔</span> Notifications
-            </div>
+          <!-- Nav -->
+          <div class="p-card" style="padding:8px;position:sticky;top:16px">
+            <div class="sb-item active" id="nav-general" onclick="showPanel('general')" style="border-radius:6px;font-size:13px;margin-bottom:1px"><span>🏪</span> General</div>
+            <div class="sb-item" id="nav-shipping" onclick="showPanel('shipping')" style="border-radius:6px;font-size:13px;margin-bottom:1px"><span>📦</span> Shipping</div>
+            <div class="sb-item" id="nav-taxes" onclick="showPanel('taxes')" style="border-radius:6px;font-size:13px;margin-bottom:1px"><span>🧾</span> Taxes</div>
+            <div class="sb-item" id="nav-payments" onclick="showPanel('payments')" style="border-radius:6px;font-size:13px;margin-bottom:1px"><span>💳</span> Payments</div>
+            <div class="sb-item" id="nav-notifications" onclick="showPanel('notifications')" style="border-radius:6px;font-size:13px;margin-bottom:1px"><span>🔔</span> Notifications</div>
+            <div class="sb-item" id="nav-account" onclick="showPanel('account')" style="border-radius:6px;font-size:13px;margin-bottom:1px"><span>👤</span> Account</div>
           </div>
 
-          <!-- Panels -->
           <div>
-
             <!-- GENERAL -->
             <div id="panel-general">
               <div class="p-card" style="margin-bottom:16px">
-                <div style="padding:16px 20px;border-bottom:1px solid #e3e3e3">
-                  <span style="font-size:15px;font-weight:600">Store details</span>
-                </div>
+                <div style="padding:16px 20px;border-bottom:1px solid #e3e3e3"><span style="font-size:15px;font-weight:600">Store details</span></div>
                 <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
                   <div><label class="p-label">Store name</label><input class="p-input" id="settName" placeholder="My Store"/></div>
-                  <div><label class="p-label">Description</label><textarea class="p-textarea" id="settDesc" placeholder="What do you sell?" style="min-height:70px"></textarea></div>
+                  <div><label class="p-label">Store description</label><textarea class="p-textarea" id="settDesc" placeholder="Tell customers about your store" style="min-height:80px"></textarea></div>
                   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
                     <div><label class="p-label">Currency</label>
                       <select class="p-select" id="settCurrency" style="width:100%">
@@ -617,22 +607,35 @@ input, textarea, select { font-family: inherit; }
                         <option value="EUR">EUR — Euro</option>
                         <option value="AED">AED — UAE Dirham</option>
                         <option value="SAR">SAR — Saudi Riyal</option>
+                        <option value="IQD">IQD — Iraqi Dinar</option>
                       </select>
                     </div>
-                    <div><label class="p-label">Category</label>
+                    <div><label class="p-label">Store category</label>
                       <select class="p-select" id="settCategory" style="width:100%">
                         <option value="fashion">Fashion & Apparel</option>
                         <option value="electronics">Electronics</option>
                         <option value="sports">Sports & Outdoors</option>
                         <option value="home">Home & Garden</option>
                         <option value="beauty">Health & Beauty</option>
+                        <option value="food">Food & Beverage</option>
                         <option value="other">Other</option>
                       </select>
                     </div>
                   </div>
                 </div>
                 <div style="padding:14px 20px;border-top:1px solid #e3e3e3;display:flex;justify-content:flex-end">
-                  <button class="p-btn p-btn-primary" onclick="saveGeneral()">Save</button>
+                  <button class="p-btn p-btn-primary" onclick="saveGeneral()">Save changes</button>
+                </div>
+              </div>
+              <div class="p-card">
+                <div style="padding:16px 20px;border-bottom:1px solid #e3e3e3"><span style="font-size:15px;font-weight:600">Store URL</span></div>
+                <div style="padding:20px">
+                  <div style="font-size:13px;color:#6d7175;margin-bottom:8px">Your public storefront URL:</div>
+                  <div style="display:flex;align-items:center;gap:10px;background:#f6f6f7;border:1px solid #e3e3e3;border-radius:8px;padding:10px 14px">
+                    <span style="font-size:13px" id="storeUrl">—</span>
+                    <button onclick="copyUrl()" class="p-btn p-btn-secondary p-btn-sm" style="margin-left:auto">Copy</button>
+                    <a id="storeLink" href="#" target="_blank" class="p-btn p-btn-secondary p-btn-sm">Open</a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -640,18 +643,48 @@ input, textarea, select { font-family: inherit; }
             <!-- SHIPPING -->
             <div id="panel-shipping" style="display:none">
               <div class="p-card">
-                <div style="padding:16px 20px;border-bottom:1px solid #e3e3e3;display:flex;align-items:center;justify-content:space-between">
-                  <span style="font-size:15px;font-weight:600">Shipping zones</span>
+                <div style="padding:16px 20px;border-bottom:1px solid #e3e3e3;display:flex;justify-content:space-between;align-items:center">
+                  <div>
+                    <span style="font-size:15px;font-weight:600">Shipping zones</span>
+                    <div style="font-size:12px;color:#6d7175;margin-top:2px">Set shipping rates for different regions</div>
+                  </div>
                   <button class="p-btn p-btn-primary p-btn-sm" onclick="addZone()">+ Add zone</button>
                 </div>
-                <div id="shippingZones" style="padding:16px;display:flex;flex-direction:column;gap:12px"></div>
-                <div style="padding:0 16px 16px">
-                  <div style="background:#f6f6f7;border-radius:8px;padding:12px;font-size:13px;color:#6d7175">
-                    <strong style="color:#303030">How it works:</strong> Set a flat rate per zone. If you set "Free over", shipping becomes free when order subtotal exceeds that amount.
+                <div id="shippingZones" style="padding:16px;display:flex;flex-direction:column;gap:12px">
+                  <div style="text-align:center;padding:24px;color:#8c9196;font-size:13px">Loading...</div>
+                </div>
+                <div style="padding:12px 16px 16px">
+                  <div style="background:#f0f8f4;border:1px solid #c3e6cb;border-radius:8px;padding:12px;font-size:13px;color:#1a7f37">
+                    <strong>Tip:</strong> Set rate to $0 for free shipping. Use "Free over" to offer free shipping above a certain order value.
                   </div>
                 </div>
                 <div style="padding:14px 20px;border-top:1px solid #e3e3e3;display:flex;justify-content:flex-end">
                   <button class="p-btn p-btn-primary" onclick="saveShipping()">Save shipping</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAXES -->
+            <div id="panel-taxes" style="display:none">
+              <div class="p-card">
+                <div style="padding:16px 20px;border-bottom:1px solid #e3e3e3"><span style="font-size:15px;font-weight:600">Taxes & duties</span></div>
+                <div style="padding:20px;display:flex;flex-direction:column;gap:16px">
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:#f9f9f9;border-radius:8px">
+                    <div><div style="font-size:13px;font-weight:500">Charge tax on products</div><div style="font-size:12px;color:#6d7175">Tax applied to orders based on location</div></div>
+                    <input type="checkbox" id="taxEnabled" style="width:16px;height:16px;accent-color:#008060"/>
+                  </div>
+                  <div>
+                    <label class="p-label">Tax rate (%)</label>
+                    <div class="p-label-hint">Applied as a percentage of the order subtotal</div>
+                    <input class="p-input" type="number" step="0.1" min="0" max="100" id="taxRate" placeholder="0" style="width:160px"/>
+                  </div>
+                  <div>
+                    <label class="p-label">Tax number (GST / VAT)</label>
+                    <input class="p-input" id="taxNumber" placeholder="e.g. AU12345678" style="max-width:300px"/>
+                  </div>
+                </div>
+                <div style="padding:14px 20px;border-top:1px solid #e3e3e3;display:flex;justify-content:flex-end">
+                  <button class="p-btn p-btn-primary" onclick="sivraToast('Tax settings saved')">Save</button>
                 </div>
               </div>
             </div>
@@ -662,14 +695,28 @@ input, textarea, select { font-family: inherit; }
                 <div style="padding:16px 20px;border-bottom:1px solid #e3e3e3"><span style="font-size:15px;font-weight:600">Payment providers</span></div>
                 <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
                   <div style="border:1px solid #e3e3e3;border-radius:8px;padding:16px;display:flex;align-items:center;gap:14px">
-                    <div style="width:48px;height:32px;background:#635bff;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="color:white;font-size:11px;font-weight:700">stripe</span></div>
-                    <div style="flex:1"><div style="font-size:13px;font-weight:500">Stripe</div><div style="font-size:12px;color:#6d7175">Accept cards, Apple Pay, Google Pay — coming soon</div></div>
+                    <div style="width:52px;height:34px;background:#635bff;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="color:white;font-size:12px;font-weight:700">stripe</span></div>
+                    <div style="flex:1">
+                      <div style="font-size:13px;font-weight:500">Stripe</div>
+                      <div style="font-size:12px;color:#6d7175">Accept cards, Apple Pay, Google Pay, bank transfers</div>
+                    </div>
                     <span class="p-badge p-badge-default">Coming soon</span>
                   </div>
-                  <div style="border:1px solid #e3e3e3;border-radius:8px;padding:16px;display:flex;align-items:center;gap:14px">
-                    <div style="width:48px;height:32px;background:#f6f6f7;border-radius:6px;border:1px solid #e3e3e3;display:flex;align-items:center;justify-content:center;font-size:18px">🏦</div>
-                    <div style="flex:1"><div style="font-size:13px;font-weight:500">Manual payment</div><div style="font-size:12px;color:#6d7175">Bank transfer, cash on delivery</div></div>
+                  <div style="border:2px solid #008060;border-radius:8px;padding:16px;display:flex;align-items:center;gap:14px">
+                    <div style="width:52px;height:34px;background:#f6f6f7;border-radius:6px;border:1px solid #e3e3e3;display:flex;align-items:center;justify-content:center;font-size:20px">🏦</div>
+                    <div style="flex:1">
+                      <div style="font-size:13px;font-weight:500">Manual payment</div>
+                      <div style="font-size:12px;color:#6d7175">Bank transfer, cash on delivery, or any custom method</div>
+                    </div>
                     <span class="p-badge p-badge-success">Active</span>
+                  </div>
+                  <div style="border:1px solid #e3e3e3;border-radius:8px;padding:16px;display:flex;align-items:center;gap:14px">
+                    <div style="width:52px;height:34px;background:#003087;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="color:white;font-size:10px;font-weight:700">PayPal</span></div>
+                    <div style="flex:1">
+                      <div style="font-size:13px;font-weight:500">PayPal</div>
+                      <div style="font-size:12px;color:#6d7175">Accept PayPal and Venmo payments</div>
+                    </div>
+                    <span class="p-badge p-badge-default">Coming soon</span>
                   </div>
                 </div>
               </div>
@@ -679,19 +726,55 @@ input, textarea, select { font-family: inherit; }
             <div id="panel-notifications" style="display:none">
               <div class="p-card">
                 <div style="padding:16px 20px;border-bottom:1px solid #e3e3e3"><span style="font-size:15px;font-weight:600">Email notifications</span></div>
-                <div style="padding:20px;display:flex;flex-direction:column;gap:16px">
-                  <div style="display:flex;align-items:center;justify-content:space-between">
-                    <div><div style="font-size:13px;font-weight:500">New order</div><div style="font-size:12px;color:#6d7175">Get notified when a customer places an order</div></div>
+                <div style="padding:20px;display:flex;flex-direction:column;gap:0">
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #f0f0f0">
+                    <div><div style="font-size:13px;font-weight:500">New order received</div><div style="font-size:12px;color:#6d7175">Get notified when a customer places an order</div></div>
                     <input type="checkbox" checked style="width:16px;height:16px;accent-color:#008060"/>
                   </div>
-                  <div style="height:1px;background:#e3e3e3"></div>
-                  <div style="display:flex;align-items:center;justify-content:space-between">
-                    <div><div style="font-size:13px;font-weight:500">Low stock alert</div><div style="font-size:12px;color:#6d7175">Alert when product quantity drops below 5</div></div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #f0f0f0">
+                    <div><div style="font-size:13px;font-weight:500">Low stock alert</div><div style="font-size:12px;color:#6d7175">Alert when product stock drops below 5</div></div>
                     <input type="checkbox" checked style="width:16px;height:16px;accent-color:#008060"/>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #f0f0f0">
+                    <div><div style="font-size:13px;font-weight:500">New customer signup</div><div style="font-size:12px;color:#6d7175">When a new customer creates an account</div></div>
+                    <input type="checkbox" style="width:16px;height:16px;accent-color:#008060"/>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0">
+                    <div><div style="font-size:13px;font-weight:500">Daily sales summary</div><div style="font-size:12px;color:#6d7175">Daily email with your store performance</div></div>
+                    <input type="checkbox" style="width:16px;height:16px;accent-color:#008060"/>
                   </div>
                 </div>
                 <div style="padding:14px 20px;border-top:1px solid #e3e3e3;display:flex;justify-content:flex-end">
-                  <button class="p-btn p-btn-primary" onclick="sivraToast('Notification settings saved')">Save</button>
+                  <button class="p-btn p-btn-primary" onclick="sivraToast('Notification preferences saved')">Save</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- ACCOUNT -->
+            <div id="panel-account" style="display:none">
+              <div class="p-card" style="margin-bottom:16px">
+                <div style="padding:16px 20px;border-bottom:1px solid #e3e3e3"><span style="font-size:15px;font-weight:600">Account details</span></div>
+                <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                    <div><label class="p-label">First name</label><input class="p-input" id="accFirst"/></div>
+                    <div><label class="p-label">Last name</label><input class="p-input" id="accLast"/></div>
+                  </div>
+                  <div><label class="p-label">Email</label><input class="p-input" id="accEmail" type="email"/></div>
+                </div>
+                <div style="padding:14px 20px;border-top:1px solid #e3e3e3;display:flex;justify-content:flex-end">
+                  <button class="p-btn p-btn-primary" onclick="sivraToast('Account updated')">Save</button>
+                </div>
+              </div>
+              <div class="p-card">
+                <div style="padding:16px 20px;border-bottom:1px solid #e3e3e3"><span style="font-size:15px;font-weight:600">Change password</span></div>
+                <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+                  <div><label class="p-label">Current password</label><input class="p-input" id="pwCurrent" type="password"/></div>
+                  <div><label class="p-label">New password</label><input class="p-input" id="pwNew" type="password"/></div>
+                  <div><label class="p-label">Confirm new password</label><input class="p-input" id="pwConfirm" type="password"/></div>
+                </div>
+                <div style="padding:14px 20px;border-top:1px solid #e3e3e3;display:flex;justify-content:space-between;align-items:center">
+                  <button class="p-btn p-btn-sm" style="background:none;border:none;color:#c0392b;cursor:pointer" onclick="logout()">Log out of all devices</button>
+                  <button class="p-btn p-btn-primary" onclick="changePassword()">Update password</button>
                 </div>
               </div>
             </div>
@@ -903,121 +986,132 @@ if (typeof Sivra === 'undefined') {
   };
 }
 </script>
-<script>
-if (typeof Sivra === 'undefined') {
-  window.Sivra = {
-    requireAuth: async function(redirect) {
-      var s = JSON.parse(localStorage.getItem('sivra_session')||'null');
-      var token = s && s.token;
-      if (!token && redirect) { window.location.href = redirect; return null; }
-      return s || null;
-    },
-    request: async function(url, options) {
-      var s = JSON.parse(localStorage.getItem('sivra_session')||'null');
-      var token = s && s.token;
-      var headers = {'Content-Type':'application/json'};
-      if (token) headers['Authorization'] = 'Bearer ' + token;
-      var opts = Object.assign({}, options, {headers: Object.assign(headers, (options&&options.headers)||{})});
-      var r = await fetch(url, opts);
-      var json = await r.json();
-      if (!r.ok) throw new Error(json.error || ('HTTP ' + r.status));
-      return json;
-    },
-    getSession: function() {
-      try { return JSON.parse(localStorage.getItem('sivra_session')||'null'); } catch(e) { return null; }
-    }
-  };
-}</script>
 <script src="app.js" onerror="console.log('no app.js')"></script>
 <script>
 const TOKEN = (JSON.parse(localStorage.getItem('sivra_session')||'{}').token || localStorage.getItem('sivra_token'));
+let _zones = [];
+let _storeSlug = '';
+
+const PANELS = ['general','shipping','taxes','payments','notifications','account'];
 
 function showPanel(id) {
-  ['general','shipping','payments','notifications'].forEach(p => {
-    document.getElementById('panel-'+p).style.display = p===id ? '' : 'none';
+  PANELS.forEach(p => {
+    document.getElementById('panel-'+p).style.display = p===id?'':'none';
     document.getElementById('nav-'+p).classList.toggle('active', p===id);
   });
-  if (id === 'shipping') loadShipping();
+  if (id==='shipping') loadShipping();
 }
 
 async function loadStore() {
   try {
-    const s = await fetch('/api/store/info', {headers:{'Authorization':'Bearer '+TOKEN}}).then(r=>r.json());
+    const s = await fetch('/api/store/info',{headers:{'Authorization':'Bearer '+TOKEN}}).then(r=>r.json());
+    _storeSlug = s.slug || '';
     if (s.name) document.getElementById('settName').value = s.name;
     if (s.description) document.getElementById('settDesc').value = s.description;
     if (s.currency) document.getElementById('settCurrency').value = s.currency;
     if (s.category) document.getElementById('settCategory').value = s.category;
+    const url = window.location.origin + '/sivra-storefront.html?store=' + _storeSlug;
+    document.getElementById('storeUrl').textContent = url;
+    document.getElementById('storeLink').href = '/sivra-storefront.html?store=' + _storeSlug;
+  } catch(e) {}
+  try {
+    const me = await fetch('/api/auth/me',{headers:{'Authorization':'Bearer '+TOKEN}}).then(r=>r.json());
+    if (me.merchant) {
+      document.getElementById('accFirst').value = me.merchant.first_name||me.merchant.firstName||'';
+      document.getElementById('accLast').value = me.merchant.last_name||me.merchant.lastName||'';
+      document.getElementById('accEmail').value = me.merchant.email||'';
+    }
   } catch(e) {}
 }
 
-async function saveGeneral() {
-  const data = {
-    name: document.getElementById('settName').value,
-    description: document.getElementById('settDesc').value,
-    currency: document.getElementById('settCurrency').value,
-    category: document.getElementById('settCategory').value,
-  };
-  try {
-    await fetch('/api/store/info', {method:'PATCH',headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},body:JSON.stringify(data)});
-    sivraToast('Settings saved!');
-  } catch(e) { sivraToast('Error saving settings'); }
+function copyUrl() {
+  const url = document.getElementById('storeUrl').textContent;
+  navigator.clipboard.writeText(url).then(()=>sivraToast('URL copied!')).catch(()=>sivraToast(url));
 }
 
-let _zones = [];
+async function saveGeneral() {
+  try {
+    await fetch('/api/store/info',{method:'PATCH',headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},
+      body:JSON.stringify({name:document.getElementById('settName').value,description:document.getElementById('settDesc').value,currency:document.getElementById('settCurrency').value,category:document.getElementById('settCategory').value})});
+    sivraToast('Store settings saved!');
+  } catch(e) { sivraToast('Error saving'); }
+}
 
 async function loadShipping() {
   try {
-    const data = await fetch('/api/store/shipping', {headers:{'Authorization':'Bearer '+TOKEN}}).then(r=>r.json());
-    _zones = data.zones || [];
+    const data = await fetch('/api/store/shipping',{headers:{'Authorization':'Bearer '+TOKEN}}).then(r=>r.json());
+    _zones = data.zones||[];
     renderZones();
-  } catch(e) { _zones = [{id:1,name:'Domestic',countries:'Australia',rate:9.95,free_over:100}]; renderZones(); }
+  } catch(e) { _zones=[]; renderZones(); }
 }
 
 function renderZones() {
   const el = document.getElementById('shippingZones');
   if (!_zones.length) {
-    el.innerHTML = '<div style="text-align:center;padding:24px;color:#8c9196;font-size:13px">No shipping zones. Click Add zone to create one.</div>';
+    el.innerHTML = '<div style="text-align:center;padding:32px;color:#8c9196;font-size:13px">No shipping zones yet. Click "Add zone" to create one.</div>';
     return;
   }
-  el.innerHTML = _zones.map((z,i) => `
-    <div style="border:1px solid #e3e3e3;border-radius:8px;padding:16px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <input value="${z.name}" onchange="_zones[${i}].name=this.value"
-          style="font-size:14px;font-weight:600;border:none;outline:none;flex:1;background:none" placeholder="Zone name"/>
-        <button onclick="removeZone(${i})" style="background:none;border:none;color:#8c9196;cursor:pointer;font-size:18px;line-height:1">×</button>
+  el.innerHTML = _zones.map((z,i)=>`
+    <div style="border:1px solid #e3e3e3;border-radius:8px;overflow:hidden">
+      <div style="padding:12px 16px;background:#f9f9f9;border-bottom:1px solid #e3e3e3;display:flex;align-items:center;justify-content:space-between">
+        <input value="${z.name||'Zone'}" onchange="_zones[${i}].name=this.value"
+          style="font-size:13px;font-weight:600;border:none;outline:none;background:none;flex:1" placeholder="Zone name"/>
+        <button onclick="removeZone(${i})" style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:12px">Remove</button>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+      <div style="padding:14px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
         <div>
-          <label class="p-label">Countries</label>
-          <input class="p-input" value="${z.countries||''}" onchange="_zones[${i}].countries=this.value" placeholder="e.g. Australia"/>
+          <label class="p-label">Countries/regions</label>
+          <input class="p-input" value="${z.countries||''}" onchange="_zones[${i}].countries=this.value" placeholder="e.g. Australia, USA"/>
         </div>
         <div>
           <label class="p-label">Rate ($)</label>
-          <input class="p-input" type="number" step="0.01" min="0" value="${z.rate||0}" onchange="_zones[${i}].rate=parseFloat(this.value)||0" placeholder="9.95"/>
+          <div style="position:relative"><span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#6d7175">$</span>
+          <input class="p-input" type="number" step="0.01" min="0" value="${z.rate||0}" onchange="_zones[${i}].rate=parseFloat(this.value)||0" style="padding-left:24px"/></div>
         </div>
         <div>
-          <label class="p-label">Free over ($) <span style="color:#8c9196;font-weight:400">optional</span></label>
-          <input class="p-input" type="number" step="0.01" min="0" value="${z.free_over||''}" onchange="_zones[${i}].free_over=this.value?parseFloat(this.value):null" placeholder="e.g. 100"/>
+          <label class="p-label">Free shipping over ($)</label>
+          <div style="position:relative"><span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#6d7175">$</span>
+          <input class="p-input" type="number" step="0.01" min="0" value="${z.free_over||''}" onchange="_zones[${i}].free_over=this.value?parseFloat(this.value):null" placeholder="Leave empty to disable" style="padding-left:24px"/></div>
         </div>
       </div>
     </div>`).join('');
 }
 
 function addZone() {
-  _zones.push({id: Date.now(), name: 'New zone', countries: '', rate: 9.95, free_over: null});
+  _zones.push({id:Date.now(),name:'New zone',countries:'',rate:0,free_over:null});
   renderZones();
+  sivraToast('Zone added — fill in the details and save');
 }
 
-function removeZone(i) {
-  _zones.splice(i, 1);
-  renderZones();
-}
+function removeZone(i) { _zones.splice(i,1); renderZones(); }
 
 async function saveShipping() {
   try {
-    await fetch('/api/store/shipping', {method:'PATCH',headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},body:JSON.stringify({zones:_zones})});
-    sivraToast('Shipping saved!');
+    await fetch('/api/store/shipping',{method:'PATCH',headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},body:JSON.stringify({zones:_zones})});
+    sivraToast('Shipping zones saved!');
   } catch(e) { sivraToast('Error saving shipping'); }
+}
+
+async function changePassword() {
+  const curr = document.getElementById('pwCurrent').value;
+  const nw = document.getElementById('pwNew').value;
+  const conf = document.getElementById('pwConfirm').value;
+  if (!curr||!nw) { sivraToast('Please fill in all password fields'); return; }
+  if (nw!==conf) { sivraToast('New passwords do not match'); return; }
+  if (nw.length<8) { sivraToast('Password must be at least 8 characters'); return; }
+  try {
+    await fetch('/api/auth/change-password',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},body:JSON.stringify({currentPassword:curr,newPassword:nw})});
+    sivraToast('Password updated!');
+    document.getElementById('pwCurrent').value='';
+    document.getElementById('pwNew').value='';
+    document.getElementById('pwConfirm').value='';
+  } catch(e) { sivraToast('Error: '+e.message); }
+}
+
+function logout() {
+  if (!confirm('Log out of all devices?')) return;
+  localStorage.clear();
+  location.href = 'sivra-login.html?logout=1';
 }
 
 async function init() {

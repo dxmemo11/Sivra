@@ -540,181 +540,149 @@ input, textarea, select { font-family: inherit; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 body{background:#fff;}
+
+.store-nav{position:sticky;top:0;z-index:100;background:white;border-bottom:1px solid #e3e3e3;height:60px;display:flex;align-items:center;padding:0 24px;gap:24px;}
+.store-nav-logo{font-size:17px;font-weight:700;color:#1a1a1a;text-decoration:none;}
+.store-nav-links{display:flex;gap:20px;flex:1;margin-left:16px;}
+.store-nav-link{font-size:14px;color:#6d7175;text-decoration:none;transition:color 0.1s;}
+.store-nav-link:hover{color:#1a1a1a;}
+.store-nav-right{display:flex;align-items:center;gap:10px;margin-left:auto;}
+.store-nav-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#6d7175;cursor:pointer;background:none;border:none;transition:background 0.1s;position:relative;}
+.store-nav-icon:hover{background:#f6f6f7;color:#1a1a1a;}
+.cart-badge{position:absolute;top:4px;right:4px;width:16px;height:16px;background:#1a1a1a;border-radius:50%;font-size:9px;font-weight:700;color:white;display:flex;align-items:center;justify-content:center;}
+.store-footer{background:#1a1a1a;color:rgba(255,255,255,0.6);padding:48px 24px 24px;margin-top:80px;}
+.product-card{border:1px solid #e3e3e3;border-radius:10px;overflow:hidden;text-decoration:none;color:inherit;display:block;transition:transform 0.15s,box-shadow 0.15s;background:white;}
+.product-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.1);}
+.product-img{aspect-ratio:1;background:#f6f6f7;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.product-img img{width:100%;height:100%;object-fit:cover;}
+
   </style>
   
 </head>
 <body>
 
 <style>
-:root {
-  --store-accent: #1a1a1a;
-  --store-accent-hover: #303030;
-  --store-font: "Inter", -apple-system, sans-serif;
-}
-.store-nav {
-  position: sticky; top: 0; z-index: 100;
-  background: white; border-bottom: 1px solid #e3e3e3;
-  padding: 0 24px; height: 60px;
-  display: flex; align-items: center; gap: 24px;
-}
-.store-nav-logo { font-size: 16px; font-weight: 700; color: #1a1a1a; text-decoration: none; }
-.store-nav-links { display: flex; gap: 20px; flex: 1; margin-left: 16px; }
-.store-nav-link { font-size: 14px; color: #6d7175; text-decoration: none; transition: color 0.1s; }
-.store-nav-link:hover { color: #1a1a1a; }
-.store-nav-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
-.store-nav-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6d7175; cursor: pointer; transition: background 0.1s; position: relative; background: none; border: none; }
-.store-nav-icon:hover { background: #f6f6f7; color: #1a1a1a; }
-.cart-count { position: absolute; top: 4px; right: 4px; width: 16px; height: 16px; background: #1a1a1a; border-radius: 50%; font-size: 9px; font-weight: 700; color: white; display: flex; align-items: center; justify-content: center; }
-.store-footer { background: #1a1a1a; color: rgba(255,255,255,0.7); padding: 48px 24px 24px; margin-top: 80px; }
-.store-footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; max-width: 1200px; margin: 0 auto 40px; }
-.store-footer-logo { font-size: 16px; font-weight: 700; color: white; margin-bottom: 10px; }
-.store-footer-desc { font-size: 13px; line-height: 1.6; }
-.store-footer-col h4 { font-size: 13px; font-weight: 600; color: white; margin-bottom: 12px; }
-.store-footer-col a { display: block; font-size: 13px; color: rgba(255,255,255,0.55); text-decoration: none; margin-bottom: 8px; transition: color 0.1s; }
-.store-footer-col a:hover { color: white; }
-.store-footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; text-align: center; font-size: 12px; max-width: 1200px; margin: 0 auto; }
-.product-card { border: 1px solid #e3e3e3; border-radius: 10px; overflow: hidden; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; background: white; text-decoration: none; color: inherit; display: block; }
-.product-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
-.product-img { aspect-ratio: 1; background: #f6f6f7; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.product-img img { width: 100%; height: 100%; object-fit: cover; }
-.product-info { padding: 12px; }
-.product-title { font-size: 14px; font-weight: 500; color: #1a1a1a; margin-bottom: 4px; }
-.product-vendor { font-size: 12px; color: #8c9196; margin-bottom: 6px; }
-.product-price { font-size: 15px; font-weight: 600; color: #1a1a1a; }
-.product-compare { font-size: 13px; color: #8c9196; text-decoration: line-through; margin-left: 6px; }
-.add-to-cart-btn { width: 100%; height: 44px; background: #1a1a1a; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; font-family: inherit; cursor: pointer; transition: background 0.1s; }
-.add-to-cart-btn:hover { background: #303030; }
-.qty-btn { width: 36px; height: 36px; border: 1px solid #e3e3e3; border-radius: 8px; background: white; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-.qty-btn:hover { background: #f6f6f7; }
+.store-nav{position:sticky;top:0;z-index:100;background:white;border-bottom:1px solid #e3e3e3;height:60px;display:flex;align-items:center;padding:0 24px;gap:24px;}
+.store-nav-logo{font-size:17px;font-weight:700;color:#1a1a1a;text-decoration:none;}
+.store-nav-links{display:flex;gap:20px;flex:1;margin-left:16px;}
+.store-nav-link{font-size:14px;color:#6d7175;text-decoration:none;transition:color 0.1s;}
+.store-nav-link:hover{color:#1a1a1a;}
+.store-nav-right{display:flex;align-items:center;gap:10px;margin-left:auto;}
+.store-nav-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#6d7175;cursor:pointer;background:none;border:none;transition:background 0.1s;position:relative;}
+.store-nav-icon:hover{background:#f6f6f7;color:#1a1a1a;}
+.cart-badge{position:absolute;top:4px;right:4px;width:16px;height:16px;background:#1a1a1a;border-radius:50%;font-size:9px;font-weight:700;color:white;display:flex;align-items:center;justify-content:center;}
+.store-footer{background:#1a1a1a;color:rgba(255,255,255,0.6);padding:48px 24px 24px;margin-top:80px;}
+.product-card{border:1px solid #e3e3e3;border-radius:10px;overflow:hidden;text-decoration:none;color:inherit;display:block;transition:transform 0.15s,box-shadow 0.15s;background:white;}
+.product-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.1);}
+.product-img{aspect-ratio:1;background:#f6f6f7;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.product-img img{width:100%;height:100%;object-fit:cover;}
 </style>
 
 <nav class="store-nav">
-  <a href="sivra-storefront.html" class="store-nav-logo">My Store</a>
+  <a href="javascript:void(0)" class="store-nav-logo" id="storeLogoLink">Store</a>
   <div class="store-nav-links">
-    <a href="sivra-storefront.html" class="store-nav-link">Home</a>
-    <a href="sivra-storefront.html" class="store-nav-link">All products</a>
-    <a href="#" class="store-nav-link">About</a>
-    <a href="#" class="store-nav-link">Contact</a>
+    <a href="javascript:void(0)" class="store-nav-link" id="storeHomeLink">Home</a>
+    <a href="javascript:void(0)" class="store-nav-link" id="storeAllLink">All products</a>
   </div>
   <div class="store-nav-right">
-    <button class="store-nav-icon" onclick="sivraToast('Search coming soon')">
-      <svg width="17" height="17" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-    </button>
     <button class="store-nav-icon" onclick="location.href='sivra-cart.html'">
-      <svg width="17" height="17" viewBox="0 0 16 16" fill="none"><path d="M2 2h1.5l2.5 8h7l1.5-5H5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6.5" cy="13" r="1.2" fill="currentColor"/><circle cx="11.5" cy="13" r="1.2" fill="currentColor"/></svg>
-      <span class="cart-count" id="cartCount" style="display:none">0</span>
-    </button>
-    <button class="store-nav-icon" onclick="sivraToast('Account coming soon')">
-      <svg width="17" height="17" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 2h2l2.5 8h7l1.5-5H5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="14.5" r="1.5" fill="currentColor"/><circle cx="12" cy="14.5" r="1.5" fill="currentColor"/></svg>
+      <span class="cart-badge" id="cartBadge" style="display:none">0</span>
     </button>
   </div>
 </nav>
 
 <!-- Hero -->
-<div style="background:#f6f6f7;padding:80px 24px;text-align:center">
+<div id="heroBanner" style="background:#1a1a1a;padding:80px 24px;text-align:center">
   <div style="max-width:600px;margin:0 auto">
-    <div id="storeBanner" style="font-size:36px;font-weight:700;color:#1a1a1a;margin-bottom:14px;line-height:1.2">Welcome to Our Store</div>
-    <div style="font-size:16px;color:#6d7175;margin-bottom:28px">Discover our carefully curated collection of products</div>
-    <a href="#products" class="p-btn p-btn-primary" style="height:44px;padding:0 28px;font-size:15px;display:inline-flex;align-items:center">Shop now</a>
+    <h1 style="font-size:38px;font-weight:700;color:white;margin-bottom:12px;line-height:1.2" id="heroTitle">Welcome to our store</h1>
+    <p style="font-size:16px;color:rgba(255,255,255,0.65);margin-bottom:28px" id="heroDesc">Discover our curated collection</p>
+    <a href="#products" style="display:inline-flex;align-items:center;height:48px;padding:0 28px;background:white;color:#1a1a1a;border-radius:8px;font-size:15px;font-weight:600;text-decoration:none">Shop now</a>
   </div>
 </div>
 
-<!-- Products grid -->
+<!-- Products -->
 <div id="products" style="max-width:1200px;margin:0 auto;padding:48px 24px">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
     <h2 style="font-size:22px;font-weight:700">All products</h2>
-    <select class="p-select" style="width:160px" onchange="sortProducts(this.value)">
-      <option value="default">Sort: Featured</option>
+    <select class="p-select" style="width:180px" onchange="sortProducts(this.value)">
+      <option value="default">Featured</option>
       <option value="price-asc">Price: Low to High</option>
       <option value="price-desc">Price: High to Low</option>
       <option value="newest">Newest first</option>
     </select>
   </div>
   <div id="productsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px">
-    <div style="text-align:center;padding:64px;color:#8c9196;grid-column:1/-1">Loading products...</div>
+    <div style="grid-column:1/-1;text-align:center;padding:64px;color:#8c9196">Loading products...</div>
   </div>
 </div>
 
-
 <footer class="store-footer">
-  <div class="store-footer-grid">
-    <div><div class="store-footer-logo" id="footerLogo">Sivra Store</div><div class="store-footer-desc">Your one-stop shop for quality products, delivered fast with zero hassle.</div></div>
-    <div class="store-footer-col"><h4>Shop</h4><a href="#">All products</a><a href="#">New arrivals</a><a href="#">Sale</a></div>
-    <div class="store-footer-col"><h4>Help</h4><a href="#">FAQ</a><a href="#">Shipping</a><a href="#">Returns</a><a href="#">Contact</a></div>
-    <div class="store-footer-col"><h4>About</h4><a href="#">Our story</a><a href="#">Careers</a><a href="#">Press</a></div>
+  <div style="max-width:1200px;margin:0 auto">
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;margin-bottom:40px">
+      <div>
+        <div style="font-size:17px;font-weight:700;color:white;margin-bottom:10px" id="footerName">Store</div>
+        <div style="font-size:13px;line-height:1.7" id="footerDesc">Quality products, fast delivery.</div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:white;margin-bottom:12px">Help</div>
+        <div style="font-size:13px;margin-bottom:8px;cursor:pointer" onclick="sivraToast('Contact page coming soon')">Contact us</div>
+        <div style="font-size:13px;margin-bottom:8px;cursor:pointer" onclick="sivraToast('FAQ coming soon')">FAQ</div>
+        <div style="font-size:13px;cursor:pointer" onclick="sivraToast('Returns policy coming soon')">Returns</div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:white;margin-bottom:12px">Legal</div>
+        <div style="font-size:13px;margin-bottom:8px;cursor:pointer" onclick="sivraToast('Coming soon')">Privacy Policy</div>
+        <div style="font-size:13px;cursor:pointer" onclick="sivraToast('Coming soon')">Terms of Service</div>
+      </div>
+    </div>
+    <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:20px;text-align:center;font-size:12px">
+      <span id="footerCopyright">© 2026 Store</span> · Powered by <a href="#" style="color:rgba(255,255,255,0.4);text-decoration:none">Sivra</a>
+    </div>
   </div>
-  <div class="store-footer-bottom">© 2026 All rights reserved · Powered by <a href="#" style="color:rgba(255,255,255,0.5)">Sivra</a></div>
 </footer>
 
 <div class="toast" id="sivraToast"></div>
 <script>function sivraToast(m){const t=document.getElementById('sivraToast');if(!t)return;t.textContent=m;t.classList.add('show');clearTimeout(t._tid);t._tid=setTimeout(()=>t.classList.remove('show'),2500);}window.showToast=sivraToast;</script>
-<script>if (typeof Sivra === 'undefined') {
-  window.Sivra = {
-    requireAuth: async function(redirect) {
-      var s = JSON.parse(localStorage.getItem('sivra_session')||'null');
-      var token = s && s.token;
-      if (!token && redirect) { window.location.href = redirect; return null; }
-      return s || null;
-    },
-    request: async function(url, options) {
-      var s = JSON.parse(localStorage.getItem('sivra_session')||'null');
-      var token = s && s.token;
-      var headers = {'Content-Type':'application/json'};
-      if (token) headers['Authorization'] = 'Bearer ' + token;
-      var opts = Object.assign({}, options, {headers: Object.assign(headers, (options&&options.headers)||{})});
-      var r = await fetch(url, opts);
-      var json = await r.json();
-      if (!r.ok) throw new Error(json.error || ('HTTP ' + r.status));
-      return json;
-    },
-    getSession: function() {
-      try { return JSON.parse(localStorage.getItem('sivra_session')||'null'); } catch(e) { return null; }
-    }
-  };
-}</script>
 <script src="app.js" onerror="console.log('no app.js')"></script>
 <script>
-function getCart() { try { return JSON.parse(localStorage.getItem('sivra_cart')||'[]'); } catch(e) { return []; } }
-function saveCart(c) { localStorage.setItem('sivra_cart', JSON.stringify(c)); updateCartCount(); }
-function updateCartCount() {
-  const c = getCart(); const n = c.reduce((s,i)=>s+i.qty,0);
-  document.querySelectorAll('#cartCount').forEach(el => { el.textContent=n; el.style.display=n>0?'':'none'; });
-}
-function addToCart(id, title, price, image) {
-  const c = getCart(); const existing = c.find(i=>i.id===id);
-  if (existing) existing.qty++; else c.push({id,title,price,image,qty:1});
-  saveCart(c); sivraToast(title + ' added to cart');
-}
-updateCartCount();
+function getCart(){try{return JSON.parse(localStorage.getItem('sivra_cart')||'[]');}catch(e){return[];}}
+function updateCartBadge(){const n=getCart().reduce((s,i)=>s+i.qty,0);const b=document.getElementById('cartBadge');if(b){b.textContent=n;b.style.display=n>0?"":"none";}}
+updateCartBadge();
 
-let _storeProducts = [];
-let _storeName = 'My Store';
+let _products = [], _store = null;
 
 function sortProducts(val) {
-  let list = [..._storeProducts];
-  if (val==='price-asc') list.sort((a,b)=>parseFloat(a.price||0)-parseFloat(b.price||0));
-  if (val==='price-desc') list.sort((a,b)=>parseFloat(b.price||0)-parseFloat(a.price||0));
+  let list = [..._products];
+  if (val==='price-asc') list.sort((a,b)=>a.price-b.price);
+  if (val==='price-desc') list.sort((a,b)=>b.price-a.price);
   renderGrid(list);
 }
 
 function renderGrid(products) {
   const grid = document.getElementById('productsGrid');
   if (!products.length) {
-    grid.innerHTML = '<div style="text-align:center;padding:64px;color:#8c9196;grid-column:1/-1"><div style="font-size:18px;font-weight:600;color:#303030;margin-bottom:8px">No products yet</div><div>Check back soon!</div></div>';
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:64px">
+      <div style="font-size:40px;margin-bottom:12px">🛍️</div>
+      <div style="font-size:17px;font-weight:600;color:#303030;margin-bottom:6px">No products yet</div>
+      <div style="color:#6d7175;font-size:14px">Check back soon — we're adding products!</div>
+    </div>`;
     return;
   }
+  const storeSlug = localStorage.getItem('sivra_store_slug') || _store?.slug || '';
   grid.innerHTML = products.map(p => {
-    const price = parseFloat(p.price||0).toFixed(2);
-    const img = (p.images&&p.images[0]) ? `<img src="${p.images[0]}" alt="${p.title}"/>` : `<svg width="48" height="48" viewBox="0 0 48 48" fill="none" opacity="0.2"><rect x="4" y="4" width="40" height="40" rx="4" stroke="#303030" stroke-width="2.5"/><path d="M4 32l10-10 8 8 8-10 14 12" stroke="#303030" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="15" cy="16" r="4" stroke="#303030" stroke-width="2.5"/></svg>`;
-    return `<a href="sivra-product.html?id=${p.id}" class="product-card">
-      <div class="product-img">${img}</div>
-      <div class="product-info">
-        <div class="product-vendor">${p.vendor||''}</div>
-        <div class="product-title">${p.title||'Product'}</div>
-        <div style="display:flex;align-items:baseline">
-          <span class="product-price">$${price}</span>
-          ${p.compare_at_price ? `<span class="product-compare">$${parseFloat(p.compare_at_price).toFixed(2)}</span>` : ''}
-        </div>
+    const img = (p.images&&p.images[0])
+      ? `<img src="${p.images[0]}" alt="${p.title}"/>`
+      : `<svg width="60" height="60" viewBox="0 0 60 60" fill="none" opacity="0.15"><rect x="4" y="4" width="52" height="52" rx="6" stroke="#303030" stroke-width="3"/><path d="M4 40l14-14 10 10 10-14 18 18" stroke="#303030" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="18" cy="20" r="6" stroke="#303030" stroke-width="3"/></svg>`;
+    const price = '$'+parseFloat(p.price||0).toFixed(2);
+    const compare = p.compare_price && p.compare_price > p.price ? `<span style="font-size:13px;color:#8c9196;text-decoration:line-through;margin-left:8px">$${parseFloat(p.compare_price).toFixed(2)}</span>` : '';
+    const sale = p.compare_price && p.compare_price > p.price ? `<span style="position:absolute;top:10px;left:10px;background:#c0392b;color:white;font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px">SALE</span>` : '';
+    return `<a href="sivra-product.html?id=${p.id}&store=${storeSlug}" class="product-card">
+      <div class="product-img" style="position:relative">${img}${sale}</div>
+      <div style="padding:14px">
+        ${p.vendor ? `<div style="font-size:11px;color:#8c9196;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.5px">${p.vendor}</div>` : ''}
+        <div style="font-size:14px;font-weight:500;color:#1a1a1a;margin-bottom:6px;line-height:1.3">${p.title}</div>
+        <div style="display:flex;align-items:baseline">${price}${compare}</div>
       </div>
     </a>`;
   }).join('');
@@ -723,20 +691,33 @@ function renderGrid(products) {
 async function init() {
   const params = new URLSearchParams(location.search);
   const storeSlug = params.get('store') || localStorage.getItem('sivra_store_slug') || 'mo';
+  localStorage.setItem('sivra_store_slug', storeSlug);
+
   try {
     const [storeRes, prodsRes] = await Promise.all([
       fetch(`/api/storefront/${storeSlug}`),
       fetch(`/api/storefront/${storeSlug}/products`)
     ]);
-    const storeData = await storeRes.json();
-    const prodsData = await prodsRes.json();
-    _storeProducts = prodsData.products || [];
-    _storeName = storeData.name || 'My Store';
-    document.getElementById('storeBanner').textContent = `Welcome to ${_storeName}`;
-    document.getElementById('footerLogo').textContent = _storeName;
-    document.querySelectorAll('.store-nav-logo').forEach(el => el.textContent = _storeName);
-    renderGrid(_storeProducts);
-  } catch(e) { renderGrid([]); }
+    _store = await storeRes.json();
+    const data = await prodsRes.json();
+    _products = data.products || [];
+
+    // Apply branding
+    const name = _store.name || 'Store';
+    document.title = name;
+    document.getElementById('storeLogoLink').textContent = name;
+    document.getElementById('storeHomeLink').href = `/sivra-storefront.html?store=${storeSlug}`;
+    document.getElementById('storeAllLink').href = `/sivra-storefront.html?store=${storeSlug}`;
+    document.getElementById('heroTitle').textContent = `Welcome to ${name}`;
+    if (_store.description) document.getElementById('heroDesc').textContent = _store.description;
+    document.getElementById('footerName').textContent = name;
+    if (_store.description) document.getElementById('footerDesc').textContent = _store.description;
+    document.getElementById('footerCopyright').textContent = `© ${new Date().getFullYear()} ${name}`;
+
+    renderGrid(_products);
+  } catch(e) {
+    renderGrid([]);
+  }
 }
 init();
 </script>

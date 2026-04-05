@@ -69,14 +69,17 @@ router.post('/', async (req, res) => {
 router.patch('/:id', async (req, res) => {
   try {
     const db = getDB();
-    const { status, paymentStatus } = req.body;
+    const { status, paymentStatus, payment_status, fulfillment_status, fulfillmentStatus } = req.body;
+    const pay = payment_status || paymentStatus || null;
+    const fulfill = fulfillment_status || fulfillmentStatus || null;
     await db.execute({
-      sql: 'UPDATE orders SET status = COALESCE(?, status), payment_status = COALESCE(?, payment_status), updated_at = CURRENT_TIMESTAMP WHERE id = ? AND store_id = ?',
-      args: [status || null, paymentStatus || null, req.params.id, req.storeId]
+      sql: 'UPDATE orders SET status = COALESCE(?, status), payment_status = COALESCE(?, payment_status), fulfillment_status = COALESCE(?, fulfillment_status), updated_at = CURRENT_TIMESTAMP WHERE id = ? AND store_id = ?',
+      args: [status || null, pay, fulfill, req.params.id, req.storeId]
     });
     const updated = await db.execute({ sql: 'SELECT * FROM orders WHERE id = ?', args: [req.params.id] });
     res.json(updated.rows[0]);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Failed to update order.' });
   }
 });

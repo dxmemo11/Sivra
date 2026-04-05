@@ -540,207 +540,188 @@ input, textarea, select { font-family: inherit; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 body{background:#fff;}
+
   </style>
   
 </head>
 <body>
 
 <style>
-:root { --store-accent: #1a1a1a; }
-.store-nav { position:sticky;top:0;z-index:100;background:white;border-bottom:1px solid #e3e3e3;padding:0 24px;height:60px;display:flex;align-items:center;gap:24px; }
-.store-nav-logo { font-size:16px;font-weight:700;color:#1a1a1a;text-decoration:none; }
-.store-nav-links { display:flex;gap:20px;flex:1;margin-left:16px; }
-.store-nav-link { font-size:14px;color:#6d7175;text-decoration:none;transition:color 0.1s; }
-.store-nav-link:hover { color:#1a1a1a; }
-.store-nav-right { display:flex;align-items:center;gap:12px;margin-left:auto; }
-.store-nav-icon { width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#6d7175;cursor:pointer;transition:background 0.1s;position:relative;background:none;border:none; }
-.store-nav-icon:hover { background:#f6f6f7;color:#1a1a1a; }
-.cart-count { position:absolute;top:4px;right:4px;width:16px;height:16px;background:#1a1a1a;border-radius:50%;font-size:9px;font-weight:700;color:white;display:flex;align-items:center;justify-content:center; }
-.store-footer { background:#1a1a1a;color:rgba(255,255,255,0.7);padding:48px 24px 24px;margin-top:80px; }
-.store-footer-bottom { border-top:1px solid rgba(255,255,255,0.1);padding-top:20px;text-align:center;font-size:12px;max-width:1200px;margin:0 auto; }
-.add-to-cart-btn { width:100%;height:48px;background:#1a1a1a;color:white;border:none;border-radius:8px;font-size:15px;font-weight:500;font-family:inherit;cursor:pointer;transition:background 0.1s; }
-.add-to-cart-btn:hover { background:#303030; }
-.qty-btn { width:36px;height:36px;border:1px solid #e3e3e3;border-radius:8px;background:white;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit; }
-.qty-btn:hover { background:#f6f6f7; }
+.store-nav{position:sticky;top:0;z-index:100;background:white;border-bottom:1px solid #e3e3e3;height:60px;display:flex;align-items:center;padding:0 24px;gap:24px;}
+.store-nav-logo{font-size:17px;font-weight:700;color:#1a1a1a;text-decoration:none;}
+.store-nav-links{display:flex;gap:20px;flex:1;margin-left:16px;}
+.store-nav-link{font-size:14px;color:#6d7175;text-decoration:none;}
+.store-nav-link:hover{color:#1a1a1a;}
+.store-nav-right{display:flex;gap:10px;margin-left:auto;}
+.store-nav-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#6d7175;cursor:pointer;background:none;border:none;position:relative;}
+.store-nav-icon:hover{background:#f6f6f7;}
+.cart-badge{position:absolute;top:4px;right:4px;width:16px;height:16px;background:#1a1a1a;border-radius:50%;font-size:9px;font-weight:700;color:white;display:flex;align-items:center;justify-content:center;}
 </style>
+
 <nav class="store-nav">
-  <a href="sivra-storefront.html" class="store-nav-logo" id="storeNavLogo">Store</a>
-  <div class="store-nav-links">
-    <a href="sivra-storefront.html" class="store-nav-link">Home</a>
-    <a href="sivra-storefront.html" class="store-nav-link">All products</a>
-    <a href="#" class="store-nav-link">About</a>
-  </div>
+  <a href="javascript:void(0)" class="store-nav-logo" id="storeNav">Store</a>
+  <div class="store-nav-links"><a href="javascript:void(0)" class="store-nav-link" id="backLink">← Back</a></div>
   <div class="store-nav-right">
-    <button class="store-nav-icon" onclick="sivraToast('Search coming soon')">
-      <svg width="17" height="17" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-    </button>
     <button class="store-nav-icon" onclick="location.href='sivra-cart.html'">
-      <svg width="17" height="17" viewBox="0 0 16 16" fill="none"><path d="M2 2h1.5l2.5 8h7l1.5-5H5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6.5" cy="13" r="1.2" fill="currentColor"/><circle cx="11.5" cy="13" r="1.2" fill="currentColor"/></svg>
-      <span class="cart-count" id="cartCount" style="display:none">0</span>
-    </button>
-    <button class="store-nav-icon" onclick="sivraToast('Account coming soon')">
-      <svg width="17" height="17" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 2h2l2.5 8h7l1.5-5H5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="14.5" r="1.5" fill="currentColor"/><circle cx="12" cy="14.5" r="1.5" fill="currentColor"/></svg>
+      <span class="cart-badge" id="cartBadge" style="display:none">0</span>
     </button>
   </div>
 </nav>
 
-<div style="max-width:1200px;margin:0 auto;padding:32px 24px">
+<div style="max-width:1100px;margin:0 auto;padding:32px 24px">
   <!-- Breadcrumb -->
-  <div style="display:flex;gap:8px;font-size:13px;color:#6d7175;margin-bottom:24px;align-items:center">
-    <a href="sivra-storefront.html" style="color:#6d7175;text-decoration:none">Home</a>
-    <span>/</span>
-    <span id="prodBreadcrumb" style="color:#303030">Product</span>
+  <div style="font-size:13px;color:#6d7175;margin-bottom:24px">
+    <a href="javascript:void(0)" id="breadHome" style="color:#6d7175;text-decoration:none">Home</a>
+    <span style="margin:0 6px">/</span>
+    <span id="breadTitle" style="color:#303030">Product</span>
   </div>
 
-  <!-- Product layout -->
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start" id="productLayout">
     <!-- Images -->
     <div>
-      <div id="mainImage" style="aspect-ratio:1;background:#f6f6f7;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:12px">
+      <div id="mainImg" style="aspect-ratio:1;background:#f6f6f7;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:12px">
         <svg width="80" height="80" viewBox="0 0 80 80" fill="none" opacity="0.15"><rect x="8" y="8" width="64" height="64" rx="6" stroke="#303030" stroke-width="3"/><path d="M8 54l16-16 12 12 16-18 20 22" stroke="#303030" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24" cy="26" r="7" stroke="#303030" stroke-width="3"/></svg>
       </div>
-      <div id="thumbGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
+      <div id="thumbs" style="display:flex;gap:8px;flex-wrap:wrap"></div>
     </div>
 
     <!-- Info -->
     <div>
-      <div style="font-size:13px;color:#6d7175;margin-bottom:6px" id="prodVendor"></div>
-      <h1 style="font-size:26px;font-weight:700;color:#1a1a1a;margin-bottom:10px;line-height:1.2" id="prodTitle">Loading...</h1>
+      <div style="font-size:12px;color:#8c9196;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:6px" id="prodVendor"></div>
+      <h1 style="font-size:26px;font-weight:700;color:#1a1a1a;margin-bottom:12px;line-height:1.2" id="prodTitle">Loading...</h1>
       <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:20px">
-        <span style="font-size:24px;font-weight:700" id="prodPrice">—</span>
+        <span style="font-size:24px;font-weight:700;color:#1a1a1a" id="prodPrice">—</span>
         <span style="font-size:16px;color:#8c9196;text-decoration:line-through" id="prodCompare"></span>
-        <span class="p-badge p-badge-critical" id="prodSaleBadge" style="display:none">Sale</span>
+        <span id="saleBadge" style="display:none;background:#c0392b;color:white;font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px">SALE</span>
       </div>
+      <div style="font-size:14px;color:#6d7175;line-height:1.8;margin-bottom:24px" id="prodDesc"></div>
 
-      <!-- Description -->
-      <div style="font-size:14px;color:#6d7175;line-height:1.7;margin-bottom:24px" id="prodDesc"></div>
+      <!-- Stock indicator -->
+      <div id="stockInfo" style="margin-bottom:20px"></div>
 
-      <!-- Variants (if any) -->
-      <div id="prodVariants" style="margin-bottom:20px"></div>
-
-      <!-- Qty + Add to cart -->
-      <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px">
-        <div style="display:flex;align-items:center;gap:0;border:1px solid #e3e3e3;border-radius:8px;overflow:hidden">
-          <button class="qty-btn" onclick="changeQty(-1)">−</button>
-          <div style="width:44px;text-align:center;font-size:14px;font-weight:500" id="qtyDisplay">1</div>
-          <button class="qty-btn" onclick="changeQty(1)">+</button>
+      <!-- Quantity -->
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px">
+        <div style="display:flex;align-items:center;border:1px solid #e3e3e3;border-radius:8px;overflow:hidden">
+          <button onclick="changeQty(-1)" style="width:40px;height:44px;border:none;background:none;font-size:20px;cursor:pointer;color:#303030">−</button>
+          <span id="qtyDisplay" style="width:48px;text-align:center;font-size:15px;font-weight:500">1</span>
+          <button onclick="changeQty(1)" style="width:40px;height:44px;border:none;background:none;font-size:20px;cursor:pointer;color:#303030">+</button>
         </div>
-        <button class="add-to-cart-btn" id="addCartBtn" onclick="doAddToCart()" style="flex:1">Add to cart</button>
+        <button id="addCartBtn" onclick="addToCart()" style="flex:1;height:44px;background:#1a1a1a;color:white;border:none;border-radius:8px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;transition:background 0.1s">Add to cart</button>
       </div>
-      <button style="width:100%;height:48px;background:#008060;color:white;border:none;border-radius:8px;font-size:15px;font-weight:500;font-family:inherit;cursor:pointer;margin-bottom:20px" onclick="buyNow()">Buy it now</button>
+      <button onclick="buyNow()" style="width:100%;height:44px;background:#008060;color:white;border:none;border-radius:8px;font-size:15px;font-weight:500;font-family:inherit;cursor:pointer;margin-bottom:20px">Buy it now</button>
 
       <!-- Trust badges -->
-      <div style="display:flex;gap:20px;flex-wrap:wrap;padding:16px;background:#f9f9f9;border-radius:8px">
+      <div style="display:flex;gap:16px;flex-wrap:wrap;padding:14px;background:#f9f9f9;border-radius:8px">
         <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#6d7175">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.5 3.5L12 5l-2.5 2.5.5 3.5L7 9.5 4 11l.5-3.5L2 5l3.5-.5L7 1z" stroke="currentColor" stroke-width="1.2"/></svg>
-          Free shipping over $100
+          <span>🚚</span> Fast delivery
         </div>
         <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#6d7175">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v4l3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.3"/></svg>
-          2–5 day delivery
+          <span>↩️</span> Easy returns
         </div>
         <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#6d7175">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l4-4v3h6v2H6v3L2 7z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Easy 30-day returns
+          <span>🔒</span> Secure checkout
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<footer class="store-footer">
-  <div style="max-width:1200px;margin:0 auto 32px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px">
-    <div><div style="font-size:16px;font-weight:700;color:white;margin-bottom:10px" id="footerStoreName">Store</div><div style="font-size:13px;line-height:1.6">Quality products, fast delivery, zero hassle.</div></div>
-    <div><h4 style="font-size:13px;font-weight:600;color:white;margin-bottom:12px">Help</h4><a href="#" style="display:block;font-size:13px;color:rgba(255,255,255,0.55);text-decoration:none;margin-bottom:8px">FAQ</a><a href="#" style="display:block;font-size:13px;color:rgba(255,255,255,0.55);text-decoration:none;margin-bottom:8px">Shipping</a><a href="#" style="display:block;font-size:13px;color:rgba(255,255,255,0.55);text-decoration:none">Returns</a></div>
-    <div><h4 style="font-size:13px;font-weight:600;color:white;margin-bottom:12px">About</h4><a href="#" style="display:block;font-size:13px;color:rgba(255,255,255,0.55);text-decoration:none;margin-bottom:8px">Our story</a><a href="#" style="display:block;font-size:13px;color:rgba(255,255,255,0.55);text-decoration:none">Contact</a></div>
-  </div>
-  <div class="store-footer-bottom">© 2026 · Powered by <a href="#" style="color:rgba(255,255,255,0.4)">Sivra</a></div>
-</footer>
-
 <div class="toast" id="sivraToast"></div>
 <script>function sivraToast(m){const t=document.getElementById('sivraToast');if(!t)return;t.textContent=m;t.classList.add('show');clearTimeout(t._tid);t._tid=setTimeout(()=>t.classList.remove('show'),2500);}window.showToast=sivraToast;</script>
-<script>if (typeof Sivra === 'undefined') {
-  window.Sivra = {
-    requireAuth: async function(redirect) {
-      var s = JSON.parse(localStorage.getItem('sivra_session')||'null');
-      var token = s && s.token;
-      if (!token && redirect) { window.location.href = redirect; return null; }
-      return s || null;
-    },
-    request: async function(url, options) {
-      var s = JSON.parse(localStorage.getItem('sivra_session')||'null');
-      var token = s && s.token;
-      var headers = {'Content-Type':'application/json'};
-      if (token) headers['Authorization'] = 'Bearer ' + token;
-      var opts = Object.assign({}, options, {headers: Object.assign(headers, (options&&options.headers)||{})});
-      var r = await fetch(url, opts);
-      var json = await r.json();
-      if (!r.ok) throw new Error(json.error || ('HTTP ' + r.status));
-      return json;
-    },
-    getSession: function() {
-      try { return JSON.parse(localStorage.getItem('sivra_session')||'null'); } catch(e) { return null; }
-    }
-  };
-}</script>
 <script src="app.js" onerror="console.log('no app.js')"></script>
 <script>
 function getCart(){try{return JSON.parse(localStorage.getItem('sivra_cart')||'[]');}catch(e){return[];}}
-function saveCart(c){localStorage.setItem('sivra_cart',JSON.stringify(c));updateCartCount();}
-function updateCartCount(){const c=getCart();const n=c.reduce((s,i)=>s+i.qty,0);const el=document.getElementById('cartCount');if(el){el.textContent=n;el.style.display=n>0?'':'none';}}
-function addToCart(id,title,price,image){const c=getCart();const ex=c.find(i=>i.id===id);if(ex)ex.qty++;else c.push({id,title,price,image,qty:1});saveCart(c);sivraToast(title+' added to cart');}
-updateCartCount();
+function saveCart(c){localStorage.setItem('sivra_cart',JSON.stringify(c));updateBadge();}
+function updateBadge(){const n=getCart().reduce((s,i)=>s+i.qty,0);const b=document.getElementById('cartBadge');if(b){b.textContent=n;b.style.display=n>0?"":"none";}}
+updateBadge();
 
-let _product = null;
-let _qty = 1;
+let _product = null, _qty = 1, _imgs = [];
 
-function changeQty(delta) {
-  _qty = Math.max(1, _qty + delta);
-  document.getElementById('qtyDisplay').textContent = _qty;
-}
+function changeQty(d) { _qty = Math.max(1, _qty+d); document.getElementById('qtyDisplay').textContent = _qty; }
 
-function doAddToCart() {
+function addToCart() {
   if (!_product) return;
-  addToCart(_product.id, _product.title, _product.price, (_imgs&&_imgs[0])||"");
+  const c = getCart();
+  const ex = c.find(i=>i.id===_product.id);
+  if (ex) ex.qty += _qty; else c.push({id:_product.id, title:_product.title, price:_product.price, image:_imgs[0]||'', qty:_qty});
+  saveCart(c);
+  sivraToast(_product.title + ' added to cart!');
 }
 
-function buyNow() {
-  if (!_product) return;
-  addToCart(_product.id, _product.title, _product.price, (_imgs&&_imgs[0])||"");
-  location.href = 'sivra-checkout.html';
-}
+function buyNow() { addToCart(); location.href = 'sivra-checkout.html'; }
 
-async function loadProduct() {
+function setMainImg(src) { document.getElementById('mainImg').innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover"/>`; }
+
+async function init() {
   const params = new URLSearchParams(location.search);
   const id = params.get('id');
-  if (!id) { location.href = 'sivra-storefront.html'; return; }
+  const storeSlug = params.get('store') || localStorage.getItem('sivra_store_slug') || 'mo';
+  localStorage.setItem('sivra_store_slug', storeSlug);
+
+  const homeUrl = `/sivra-storefront.html?store=${storeSlug}`;
+  document.getElementById('storeNav').href = homeUrl;
+  document.getElementById('backLink').href = homeUrl;
+  document.getElementById('breadHome').href = homeUrl;
+
+  if (!id) { location.href = homeUrl; return; }
+
   try {
-    const storeSlug = new URLSearchParams(location.search).get('store') || localStorage.getItem('sivra_store_slug') || 'mo';
-    const res = await fetch(`/api/storefront/${storeSlug}/products/${id}`);
-    const data = await res.json();
-    _product = data.product || data;
-    if (!_product) return;
-    document.title = _product.title + ' — Store';
-    document.getElementById('prodBreadcrumb').textContent = _product.title;
-    document.getElementById('prodTitle').textContent = _product.title;
+    const [prodRes, storeRes] = await Promise.all([
+      fetch(`/api/storefront/${storeSlug}/products/${id}`),
+      fetch(`/api/storefront/${storeSlug}`)
+    ]);
+    _product = await prodRes.json();
+    const store = await storeRes.json();
+
+    const storeName = store.name || 'Store';
+    document.getElementById('storeNav').textContent = storeName;
+    document.title = (_product.title || 'Product') + ' — ' + storeName;
+
+    document.getElementById('breadTitle').textContent = _product.title || 'Product';
+    document.getElementById('prodTitle').textContent = _product.title || 'Product';
+    document.getElementById('prodDesc').textContent = _product.description || '';
     document.getElementById('prodVendor').textContent = _product.vendor || '';
-    document.getElementById('prodDesc').textContent = _product.description || 'No description available.';
-    document.getElementById('prodPrice').textContent = '$' + parseFloat(_product.price||0).toFixed(2);
-    if (_product.compare_at_price && _product.compare_at_price > _product.price) {
-      document.getElementById('prodCompare').textContent = '$' + parseFloat(_product.compare_at_price).toFixed(2);
-      document.getElementById('prodSaleBadge').style.display = '';
+
+    const price = parseFloat(_product.price || 0);
+    document.getElementById('prodPrice').textContent = '$' + price.toFixed(2);
+
+    if (_product.compare_price && _product.compare_price > price) {
+      document.getElementById('prodCompare').textContent = '$' + parseFloat(_product.compare_price).toFixed(2);
+      document.getElementById('saleBadge').style.display = '';
     }
-    const _imgs = Array.isArray(_product.images) ? _product.images : [];
-    if (_imgs[0]) {
-      document.getElementById('mainImage').innerHTML = `<img src="${_imgs[0]}" style="width:100%;height:100%;object-fit:cover"/>`;
+
+    // Stock info
+    if (_product.track_qty) {
+      const qty = _product.quantity || 0;
+      const stockEl = document.getElementById('stockInfo');
+      if (qty === 0) {
+        stockEl.innerHTML = '<span style="font-size:13px;color:#c0392b;font-weight:500">⚠️ Out of stock</span>';
+        document.getElementById('addCartBtn').disabled = true;
+        document.getElementById('addCartBtn').style.background = '#8c9196';
+      } else if (qty <= 5) {
+        stockEl.innerHTML = `<span style="font-size:13px;color:#7d5c00;font-weight:500">⚡ Only ${qty} left in stock</span>`;
+      } else {
+        stockEl.innerHTML = '<span style="font-size:13px;color:#1a7f37;font-weight:500">✓ In stock</span>';
+      }
     }
-    const sn = document.getElementById('storeNavLogo');
-    if (sn) sn.textContent = data.store?.name || 'Store';
+
+    // Images
+    _imgs = Array.isArray(_product.images) ? _product.images : (_product.images ? JSON.parse(_product.images) : []);
+    if (_imgs.length > 0) {
+      setMainImg(_imgs[0]);
+      if (_imgs.length > 1) {
+        document.getElementById('thumbs').innerHTML = _imgs.map((img,i)=>`
+          <div onclick="setMainImg('${img}')" style="width:72px;height:72px;border-radius:6px;overflow:hidden;cursor:pointer;border:2px solid ${i===0?'#1a1a1a':'#e3e3e3'};transition:border-color 0.1s">
+            <img src="${img}" style="width:100%;height:100%;object-fit:cover"/>
+          </div>`).join('');
+      }
+    }
   } catch(e) {
     document.getElementById('prodTitle').textContent = 'Product not found';
   }
 }
-loadProduct();
+init();
 </script>
 </body>
 </html>

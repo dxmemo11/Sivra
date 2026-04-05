@@ -543,8 +543,8 @@ input, textarea, select { font-family: inherit; }
 </head>
 <body>
 <div class="app">
-<script>document.addEventListener('DOMContentLoaded',()=>{ if(typeof initSivra==='function') initSivra('customers'); });</script>
-  <aside class="sidebar">
+<script>document.addEventListener('DOMContentLoaded',()=>{if(typeof initSivra==='function')initSivra('customers');});</script>
+<aside class="sidebar">
     <div class="sb-brand">
       <div class="sb-brand-mark">S</div>
       <span class="sb-brand-name">Sivra</span>
@@ -572,73 +572,105 @@ input, textarea, select { font-family: inherit; }
   </aside>
   <div class="main">
     <div class="topbar" id="sivraTopbar"></div>
-    <div class="page-scroll" id="pageScroll">
+    <div class="page-scroll">
 
       <div class="page-header">
         <h1 class="page-title">Customers</h1>
         <div style="display:flex;gap:8px">
-          <button class="p-btn p-btn-secondary" onclick="sivraToast('Import coming soon')">Import</button>
-          <button class="p-btn p-btn-secondary" onclick="sivraToast('Export coming soon')">Export</button>
-          <button class="p-btn p-btn-primary" onclick="sivraToast('Add customer coming soon')">Add customer</button>
+          <button class="p-btn p-btn-secondary" onclick="exportCSV()">Export</button>
         </div>
       </div>
-
       <div class="page-body" style="padding-top:12px">
-        <div class="p-card">
-          <!-- Tabs -->
-          <div class="p-tabs">
-            <div class="p-tab active" onclick="setCustTab(this,'all')">All</div>
-            <div class="p-tab" onclick="setCustTab(this,'subscribed')">Email subscribed</div>
-            <div class="p-tab" onclick="setCustTab(this,'returning')">Returning</div>
+        <!-- Stats row -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+          <div class="p-card" style="padding:16px">
+            <div style="font-size:12px;color:#6d7175;margin-bottom:4px">Total customers</div>
+            <div style="font-size:22px;font-weight:700" id="statTotal">—</div>
           </div>
+          <div class="p-card" style="padding:16px">
+            <div style="font-size:12px;color:#6d7175;margin-bottom:4px">Returning customers</div>
+            <div style="font-size:22px;font-weight:700" id="statReturning">—</div>
+          </div>
+          <div class="p-card" style="padding:16px">
+            <div style="font-size:12px;color:#6d7175;margin-bottom:4px">Total spent</div>
+            <div style="font-size:22px;font-weight:700" id="statSpent">—</div>
+          </div>
+        </div>
 
-          <!-- Filters -->
+        <div class="p-card">
+          <div class="p-tabs">
+            <div class="p-tab active" onclick="setTab(this,'all')">All</div>
+            <div class="p-tab" onclick="setTab(this,'repeat')">Repeat buyers</div>
+          </div>
           <div class="p-filters">
             <div class="p-filter-input" style="flex:0 1 280px">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="#8c9196" stroke-width="1.4"/><path d="M10.5 10.5L14 14" stroke="#8c9196" stroke-width="1.4" stroke-linecap="round"/></svg>
-              <input type="text" placeholder="Search customers" id="custSearch" oninput="filterCustomers()"/>
-            </div>
-            <button class="p-btn p-btn-secondary p-btn-sm" onclick="sivraToast('Segments coming soon')">Segments</button>
-            <div style="margin-left:auto">
-              <button class="p-btn p-btn-secondary p-btn-sm" onclick="sivraToast('Sort coming soon')">
-                Sort <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-              </button>
+              <input type="text" placeholder="Search by name or email" id="searchInput" oninput="render()"/>
             </div>
           </div>
-
-          <!-- Table -->
-          <table class="p-index">
-            <thead>
-              <tr>
-                <th class="col-check"><input type="checkbox" onchange="document.querySelectorAll('.cust-check').forEach(c=>c.checked=this.checked)"/></th>
-                <th>Customer name</th>
-                <th>Email subscription</th>
+          <div style="overflow-x:auto">
+            <table class="p-index">
+              <thead><tr>
+                <th class="col-check"><input type="checkbox"/></th>
+                <th>Customer</th>
                 <th>Email</th>
                 <th>Location</th>
                 <th>Orders</th>
-                <th>Amount spent</th>
-              </tr>
-            </thead>
-            <tbody id="customersBody">
-              <tr><td colspan="7" style="text-align:center;padding:48px;color:#8c9196">Loading customers...</td></tr>
-            </tbody>
-          </table>
-
-          <!-- Pagination -->
-          <div style="padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e3e3e3">
-            <div class="p-text-body-sm p-text-secondary" id="customersCount">0 customers</div>
-            <div style="display:flex;gap:4px">
-              <button class="p-btn p-btn-secondary p-btn-sm p-btn-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>
-              <button class="p-btn p-btn-secondary p-btn-sm p-btn-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>
-            </div>
+                <th>Total spent</th>
+                <th>Joined</th>
+              </tr></thead>
+              <tbody id="tbody">
+                <tr><td colspan="7" style="text-align:center;padding:48px;color:#8c9196">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="padding:12px 16px;border-top:1px solid #e3e3e3;display:flex;justify-content:space-between;align-items:center">
+            <div class="p-text-body-sm p-text-secondary" id="countEl">0 customers</div>
           </div>
         </div>
       </div>
+
+      <!-- Customer detail slide-in -->
+      <div id="custPanel" style="display:none;position:fixed;top:0;right:0;width:400px;height:100vh;background:white;box-shadow:-4px 0 20px rgba(0,0,0,0.15);z-index:1000;overflow-y:auto">
+        <div style="padding:20px;border-bottom:1px solid #e3e3e3;display:flex;align-items:center;justify-content:space-between">
+          <span class="p-text-heading-sm" id="panelName">Customer</span>
+          <button onclick="closePanel()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#8c9196">×</button>
+        </div>
+        <div style="padding:20px;display:flex;flex-direction:column;gap:16px">
+          <div>
+            <div style="font-size:12px;font-weight:600;color:#6d7175;margin-bottom:4px">EMAIL</div>
+            <div style="font-size:13px" id="panelEmail">—</div>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:#6d7175;margin-bottom:4px">LOCATION</div>
+            <div style="font-size:13px" id="panelLocation">—</div>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:#6d7175;margin-bottom:4px">ORDERS</div>
+            <div style="font-size:13px" id="panelOrders">—</div>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:#6d7175;margin-bottom:4px">TOTAL SPENT</div>
+            <div style="font-size:14px;font-weight:700" id="panelSpent">—</div>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:#6d7175;margin-bottom:4px">JOINED</div>
+            <div style="font-size:13px" id="panelJoined">—</div>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:#6d7175;margin-bottom:8px">RECENT ORDERS</div>
+            <div id="panelOrdersList" style="display:flex;flex-direction:column;gap:6px"></div>
+          </div>
+        </div>
+      </div>
+      <div id="custOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:999" onclick="closePanel()"></div>
+
     </div>
   </div>
 </div>
 <div class="toast" id="sivraToast"></div>
-<script>// SIVRA — Shopify-exact sidebar + topbar
+<script>document.addEventListener('DOMContentLoaded',()=>{ if(typeof initSivra==='function') initSivra('home'); });
+// SIVRA — Shopify-exact sidebar + topbar
 // Include once. Call: initSivra('pageId')
 
 const SIVRA_NAV = [
@@ -787,8 +819,8 @@ function initSivra(activeId) {
     }
   } catch(e) {}
 }
-</script>
-<script>
+
+
 // app.js fallback — sidebar renders regardless
 if (typeof Sivra === 'undefined') {
   window.Sivra = {
@@ -837,73 +869,111 @@ if (typeof Sivra === 'undefined') {
   };
 }
 </script>
-<script src="app.js" onerror="console.log('app.js not found, using fallback')"></script>
+<script src="app.js" onerror="console.log('no app.js')"></script>
 <script>
+const TOKEN = (JSON.parse(localStorage.getItem('sivra_session')||'{}').token || localStorage.getItem('sivra_token'));
+let _all = [], _orders = [], _tab = 'all';
 
-let _allCustomers = [];
-let _custTab = 'all';
-
-function setCustTab(el, tab) {
+function setTab(el, tab) {
   document.querySelectorAll('.p-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  _custTab = tab;
-  renderCustomers();
+  el.classList.add('active'); _tab = tab; render();
 }
-function filterCustomers() { renderCustomers(); }
 
-function renderCustomers() {
-  const q = (document.getElementById('custSearch')?.value||'').toLowerCase();
-  let list = _allCustomers;
-  if (_custTab === 'subscribed') list = list.filter(c=>c.email_marketing_consent==='subscribed');
-  if (q) list = list.filter(c=>JSON.stringify(c).toLowerCase().includes(q));
-
-  const body = document.getElementById('customersBody');
-  document.getElementById('customersCount').textContent = `${list.length} customer${list.length!==1?'s':''}`;
-
+function render() {
+  const q = (document.getElementById('searchInput')?.value||'').toLowerCase();
+  let list = _all;
+  if (_tab==='repeat') list = list.filter(c=>c.orders_count>1);
+  if (q) list = list.filter(c=>(c.email+' '+(c.first_name||'')+' '+(c.last_name||'')).toLowerCase().includes(q));
+  const tbody = document.getElementById('tbody');
+  document.getElementById('countEl').textContent = list.length + ' customer' + (list.length!==1?'s':'');
   if (!list.length) {
-    body.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:64px;color:#8c9196">
-      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" style="margin:0 auto 12px;display:block;opacity:0.25"><circle cx="20" cy="14" r="8" stroke="#303030" stroke-width="2.5"/><path d="M4 36c0-8.8 7.2-16 16-16s16 7.2 16 16" stroke="#303030" stroke-width="2.5" stroke-linecap="round"/></svg>
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:64px">
+      <div style="font-size:32px;margin-bottom:12px">👥</div>
       <div style="font-size:15px;font-weight:600;color:#303030;margin-bottom:6px">No customers yet</div>
-      <div style="font-size:13px">Customers will appear here once they place an order</div>
+      <div style="color:#6d7175;font-size:13px">Customers appear here when they place an order</div>
     </td></tr>`;
     return;
   }
-
-  const subBadge = s => {
-    const m = { subscribed:'<span class="p-badge p-badge-success">Subscribed</span>',
-      unsubscribed:'<span class="p-badge p-badge-default">Unsubscribed</span>' };
-    return m[s] || '<span class="p-badge p-badge-default">Not subscribed</span>';
-  };
-
-  body.innerHTML = list.map(c => {
-    const name = [c.first_name, c.last_name].filter(Boolean).join(' ') || 'No name';
+  tbody.innerHTML = list.map(c => {
+    const name = [c.first_name, c.last_name].filter(Boolean).join(' ') || '—';
     const loc = [c.city, c.country].filter(Boolean).join(', ') || '—';
-    const spent = c.total_spent ? `$${parseFloat(c.total_spent).toFixed(2)}` : '$0.00';
-    return `<tr onclick="sivraToast('Customer detail coming soon')">
-      <td class="col-check"><input type="checkbox" class="cust-check" onclick="event.stopPropagation()"/></td>
-      <td style="color:#005bd3;font-weight:500">${name}</td>
-      <td>${subBadge(c.email_marketing_consent)}</td>
+    const joined = c.created_at ? new Date(c.created_at).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}) : '—';
+    const spent = c.total_spent ? '$'+parseFloat(c.total_spent).toFixed(2) : '$0.00';
+    return `<tr onclick="openPanel('${c.id}')" style="cursor:pointer">
+      <td class="col-check"><input type="checkbox" onclick="event.stopPropagation()"/></td>
+      <td style="font-weight:500;color:#005bd3">${name}</td>
       <td style="color:#6d7175">${c.email||'—'}</td>
       <td style="color:#6d7175">${loc}</td>
       <td style="color:#6d7175">${c.orders_count||0}</td>
-      <td style="color:#6d7175">${spent}</td>
+      <td style="font-weight:500">${spent}</td>
+      <td style="color:#6d7175">${joined}</td>
     </tr>`;
   }).join('');
 }
 
-async function initCustomers() {
+function openPanel(id) {
+  const c = _all.find(c=>c.id===id);
+  if (!c) return;
+  document.getElementById('panelName').textContent = [c.first_name, c.last_name].filter(Boolean).join(' ') || c.email;
+  document.getElementById('panelEmail').textContent = c.email || '—';
+  document.getElementById('panelLocation').textContent = [c.city, c.country].filter(Boolean).join(', ') || '—';
+  document.getElementById('panelOrders').textContent = c.orders_count || 0;
+  document.getElementById('panelSpent').textContent = c.total_spent ? '$'+parseFloat(c.total_spent).toFixed(2) : '$0.00';
+  document.getElementById('panelJoined').textContent = c.created_at ? new Date(c.created_at).toLocaleDateString('en-AU',{dateStyle:'long'}) : '—';
+  const custOrders = _orders.filter(o=>o.customer_id===id);
+  document.getElementById('panelOrdersList').innerHTML = custOrders.length ? custOrders.map(o=>`
+    <div style="display:flex;justify-content:space-between;padding:8px;background:#f9f9f9;border-radius:6px;font-size:13px;cursor:pointer" onclick="location.href='sivra-order-detail.html?id=${o.id}'">
+      <span style="color:#005bd3">#${o.order_number}</span>
+      <span style="color:#6d7175">${new Date(o.created_at).toLocaleDateString('en-AU')}</span>
+      <span style="font-weight:500">$$${parseFloat(o.total||0).toFixed(2)}</span>
+    </div>`).join('') : '<div style="font-size:13px;color:#8c9196">No orders yet</div>';
+  document.getElementById('custPanel').style.display = '';
+  document.getElementById('custOverlay').style.display = '';
+}
+
+function closePanel() {
+  document.getElementById('custPanel').style.display = 'none';
+  document.getElementById('custOverlay').style.display = 'none';
+}
+
+function exportCSV() {
+  const rows = [['Name','Email','City','Country','Orders','Total Spent','Joined']];
+  _all.forEach(c => rows.push([
+    [c.first_name,c.last_name].filter(Boolean).join(' '),
+    c.email||'', c.city||'', c.country||'',
+    c.orders_count||0, c.total_spent||0,
+    c.created_at?new Date(c.created_at).toLocaleDateString():''
+  ]));
+  const csv = rows.map(r=>r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'customers.csv'; a.click();
+}
+
+async function init() {
   initSivra('customers');
-  const s = await Sivra.requireAuth('sivra-login.html');
-  if (!s) return;
+  await Sivra.requireAuth('sivra-login.html');
   try {
-    const res = await (await await fetch('/api/customers', {method:"GET",headers:{"Content-Type":"application/json","Authorization":"Bearer "+(JSON.parse(localStorage.getItem('sivra_session')||'{}').token || localStorage.getItem('sivra_token'))}}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||"HTTP "+r.status);return d;}));
-    _allCustomers = res?.customers || [];
-    renderCustomers();
+    const [cData, oData] = await Promise.all([
+      fetch('/api/customers', {headers:{'Authorization':'Bearer '+TOKEN}}).then(r=>r.json()),
+      fetch('/api/orders', {headers:{'Authorization':'Bearer '+TOKEN}}).then(r=>r.json())
+    ]);
+    _all = cData.customers || [];
+    _orders = oData.orders || [];
+    
+    // Calculate stats
+    const total = _all.length;
+    const returning = _all.filter(c=>c.orders_count>1).length;
+    const spent = _orders.reduce((s,o)=>s+parseFloat(o.total||0),0);
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statReturning').textContent = returning;
+    document.getElementById('statSpent').textContent = '$'+spent.toFixed(2);
+    render();
   } catch(e) {
-    document.getElementById('customersBody').innerHTML = `<tr><td colspan="7" style="text-align:center;padding:48px;color:#c0392b">Error loading customers</td></tr>`;
+    document.getElementById('tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:48px;color:#c0392b">Error loading customers</td></tr>';
   }
 }
-initCustomers();
+init();
 </script>
 </body>
 </html>
