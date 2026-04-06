@@ -41,8 +41,10 @@ app.use('/api/store',       require('./routes/store'));
 app.use('/api/storefront',  require('./routes/storefront')); // public — no auth
 app.use('/api/collections', require('./routes/collections'));
 app.use('/api/discounts',   require('./routes/discounts'));
+app.use('/api/analytics',   require('./routes/analytics'));
 app.use('/api/pages',       require('./routes/pages'));
 app.use('/api/menus',       require('./routes/menus'));
+app.use('/api/blog',        require('./routes/blog'));
 
 // Abandoned checkouts
 app.get('/api/abandoned', (req, res) => res.json({ checkouts: [] }));

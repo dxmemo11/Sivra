@@ -77,9 +77,17 @@ router.patch('/:id', async (req, res) => {
   try {
     const db = getDB();
     const { name, description, image_url, status } = req.body;
+    const { name, description, image, image_url, status, sort_order, seo_title, seo_description, slug } = req.body;
     await db.execute({
-      sql: 'UPDATE collections SET name=COALESCE(?,name), description=COALESCE(?,description), image_url=COALESCE(?,image_url), status=COALESCE(?,status), updated_at=CURRENT_TIMESTAMP WHERE id=? AND store_id=?',
-      args: [name||null, description||null, image_url||null, status||null, req.params.id, req.storeId]
+      sql: `UPDATE collections SET
+        name=COALESCE(?,name), description=COALESCE(?,description),
+        image=COALESCE(?,image), status=COALESCE(?,status),
+        sort_order=COALESCE(?,sort_order), seo_title=COALESCE(?,seo_title),
+        seo_description=COALESCE(?,seo_description), slug=COALESCE(?,slug),
+        updated_at=CURRENT_TIMESTAMP WHERE id=? AND store_id=?`,
+      args: [name||null, description||null, image||image_url||null, status||null,
+        sort_order||null, seo_title||null, seo_description||null, slug||null,
+        req.params.id, req.storeId]
     });
     const updated = await db.execute({ sql: 'SELECT * FROM collections WHERE id=?', args: [req.params.id] });
     res.json(updated.rows[0]);

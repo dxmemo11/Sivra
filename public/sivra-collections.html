@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sivra — Collections</title>
+  <link rel="stylesheet" href="admin-tokens.css"/>
+  <link rel="stylesheet" href="admin-layout.css"/>
+  <link rel="stylesheet" href="admin-components.css"/>
+  
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div>
+</aside>
+  <div class="main">
+    <div class="topbar" id="sivraTopbar"></div>
+    <div class="page-scroll">
+      <div style="max-width:1280px;margin:0 auto">
+
+        <div class="page-header">
+          <h1 class="page-title">Collections</h1>
+          <button class="btn btn-primary" onclick="openCreateModal()">Create collection</button>
+        </div>
+
+        <div class="page-body">
+          <div class="card">
+            <div class="filter-bar">
+              <div class="filter-search">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4" stroke="#8c9196" stroke-width="1.3"/><path d="M9 9l3 3" stroke="#8c9196" stroke-width="1.3" stroke-linecap="round"/></svg>
+                <input type="text" placeholder="Search collections" id="searchInput" oninput="render()"/>
+              </div>
+            </div>
+            <div style="overflow-x:auto">
+              <table class="data-table">
+                <thead><tr>
+                  <th class="col-check"><input type="checkbox"/></th>
+                  <th class="col-img"></th>
+                  <th>Title</th>
+                  <th>Products</th>
+                  <th>Status</th>
+                  <th>Updated</th>
+                </tr></thead>
+                <tbody id="colBody">
+                  <tr><td colspan="6" style="text-align:center;padding:48px;color:#8c9196">Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="pagination">
+              <div class="pagination-info" id="colCount">— collections</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Create/Edit Modal -->
+        <div class="modal-overlay" id="colModal">
+          <div class="modal" style="max-width:560px">
+            <div class="modal-header">
+              <span class="modal-title" id="modalTitle">Create collection</span>
+              <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body section-stack">
+              <div class="form-group">
+                <label class="form-label">Title</label>
+                <input class="input" id="cTitle" placeholder="e.g. World Cup Jerseys"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Description <span class="text-muted">(optional)</span></label>
+                <textarea class="textarea" id="cDesc" placeholder="Describe this collection..." style="min-height:80px"></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Status</label>
+                <select class="select" id="cStatus">
+                  <option value="active">Active</option>
+                  <option value="draft">Draft</option>
+                </select>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+              <button class="btn btn-primary" onclick="saveCollection()" id="saveColBtn">Create collection</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="sivra-toast"></div>
+<script src="admin.js"></script>
+<script>
+(async function() {
+  const session = await initAdmin('products');
+  if (!session) return;
+  
+  let _all = [], _editId = null;
+
+  function render() {
+    const q = (document.getElementById('searchInput')?.value||'').toLowerCase();
+    const list = _all.filter(c => (c.name||'').toLowerCase().includes(q));
+    document.getElementById('colCount').textContent = list.length + ' collection' + (list.length!==1?'s':'');
+    const tbody = document.getElementById('colBody');
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">
+        <div class="empty-icon">🗂️</div>
+        <div class="empty-title">${_all.length===0?'No collections yet':'No collections match your search'}</div>
+        <div class="empty-desc">Group your products into collections to make it easier for customers to browse</div>
+        ${_all.length===0?'<button class="btn btn-primary" onclick="openCreateModal()">Create collection</button>':''}
+      </div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = list.map(c => `
+      <tr onclick="location.href='sivra-collection-detail.html?id=${c.id}'">
+        <td class="col-check"><input type="checkbox" onclick="event.stopPropagation()"/></td>
+        <td class="col-img">
+          ${(c.image||c.image_url) ? `<img src="${c.image||c.image_url}" class="table-thumb"/>` : `<div class="table-thumb-placeholder"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/></svg></div>`}
+        </td>
+        <td class="cell-primary">${c.name||'—'}</td>
+        <td class="cell-muted">${c.product_count||0} products</td>
+        <td><span class="badge ${c.status==='active'?'badge-success':'badge-default'}" style="text-transform:capitalize">${c.status||'active'}</span></td>
+        <td class="cell-muted">${Fmt.date(c.updated_at||c.created_at)}</td>
+      </tr>`).join('');
+  }
+
+  function openCreateModal() {
+    _editId = null;
+    document.getElementById('modalTitle').textContent = 'Create collection';
+    document.getElementById('saveColBtn').textContent = 'Create collection';
+    document.getElementById('cTitle').value = '';
+    document.getElementById('cDesc').value = '';
+    document.getElementById('cStatus').value = 'active';
+    document.getElementById('colModal').classList.add('open');
+  }
+
+  function openEditModal(id) {
+    const c = _all.find(x => x.id === id);
+    if (!c) return;
+    _editId = id;
+    document.getElementById('modalTitle').textContent = 'Edit collection';
+    document.getElementById('saveColBtn').textContent = 'Save changes';
+    document.getElementById('cTitle').value = c.name || '';
+    document.getElementById('cDesc').value = c.description || '';
+    document.getElementById('cStatus').value = c.status || 'active';
+    document.getElementById('colModal').classList.add('open');
+  }
+
+  function closeModal() { document.getElementById('colModal').classList.remove('open'); }
+
+  async function saveCollection() {
+    const name = document.getElementById('cTitle').value.trim();
+    if (!name) { Toast.error('Title is required'); return; }
+    const btn = document.getElementById('saveColBtn');
+    btn.textContent = 'Saving...'; btn.disabled = true;
+    try {
+      const body = {
+        name,
+        description: document.getElementById('cDesc').value,
+        status: document.getElementById('cStatus').value,
+        slug: Fmt.slug(name),
+      };
+      if (_editId) {
+        await API.patch('/api/collections/' + _editId, body);
+        const i = _all.findIndex(c => c.id === _editId);
+        if (i >= 0) _all[i] = { ..._all[i], ...body };
+        Toast.success('Collection updated');
+      } else {
+        const res = await API.post('/api/collections', body);
+        const newColl = res.collection || res;
+        if (newColl.id) {
+          Toast.success('Collection created');
+          setTimeout(()=>location.href='sivra-collection-detail.html?id='+newColl.id, 400);
+          return;
+        }
+        _all.unshift(newColl);
+        Toast.success('Collection created');
+      }
+      closeModal();
+      render();
+    } catch(e) { Toast.error(e.message); }
+    btn.textContent = _editId ? 'Save changes' : 'Create collection';
+    btn.disabled = false;
+  }
+
+  (async () => {
+    try {
+      const data = await API.get('/api/collections');
+      _all = data.collections || [];
+      render();
+    } catch(e) {
+      document.getElementById('colBody').innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Failed to load</div><button class="btn btn-secondary" onclick="location.reload()">Retry</button></div></td></tr>';
+    }
+  })();
+
+})();
+</script>
+</body>
+</html>

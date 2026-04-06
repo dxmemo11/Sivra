@@ -155,7 +155,7 @@
       </div></td></tr>`;
       return;
     }
-    tbody.innerHTML = list.map(d => `<tr onclick="Toast.show('Draft detail coming soon')">
+    tbody.innerHTML = list.map(d => `<tr onclick="location.href='sivra-orders.html'">
       <td class="cell-primary">#D${d.id?.slice(0,6).toUpperCase()}</td>
       <td class="cell-muted">${Fmt.date(d.created_at)}</td>
       <td>${d.customer_email||'<span class="text-muted">No customer</span>'}</td>
@@ -234,10 +234,27 @@
 
   async function saveDraft() {
     if (!_draftItems.length) { Toast.error('Add at least one item'); return; }
-    Toast.show('Saving draft...');
-    closeDraft();
-    Toast.success('Draft saved');
-    render();
+    if (!_draftItems.length) { Toast.error('Add at least one item'); return; }
+    const total = _draftItems.reduce((s,i) => s+i.price*i.qty, 0);
+    // Create as manual order
+    try {
+      const items = _draftItems.map(i => ({
+        productId: i.id.startsWith('custom_') ? null : i.id,
+        quantity: i.qty, title: i.title, price: i.price,
+      }));
+      const email = document.getElementById('draftEmail').value.trim() || 'draft@order.internal';
+      const note = document.getElementById('draftNote').value.trim();
+      const res = await API.post('/api/orders', {
+        customerEmail: email, items,
+        subtotal: total, total, notes: note,
+        source: 'draft_order',
+      });
+      closeDraft();
+      Toast.success('Draft order created');
+      setTimeout(() => location.href = 'sivra-orders.html', 800);
+    } catch(e) {
+      Toast.error(e.message || 'Failed to save');
+    }
   }
 
   async function convertToOrder() {

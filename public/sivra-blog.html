@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sivra — Blog posts</title>
+  <link rel="stylesheet" href="admin-tokens.css"/>
+  <link rel="stylesheet" href="admin-layout.css"/>
+  <link rel="stylesheet" href="admin-components.css"/>
+  
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div>
+</aside>
+  <div class="main">
+    <div class="topbar" id="sivraTopbar"></div>
+    <div class="page-scroll">
+      <div style="max-width:1280px;margin:0 auto">
+
+        <div class="page-header">
+          <h1 class="page-title">Blog posts</h1>
+          <button class="btn btn-primary" onclick="openCreate()">Write post</button>
+        </div>
+
+        <div class="page-body">
+          <div class="card">
+            <div class="tabs">
+              <div class="tab active" onclick="setTab(this,'all')">All</div>
+              <div class="tab" onclick="setTab(this,'published')">Published</div>
+              <div class="tab" onclick="setTab(this,'draft')">Drafts</div>
+            </div>
+            <div class="filter-bar">
+              <div class="filter-search">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4" stroke="#8c9196" stroke-width="1.3"/><path d="M9 9l3 3" stroke="#8c9196" stroke-width="1.3" stroke-linecap="round"/></svg>
+                <input type="text" placeholder="Search posts" id="searchInput" oninput="render()"/>
+              </div>
+            </div>
+            <div style="overflow-x:auto">
+              <table class="data-table">
+                <thead><tr>
+                  <th>Title</th>
+                  <th>Author</th>
+                  <th>Status</th>
+                  <th>Updated</th>
+                  <th></th>
+                </tr></thead>
+                <tbody id="blogBody">
+                  <tr><td colspan="5" style="text-align:center;padding:48px;color:#8c9196">Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Create / Edit drawer -->
+        <div class="modal-overlay" id="blogModal">
+          <div class="modal" style="max-width:700px;width:95vw">
+            <div class="modal-header">
+              <span class="modal-title" id="blogModalTitle">Write post</span>
+              <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body" style="display:flex;flex-direction:column;gap:14px;max-height:70vh;overflow-y:auto">
+              <div class="form-group">
+                <label class="form-label">Title</label>
+                <input class="input" id="bTitle" placeholder="Your post title..."/>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="form-group">
+                  <label class="form-label">Author</label>
+                  <input class="input" id="bAuthor" placeholder="e.g. Mohammed"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Status</label>
+                  <select class="select" id="bStatus">
+                    <option value="published">Published</option>
+                    <option value="draft">Draft</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Cover image URL <span class="text-muted">(optional)</span></label>
+                <input class="input" id="bImage" placeholder="https://example.com/image.jpg"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Excerpt <span class="text-muted">(shown in blog listing)</span></label>
+                <textarea class="textarea" id="bExcerpt" style="min-height:60px" placeholder="Brief summary..."></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Content</label>
+                <textarea class="textarea" id="bContent" style="min-height:240px" placeholder="Write your post content here. HTML is supported.&#10;&#10;e.g. &lt;h2&gt;Top 5 World Cup Jerseys&lt;/h2&gt;&#10;&lt;p&gt;...&lt;/p&gt;"></textarea>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="form-group">
+                  <label class="form-label">SEO title <span class="text-muted">(optional)</span></label>
+                  <input class="input" id="bSeoTitle"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Tags</label>
+                  <input class="input" id="bTags" placeholder="jerseys, world cup, 2026"/>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" id="blogDeleteBtn" style="color:#c0392b;display:none" onclick="deletePost()">Delete post</button>
+              <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+              <button class="btn btn-secondary" onclick="savePost('draft')">Save draft</button>
+              <button class="btn btn-primary" onclick="savePost('published')" id="blogSaveBtn">Publish</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="sivra-toast"></div>
+<script src="admin.js"></script>
+<script>
+(async function() {
+  const session = await initAdmin('online-store');
+  if (!session) return;
+  
+  let _all = [], _tab = 'all', _editId = null;
+  let _session = null;
+
+  function setTab(el, t) {
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    el.classList.add('active'); _tab = t; render();
+  }
+
+  function render() {
+    const q = (document.getElementById('searchInput')?.value||'').toLowerCase();
+    let list = [..._all];
+    if (_tab !== 'all') list = list.filter(p => p.status === _tab);
+    if (q) list = list.filter(p => (p.title||'').toLowerCase().includes(q));
+    const tbody = document.getElementById('blogBody');
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state">
+        <div class="empty-icon">✍️</div>
+        <div class="empty-title">${_all.length===0?'No posts yet':'No posts match'}</div>
+        <div class="empty-desc">${_all.length===0?'Write blog posts to drive SEO traffic and engage customers':''}</div>
+        ${_all.length===0?'<button class="btn btn-primary" onclick="openCreate()" style="margin-top:8px">Write first post</button>':''}
+      </div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = list.map(p => `<tr onclick="editPost('${p.id}')">
+      <td>
+        <div class="font-medium" style="font-size:13px">${p.title||'Untitled'}</div>
+        ${p.excerpt?`<div class="text-muted text-sm" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:320px">${p.excerpt}</div>`:''}
+      </td>
+      <td class="cell-muted">${p.author||'—'}</td>
+      <td><span class="badge ${p.status==='published'?'badge-success':'badge-default'}" style="text-transform:capitalize">${p.status||'draft'}</span></td>
+      <td class="cell-muted">${Fmt.date(p.updated_at||p.created_at)}</td>
+      <td><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();editPost('${p.id}')">Edit</button></td>
+    </tr>`).join('');
+  }
+
+  function openCreate() {
+    _editId = null;
+    document.getElementById('blogModalTitle').textContent = 'Write post';
+    document.getElementById('blogSaveBtn').textContent = 'Publish';
+    document.getElementById('blogDeleteBtn').style.display = 'none';
+    ['bTitle','bAuthor','bImage','bExcerpt','bContent','bSeoTitle','bTags'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('bStatus').value = 'published';
+    if (_session?.merchant) document.getElementById('bAuthor').value = [_session.merchant.first_name,_session.merchant.last_name].filter(Boolean).join(' ');
+    document.getElementById('blogModal').classList.add('open');
+  }
+
+  function editPost(id) {
+    const p = _all.find(x=>x.id===id);
+    if (!p) return;
+    _editId = id;
+    document.getElementById('blogModalTitle').textContent = 'Edit post';
+    document.getElementById('blogSaveBtn').textContent = 'Save changes';
+    document.getElementById('blogDeleteBtn').style.display = '';
+    document.getElementById('bTitle').value = p.title||'';
+    document.getElementById('bAuthor').value = p.author||'';
+    document.getElementById('bImage').value = p.image_url||'';
+    document.getElementById('bExcerpt').value = p.excerpt||'';
+    document.getElementById('bContent').value = p.content||'';
+    document.getElementById('bSeoTitle').value = p.seo_title||'';
+    document.getElementById('bTags').value = p.tags||'';
+    document.getElementById('bStatus').value = p.status||'draft';
+    document.getElementById('blogModal').classList.add('open');
+  }
+
+  function closeModal() { document.getElementById('blogModal').classList.remove('open'); }
+
+  async function savePost(statusOverride) {
+    const title = document.getElementById('bTitle').value.trim();
+    if (!title) { Toast.error('Title is required'); return; }
+    const btn = document.getElementById('blogSaveBtn');
+    btn.disabled = true; btn.textContent = 'Saving...';
+    try {
+      const body = {
+        title, author: document.getElementById('bAuthor').value||null,
+        image_url: document.getElementById('bImage').value||null,
+        excerpt: document.getElementById('bExcerpt').value||null,
+        content: document.getElementById('bContent').value||null,
+        seo_title: document.getElementById('bSeoTitle').value||null,
+        tags: document.getElementById('bTags').value||null,
+        status: statusOverride || document.getElementById('bStatus').value,
+        slug: Fmt.slug(title),
+      };
+      if (_editId) {
+        const res = await API.patch('/api/blog/'+_editId, body);
+        const idx = _all.findIndex(p=>p.id===_editId);
+        if (idx>=0) _all[idx] = {..._all[idx],...body};
+        Toast.success('Post updated');
+      } else {
+        const res = await API.post('/api/blog', body);
+        _all.unshift(res.post || res);
+        Toast.success(statusOverride==='draft'?'Draft saved':'Post published');
+      }
+      closeModal(); render();
+    } catch(e) { Toast.error(e.message||'Failed to save'); }
+    btn.disabled = false; btn.textContent = _editId?'Save changes':'Publish';
+  }
+
+  async function deletePost() {
+    Modal.confirm('Delete post', `Delete "${_all.find(p=>p.id===_editId)?.title}"?`, async () => {
+      try {
+        await API.del('/api/blog/'+_editId);
+        _all = _all.filter(p=>p.id!==_editId);
+        closeModal(); render();
+        Toast.success('Post deleted');
+      } catch(e) { Toast.error(e.message); }
+    }, { danger: true });
+  }
+
+  _session = session;
+  (async () => {
+    try {
+      const data = await API.get('/api/blog');
+      _all = data.posts || [];
+      render();
+    } catch(e) {
+      // Blog endpoint may not exist yet, show empty state
+      _all = []; render();
+    }
+  })();
+
+})();
+</script>
+</body>
+</html>

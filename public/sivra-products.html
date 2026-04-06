@@ -241,7 +241,7 @@
   }
 
   function importProducts() {
-    Toast.show('CSV import coming soon');
+    document.getElementById('csvImportInput').click();
   }
 
   // Load
@@ -254,7 +254,81 @@
       document.getElementById('productsBody').innerHTML =
         '<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Failed to load products</div><button class="btn btn-secondary" onclick="location.reload()">Retry</button></div></td></tr>';
     }
-  })();
+  
+  async function importCSV(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const text = await file.text();
+    const lines = text.trim().split('\n');
+    if (lines.length < 2) { Toast.error('CSV appears empty'); return; }
+    const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g,''));
+    const titleIdx = headers.indexOf('title');
+    const priceIdx = headers.indexOf('price');
+    if (titleIdx === -1) { Toast.error('CSV must have a "title" column'); return; }
+    Toast.show(`Importing ${lines.length-1} products...`);
+    let success = 0, failed = 0;
+    for (let i = 1; i < lines.length; i++) {
+      const cols = lines[i].split(',').map(c => c.trim().replace(/^"|"$/g,''));
+      const title = cols[titleIdx];
+      if (!title) continue;
+      try {
+        await API.post('/api/products', {
+          title,
+          price: priceIdx >= 0 ? parseFloat(cols[priceIdx])||0 : 0,
+          description: headers.indexOf('description') >= 0 ? cols[headers.indexOf('description')] : null,
+          sku: headers.indexOf('sku') >= 0 ? cols[headers.indexOf('sku')] : null,
+          vendor: headers.indexOf('vendor') >= 0 ? cols[headers.indexOf('vendor')] : null,
+          quantity: headers.indexOf('quantity') >= 0 ? parseInt(cols[headers.indexOf('quantity')])||0 : 0,
+          status: headers.indexOf('status') >= 0 ? cols[headers.indexOf('status')] : 'active',
+        });
+        success++;
+      } catch(e) { failed++; }
+    }
+    Toast.success(`Imported ${success} products${failed>0?' ('+failed+' failed)':''}`);
+    input.value = '';
+    const data = await API.get('/api/products');
+    _all = data.products || [];
+    render();
+  }
+
+})();
+
+
+  async function importCSV(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const text = await file.text();
+    const lines = text.trim().split('\n');
+    if (lines.length < 2) { Toast.error('CSV appears empty'); return; }
+    const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g,''));
+    const titleIdx = headers.indexOf('title');
+    const priceIdx = headers.indexOf('price');
+    if (titleIdx === -1) { Toast.error('CSV must have a "title" column'); return; }
+    Toast.show(`Importing ${lines.length-1} products...`);
+    let success = 0, failed = 0;
+    for (let i = 1; i < lines.length; i++) {
+      const cols = lines[i].split(',').map(c => c.trim().replace(/^"|"$/g,''));
+      const title = cols[titleIdx];
+      if (!title) continue;
+      try {
+        await API.post('/api/products', {
+          title,
+          price: priceIdx >= 0 ? parseFloat(cols[priceIdx])||0 : 0,
+          description: headers.indexOf('description') >= 0 ? cols[headers.indexOf('description')] : null,
+          sku: headers.indexOf('sku') >= 0 ? cols[headers.indexOf('sku')] : null,
+          vendor: headers.indexOf('vendor') >= 0 ? cols[headers.indexOf('vendor')] : null,
+          quantity: headers.indexOf('quantity') >= 0 ? parseInt(cols[headers.indexOf('quantity')])||0 : 0,
+          status: headers.indexOf('status') >= 0 ? cols[headers.indexOf('status')] : 'active',
+        });
+        success++;
+      } catch(e) { failed++; }
+    }
+    Toast.success(`Imported ${success} products${failed>0?' ('+failed+' failed)':''}`);
+    input.value = '';
+    const data = await API.get('/api/products');
+    _all = data.products || [];
+    render();
+  }
 
 })();
 </script>

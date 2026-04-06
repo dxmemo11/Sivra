@@ -3,628 +3,141 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Order confirmed — Store</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,450;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
+  <title>Order confirmed</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
-/* ═══════════════════════════════════════════════
-   SIVRA — Shopify Polaris Exact Clone
-   Extracted from real Shopify admin DOM + CSS
-   ═══════════════════════════════════════════════ */
-
-/* Inter font — Shopify uses this */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700&display=swap');
-
-/* ── POLARIS DESIGN TOKENS ── */
-:root {
-  /* Colors */
-  --p-color-bg: #f1f1f1;
-  --p-color-bg-surface: #ffffff;
-  --p-color-bg-surface-secondary: #f6f6f7;
-  --p-color-bg-surface-tertiary: #f1f1f1;
-  --p-color-bg-fill: #303030;
-  --p-color-bg-fill-hover: rgba(0,0,0,0.06);
-  --p-color-bg-fill-selected: rgba(0,0,0,0.09);
-  --p-color-bg-fill-active: rgba(0,0,0,0.13);
-  --p-color-bg-success: #d4edda;
-  --p-color-bg-caution: #fff3cd;
-  --p-color-bg-critical: #fde8e8;
-  --p-color-bg-info: #e8f4fd;
-  --p-color-text: #1a1a1a;
-  --p-color-text-secondary: #6d7175;
-  --p-color-text-disabled: #8c9196;
-  --p-color-text-success: #1a7f37;
-  --p-color-text-caution: #7d5c00;
-  --p-color-text-critical: #c0392b;
-  --p-color-text-info: #1458a2;
-  --p-color-text-emphasis: #005bd3;
-  --p-color-border: #e3e3e3;
-  --p-color-border-secondary: #ebebeb;
-  --p-color-border-emphasis: #005bd3;
-  --p-color-icon: #6d7175;
-  --p-color-icon-emphasis: #1a1a1a;
-
-  /* Spacing (Shopify 4px base) */
-  --p-space-0: 0px;
-  --p-space-025: 1px;
-  --p-space-050: 2px;
-  --p-space-100: 4px;
-  --p-space-150: 6px;
-  --p-space-200: 8px;
-  --p-space-300: 12px;
-  --p-space-400: 16px;
-  --p-space-500: 20px;
-  --p-space-600: 24px;
-  --p-space-800: 32px;
-  --p-space-1000: 40px;
-
-  /* Border radius */
-  --p-border-radius-100: 4px;
-  --p-border-radius-200: 8px;
-  --p-border-radius-300: 12px;
-  --p-border-radius-400: 16px;
-  --p-border-radius-full: 9999px;
-
-  /* Shadows */
-  --p-shadow-100: 0px 1px 0px rgba(0,0,0,0.07);
-  --p-shadow-200: 0px 3px 1px -1px rgba(0,0,0,0.07), 0px 0px 0px 1px rgba(0,0,0,0.08);
-  --p-shadow-300: 0px 4px 6px -2px rgba(0,0,0,0.2);
-
-  /* Typography */
-  --p-font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --p-font-size-75: 12px;
-  --p-font-size-100: 13px;
-  --p-font-size-200: 14px;
-  --p-font-size-300: 16px;
-  --p-font-size-400: 20px;
-  --p-font-size-500: 24px;
-  --p-font-weight-regular: 400;
-  --p-font-weight-medium: 500;
-  --p-font-weight-semibold: 600;
-  --p-font-weight-bold: 700;
-  --p-line-height-1: 1;
-  --p-line-height-2: 1.25;
-  --p-line-height-3: 1.5;
-
-  /* Layout */
-  --sidebar-w: 243px;
-  --topbar-h: 56px;
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-html, body {
-  height: 100%;
-  font-family: var(--p-font-family-sans);
-  font-size: var(--p-font-size-100);
-  font-weight: var(--p-font-weight-regular);
-  line-height: var(--p-line-height-3);
-  color: var(--p-color-text);
-  background: var(--p-color-bg);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a { text-decoration: none; color: inherit; }
-button { font-family: inherit; cursor: pointer; }
-input, textarea, select { font-family: inherit; }
-
-/* ── APP SHELL ── */
-.app { display: flex; height: 100vh; overflow: hidden; }
-
-/* ═══════════════════════════
-   SIDEBAR — Polaris Navigation
-   ═══════════════════════════ */
-.sidebar {
-  width: var(--sidebar-w);
-  flex-shrink: 0;
-  background: var(--p-color-bg-surface-secondary);
-  border-right: 1px solid var(--p-color-border);
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
-  position: relative;
-  z-index: 10;
-}
-
-/* Brand / Logo row */
-.sb-brand {
-  display: flex; align-items: center; gap: 8px;
-  padding: 14px 12px 8px;
-  flex-shrink: 0;
-}
-.sb-brand-mark {
-  width: 24px; height: 24px;
-  background: #1a1a1a; border-radius: 6px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 800; color: white; flex-shrink: 0;
-  letter-spacing: -0.5px;
-}
-.sb-brand-name { font-size: 14px; font-weight: 700; color: #1a1a1a; }
-
-/* Store switcher button */
-.sb-store {
-  display: flex; align-items: center; gap: 8px;
-  margin: 0 6px 4px;
-  padding: 5px 6px;
-  border-radius: var(--p-border-radius-200);
-  cursor: pointer;
-  transition: background 0.1s;
-}
-.sb-store:hover { background: var(--p-color-bg-fill-hover); }
-.sb-store-av {
-  width: 22px; height: 22px; border-radius: 4px;
-  background: #008060;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10px; font-weight: 700; color: white; flex-shrink: 0;
-}
-.sb-store-name {
-  flex: 1; font-size: 13px; font-weight: 500; color: #303030;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.sb-store-caret { color: #8c9196; flex-shrink: 0; }
-
-/* Nav scroll container */
-.sb-scroll {
-  flex: 1; overflow-y: auto; overflow-x: hidden;
-  padding: 2px 6px 8px;
-}
-.sb-scroll::-webkit-scrollbar { width: 0; }
-
-/* Nav item — matches Polaris-Navigation__Item */
-.sb-item {
-  display: flex; align-items: center;
-  min-height: 32px; padding: 4px 8px;
-  border-radius: var(--p-border-radius-200);
-  cursor: pointer;
-  color: #303030;
-  font-size: 13.5px;
-  font-weight: 450;
-  letter-spacing: -0.01em;
-  gap: 10px;
-  position: relative;
-  transition: background 0.08s;
-  user-select: none;
-  margin-bottom: 1px;
-}
-.sb-item:hover { background: var(--p-color-bg-fill-hover); }
-.sb-item.active {
-  background: var(--p-color-bg-fill-selected);
-  font-weight: 600;
-}
-/* Polaris active left bar */
-.sb-item.active::before {
-  content: '';
-  position: absolute; left: -6px; top: 5px; bottom: 5px;
-  width: 3px; background: #1a1a1a;
-  border-radius: 0 3px 3px 0;
-}
-.sb-icon {
-  width: 20px; height: 20px;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-  color: #5c5f62;
-}
-.sb-item:hover .sb-icon,
-.sb-item.active .sb-icon { color: #1a1a1a; }
-.sb-label { flex: 1; }
-.sb-badge {
-  font-size: 11px; font-weight: 500; color: #6d7175;
-  background: #e3e3e3; padding: 0 6px; border-radius: 20px;
-  line-height: 18px;
-}
-.sb-caret { color: #8c9196; flex-shrink: 0; transition: transform 0.2s; }
-.sb-item.open > .sb-caret { transform: rotate(90deg); }
-
-/* Sub-items */
-.sb-children { display: none; padding-left: 30px; }
-.sb-children.open { display: block; }
-.sb-child {
-  display: block;
-  padding: 4px 8px;
-  height: 28px; line-height: 20px;
-  border-radius: var(--p-border-radius-100);
-  color: var(--p-color-text-secondary);
-  font-size: 13px;
-  cursor: pointer;
-  transition: background 0.08s, color 0.08s;
-  white-space: nowrap;
-  margin-bottom: 1px;
-}
-.sb-child:hover { background: var(--p-color-bg-fill-hover); color: #303030; }
-.sb-child.active { color: #303030; font-weight: 500; }
-
-/* Section headers (Sales channels, Apps) */
-.sb-section {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 8px 8px 4px;
-  font-size: 12px; font-weight: 600; color: var(--p-color-text-secondary);
-  cursor: pointer; border-radius: var(--p-border-radius-100);
-  transition: background 0.08s;
-  user-select: none;
-}
-.sb-section:hover { background: var(--p-color-bg-fill-hover); }
-.sb-divider { height: 1px; background: var(--p-color-border); margin: 4px -2px; }
-
-/* Settings pinned at bottom */
-.sb-bottom {
-  flex-shrink: 0;
-  padding: 4px 6px 8px;
-  border-top: 1px solid var(--p-color-border);
-}
-
-/* ═══════════════════════════
-   TOPBAR — Shopify black bar
-   ═══════════════════════════ */
-.topbar {
-  height: var(--topbar-h);
-  background: #1a1a1a;
-  display: flex; align-items: center;
-  padding: 0 10px 0 8px;
-  gap: 6px; flex-shrink: 0;
-}
-.topbar-search {
-  flex: 1; max-width: 380px;
-  display: flex; align-items: center; gap: 8px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: var(--p-border-radius-200);
-  height: 34px; padding: 0 10px;
-  cursor: text; transition: all 0.15s;
-}
-.topbar-search:focus-within {
-  background: rgba(255,255,255,0.12);
-  border-color: rgba(255,255,255,0.2);
-}
-.topbar-search input {
-  flex: 1; background: none; border: none; outline: none;
-  font-size: 13px; color: white; font-family: inherit;
-}
-.topbar-search input::placeholder { color: rgba(255,255,255,0.35); }
-.kbd-hint { display: flex; gap: 2px; flex-shrink: 0; }
-.kbd {
-  font-size: 10px; color: rgba(255,255,255,0.28);
-  border: 1px solid rgba(255,255,255,0.16);
-  border-radius: 3px; padding: 0px 4px; font-family: monospace;
-}
-.topbar-spacer { flex: 1; }
-.topbar-btn {
-  width: 34px; height: 34px; border-radius: var(--p-border-radius-200);
-  display: flex; align-items: center; justify-content: center;
-  color: rgba(255,255,255,0.65); cursor: pointer;
-  transition: background 0.1s; position: relative; flex-shrink: 0;
-  border: none; background: transparent;
-}
-.topbar-btn:hover { background: rgba(255,255,255,0.1); color: white; }
-.notif-dot {
-  position: absolute; top: 7px; right: 7px;
-  width: 6px; height: 6px;
-  background: #f44336; border-radius: 50%;
-  border: 1.5px solid #1a1a1a;
-}
-.topbar-avatar {
-  width: 28px; height: 28px; border-radius: 50%;
-  background: #5b5fc7;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10px; font-weight: 700; color: white;
-  cursor: pointer; flex-shrink: 0;
-}
-
-/* ═══════════════════════════
-   MAIN AREA
-   ═══════════════════════════ */
-.main {
-  flex: 1; display: flex; flex-direction: column;
-  overflow: hidden; min-width: 0;
-  background: var(--p-color-bg-surface);
-}
-.page-scroll {
-  flex: 1; overflow-y: auto;
-  background: var(--p-color-bg-surface);
-}
-.page-scroll::-webkit-scrollbar { width: 6px; }
-.page-scroll::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
-
-/* Page header */
-.page-header {
-  padding: 20px 20px 0;
-  display: flex; align-items: center; justify-content: space-between;
-  flex-wrap: wrap; gap: 8px;
-}
-.page-title {
-  font-size: 20px; font-weight: 700; color: #1a1a1a;
-  letter-spacing: -0.3px;
-}
-.page-body { padding: 16px 20px 40px; }
-
-/* ═══════════════════════════
-   POLARIS COMPONENTS
-   ═══════════════════════════ */
-
-/* Card */
-.p-card {
-  background: var(--p-color-bg-surface);
-  border-radius: var(--p-border-radius-300);
-  box-shadow: var(--p-shadow-200);
-  overflow: hidden;
-}
-.p-card-section { padding: 16px; }
-.p-card-section + .p-card-section { border-top: 1px solid var(--p-color-border); }
-
-/* Buttons */
-.p-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  height: 32px; padding: 0 14px;
-  border-radius: var(--p-border-radius-200);
-  font-size: 13px; font-weight: 500; font-family: inherit;
-  cursor: pointer; border: 1px solid transparent;
-  white-space: nowrap; transition: all 0.1s; text-decoration: none;
-  line-height: 1;
-}
-.p-btn-secondary {
-  background: var(--p-color-bg-surface); 
-  border-color: var(--p-color-border);
-  color: #303030;
-  box-shadow: var(--p-shadow-100);
-}
-.p-btn-secondary:hover { background: var(--p-color-bg-surface-secondary); border-color: #c9cccf; }
-.p-btn-primary { background: #404040; color: white; border-color: #404040; }
-.p-btn-primary:hover { background: #303030; }
-.p-btn-success { background: #008060; color: white; border-color: #008060; }
-.p-btn-success:hover { background: #006b50; }
-.p-btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
-.p-btn-lg { height: 36px; padding: 0 18px; font-size: 14px; }
-.p-btn-icon { width: 32px; height: 32px; padding: 0; justify-content: center; }
-
-/* Badge / Tag */
-.p-badge {
-  display: inline-flex; align-items: center;
-  height: 20px; padding: 0 8px;
-  border-radius: var(--p-border-radius-full);
-  font-size: 11.5px; font-weight: 500; line-height: 1;
-  white-space: nowrap;
-}
-.p-badge-default { background: #e3e3e3; color: #5c5f62; }
-.p-badge-success { background: #cff0c4; color: #1a7f37; }
-.p-badge-warning { background: #ffefc8; color: #7d5c00; }
-.p-badge-critical { background: #fde8e8; color: #c0392b; }
-.p-badge-info { background: #e1edff; color: #1458a2; }
-.p-badge-attention { background: #fdf2cd; color: #7d5c00; }
-
-/* Divider */
-.p-divider { height: 1px; background: var(--p-color-border); }
-
-/* Text styles */
-.p-text-heading-xl { font-size: 24px; font-weight: 700; letter-spacing: -0.4px; }
-.p-text-heading-lg { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
-.p-text-heading-md { font-size: 16px; font-weight: 600; letter-spacing: -0.2px; }
-.p-text-heading-sm { font-size: 14px; font-weight: 600; }
-.p-text-heading-xs { font-size: 13px; font-weight: 600; }
-.p-text-body-md { font-size: 14px; font-weight: 400; }
-.p-text-body-sm { font-size: 13px; font-weight: 400; }
-.p-text-body-xs { font-size: 12px; font-weight: 400; }
-.p-text-secondary { color: var(--p-color-text-secondary); }
-.p-text-success { color: var(--p-color-text-success); }
-.p-text-critical { color: var(--p-color-text-critical); }
-.p-text-emphasis { color: var(--p-color-text-emphasis); }
-
-/* Index / Table */
-.p-index { width: 100%; border-collapse: collapse; }
-.p-index thead th {
-  padding: 8px 12px;
-  font-size: 12px; font-weight: 600; color: var(--p-color-text-secondary);
-  border-bottom: 1px solid var(--p-color-border);
-  text-align: left; white-space: nowrap;
-}
-.p-index tbody tr {
-  border-bottom: 1px solid var(--p-color-border-secondary);
-  transition: background 0.08s; cursor: pointer;
-}
-.p-index tbody tr:hover { background: var(--p-color-bg-surface-secondary); }
-.p-index tbody td {
-  padding: 10px 12px;
-  font-size: 13px; color: #303030;
-  vertical-align: middle;
-}
-.p-index tbody td:first-child { color: var(--p-color-text-emphasis); font-weight: 500; }
-.p-index .col-check { width: 40px; }
-.p-index input[type=checkbox] { width: 16px; height: 16px; cursor: pointer; accent-color: #303030; }
-
-/* Filter/Search bar area */
-.p-filters {
-  display: flex; align-items: center; gap: 8px;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--p-color-border);
-  flex-wrap: wrap;
-}
-.p-filter-input {
-  flex: 1; min-width: 200px;
-  display: flex; align-items: center; gap: 8px;
-  background: var(--p-color-bg-surface);
-  border: 1px solid var(--p-color-border);
-  border-radius: var(--p-border-radius-200);
-  height: 32px; padding: 0 10px;
-  transition: border-color 0.15s;
-}
-.p-filter-input:focus-within { border-color: #005bd3; outline: 2px solid rgba(0,91,211,0.15); }
-.p-filter-input input {
-  flex: 1; border: none; outline: none; background: none;
-  font-size: 13px; font-family: inherit; color: #303030;
-}
-.p-filter-input input::placeholder { color: var(--p-color-text-secondary); }
-
-/* Tabs */
-.p-tabs {
-  display: flex; gap: 0;
-  border-bottom: 1px solid var(--p-color-border);
-  padding: 0 16px; overflow-x: auto;
-}
-.p-tabs::-webkit-scrollbar { height: 0; }
-.p-tab {
-  padding: 10px 12px 9px;
-  font-size: 13px; font-weight: 450; color: var(--p-color-text-secondary);
-  cursor: pointer; white-space: nowrap;
-  border-bottom: 2px solid transparent;
-  transition: color 0.1s, border-color 0.1s;
-  margin-bottom: -1px;
-}
-.p-tab:hover { color: #303030; }
-.p-tab.active { color: #303030; font-weight: 600; border-bottom-color: #303030; }
-
-/* Empty state */
-.p-empty-state {
-  display: flex; flex-direction: column; align-items: center;
-  padding: 64px 32px; text-align: center; gap: 12px;
-  color: var(--p-color-text-secondary);
-}
-.p-empty-icon { font-size: 40px; opacity: 0.3; margin-bottom: 4px; }
-
-/* Form elements */
-.p-label {
-  display: block; font-size: 13px; font-weight: 500;
-  color: #303030; margin-bottom: 4px;
-}
-.p-label-hint { font-size: 12px; color: var(--p-color-text-secondary); font-weight: 400; margin-bottom: 6px; }
-.p-input {
-  width: 100%;
-  height: 36px; padding: 0 12px;
-  background: var(--p-color-bg-surface);
-  border: 1px solid var(--p-color-border);
-  border-radius: var(--p-border-radius-200);
-  font-size: 13px; font-family: inherit; color: #303030;
-  transition: border-color 0.15s, box-shadow 0.15s; outline: none;
-}
-.p-input:focus { border-color: #005bd3; box-shadow: 0 0 0 3px rgba(0,91,211,0.15); }
-.p-textarea {
-  width: 100%; padding: 10px 12px;
-  background: var(--p-color-bg-surface);
-  border: 1px solid var(--p-color-border);
-  border-radius: var(--p-border-radius-200);
-  font-size: 13px; font-family: inherit; color: #303030;
-  resize: vertical; min-height: 80px; outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-.p-textarea:focus { border-color: #005bd3; box-shadow: 0 0 0 3px rgba(0,91,211,0.15); }
-.p-select {
-  height: 36px; padding: 0 32px 0 12px;
-  background: var(--p-color-bg-surface) url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 4.5l3 3 3-3' stroke='%236d7175' stroke-width='1.3' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 10px center;
-  border: 1px solid var(--p-color-border);
-  border-radius: var(--p-border-radius-200);
-  font-size: 13px; font-family: inherit; color: #303030;
-  cursor: pointer; outline: none; -webkit-appearance: none; appearance: none;
-}
-.p-select:focus { border-color: #005bd3; box-shadow: 0 0 0 3px rgba(0,91,211,0.15); }
-
-/* Stack helpers */
-.p-stack { display: flex; }
-.p-stack-vertical { flex-direction: column; }
-.p-gap-1 { gap: 4px; }
-.p-gap-2 { gap: 8px; }
-.p-gap-3 { gap: 12px; }
-.p-gap-4 { gap: 16px; }
-.p-gap-5 { gap: 20px; }
-.p-align-center { align-items: center; }
-.p-justify-between { justify-content: space-between; }
-.p-wrap { flex-wrap: wrap; }
-
-/* Toast */
-.toast {
-  position: fixed; bottom: 20px; left: 50%;
-  transform: translateX(-50%) translateY(10px);
-  background: #303030; color: white;
-  padding: 9px 18px; border-radius: var(--p-border-radius-200);
-  font-size: 13px; box-shadow: var(--p-shadow-300);
-  opacity: 0; transition: all 0.2s; pointer-events: none;
-  z-index: 9999; white-space: nowrap;
-}
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-body{background:#fff;}
-
-.store-nav{position:sticky;top:0;z-index:100;background:white;border-bottom:1px solid #e3e3e3;padding:0 24px;height:60px;display:flex;align-items:center;gap:24px;}
-.store-nav-logo{font-size:16px;font-weight:700;color:#1a1a1a;text-decoration:none;}
-.store-nav-links{display:flex;gap:20px;flex:1;margin-left:16px;}
-.store-nav-link{font-size:14px;color:#6d7175;text-decoration:none;transition:color 0.1s;}
-.store-nav-link:hover{color:#1a1a1a;}
-.store-nav-right{display:flex;align-items:center;gap:12px;margin-left:auto;}
-.store-nav-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#6d7175;cursor:pointer;transition:background 0.1s;position:relative;background:none;border:none;}
-.store-nav-icon:hover{background:#f6f6f7;color:#1a1a1a;}
-.cart-count{position:absolute;top:4px;right:4px;width:16px;height:16px;background:#1a1a1a;border-radius:50%;font-size:9px;font-weight:700;color:white;display:flex;align-items:center;justify-content:center;}
-
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',-apple-system,sans-serif;background:#f5f5f5;min-height:100vh;-webkit-font-smoothing:antialiased;color:#1a1a1a;display:flex;flex-direction:column}
+    a{text-decoration:none;color:inherit}
+    .nav{background:white;border-bottom:1px solid #e3e3e3;padding:0 24px;height:60px;display:flex;align-items:center}
+    .nav-logo{font-size:18px;font-weight:700}
+    .wrap{flex:1;max-width:640px;margin:40px auto;padding:0 24px;width:100%}
+    .card{background:white;border-radius:12px;border:1px solid #e3e3e3;overflow:hidden;margin-bottom:16px}
+    .card-hero{background:#1a1a1a;color:white;padding:32px;text-align:center}
+    .check-circle{width:64px;height:64px;border-radius:50%;background:#008060;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+    .order-num{font-size:13px;color:rgba(255,255,255,0.7);margin-top:8px;font-family:monospace;letter-spacing:1px}
+    .section{padding:20px 24px;border-bottom:1px solid #f0f0f0}
+    .section:last-child{border-bottom:none}
+    .section-title{font-size:12px;font-weight:700;color:#6d7175;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+    .row{display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px}
+    .row.total{font-weight:700;font-size:15px;border-top:1px solid #e3e3e3;padding-top:10px;margin-top:4px}
+    .steps{display:flex;flex-direction:column;gap:12px}
+    .step{display:flex;gap:12px;align-items:flex-start}
+    .step-num{width:28px;height:28px;border-radius:50%;background:#f6f6f7;border:2px solid #e3e3e3;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#6d7175;flex-shrink:0}
+    .step-num.done{background:#008060;border-color:#008060;color:white}
+    .step-body{flex:1}
+    .step-title{font-size:14px;font-weight:500;margin-bottom:2px}
+    .step-desc{font-size:13px;color:#6d7175}
+    .btn{display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 20px;border-radius:8px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;text-decoration:none;border:none;transition:all 0.15s}
+    .btn-primary{background:#1a1a1a;color:white}
+    .btn-primary:hover{background:#303030}
+    .btn-secondary{background:white;color:#1a1a1a;border:1px solid #e3e3e3}
+    .btn-secondary:hover{background:#f6f6f7}
+    footer{text-align:center;padding:24px;font-size:13px;color:#8c9196}
   </style>
 </head>
 <body>
 
-<nav class="store-nav">
-  <a href="sivra-storefront.html" class="store-nav-logo" id="storeNavLogo">Store</a>
-  <div class="store-nav-links"><a href="sivra-storefront.html" class="store-nav-link">Home</a><a href="sivra-storefront.html" class="store-nav-link">All products</a></div>
-  <div class="store-nav-right">
-    <button class="store-nav-icon" onclick="location.href='sivra-cart.html'">
-      <svg width="17" height="17" viewBox="0 0 16 16" fill="none"><path d="M2 2h1.5l2.5 8h7l1.5-5H5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6.5" cy="13" r="1.2" fill="currentColor"/><circle cx="11.5" cy="13" r="1.2" fill="currentColor"/></svg>
-      <span class="cart-count" id="cartCount" style="display:none">0</span>
-    </button>
-  </div>
+<nav class="nav">
+  <span class="nav-logo" id="navLogo">Store</span>
 </nav>
-<div style="max-width:600px;margin:0 auto;padding:60px 24px;text-align:center">
-  <div style="width:72px;height:72px;background:#e8f8f0;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M6 16l7 7L26 9" stroke="#008060" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-  </div>
-  <div style="font-size:13px;color:#6d7175;margin-bottom:6px">Order <span id="confirmOrderNum" style="font-weight:600;color:#303030">#—</span></div>
-  <div style="font-size:26px;font-weight:700;color:#1a1a1a;margin-bottom:10px">Thank you for your order!</div>
-  <div style="font-size:14px;color:#6d7175;margin-bottom:32px;line-height:1.6">You'll receive a confirmation email shortly. We'll let you know when your order ships.</div>
-  <div class="p-card" style="padding:20px;text-align:left;margin-bottom:24px">
-    <div style="font-size:14px;font-weight:600;margin-bottom:14px">What happens next?</div>
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <div style="display:flex;gap:12px;align-items:flex-start">
-        <div style="width:24px;height:24px;border-radius:50%;background:#1a1a1a;color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
-        <div><div style="font-size:13px;font-weight:500">Order processing</div><div style="font-size:12px;color:#6d7175">We're preparing your items</div></div>
+
+<div class="wrap">
+
+  <div class="card">
+    <div class="card-hero">
+      <div class="check-circle">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M6 14l6 6L22 8" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
-      <div style="display:flex;gap:12px;align-items:flex-start">
-        <div style="width:24px;height:24px;border-radius:50%;background:#e3e3e3;color:#6d7175;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
-        <div><div style="font-size:13px;font-weight:500">Shipped</div><div style="font-size:12px;color:#6d7175">You'll receive a tracking number</div></div>
+      <h1 style="font-size:22px;font-weight:700;margin-bottom:6px">Order confirmed! 🎉</h1>
+      <p style="font-size:14px;color:rgba(255,255,255,0.75)">Thank you for your order. We'll get it ready for you.</p>
+      <div class="order-num" id="orderNumDisplay"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">What happens next</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num done">✓</div>
+          <div class="step-body">
+            <div class="step-title">Order received</div>
+            <div class="step-desc">Your order has been placed and is being reviewed</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Payment confirmation</div>
+            <div class="step-desc">You'll receive payment instructions via email shortly</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">Order processing</div>
+            <div class="step-desc">Once payment is confirmed, we'll prepare your items</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title">Shipped to you</div>
+            <div class="step-desc">You'll receive tracking details once your order ships</div>
+          </div>
+        </div>
       </div>
-      <div style="display:flex;gap:12px;align-items:flex-start">
-        <div style="width:24px;height:24px;border-radius:50%;background:#e3e3e3;color:#6d7175;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div>
-        <div><div style="font-size:13px;font-weight:500">Delivered</div><div style="font-size:12px;color:#6d7175">Estimated 5–7 business days</div></div>
+    </div>
+
+    <div class="section" id="orderSummarySection" style="display:none">
+      <div class="section-title">Order summary</div>
+      <div id="orderSummaryItems"></div>
+      <div class="row" style="margin-top:10px"><span style="color:#6d7175">Subtotal</span><span id="confSubtotal">—</span></div>
+      <div class="row" id="confDiscRow" style="display:none;color:#008060"><span>Discount</span><span id="confDisc">—</span></div>
+      <div class="row"><span style="color:#6d7175">Shipping</span><span id="confShipping">—</span></div>
+      <div class="row"><span style="color:#6d7175">Tax</span><span id="confTax">—</span></div>
+      <div class="row total"><span>Total</span><span id="confTotal">—</span></div>
+    </div>
+
+    <div class="section">
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a href="javascript:void(0)" onclick="continueShopping()" class="btn btn-primary" style="flex:1;justify-content:center">Continue shopping</a>
+        <a href="javascript:void(0)" onclick="window.print()" class="btn btn-secondary" style="flex:1;justify-content:center">Print receipt</a>
       </div>
     </div>
   </div>
-  <div style="display:flex;gap:10px;justify-content:center">
-    <a href="sivra-storefront.html" class="p-btn p-btn-secondary">Continue shopping</a>
-    <a href="sivra-storefront.html" class="p-btn p-btn-primary">Back to store</a>
-  </div>
+
 </div>
-<div class="toast" id="sivraToast"></div>
-<script>function sivraToast(m){const t=document.getElementById('sivraToast');if(!t)return;t.textContent=m;t.classList.add('show');clearTimeout(t._tid);t._tid=setTimeout(()=>t.classList.remove('show'),2500);}window.showToast=sivraToast;</script>
-<script>if (typeof Sivra === 'undefined') {
-  window.Sivra = {
-    requireAuth: async function(redirect) {
-      var s = JSON.parse(localStorage.getItem('sivra_session')||'null');
-      var token = s && s.token;
-      if (!token && redirect) { window.location.href = redirect; return null; }
-      return s || null;
-    },
-    request: async function(url, options) {
-      var s = JSON.parse(localStorage.getItem('sivra_session')||'null');
-      var token = s && s.token;
-      var headers = {'Content-Type':'application/json'};
-      if (token) headers['Authorization'] = 'Bearer ' + token;
-      var opts = Object.assign({}, options, {headers: Object.assign(headers, (options&&options.headers)||{})});
-      var r = await fetch(url, opts);
-      var json = await r.json();
-      if (!r.ok) throw new Error(json.error || ('HTTP ' + r.status));
-      return json;
-    },
-    getSession: function() {
-      try { return JSON.parse(localStorage.getItem('sivra_session')||'null'); } catch(e) { return null; }
-    }
-  };
-}</script>
-<script src="app.js" onerror="console.log('no app.js')"></script>
+
+<footer>
+  <span id="footerStore">Store</span> · Powered by Sivra
+</footer>
+
 <script>
-const params = new URLSearchParams(location.search);
-const id = params.get('id');
-if (id) document.getElementById('confirmOrderNum').textContent = '#' + id.slice(0,8).toUpperCase();
+  const params = new URLSearchParams(location.search);
+  const orderId = params.get('id');
+  const orderNum = params.get('num');
+  const storeSlug = localStorage.getItem('sivra_store_slug') || '';
+
+  // Set order number display
+  if (orderNum) {
+    document.getElementById('orderNumDisplay').textContent = 'Order #' + orderNum;
+  }
+
+  // Load store info
+  (async () => {
+    try {
+      const res = await fetch('/api/storefront/' + storeSlug);
+      const store = await res.json();
+      const name = store.name || 'Store';
+      document.getElementById('navLogo').textContent = name;
+      document.getElementById('footerStore').textContent = name;
+      document.title = 'Order confirmed — ' + name;
+    } catch(e) {}
+  })();
+
+  function continueShopping() {
+    location.href = 'sivra-storefront.html?store=' + storeSlug;
+  }
 </script>
 </body>
 </html>

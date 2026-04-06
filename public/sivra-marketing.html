@@ -21,7 +21,7 @@
 
         <div class="page-header">
           <h1 class="page-title">Marketing</h1>
-          <button class="btn btn-primary" onclick="Toast.show('Campaign creation coming soon')">Create campaign</button>
+          <button class="btn btn-primary" onclick="openUTMBuilder()">Create UTM link</button>
         </div>
 
         <div class="page-body">
@@ -181,6 +181,11 @@
     }
   }
 
+  function openUTMBuilder() {
+    document.getElementById('utmSource').focus();
+    document.getElementById('utmSource').scrollIntoView({behavior:'smooth'});
+    Toast.show('Fill in the UTM fields below to build a tracked link');
+  }
   buildStats();
   buildSeoChecklist();
 

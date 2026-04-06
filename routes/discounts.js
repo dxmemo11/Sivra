@@ -94,4 +94,32 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+
+// UPDATE
+router.patch('/:id', async (req, res) => {
+  try {
+    const db = getDB();
+    const { code, title, type, value, min_order_amount, usage_limit, once_per_customer, starts_at, ends_at, status } = req.body;
+    await db.execute({
+      sql: `UPDATE discounts SET
+        code=COALESCE(?,code), title=COALESCE(?,title), type=COALESCE(?,type),
+        value=COALESCE(?,value), min_order_amount=COALESCE(?,min_order_amount),
+        usage_limit=COALESCE(?,usage_limit), once_per_customer=COALESCE(?,once_per_customer),
+        starts_at=COALESCE(?,starts_at), ends_at=COALESCE(?,ends_at),
+        status=COALESCE(?,status), updated_at=CURRENT_TIMESTAMP
+        WHERE id=? AND store_id=?`,
+      args: [code||null, title||null, type||null,
+        value!==undefined?parseFloat(value)||0:null,
+        min_order_amount!==undefined?parseFloat(min_order_amount)||null:null,
+        usage_limit!==undefined?parseInt(usage_limit)||null:null,
+        once_per_customer!==undefined?(once_per_customer?1:0):null,
+        starts_at!==undefined?starts_at||null:null,
+        ends_at!==undefined?ends_at||null:null,
+        status||null, req.params.id, req.storeId]
+    });
+    const updated = await db.execute({ sql: 'SELECT * FROM discounts WHERE id=?', args:[req.params.id] });
+    res.json({ discount: updated.rows[0] });
+  } catch(err) { console.error(err); res.status(500).json({ error: 'Failed to update discount.' }); }
+});
+
 module.exports = router;

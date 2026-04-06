@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sivra — Customer</title>
+  <link rel="stylesheet" href="admin-tokens.css"/>
+  <link rel="stylesheet" href="admin-layout.css"/>
+  <link rel="stylesheet" href="admin-components.css"/>
+  
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div>
+</aside>
+  <div class="main">
+    <div class="topbar" id="sivraTopbar"></div>
+    <div class="page-scroll">
+      <div style="max-width:1280px;margin:0 auto">
+
+        <div class="breadcrumb">
+          <a href="sivra-customers.html" class="breadcrumb-link">← Customers</a>
+          <span class="breadcrumb-sep">/</span>
+          <span class="breadcrumb-current" id="crumb">Customer</span>
+        </div>
+
+        <div class="page-header">
+          <div>
+            <h1 class="page-title" id="custName">Customer</h1>
+            <div class="text-muted text-sm" id="custSince"></div>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-secondary" onclick="sendEmail()">Send email</button>
+            <button class="btn btn-primary" onclick="saveCustomer()">Save</button>
+          </div>
+        </div>
+
+        <div class="page-body">
+          <div style="display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:start">
+
+            <!-- LEFT -->
+            <div style="display:flex;flex-direction:column;gap:16px">
+
+              <!-- Contact -->
+              <div class="card">
+                <div class="card-header"><span class="card-title">Contact information</span></div>
+                <div class="card-body section-stack">
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+                    <div class="form-group"><label class="form-label">First name</label><input class="input" id="cFirst"/></div>
+                    <div class="form-group"><label class="form-label">Last name</label><input class="input" id="cLast"/></div>
+                  </div>
+                  <div class="form-group"><label class="form-label">Email</label><input class="input" id="cEmail" type="email"/></div>
+                  <div class="form-group"><label class="form-label">Phone</label><input class="input" id="cPhone" type="tel"/></div>
+                </div>
+              </div>
+
+              <!-- Address -->
+              <div class="card">
+                <div class="card-header"><span class="card-title">Default address</span></div>
+                <div class="card-body section-stack">
+                  <div class="form-group"><label class="form-label">Address</label><input class="input" id="cAddress"/></div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+                    <div class="form-group"><label class="form-label">City</label><input class="input" id="cCity"/></div>
+                    <div class="form-group"><label class="form-label">ZIP / Postcode</label><input class="input" id="cZip"/></div>
+                    <div class="form-group"><label class="form-label">Country</label><input class="input" id="cCountry"/></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Order history -->
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">Order history</span>
+                  <span class="text-muted text-sm" id="orderCount"></span>
+                </div>
+                <div id="orderHistory">
+                  <div style="text-align:center;padding:40px;color:#8c9196;font-size:13px">Loading...</div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- RIGHT -->
+            <div style="display:flex;flex-direction:column;gap:16px;position:sticky;top:16px">
+
+              <!-- Stats -->
+              <div class="card">
+                <div class="card-header"><span class="card-title">Overview</span></div>
+                <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                    <div class="stat-card" style="cursor:default;box-shadow:none;border:1px solid #e3e3e3;padding:10px">
+                      <div class="stat-label" style="font-size:11px">Orders</div>
+                      <div class="stat-value" style="font-size:20px" id="statOrders">—</div>
+                    </div>
+                    <div class="stat-card" style="cursor:default;box-shadow:none;border:1px solid #e3e3e3;padding:10px">
+                      <div class="stat-label" style="font-size:11px">Total spent</div>
+                      <div class="stat-value" style="font-size:20px" id="statSpent">—</div>
+                    </div>
+                  </div>
+                  <div style="font-size:13px;display:flex;justify-content:space-between">
+                    <span class="text-muted">Avg. order value</span>
+                    <span class="font-medium" id="statAov">—</span>
+                  </div>
+                  <div style="font-size:13px;display:flex;justify-content:space-between">
+                    <span class="text-muted">Last order</span>
+                    <span class="font-medium" id="statLastOrder">—</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Marketing -->
+              <div class="card">
+                <div class="card-header"><span class="card-title">Marketing</span></div>
+                <div class="card-body">
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="cMarketing"/> Accepts marketing emails
+                  </label>
+                </div>
+              </div>
+
+              <!-- Tags -->
+              <div class="card">
+                <div class="card-header"><span class="card-title">Tags</span></div>
+                <div class="card-body">
+                  <div class="tag-list" id="custTagList">
+                    <input type="text" class="tag-input" id="custTagInput" placeholder="Add tag..."
+                      onkeydown="if(event.key==='Enter'||event.key===','){event.preventDefault();addTag(this.value)}"/>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Notes -->
+              <div class="card">
+                <div class="card-header"><span class="card-title">Notes</span></div>
+                <div class="card-body">
+                  <textarea class="textarea" id="cNotes" placeholder="Add notes about this customer..." style="min-height:80px"></textarea>
+                </div>
+              </div>
+
+              <!-- Danger zone -->
+              <div class="card">
+                <div class="card-body">
+                  <button class="btn btn-secondary w-full" style="color:#c0392b;justify-content:center" onclick="deleteCustomer()">Delete customer</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="sivra-toast"></div>
+<script src="admin.js"></script>
+<script>
+(async function() {
+  const session = await initAdmin('customers');
+  if (!session) return;
+  
+  const _id = new URLSearchParams(location.search).get('id');
+  let _customer = null, _tags = [];
+
+  // Tags
+  function addTag(v) {
+    v.split(',').map(t=>t.trim()).filter(t=>t&&!_tags.includes(t)).forEach(t=>_tags.push(t));
+    renderTags(); document.getElementById('custTagInput').value='';
+  }
+  function removeTag(t) { _tags.splice(_tags.indexOf(t),1); renderTags(); }
+  function renderTags() {
+    const list = document.getElementById('custTagList');
+    const input = document.getElementById('custTagInput');
+    list.innerHTML='';
+    _tags.forEach(t => {
+      const span = document.createElement('span');
+      span.className='tag-item';
+      span.innerHTML=`${t}<button class="tag-remove" onclick="removeTag('${t.replace(/'/g,"\'")}')">×</button>`;
+      list.appendChild(span);
+    });
+    list.appendChild(input);
+  }
+
+  async function load() {
+    if (!_id) { location.href='sivra-customers.html'; return; }
+    try {
+      const [custRes, ordersRes] = await Promise.all([
+        API.get('/api/customers/'+_id),
+        API.get('/api/orders'),
+      ]);
+      _customer = custRes.customer || custRes;
+      const c = _customer;
+      const custOrders = (ordersRes.orders||[]).filter(o=>o.customer_id===_id);
+
+      const name = [c.first_name,c.last_name].filter(Boolean).join(' ') || c.email || 'Customer';
+      document.getElementById('crumb').textContent = name;
+      document.getElementById('custName').textContent = name;
+      document.getElementById('custSince').textContent = 'Customer since ' + Fmt.date(c.created_at);
+
+      document.getElementById('cFirst').value = c.first_name||'';
+      document.getElementById('cLast').value = c.last_name||'';
+      document.getElementById('cEmail').value = c.email||'';
+      document.getElementById('cPhone').value = c.phone||'';
+      document.getElementById('cAddress').value = c.address||'';
+      document.getElementById('cCity').value = c.city||'';
+      document.getElementById('cZip').value = c.zip||'';
+      document.getElementById('cCountry').value = c.country||'';
+      document.getElementById('cMarketing').checked = !!c.accepts_marketing;
+      document.getElementById('cNotes').value = c.notes||'';
+
+      if (c.tags) { c.tags.split(',').map(t=>t.trim()).filter(Boolean).forEach(t=>_tags.push(t)); renderTags(); }
+
+      // Stats
+      const totalSpent = custOrders.reduce((s,o)=>s+parseFloat(o.total||0),0);
+      const aov = custOrders.length ? totalSpent/custOrders.length : 0;
+      const lastOrder = custOrders[0];
+      document.getElementById('statOrders').textContent = custOrders.length;
+      document.getElementById('statSpent').textContent = Fmt.money(totalSpent);
+      document.getElementById('statAov').textContent = Fmt.money(aov);
+      document.getElementById('statLastOrder').textContent = lastOrder ? Fmt.date(lastOrder.created_at) : 'Never';
+      document.getElementById('orderCount').textContent = custOrders.length + ' orders';
+
+      // Order history
+      const orderEl = document.getElementById('orderHistory');
+      if (!custOrders.length) {
+        orderEl.innerHTML = '<div class="empty-state" style="padding:40px"><div class="empty-icon">🛒</div><div class="empty-title">No orders yet</div></div>';
+      } else {
+        orderEl.innerHTML = custOrders.map(o => {
+          const payBadge = o.payment_status==='paid'?'badge-success':o.payment_status==='refunded'?'badge-default':'badge-warning';
+          return `<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #f6f6f7;cursor:pointer" onclick="location.href='sivra-order-detail.html?id=${o.id}'">
+            <span class="text-emphasis font-medium" style="font-size:13px;width:56px">#${o.order_number}</span>
+            <span class="text-muted text-sm flex-1">${Fmt.date(o.created_at)}</span>
+            <span class="badge ${payBadge}" style="text-transform:capitalize">${o.payment_status||'pending'}</span>
+            <span class="font-medium" style="font-size:13px">${Fmt.money(o.total)}</span>
+          </div>`;
+        }).join('');
+      }
+    } catch(e) { Toast.error('Failed to load customer'); }
+  }
+
+  async function saveCustomer() {
+    try {
+      await API.patch('/api/customers/'+_id, {
+        first_name: document.getElementById('cFirst').value,
+        last_name: document.getElementById('cLast').value,
+        email: document.getElementById('cEmail').value,
+        phone: document.getElementById('cPhone').value,
+        address: document.getElementById('cAddress').value,
+        city: document.getElementById('cCity').value,
+        zip: document.getElementById('cZip').value,
+        country: document.getElementById('cCountry').value,
+        accepts_marketing: document.getElementById('cMarketing').checked,
+        notes: document.getElementById('cNotes').value,
+        tags: _tags.join(','),
+      });
+      Toast.success('Customer saved');
+    } catch(e) { Toast.error(e.message||'Failed to save'); }
+  }
+
+  function deleteCustomer() {
+    Modal.confirm('Delete customer', 'Delete this customer? Their order history will be preserved.', async () => {
+      try {
+        await API.del('/api/customers/'+_id);
+        Toast.success('Customer deleted');
+        setTimeout(()=>location.href='sivra-customers.html', 800);
+      } catch(e) { Toast.error(e.message); }
+    }, { danger:true });
+  }
+
+  function sendEmail() {
+    const email = document.getElementById('cEmail').value;
+    if (!email) { Toast.error('No email address'); return; }
+    window.open('mailto:'+email);
+  }
+
+  load();
+
+})();
+</script>
+</body>
+</html>

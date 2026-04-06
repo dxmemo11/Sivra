@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sivra — Collection</title>
+  <link rel="stylesheet" href="admin-tokens.css"/>
+  <link rel="stylesheet" href="admin-layout.css"/>
+  <link rel="stylesheet" href="admin-components.css"/>
+  
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div>
+</aside>
+  <div class="main">
+    <div class="topbar" id="sivraTopbar"></div>
+    <div class="page-scroll">
+      <div style="max-width:1280px;margin:0 auto">
+
+        <div class="breadcrumb">
+          <a href="sivra-collections.html" class="breadcrumb-link">← Collections</a>
+          <span class="breadcrumb-sep">/</span>
+          <span class="breadcrumb-current" id="crumb">Collection</span>
+        </div>
+
+        <div class="page-header">
+          <h1 class="page-title" id="pageTitle">Collection</h1>
+          <div class="btn-group">
+            <a id="storefrontBtn" href="#" target="_blank" class="btn btn-secondary">View on store ↗</a>
+            <button class="btn btn-secondary" onclick="deleteCollection()" style="color:#c0392b">Delete</button>
+            <button class="btn btn-primary" onclick="save()">Save</button>
+          </div>
+        </div>
+
+        <div class="page-body">
+          <div style="display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:start">
+
+            <!-- LEFT -->
+            <div style="display:flex;flex-direction:column;gap:16px">
+
+              <!-- Basic info -->
+              <div class="card">
+                <div class="card-body section-stack">
+                  <div class="form-group">
+                    <label class="form-label">Title</label>
+                    <input class="input" id="cTitle" placeholder="e.g. World Cup Jerseys"/>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Description <span class="text-muted">(optional)</span></label>
+                    <textarea class="textarea" id="cDesc" style="min-height:100px" placeholder="Describe this collection for customers..."></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Image -->
+              <div class="card">
+                <div class="card-header"><span class="card-title">Image</span></div>
+                <div class="card-body">
+                  <div id="imagePreview" style="margin-bottom:12px"></div>
+                  <div class="upload-zone" id="uploadZone" onclick="document.getElementById('imgInput').click()"
+                    ondragover="event.preventDefault();this.classList.add('drag')"
+                    ondragleave="this.classList.remove('drag')"
+                    ondrop="event.preventDefault();this.classList.remove('drag');handleImg(event.dataTransfer.files[0])"
+                    style="padding:20px">
+                    <div class="upload-title">Add collection image</div>
+                    <div class="upload-hint">Recommended: 1200×600px, JPG or PNG</div>
+                    <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="handleImg(this.files[0])"/>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SEO -->
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">Search engine listing</span>
+                  <button class="btn btn-plain btn-sm" onclick="toggleSeo(this)">Edit</button>
+                </div>
+                <div class="card-body" id="seoPreview">
+                  <div class="seo-preview">
+                    <div class="seo-url" id="seoUrl">—</div>
+                    <div class="seo-title" id="seoTitle">—</div>
+                    <div class="seo-desc" id="seoDesc">—</div>
+                  </div>
+                </div>
+                <div class="card-body" id="seoEdit" style="display:none;flex-direction:column;gap:12px">
+                  <div class="form-group">
+                    <label class="form-label">SEO title</label>
+                    <input class="input" id="cSeoTitle" oninput="updateSeo()"/>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">SEO description</label>
+                    <textarea class="textarea" id="cSeoDesc" style="min-height:60px" oninput="updateSeo()"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Products in collection -->
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">Products</span>
+                  <span class="text-muted text-sm" id="productCountLabel"></span>
+                </div>
+                <div style="padding:12px 16px;border-bottom:1px solid var(--p-color-border)">
+                  <div class="filter-search" style="max-width:100%">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4" stroke="#8c9196" stroke-width="1.3"/><path d="M9 9l3 3" stroke="#8c9196" stroke-width="1.3" stroke-linecap="round"/></svg>
+                    <input type="text" id="productSearch" placeholder="Search to add products..." oninput="searchProducts(this.value)"/>
+                  </div>
+                  <div id="searchResults" style="margin-top:6px;border:1px solid #e3e3e3;border-radius:8px;overflow:hidden;display:none;max-height:220px;overflow-y:auto"></div>
+                </div>
+                <div id="collectionProducts">
+                  <div style="text-align:center;padding:40px;color:#8c9196;font-size:13px">Loading products...</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT -->
+            <div style="display:flex;flex-direction:column;gap:16px;position:sticky;top:16px">
+              <div class="card">
+                <div class="card-header"><span class="card-title">Status</span></div>
+                <div class="card-body">
+                  <select class="select" id="cStatus">
+                    <option value="active">Active</option>
+                    <option value="draft">Draft</option>
+                  </select>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header"><span class="card-title">Sort products</span></div>
+                <div class="card-body">
+                  <select class="select" id="cSort">
+                    <option value="manual">Manually</option>
+                    <option value="newest">Newest first</option>
+                    <option value="oldest">Oldest first</option>
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
+                    <option value="title-asc">Title A–Z</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="sivra-toast"></div>
+<script src="admin.js"></script>
+<script>
+(async function() {
+  const session = await initAdmin('products');
+  if (!session) return;
+  
+  const _id = new URLSearchParams(location.search).get('id');
+  let _collection = null, _products = [], _allProducts = [], _imageData = null;
+
+  // Image
+  function handleImg(file) {
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 1200;
+        const scale = img.width > MAX ? MAX/img.width : 1;
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width*scale);
+        canvas.height = Math.round(img.height*scale);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        _imageData = canvas.toDataURL('image/jpeg', 0.85);
+        renderImagePreview();
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function renderImagePreview() {
+    const el = document.getElementById('imagePreview');
+    const zone = document.getElementById('uploadZone');
+    if (!_imageData) { el.innerHTML=''; zone.style.display=''; return; }
+    el.innerHTML = `<div style="position:relative;aspect-ratio:2/1;border-radius:8px;overflow:hidden;border:1px solid #e3e3e3;max-height:200px">
+      <img src="${_imageData}" style="width:100%;height:100%;object-fit:cover"/>
+      <button onclick="_imageData=null;renderImagePreview()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border:none;color:white;cursor:pointer;padding:4px 8px;border-radius:4px;font-size:12px">Remove</button>
+    </div>`;
+    zone.style.display = 'none';
+  }
+
+  // SEO
+  function toggleSeo(btn) {
+    const edit = document.getElementById('seoEdit');
+    const preview = document.getElementById('seoPreview');
+    const showing = edit.style.display !== 'none';
+    edit.style.display = showing ? 'none' : 'flex';
+    preview.style.display = showing ? '' : 'none';
+    btn.textContent = showing ? 'Edit' : 'Done';
+    if (!showing) updateSeo();
+  }
+
+  function updateSeo() {
+    const title = document.getElementById('cSeoTitle').value || document.getElementById('cTitle').value || '—';
+    const desc = document.getElementById('cSeoDesc').value || '—';
+    const slug = Auth.getSlug();
+    const collSlug = Fmt.slug(document.getElementById('cTitle').value || 'collection');
+    document.getElementById('seoUrl').textContent = window.location.origin + '/sivra-collection.html?store=' + slug + '&slug=' + collSlug;
+    document.getElementById('seoTitle').textContent = title;
+    document.getElementById('seoDesc').textContent = desc;
+  }
+
+  // Product search
+  async function searchProducts(q) {
+    const el = document.getElementById('searchResults');
+    if (!q.trim()) { el.style.display='none'; return; }
+    const matches = _allProducts.filter(p =>
+      (p.title||'').toLowerCase().includes(q.toLowerCase()) &&
+      !_products.find(x => x.id === p.id)
+    ).slice(0, 8);
+    if (!matches.length) { el.style.display='none'; return; }
+    el.style.display='';
+    el.innerHTML = matches.map(p => {
+      const imgs = Array.isArray(p.images)?p.images:(typeof p.images==='string'?JSON.parse(p.images||'[]'):[]);
+      return `<div onclick="addProduct('${p.id}')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;border-bottom:1px solid #f0f0f0;transition:background 0.1s" onmouseover="this.style.background='#f9f9f9'" onmouseout="this.style.background=''">
+        ${imgs[0]?`<img src="${imgs[0]}" style="width:36px;height:36px;border-radius:4px;object-fit:cover;border:1px solid #e3e3e3;flex-shrink:0"/>`:`<div style="width:36px;height:36px;border-radius:4px;background:#f0f0f0;border:1px solid #e3e3e3;flex-shrink:0"></div>`}
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.title}</div>
+          <div style="font-size:12px;color:#6d7175">${Fmt.money(p.price)} · ${p.quantity||0} in stock</div>
+        </div>
+        <span style="font-size:12px;color:var(--p-color-text-emphasis);flex-shrink:0">Add +</span>
+      </div>`;
+    }).join('');
+  }
+
+  async function addProduct(productId) {
+    try {
+      await API.post('/api/collections/'+_id+'/products', { productId });
+      const p = _allProducts.find(x=>x.id===productId);
+      if (p) _products.push(p);
+      document.getElementById('productSearch').value = '';
+      document.getElementById('searchResults').style.display='none';
+      renderProducts();
+      Toast.success('Product added to collection');
+    } catch(e) { Toast.error(e.message); }
+  }
+
+  async function removeProduct(productId) {
+    try {
+      await API.del('/api/collections/'+_id+'/products/'+productId);
+      _products = _products.filter(p=>p.id!==productId);
+      renderProducts();
+      Toast.success('Product removed');
+    } catch(e) { Toast.error(e.message); }
+  }
+
+  function renderProducts() {
+    const el = document.getElementById('collectionProducts');
+    document.getElementById('productCountLabel').textContent = _products.length + ' product' + (_products.length!==1?'s':'');
+    if (!_products.length) {
+      el.innerHTML = '<div class="empty-state" style="padding:40px"><div class="empty-icon">📦</div><div class="empty-title">No products yet</div><div class="empty-desc">Search above to add products to this collection</div></div>';
+      return;
+    }
+    el.innerHTML = _products.map(p => {
+      const imgs = Array.isArray(p.images)?p.images:(typeof p.images==='string'?JSON.parse(p.images||'[]'):[]);
+      return `<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid #f6f6f7">
+        ${imgs[0]?`<img src="${imgs[0]}" style="width:40px;height:40px;border-radius:6px;object-fit:cover;border:1px solid #e3e3e3;flex-shrink:0"/>`:`<div style="width:40px;height:40px;border-radius:6px;background:#f6f6f7;border:1px solid #e3e3e3;flex-shrink:0"></div>`}
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.title}</div>
+          <div style="font-size:12px;color:#6d7175">${Fmt.money(p.price)}</div>
+        </div>
+        <span class="badge ${p.status==='active'?'badge-success':'badge-default'}" style="text-transform:capitalize">${p.status||'active'}</span>
+        <button onclick="removeProduct('${p.id}')" class="btn btn-secondary btn-sm" style="color:#c0392b;flex-shrink:0">Remove</button>
+      </div>`;
+    }).join('');
+  }
+
+  async function save() {
+    const name = document.getElementById('cTitle').value.trim();
+    if (!name) { Toast.error('Title is required'); return; }
+    try {
+      await API.patch('/api/collections/'+_id, {
+        name,
+        description: document.getElementById('cDesc').value,
+        status: document.getElementById('cStatus').value,
+        sort_order: document.getElementById('cSort').value,
+        seo_title: document.getElementById('cSeoTitle').value || null,
+        seo_description: document.getElementById('cSeoDesc').value || null,
+        image: _imageData || undefined,
+        slug: Fmt.slug(name),
+      });
+      Toast.success('Collection saved');
+    } catch(e) { Toast.error(e.message); }
+  }
+
+  function deleteCollection() {
+    Modal.confirm('Delete collection', 'Delete this collection? Products will not be deleted.', async () => {
+      try {
+        await API.del('/api/collections/'+_id);
+        Toast.success('Collection deleted');
+        setTimeout(()=>location.href='sivra-collections.html', 800);
+      } catch(e) { Toast.error(e.message); }
+    }, { danger: true });
+  }
+
+  async function load() {
+    if (!_id) { location.href='sivra-collections.html'; return; }
+    try {
+      const [collData, prodsData, allProdsData] = await Promise.all([
+        API.get('/api/collections/'+_id),
+        API.get('/api/collections/'+_id),
+        API.get('/api/products?limit=200'),
+      ]);
+      _collection = collData;
+      _allProducts = allProdsData.products || [];
+      _products = collData.products || [];
+
+      document.getElementById('crumb').textContent = collData.name||'Collection';
+      document.getElementById('pageTitle').textContent = collData.name||'Collection';
+      document.getElementById('cTitle').value = collData.name||'';
+      document.getElementById('cDesc').value = collData.description||'';
+      document.getElementById('cStatus').value = collData.status||'active';
+      document.getElementById('cSort').value = collData.sort_order||'manual';
+      document.getElementById('cSeoTitle').value = collData.seo_title||'';
+      document.getElementById('cSeoDesc').value = collData.seo_description||'';
+
+      if (collData.image) {
+        _imageData = collData.image;
+        renderImagePreview();
+      }
+
+      const slug = Auth.getSlug();
+      document.getElementById('storefrontBtn').href = '/sivra-collection.html?store='+slug+'&id='+_id;
+
+      updateSeo();
+      renderProducts();
+    } catch(e) { Toast.error('Failed to load collection'); }
+  }
+
+  load();
+
+})();
+</script>
+</body>
+</html>
