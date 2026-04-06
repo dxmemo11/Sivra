@@ -11,76 +11,80 @@
 </head>
 <body>
 <div class="app">
-
 <aside class="sidebar">
   <div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div>
 </aside>
-
   <div class="main">
     <div class="topbar" id="sivraTopbar"></div>
     <div class="page-scroll">
       <div style="max-width:1280px;margin:0 auto">
 
-        <!-- Breadcrumb -->
         <div class="breadcrumb">
-          <a href="sivra-orders.html" class="breadcrumb-link">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-            Orders
-          </a>
+          <a href="sivra-orders.html" class="breadcrumb-link">← Orders</a>
           <span class="breadcrumb-sep">/</span>
-          <span class="breadcrumb-current" id="crumbTitle">Order</span>
+          <span class="breadcrumb-current" id="crumb">Order</span>
         </div>
 
-        <div class="page-header" style="align-items:flex-start">
+        <div class="page-header">
           <div>
-            <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
               <h1 class="page-title" id="orderNum">Order</h1>
               <span id="payBadge"></span>
               <span id="fulfBadge"></span>
+              <span id="sourceBadge"></span>
             </div>
             <div class="text-muted text-sm" id="orderDate" style="margin-top:4px"></div>
           </div>
           <div class="btn-group">
-            <button class="btn btn-secondary" onclick="printOrder()">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 5V2h8v3M3 9H1V5h12v4h-2M3 9h8v3H3V9z" stroke="currentColor" stroke-width="1.3"/></svg>
-              Print
-            </button>
-            <button class="btn btn-secondary" id="fulfillBtn" onclick="markFulfilled()">Mark as fulfilled</button>
-            <button class="btn btn-primary" id="payBtn" onclick="markPaid()">Mark as paid</button>
+            <button class="btn btn-secondary" onclick="window.print()">Print</button>
+            <div style="position:relative">
+              <button class="btn btn-secondary" onclick="toggleActionMenu()" id="actionsBtn">More actions ▾</button>
+              <div id="actionMenu" style="display:none;position:absolute;top:36px;right:0;background:white;border:1px solid #e3e3e3;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);min-width:180px;z-index:100;overflow:hidden">
+                <div onclick="openRefundModal();toggleActionMenu()" style="padding:10px 14px;font-size:13px;cursor:pointer" onmouseover="this.style.background='#f6f6f7'" onmouseout="this.style.background=''">Record refund</div>
+                <div onclick="duplicateOrder();toggleActionMenu()" style="padding:10px 14px;font-size:13px;cursor:pointer" onmouseover="this.style.background='#f6f6f7'" onmouseout="this.style.background=''">Duplicate as draft</div>
+                <div style="height:1px;background:#e3e3e3"></div>
+                <div onclick="cancelOrder();toggleActionMenu()" style="padding:10px 14px;font-size:13px;cursor:pointer;color:#c0392b" onmouseover="this.style.background='#fde8e8'" onmouseout="this.style.background=''">Cancel order</div>
+              </div>
+            </div>
           </div>
         </div>
 
         <div class="page-body">
-          <div class="layout-2col">
+          <div style="display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:start">
 
-            <!-- Left column -->
-            <div class="section-stack">
+            <!-- LEFT -->
+            <div style="display:flex;flex-direction:column;gap:16px">
 
-              <!-- Items card -->
-              <div class="card">
-                <div class="card-header">
+              <!-- Fulfillment card -->
+              <div class="card" id="fulfillCard">
+                <div class="card-header" id="fulfillHeader">
                   <div style="display:flex;align-items:center;gap:8px">
                     <span id="fulfillIcon">⏳</span>
-                    <span class="card-title" id="fulfillLabel">Unfulfilled</span>
+                    <div>
+                      <div class="card-title" id="fulfillLabel">Unfulfilled</div>
+                      <div class="text-muted text-sm" id="fulfillSub"></div>
+                    </div>
                   </div>
+                  <button class="btn btn-primary btn-sm" id="fulfillBtn" onclick="openFulfillModal()">Fulfill items</button>
                 </div>
-                <div id="itemsList" style="padding:12px 16px">
-                  <div class="skeleton skeleton-text w-100" style="margin-bottom:8px"></div>
-                  <div class="skeleton skeleton-text w-75"></div>
-                </div>
-                <div class="card-footer" id="fulfillFooter">
-                  <button class="btn btn-secondary" onclick="markFulfilled()">Fulfill items</button>
-                </div>
+                <div id="itemsList" style="padding:4px 16px"></div>
               </div>
 
-              <!-- Payment card -->
+              <!-- Payment -->
               <div class="card">
-                <div class="card-header"><span class="card-title">Payment</span></div>
+                <div class="card-header">
+                  <span class="card-title">Payment</span>
+                  <span id="payStatus"></span>
+                </div>
                 <div style="padding:14px 16px">
                   <div style="display:flex;flex-direction:column;gap:8px">
                     <div style="display:flex;justify-content:space-between;font-size:13px">
-                      <span class="text-muted">Subtotal</span>
+                      <span class="text-muted">Subtotal (<span id="pItemCount">—</span> items)</span>
                       <span id="pSubtotal">—</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:13px" id="pDiscountRow" style="display:none">
+                      <span class="text-muted">Discount <span id="pDiscountCode" style="font-family:monospace"></span></span>
+                      <span style="color:var(--p-color-text-success)" id="pDiscount">—</span>
                     </div>
                     <div style="display:flex;justify-content:space-between;font-size:13px">
                       <span class="text-muted">Shipping</span>
@@ -91,12 +95,21 @@
                       <span id="pTax">—</span>
                     </div>
                     <div class="divider"></div>
-                    <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:600">
+                    <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700">
                       <span>Total</span>
                       <span id="pTotal">—</span>
                     </div>
                   </div>
                 </div>
+                <div class="card-footer" id="payFooter" style="display:none">
+                  <button class="btn btn-primary" onclick="markPaid()">Mark as paid</button>
+                </div>
+              </div>
+
+              <!-- Refunds -->
+              <div class="card" id="refundsCard" style="display:none">
+                <div class="card-header"><span class="card-title">Refunds</span></div>
+                <div id="refundsList" style="padding:4px 16px"></div>
               </div>
 
               <!-- Timeline -->
@@ -104,18 +117,24 @@
                 <div class="card-header"><span class="card-title">Timeline</span></div>
                 <div style="padding:16px">
                   <div class="timeline" id="timeline">
-                    <div class="skeleton skeleton-text w-75" style="margin-bottom:8px"></div>
+                    <div class="skeleton skeleton-text w-75"></div>
                   </div>
-                  <div style="margin-top:16px">
-                    <textarea class="textarea" id="noteInput" placeholder="Leave a note..." style="min-height:60px;margin-bottom:8px"></textarea>
-                    <button class="btn btn-secondary btn-sm" onclick="addNote()">Post note</button>
+                  <div style="margin-top:20px">
+                    <div style="display:flex;gap:8px;align-items:flex-start">
+                      <div style="width:28px;height:28px;border-radius:50%;background:#f6f6f7;border:1px solid #e3e3e3;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px">💬</div>
+                      <div style="flex:1">
+                        <textarea class="textarea" id="noteInput" placeholder="Leave a comment on this order..." style="min-height:60px;margin-bottom:8px"></textarea>
+                        <button class="btn btn-secondary btn-sm" onclick="addNote()">Post comment</button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
+
             </div>
 
-            <!-- Right column -->
-            <div class="section-stack">
+            <!-- RIGHT -->
+            <div style="display:flex;flex-direction:column;gap:16px">
 
               <!-- Customer -->
               <div class="card">
@@ -123,11 +142,15 @@
                 <div class="card-section">
                   <div class="font-semibold" style="font-size:13px;margin-bottom:2px" id="custName">—</div>
                   <div class="text-muted text-sm" id="custEmail">—</div>
-                  <div class="text-muted text-sm" id="custOrderCount"></div>
+                  <div class="text-muted text-sm" id="custOrders"></div>
+                </div>
+                <div class="card-section">
+                  <div class="form-label" style="margin-bottom:6px">CONTACT INFO</div>
+                  <div class="text-sm" id="custPhone">—</div>
                 </div>
                 <div class="card-section">
                   <div class="form-label" style="margin-bottom:6px">SHIPPING ADDRESS</div>
-                  <div class="text-sm" id="shippingAddr" style="line-height:1.8;color:#303030">—</div>
+                  <div class="text-sm" style="line-height:1.8;color:#303030" id="shipAddr">—</div>
                 </div>
               </div>
 
@@ -139,13 +162,129 @@
                 </div>
               </div>
 
-              <!-- Actions -->
+              <!-- Tags -->
               <div class="card">
-                <div class="card-header"><span class="card-title">Actions</span></div>
-                <div class="card-section" style="display:flex;flex-direction:column;gap:6px">
-                  <button class="btn btn-secondary w-full" onclick="cancelOrder()" style="justify-content:flex-start;color:#c0392b">Cancel order</button>
+                <div class="card-header"><span class="card-title">Tags</span></div>
+                <div class="card-section">
+                  <div class="tag-list" id="orderTagList">
+                    <input type="text" class="tag-input" id="orderTagInput" placeholder="Add tag..."
+                      onkeydown="if(event.key==='Enter'||event.key===','){event.preventDefault();addOrderTag(this.value)}"/>
+                  </div>
+                  <button class="btn btn-secondary btn-sm" style="margin-top:6px" onclick="saveTags()">Save tags</button>
                 </div>
               </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Fulfill modal -->
+        <div class="modal-overlay" id="fulfillModal">
+          <div class="modal" style="max-width:500px">
+            <div class="modal-header"><span class="modal-title">Fulfill items</span>
+              <button class="modal-close" onclick="document.getElementById('fulfillModal').classList.remove('open')">×</button>
+            </div>
+            <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
+              <div id="fulfillItemsList"></div>
+              <div class="divider"></div>
+              <div class="form-group">
+                <label class="form-label">Tracking number <span class="text-muted">(optional)</span></label>
+                <input class="input" id="trackingNum" placeholder="e.g. 1Z999AA1012345678"/>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="form-group">
+                  <label class="form-label">Carrier</label>
+                  <select class="select" id="trackingCarrier">
+                    <option value="">— Select —</option>
+                    <option>Australia Post</option>
+                    <option>DHL</option>
+                    <option>FedEx</option>
+                    <option>UPS</option>
+                    <option>USPS</option>
+                    <option>TNT</option>
+                    <option>Sendle</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Tracking URL <span class="text-muted">(optional)</span></label>
+                  <input class="input" id="trackingUrl" placeholder="https://..."/>
+                </div>
+              </div>
+              <label class="checkbox-label"><input type="checkbox" id="notifyCustomer" checked/> Send shipping notification to customer</label>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" onclick="document.getElementById('fulfillModal').classList.remove('open')">Cancel</button>
+              <button class="btn btn-primary" onclick="submitFulfillment()">Fulfill items</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Refund modal -->
+        <div class="modal-overlay" id="refundModal">
+          <div class="modal" style="max-width:480px">
+            <div class="modal-header"><span class="modal-title">Record refund</span>
+              <button class="modal-close" onclick="document.getElementById('refundModal').classList.remove('open')">×</button>
+            </div>
+            <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
+              <div class="form-group">
+                <label class="form-label">Refund amount</label>
+                <div class="input-prefix">
+                  <span class="input-prefix-text">$</span>
+                  <input type="number" id="refundAmount" min="0" step="0.01"
+                    style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"/>
+                </div>
+                <div class="form-hint" id="refundMax"></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Reason</label>
+                <select class="select" id="refundReason">
+                  <option value="customer_request">Customer request</option>
+                  <option value="wrong_item">Wrong item shipped</option>
+                  <option value="damaged">Item damaged</option>
+                  <option value="not_received">Not received</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Internal note <span class="text-muted">(optional)</span></label>
+                <textarea class="textarea" id="refundNote" style="min-height:60px" placeholder="Internal notes about this refund..."></textarea>
+              </div>
+              <label class="checkbox-label"><input type="checkbox" id="refundRestock"/> Restock returned items</label>
+              <div class="alert alert-info">
+                <span class="alert-icon">ℹ️</span>
+                <div class="alert-body">This records a manual refund. Actual payment refund must be processed through your payment provider.</div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" onclick="document.getElementById('refundModal').classList.remove('open')">Cancel</button>
+              <button class="btn btn-primary" onclick="submitRefund()">Record refund</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cancel modal -->
+        <div class="modal-overlay" id="cancelModal">
+          <div class="modal" style="max-width:420px">
+            <div class="modal-header"><span class="modal-title">Cancel order</span>
+              <button class="modal-close" onclick="document.getElementById('cancelModal').classList.remove('open')">×</button>
+            </div>
+            <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
+              <div class="form-group">
+                <label class="form-label">Reason for cancellation</label>
+                <select class="select" id="cancelReason">
+                  <option value="customer_request">Customer request</option>
+                  <option value="fraud">Fraudulent order</option>
+                  <option value="inventory">Out of stock</option>
+                  <option value="declined">Payment declined</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <label class="checkbox-label"><input type="checkbox" id="cancelRestock" checked/> Restock inventory</label>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" onclick="document.getElementById('cancelModal').classList.remove('open')">Keep order</button>
+              <button class="btn btn-critical" onclick="submitCancel()">Cancel order</button>
             </div>
           </div>
         </div>
@@ -154,143 +293,271 @@
     </div>
   </div>
 </div>
-
 <div class="toast" id="sivra-toast"></div>
-
 <script src="admin.js"></script>
 <script>
-// Page init
 (async function() {
   const session = await initAdmin('orders');
   if (!session) return;
-  const storeSlug = Auth.getSlug();
   
-  const id = new URLSearchParams(location.search).get('id');
-  let _order = null;
+  const _id = new URLSearchParams(location.search).get('id');
+  let _order = null, _orderTags = [];
 
-  function fmt(v) { return Fmt.money(v); }
-
+  // ── LOAD ─────────────────────────────────────────
   async function load() {
-    if (!id) { location.href = 'sivra-orders.html'; return; }
+    if (!_id) { location.href='sivra-orders.html'; return; }
     try {
-      _order = await API.get('/api/orders/' + id);
-      _order = _order.order || _order;
+      _order = await API.get('/api/orders/' + _id);
       render();
     } catch(e) { Toast.error('Failed to load order'); }
   }
 
+  function fmt(v) { return Fmt.money(v||0); }
+
   function render() {
     const o = _order;
     const num = '#' + (o.order_number || o.id?.slice(0,8).toUpperCase());
-    document.getElementById('crumbTitle').textContent = num;
+    document.getElementById('crumb').textContent = num;
     document.getElementById('orderNum').textContent = num;
     document.getElementById('orderDate').textContent = Fmt.datetime(o.created_at);
 
-    const payMap = {paid:'badge-success',unpaid:'badge-warning',pending:'badge-warning',refunded:'badge-default'};
-    document.getElementById('payBadge').innerHTML = `<span class="badge ${payMap[o.payment_status]||'badge-default'}" style="text-transform:capitalize">${o.payment_status||'pending'}</span>`;
-    document.getElementById('fulfBadge').innerHTML = `<span class="badge ${o.fulfillment_status==='fulfilled'?'badge-success':'badge-warning'}" style="text-transform:capitalize">${o.fulfillment_status||'unfulfilled'}</span>`;
+    const payColors = {paid:'badge-success',unpaid:'badge-warning',pending:'badge-warning',refunded:'badge-default',voided:'badge-default'};
+    document.getElementById('payBadge').innerHTML = `<span class="badge ${payColors[o.payment_status]||'badge-warning'}" style="text-transform:capitalize">${o.payment_status||'pending'}</span>`;
+    document.getElementById('fulfBadge').innerHTML = `<span class="badge ${o.fulfillment_status==='fulfilled'?'badge-success':o.fulfillment_status==='partial'?'badge-info':'badge-warning'}" style="text-transform:capitalize">${o.fulfillment_status||'unfulfilled'}</span>`;
+    if (o.source && o.source !== 'online_store') {
+      document.getElementById('sourceBadge').innerHTML = `<span class="badge badge-default" style="text-transform:capitalize">${o.source.replace(/_/g,' ')}</span>`;
+    }
 
-    document.getElementById('fulfillIcon').textContent = o.fulfillment_status==='fulfilled' ? '✅' : '⏳';
-    document.getElementById('fulfillLabel').textContent = o.fulfillment_status==='fulfilled' ? 'Fulfilled' : 'Unfulfilled';
-    document.getElementById('fulfillBtn').style.display = o.fulfillment_status==='fulfilled' ? 'none' : '';
-    document.getElementById('payBtn').style.display = o.payment_status==='paid' ? 'none' : '';
-    document.getElementById('fulfillFooter').style.display = o.fulfillment_status==='fulfilled' ? 'none' : '';
+    // Fulfillment card
+    const isFulfilled = o.fulfillment_status === 'fulfilled';
+    document.getElementById('fulfillIcon').textContent = isFulfilled ? '✅' : '⏳';
+    document.getElementById('fulfillLabel').textContent = isFulfilled ? 'Fulfilled' : 'Unfulfilled';
+    document.getElementById('fulfillBtn').style.display = isFulfilled ? 'none' : '';
+    if (o.fulfillments?.length) {
+      const f = o.fulfillments[0];
+      document.getElementById('fulfillSub').textContent = f.tracking_number ? `Tracking: ${f.tracking_number} (${f.tracking_company||''})` : '';
+    }
 
+    // Items list
+    const items = o.items || [];
+    document.getElementById('itemsList').innerHTML = items.map(item => `
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f0f0f0">
+        <div style="width:40px;height:40px;background:#f6f6f7;border-radius:6px;border:1px solid #e3e3e3;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#c9cccf">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/></svg>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:500">${item.title}</div>
+          ${item.variant_title ? `<div style="font-size:12px;color:#6d7175">${item.variant_title}</div>` : ''}
+          ${item.sku ? `<div style="font-size:11px;color:#8c9196">SKU: ${item.sku}</div>` : ''}
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:13px;font-weight:500">${fmt(item.price)} × ${item.quantity||1}</div>
+          <div style="font-size:13px;color:#6d7175">${fmt((item.price||0)*(item.quantity||1))}</div>
+        </div>
+      </div>`).join('');
+
+    // Payment breakdown
+    document.getElementById('pItemCount').textContent = items.reduce((s,i)=>s+(i.quantity||1),0);
     document.getElementById('pSubtotal').textContent = fmt(o.subtotal);
     document.getElementById('pShipping').textContent = fmt(o.shipping);
     document.getElementById('pTax').textContent = fmt(o.tax);
     document.getElementById('pTotal').textContent = fmt(o.total);
+    if (o.discount_amount > 0) {
+      document.getElementById('pDiscountRow').style.display = '';
+      document.getElementById('pDiscount').textContent = '-' + fmt(o.discount_amount);
+      document.getElementById('pDiscountCode').textContent = o.discount_code ? `(${o.discount_code})` : '';
+    }
 
-    const items = o.items || [];
-    document.getElementById('itemsList').innerHTML = items.length
-      ? items.map(item => `
-          <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #f6f6f7">
-            <div class="table-thumb-placeholder" style="flex-shrink:0">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/></svg>
-            </div>
-            <div style="flex:1">
-              <div class="font-medium" style="font-size:13px">${item.title||'Product'}</div>
-              <div class="text-muted text-sm">Qty: ${item.quantity||1}</div>
-            </div>
-            <div class="font-medium" style="font-size:13px">${fmt(item.price)}</div>
-          </div>`).join('')
-      : '<div class="text-muted text-sm">No item details available</div>';
+    // Payment status / mark paid
+    const payColors2 = {paid:'badge-success',pending:'badge-warning',unpaid:'badge-warning',refunded:'badge-default'};
+    document.getElementById('payStatus').innerHTML = `<span class="badge ${payColors2[o.payment_status]||'badge-warning'}" style="text-transform:capitalize">${o.payment_status||'pending'}</span>`;
+    document.getElementById('payFooter').style.display = o.payment_status !== 'paid' && o.status !== 'cancelled' ? '' : 'none';
 
-    const cName = o.shipping_name || 'Guest';
-    document.getElementById('custName').textContent = cName;
-    document.getElementById('custEmail').textContent = o.customer_email || '—';
-    document.getElementById('shippingAddr').innerHTML = [
-      o.shipping_addr, o.shipping_city, o.shipping_country
-    ].filter(Boolean).join('<br>') || '—';
+    // Refunds
+    if (o.refunds?.length) {
+      document.getElementById('refundsCard').style.display = '';
+      document.getElementById('refundsList').innerHTML = o.refunds.map(r => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:13px">
+          <div>
+            <div class="font-medium">Refund — ${r.reason?.replace(/_/g,' ')||'Manual'}</div>
+            <div class="text-muted text-sm">${Fmt.datetime(r.created_at)}</div>
+            ${r.note?`<div class="text-muted text-sm">${r.note}</div>`:''}
+          </div>
+          <span class="font-bold" style="color:var(--p-color-text-critical)">-${fmt(r.amount)}</span>
+        </div>`).join('');
+    }
+
+    // Customer
+    const cust = o.customer;
+    const custName = o.shipping_name || (cust ? `${cust.first_name||''} ${cust.last_name||''}`.trim() : '') || 'Guest';
+    document.getElementById('custName').textContent = custName;
+    document.getElementById('custEmail').textContent = o.customer_email || (cust?.email) || '—';
+    document.getElementById('custPhone').textContent = o.shipping_phone || (cust?.phone) || '—';
+    document.getElementById('shipAddr').innerHTML = [o.shipping_addr, o.shipping_city, o.shipping_zip, o.shipping_country].filter(Boolean).join('<br>') || '—';
 
     if (o.notes) document.getElementById('orderNotes').textContent = o.notes;
 
-    const date = Fmt.datetime(o.created_at);
-    document.getElementById('timeline').innerHTML = `
-      <div class="timeline-item">
-        <div class="timeline-dot success">📦</div>
-        <div class="timeline-content">
-          <div class="timeline-title">Order placed</div>
-          <div class="timeline-time">${date}</div>
-        </div>
-      </div>
-      ${o.fulfillment_status==='fulfilled'?`<div class="timeline-item">
-        <div class="timeline-dot success">✅</div>
-        <div class="timeline-content">
-          <div class="timeline-title">Order fulfilled</div>
-        </div>
-      </div>`:''}
-      ${o.payment_status==='paid'?`<div class="timeline-item">
-        <div class="timeline-dot success">💳</div>
-        <div class="timeline-content">
-          <div class="timeline-title">Payment received</div>
-        </div>
-      </div>`:''}`;
+    // Tags
+    _orderTags = (o.tags||'').split(',').map(t=>t.trim()).filter(Boolean);
+    renderOrderTags();
+
+    // Timeline
+    renderTimeline(o.events||[]);
   }
 
-  async function markFulfilled() {
-    try {
-      await API.patch('/api/orders/' + id, {fulfillment_status:'fulfilled'});
-      _order.fulfillment_status = 'fulfilled'; render();
-      Toast.success('Order fulfilled');
-    } catch(e) { Toast.error(e.message); }
+  function renderTimeline(events) {
+    const tl = document.getElementById('timeline');
+    if (!events.length) {
+      tl.innerHTML = `<div class="timeline-item"><div class="timeline-dot success">📦</div>
+        <div class="timeline-content"><div class="timeline-title">Order placed</div>
+        <div class="timeline-time">${Fmt.datetime(_order.created_at)}</div></div></div>`;
+      return;
+    }
+    const iconMap = {
+      order_created:'📦',order_cancelled:'❌',payment_status_changed:'💳',
+      fulfillment_created:'🚚',fulfillment_status_changed:'🚚',
+      refund_created:'↩️',note:'💬',
+    };
+    tl.innerHTML = [
+      {event_type:'order_placed',message:'Order placed',created_at:_order.created_at},
+      ...events
+    ].map(e => `
+      <div class="timeline-item">
+        <div class="timeline-dot ${e.event_type==='order_cancelled'?'warning':e.event_type==='note'?'':'success'}">${iconMap[e.event_type]||'📌'}</div>
+        <div class="timeline-content">
+          <div class="timeline-title">${e.message}</div>
+          <div class="timeline-time">${Fmt.datetime(e.created_at)}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  // ── ACTIONS ──────────────────────────────────────
+  function toggleActionMenu() {
+    const menu = document.getElementById('actionMenu');
+    menu.style.display = menu.style.display === 'none' ? '' : 'none';
+    if (menu.style.display !== 'none') {
+      setTimeout(() => document.addEventListener('click', function h(e) {
+        if (!document.getElementById('actionsBtn').contains(e.target)) {
+          menu.style.display = 'none';
+          document.removeEventListener('click', h);
+        }
+      }), 50);
+    }
   }
 
   async function markPaid() {
     try {
-      await API.patch('/api/orders/' + id, {payment_status:'paid'});
-      _order.payment_status = 'paid'; render();
+      await API.patch('/api/orders/'+_id, {payment_status:'paid'});
+      _order.payment_status = 'paid';
+      render();
       Toast.success('Order marked as paid');
     } catch(e) { Toast.error(e.message); }
   }
 
-  function addNote() {
-    const txt = document.getElementById('noteInput').value.trim();
-    if (!txt) return;
-    const tl = document.getElementById('timeline');
-    const div = document.createElement('div');
-    div.className = 'timeline-item';
-    div.innerHTML = `<div class="timeline-dot">💬</div>
-      <div class="timeline-content">
-        <div class="timeline-title">${txt}</div>
-        <div class="timeline-time">Just now</div>
-      </div>`;
-    tl.appendChild(div);
-    document.getElementById('noteInput').value = '';
-    Toast.success('Note added');
+  function openFulfillModal() {
+    const items = _order.items || [];
+    document.getElementById('fulfillItemsList').innerHTML = items.map(i =>
+      `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:13px">
+        <span class="font-medium">${i.title}${i.variant_title?' — '+i.variant_title:''}</span>
+        <span class="text-muted">× ${i.quantity||1}</span>
+      </div>`).join('') || '<div class="text-muted text-sm">No items</div>';
+    document.getElementById('fulfillModal').classList.add('open');
+  }
+
+  async function submitFulfillment() {
+    try {
+      await API.post('/api/orders/'+_id+'/fulfill', {
+        tracking_number: document.getElementById('trackingNum').value||null,
+        tracking_company: document.getElementById('trackingCarrier').value||null,
+        tracking_url: document.getElementById('trackingUrl').value||null,
+        notify_customer: document.getElementById('notifyCustomer').checked,
+      });
+      document.getElementById('fulfillModal').classList.remove('open');
+      Toast.success('Order fulfilled!');
+      _order = await API.get('/api/orders/' + _id);
+      render();
+    } catch(e) { Toast.error(e.message); }
+  }
+
+  function openRefundModal() {
+    document.getElementById('refundMax').textContent = `Max: ${fmt(_order.total)}`;
+    document.getElementById('refundAmount').value = '';
+    document.getElementById('refundModal').classList.add('open');
+  }
+
+  async function submitRefund() {
+    const amount = parseFloat(document.getElementById('refundAmount').value);
+    if (!amount || amount <= 0) { Toast.error('Enter a valid amount'); return; }
+    try {
+      await API.post('/api/orders/'+_id+'/refund', {
+        amount,
+        reason: document.getElementById('refundReason').value,
+        note: document.getElementById('refundNote').value,
+        restock: document.getElementById('refundRestock').checked,
+        items: _order.items||[],
+      });
+      document.getElementById('refundModal').classList.remove('open');
+      Toast.success('Refund recorded');
+      _order = await API.get('/api/orders/' + _id);
+      render();
+    } catch(e) { Toast.error(e.message); }
   }
 
   function cancelOrder() {
-    Modal.confirm('Cancel order', 'Are you sure you want to cancel this order? This action cannot be undone.', async () => {
-      try {
-        await API.patch('/api/orders/' + id, {status: 'cancelled'});
-        Toast.success('Order cancelled');
-        setTimeout(() => location.href = 'sivra-orders.html', 1000);
-      } catch(e) { Toast.error(e.message); }
-    }, { danger: true });
+    document.getElementById('cancelModal').classList.add('open');
   }
 
-  function printOrder() { window.print(); }
+  async function submitCancel() {
+    try {
+      await API.post('/api/orders/'+_id+'/cancel', {
+        reason: document.getElementById('cancelReason').value,
+        restock: document.getElementById('cancelRestock').checked,
+      });
+      document.getElementById('cancelModal').classList.remove('open');
+      Toast.success('Order cancelled');
+      _order = await API.get('/api/orders/' + _id);
+      render();
+    } catch(e) { Toast.error(e.message); }
+  }
+
+  async function addNote() {
+    const msg = document.getElementById('noteInput').value.trim();
+    if (!msg) return;
+    try {
+      await API.post('/api/orders/'+_id+'/notes', { message: msg });
+      document.getElementById('noteInput').value = '';
+      _order = await API.get('/api/orders/' + _id);
+      render();
+      Toast.success('Comment added');
+    } catch(e) { Toast.error(e.message); }
+  }
+
+  // ── TAGS ─────────────────────────────────────────
+  function addOrderTag(val) {
+    val.split(',').map(t=>t.trim()).filter(t=>t&&!_orderTags.includes(t)).forEach(t=>_orderTags.push(t));
+    renderOrderTags(); document.getElementById('orderTagInput').value='';
+  }
+  function removeOrderTag(t) { _orderTags.splice(_orderTags.indexOf(t),1); renderOrderTags(); }
+  function renderOrderTags() {
+    const list = document.getElementById('orderTagList');
+    const input = document.getElementById('orderTagInput');
+    list.innerHTML='';
+    _orderTags.forEach(t => {
+      const span = document.createElement('span');
+      span.className='tag-item';
+      span.innerHTML=`${t}<button class="tag-remove" onclick="removeOrderTag('${t.replace(/'/g,"\'")}')">×</button>`;
+      list.appendChild(span);
+    });
+    list.appendChild(input);
+  }
+  async function saveTags() {
+    try {
+      await API.patch('/api/orders/'+_id, { tags: _orderTags.join(',') });
+      Toast.success('Tags saved');
+    } catch(e) { Toast.error(e.message); }
+  }
+
+  function duplicateOrder() { Toast.show('Opening draft order...'); location.href='sivra-draft-orders.html'; }
 
   load();
 

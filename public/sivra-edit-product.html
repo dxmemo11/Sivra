@@ -20,34 +20,34 @@
       <div style="max-width:1280px;margin:0 auto">
 
         <div class="breadcrumb">
-          <a href="sivra-products.html" class="breadcrumb-link">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-            Products
-          </a>
+          <a href="sivra-products.html" class="breadcrumb-link">← Products</a>
           <span class="breadcrumb-sep">/</span>
-          <span class="breadcrumb-current" id="crumbTitle">Edit product</span>
+          <span class="breadcrumb-current" id="crumb">Edit product</span>
         </div>
 
         <div class="page-header">
-          <h1 class="page-title" id="pageTitle">Edit product</h1>
+          <div>
+            <h1 class="page-title" id="pageTitle">Edit product</h1>
+            <div class="text-muted text-sm" id="pageSubtitle"></div>
+          </div>
           <div class="btn-group">
+            <a id="storefrontPreviewBtn" href="#" target="_blank" class="btn btn-secondary">View on store ↗</a>
             <button class="btn btn-secondary" onclick="location.href='sivra-products.html'">Discard</button>
-            <button class="btn btn-secondary" onclick="saveProduct('draft')">Save as draft</button>
             <button class="btn btn-primary" onclick="saveProduct()" id="saveBtn">Save</button>
           </div>
         </div>
 
         <div class="page-body">
-          <div class="layout-2col-wide">
+          <div style="display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:start">
 
             <!-- LEFT -->
-            <div class="section-stack">
+            <div style="display:flex;flex-direction:column;gap:16px">
 
               <div class="card">
-                <div class="card-body section-stack">
+                <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
                   <div class="form-group">
                     <label class="form-label">Title</label>
-                    <input class="input" id="pTitle" placeholder="Product title"/>
+                    <input class="input" id="pTitle"/>
                   </div>
                   <div class="form-group">
                     <label class="form-label">Description</label>
@@ -60,31 +60,54 @@
               <div class="card">
                 <div class="card-header"><span class="card-title">Media</span></div>
                 <div class="card-body">
-                  <div id="mediaPreview" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-bottom:12px"></div>
-                  <div class="upload-zone" id="mediaZone" onclick="document.getElementById('mediaInput').click()" style="padding:20px">
-                    <div class="upload-title">Add photos</div>
-                    <div class="upload-hint">Click to browse</div>
+                  <div id="mediaGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-bottom:12px"></div>
+                  <div class="upload-zone" id="uploadZone"
+                    onclick="document.getElementById('mediaInput').click()"
+                    ondragover="event.preventDefault();this.classList.add('drag')"
+                    ondragleave="this.classList.remove('drag')"
+                    ondrop="event.preventDefault();this.classList.remove('drag');addFiles(event.dataTransfer.files)"
+                    style="padding:20px">
+                    <div class="upload-title">+ Add photos</div>
+                    <div class="upload-hint">Click to browse or drag & drop</div>
+                    <input type="file" id="mediaInput" accept="image/*" multiple style="display:none" onchange="addFiles(this.files)"/>
                   </div>
-                  <input type="file" id="mediaInput" accept="image/*" multiple style="display:none" onchange="handleFiles(this.files)"/>
                 </div>
               </div>
 
               <!-- Pricing -->
               <div class="card">
                 <div class="card-header"><span class="card-title">Pricing</span></div>
-                <div class="card-body">
-                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
                     <div class="form-group">
                       <label class="form-label">Price</label>
                       <div class="input-prefix"><span class="input-prefix-text">$</span>
                         <input type="number" id="pPrice" min="0" step="0.01"
-                          style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"/></div>
+                          style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"
+                          oninput="calcMargin()"/>
+                      </div>
                     </div>
                     <div class="form-group">
                       <label class="form-label">Compare-at price</label>
                       <div class="input-prefix"><span class="input-prefix-text">$</span>
                         <input type="number" id="pCompare" min="0" step="0.01"
-                          style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"/></div>
+                          style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"/>
+                      </div>
+                    </div>
+                  </div>
+                  <label class="checkbox-label"><input type="checkbox" id="pTaxable" checked/> Charge tax on this product</label>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                    <div class="form-group">
+                      <label class="form-label">Cost per item</label>
+                      <div class="input-prefix"><span class="input-prefix-text">$</span>
+                        <input type="number" id="pCost" min="0" step="0.01"
+                          style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"
+                          oninput="calcMargin()"/>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Profit &amp; margin</label>
+                      <div style="height:36px;display:flex;align-items:center;padding:0 12px;background:#f6f6f7;border-radius:8px;border:1px solid #e3e3e3;font-size:13px;color:#6d7175" id="marginDisplay">—</div>
                     </div>
                   </div>
                 </div>
@@ -93,18 +116,76 @@
               <!-- Inventory -->
               <div class="card">
                 <div class="card-header"><span class="card-title">Inventory</span></div>
-                <div class="card-body section-stack">
-                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
                     <div class="form-group"><label class="form-label">SKU</label><input class="input" id="pSku"/></div>
                     <div class="form-group"><label class="form-label">Barcode</label><input class="input" id="pBarcode"/></div>
                   </div>
-                  <label class="checkbox-label">
-                    <input type="checkbox" id="pTrackQty" checked onchange="document.getElementById('qtySection').style.display=this.checked?'':'none'"/> Track quantity
-                  </label>
+                  <label class="checkbox-label"><input type="checkbox" id="pTrackQty" checked onchange="document.getElementById('qtySection').style.display=this.checked?'':'none'"/> Track quantity</label>
                   <div id="qtySection">
                     <div class="form-group">
                       <label class="form-label">Quantity</label>
-                      <input class="input" type="number" id="pQty" min="0" style="max-width:160px"/>
+                      <div style="display:flex;gap:8px;align-items:center">
+                        <input class="input" id="pQty" type="number" min="0" style="width:140px"/>
+                        <button class="btn btn-secondary btn-sm" onclick="openAdjustModal()">Adjust</button>
+                      </div>
+                    </div>
+                    <label class="checkbox-label" style="margin-top:10px"><input type="checkbox" id="pContinue"/> Continue selling when out of stock</label>
+                  </div>
+                  <!-- Inventory history -->
+                  <div>
+                    <div class="form-label" style="margin-bottom:6px">Inventory history</div>
+                    <div id="invHistory" style="border:1px solid #e3e3e3;border-radius:8px;overflow:hidden;max-height:200px;overflow-y:auto">
+                      <div style="padding:12px;text-align:center;color:#8c9196;font-size:13px">Loading...</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Variants -->
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">Variants</span>
+                  <span class="text-muted text-sm" id="variantCount"></span>
+                </div>
+                <div class="card-body">
+                  <div id="variantsList">
+                    <div style="text-align:center;padding:24px;color:#8c9196;font-size:13px">No variants — this product has a single option (the default)</div>
+                  </div>
+                  <button class="btn btn-secondary btn-sm" onclick="openVariantModal()" style="margin-top:8px">+ Add variant</button>
+                </div>
+              </div>
+
+              <!-- SEO -->
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">Search engine listing</span>
+                  <button class="btn btn-plain btn-sm" onclick="toggleSeoEdit(this)">Edit</button>
+                </div>
+                <div class="card-body" id="seoPreviewSection">
+                  <div class="seo-preview">
+                    <div class="seo-url" id="seoUrl">—</div>
+                    <div class="seo-title" id="seoTitle">—</div>
+                    <div class="seo-desc" id="seoDesc">—</div>
+                  </div>
+                </div>
+                <div class="card-body" id="seoEditSection" style="display:none;flex-direction:column;gap:12px">
+                  <div class="form-group">
+                    <label class="form-label">SEO title</label>
+                    <input class="input" id="pSeoTitle" oninput="updateSeoPreview()"/>
+                    <div class="form-hint" id="seoTitleLen">0 / 70</div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">SEO description</label>
+                    <textarea class="textarea" id="pSeoDesc" style="min-height:60px" oninput="updateSeoPreview()"></textarea>
+                    <div class="form-hint" id="seoDescLen">0 / 160</div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">URL handle</label>
+                    <div class="input-prefix">
+                      <span class="input-prefix-text">/products/</span>
+                      <input type="text" id="pSeoHandle" oninput="updateSeoPreview()"
+                        style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"/>
                     </div>
                   </div>
                 </div>
@@ -113,9 +194,8 @@
             </div>
 
             <!-- RIGHT -->
-            <div class="section-stack">
+            <div style="display:flex;flex-direction:column;gap:16px;position:sticky;top:16px">
 
-              <!-- Status + actions -->
               <div class="card">
                 <div class="card-header"><span class="card-title">Status</span></div>
                 <div class="card-body section-stack">
@@ -124,10 +204,6 @@
                     <option value="draft">Draft</option>
                     <option value="archived">Archived</option>
                   </select>
-                  <div style="display:flex;gap:8px">
-                    <a id="storefrontLink" href="#" target="_blank" class="btn btn-secondary btn-full" style="justify-content:center">Preview on store</a>
-                  </div>
-                  <button class="btn btn-secondary btn-full" style="color:#c0392b;justify-content:center" onclick="deleteProduct()">Delete product</button>
                 </div>
               </div>
 
@@ -135,14 +211,14 @@
               <div class="card">
                 <div class="card-header"><span class="card-title">Insights</span></div>
                 <div class="card-body">
-                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-                    <div class="stat-card" style="cursor:default;box-shadow:none;border:1px solid #e3e3e3">
-                      <div class="stat-label">Total sales</div>
-                      <div class="stat-value" id="insightSales">—</div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                    <div class="stat-card" style="cursor:default;box-shadow:none;border:1px solid #e3e3e3;padding:10px">
+                      <div class="stat-label" style="font-size:11px">Sales</div>
+                      <div class="stat-value" style="font-size:18px" id="insightSales">—</div>
                     </div>
-                    <div class="stat-card" style="cursor:default;box-shadow:none;border:1px solid #e3e3e3">
-                      <div class="stat-label">Times ordered</div>
-                      <div class="stat-value" id="insightOrders">—</div>
+                    <div class="stat-card" style="cursor:default;box-shadow:none;border:1px solid #e3e3e3;padding:10px">
+                      <div class="stat-label" style="font-size:11px">Orders</div>
+                      <div class="stat-value" style="font-size:18px" id="insightOrders">—</div>
                     </div>
                   </div>
                 </div>
@@ -150,32 +226,129 @@
 
               <!-- Organization -->
               <div class="card">
-                <div class="card-header"><span class="card-title">Product organization</span></div>
-                <div class="card-body section-stack">
+                <div class="card-header"><span class="card-title">Organization</span></div>
+                <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
                   <div class="form-group">
                     <label class="form-label">Category</label>
                     <select class="select" id="pCategory">
                       <option value="">— Select —</option>
-                      <option value="fashion">Fashion & Apparel</option>
-                      <option value="electronics">Electronics</option>
-                      <option value="sports">Sports & Outdoors</option>
-                      <option value="home">Home & Garden</option>
-                      <option value="beauty">Health & Beauty</option>
-                      <option value="food">Food & Beverage</option>
+                      <option value="apparel">Apparel & Clothing</option>
+                      <option value="jerseys">Jerseys & Sportswear</option>
+                      <option value="footwear">Footwear</option>
+                      <option value="accessories">Accessories</option>
+                      <option value="equipment">Sports Equipment</option>
+                      <option value="collectibles">Collectibles</option>
                       <option value="other">Other</option>
                     </select>
                   </div>
                   <div class="form-group"><label class="form-label">Product type</label><input class="input" id="pType"/></div>
                   <div class="form-group"><label class="form-label">Vendor</label><input class="input" id="pVendor"/></div>
                   <div class="form-group">
+                    <label class="form-label">Collections</label>
+                    <div id="collectionPills" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px"></div>
+                    <select class="select" id="collectionSelect" onchange="toggleCollection(this.value)">
+                      <option value="">Manage collections...</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
                     <label class="form-label">Tags</label>
-                    <div class="tag-list" id="tagsContainer">
-                      <input type="text" class="tag-input" id="tagInput" placeholder="Add tag" onkeydown="if(event.key==='Enter'||event.key===','){event.preventDefault();addTag()}"/>
+                    <div class="tag-list" id="tagList">
+                      <input type="text" class="tag-input" id="tagInput" placeholder="Add tag..."
+                        onkeydown="if(event.key==='Enter'||event.key===','){event.preventDefault();addTag(document.getElementById('tagInput').value)}"/>
                     </div>
                   </div>
                 </div>
               </div>
 
+              <!-- Danger zone -->
+              <div class="card">
+                <div class="card-body">
+                  <button class="btn btn-secondary w-full" style="color:#c0392b;justify-content:center" onclick="deleteProduct()">Delete product</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Adjust inventory modal -->
+        <div class="modal-overlay" id="adjModal">
+          <div class="modal" style="max-width:420px">
+            <div class="modal-header"><span class="modal-title">Adjust inventory</span>
+              <button class="modal-close" onclick="document.getElementById('adjModal').classList.remove('open')">×</button>
+            </div>
+            <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:#f6f6f7;border-radius:8px">
+                <span class="text-muted text-sm">Current quantity</span>
+                <span class="font-bold" style="font-size:20px" id="adjCurrentQty">0</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Adjustment</label>
+                <div class="form-hint">Positive to add, negative to remove (e.g. +10 or -3)</div>
+                <input class="input" type="number" id="adjAmount" placeholder="e.g. 10 or -5"/>
+                <div id="adjNewTotal" style="margin-top:6px;font-size:13px;color:#6d7175"></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Reason</label>
+                <select class="select" id="adjReason">
+                  <option value="received">Received shipment</option>
+                  <option value="returned">Returned by customer</option>
+                  <option value="damaged">Damaged / lost</option>
+                  <option value="manual_count">Manual count correction</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Note <span class="text-muted">(optional)</span></label>
+                <input class="input" id="adjNote" placeholder="e.g. Received 10 units from supplier"/>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" onclick="document.getElementById('adjModal').classList.remove('open')">Cancel</button>
+              <button class="btn btn-primary" onclick="applyAdjustment()">Apply</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add variant modal -->
+        <div class="modal-overlay" id="variantModal">
+          <div class="modal" style="max-width:480px">
+            <div class="modal-header">
+              <span class="modal-title" id="varModalTitle">Add variant</span>
+              <button class="modal-close" onclick="document.getElementById('variantModal').classList.remove('open')">×</button>
+            </div>
+            <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
+              <div class="form-group"><label class="form-label">Variant title</label><input class="input" id="vTitle" placeholder="e.g. Small / Red"/></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+                <div class="form-group"><label class="form-label">Option 1</label><input class="input" id="vOpt1" placeholder="e.g. S"/></div>
+                <div class="form-group"><label class="form-label">Option 2</label><input class="input" id="vOpt2" placeholder="e.g. Red"/></div>
+                <div class="form-group"><label class="form-label">Option 3</label><input class="input" id="vOpt3" placeholder=""/></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="form-group">
+                  <label class="form-label">Price</label>
+                  <div class="input-prefix"><span class="input-prefix-text">$</span>
+                    <input type="number" id="vPrice" min="0" step="0.01"
+                      style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"/>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Compare-at</label>
+                  <div class="input-prefix"><span class="input-prefix-text">$</span>
+                    <input type="number" id="vCompare" min="0" step="0.01"
+                      style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"/>
+                  </div>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+                <div class="form-group"><label class="form-label">SKU</label><input class="input" id="vSku"/></div>
+                <div class="form-group"><label class="form-label">Barcode</label><input class="input" id="vBarcode"/></div>
+                <div class="form-group"><label class="form-label">Quantity</label><input class="input" type="number" id="vQty" min="0" value="0"/></div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" onclick="document.getElementById('variantModal').classList.remove('open')">Cancel</button>
+              <button class="btn btn-primary" onclick="saveVariant()">Save variant</button>
             </div>
           </div>
         </div>
@@ -192,23 +365,30 @@
   if (!session) return;
   
   const _id = new URLSearchParams(location.search).get('id');
-  let _imgs = [];
-  const _tags = [];
-  let _product = null;
+  let _product = null, _variants = [], _imgs = [], _tags = [], _collections = [], _allCollections = [], _editingVariantId = null;
 
-  // Image handling
-  function handleFiles(files) {
+  // ── MARGIN ───────────────────────────────────────
+  function calcMargin() {
+    const price = parseFloat(document.getElementById('pPrice').value) || 0;
+    const cost = parseFloat(document.getElementById('pCost').value) || 0;
+    const el = document.getElementById('marginDisplay');
+    if (!price) { el.textContent = '—'; return; }
+    const profit = price - cost;
+    el.textContent = `$${profit.toFixed(2)} (${(profit/price*100).toFixed(1)}%)`;
+    el.style.color = profit >= 0 ? 'var(--p-color-text-success)' : 'var(--p-color-text-critical)';
+  }
+
+  // ── MEDIA ────────────────────────────────────────
+  function addFiles(files) {
     Array.from(files).forEach(file => {
       if (!file.type.startsWith('image/')) return;
       const reader = new FileReader();
       reader.onload = e => {
         const img = new Image();
         img.onload = () => {
-          const MAX = 900;
-          const scale = img.width > MAX ? MAX / img.width : 1;
+          const MAX = 900, scale = img.width > MAX ? MAX/img.width : 1;
           const canvas = document.createElement('canvas');
-          canvas.width = img.width * scale;
-          canvas.height = img.height * scale;
+          canvas.width = Math.round(img.width*scale); canvas.height = Math.round(img.height*scale);
           canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
           _imgs.push(canvas.toDataURL('image/jpeg', 0.82));
           renderMedia();
@@ -218,124 +398,257 @@
       reader.readAsDataURL(file);
     });
   }
-
   function renderMedia() {
-    const preview = document.getElementById('mediaPreview');
-    const zone = document.getElementById('mediaZone');
+    const grid = document.getElementById('mediaGrid');
+    const zone = document.getElementById('uploadZone');
     zone.style.display = '';
-    if (!_imgs.length) { preview.innerHTML = ''; return; }
-    preview.innerHTML = _imgs.map((src, i) => `
-      <div style="position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid #e3e3e3">
+    grid.innerHTML = _imgs.map((src, i) => `
+      <div style="position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid ${i===0?'#1a1a1a':'#e3e3e3'};background:#f6f6f7">
         <img src="${src}" style="width:100%;height:100%;object-fit:cover"/>
-        ${i===0?'<span style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.5);color:white;font-size:10px;text-align:center;padding:4px">Main</span>':''}
-        <button onclick="_imgs.splice(${i},1);renderMedia()" style="position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.5);border:none;color:white;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">×</button>
-      </div>`).join('');
+        ${i===0?'<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.55);color:white;font-size:10px;font-weight:600;text-align:center;padding:3px">Main</div>':''}
+        <button onclick="_imgs.splice(${i},1);renderMedia()" style="position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.55);border:none;color:white;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center">×</button>
+      </div>`).join('') +
+      `<div onclick="document.getElementById('mediaInput').click()" style="aspect-ratio:1;border:2px dashed #e3e3e3;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#8c9196;font-size:24px" onmouseover="this.style.borderColor='#1a1a1a'" onmouseout="this.style.borderColor='#e3e3e3'">+</div>`;
   }
 
-  // Tags
-  function addTag() {
-    const input = document.getElementById('tagInput');
-    const val = input.value.trim().replace(/,$/, '');
-    if (!val || _tags.includes(val)) { input.value=''; return; }
-    _tags.push(val);
-    renderTags();
-    input.value='';
+  // ── TAGS ─────────────────────────────────────────
+  function addTag(v) {
+    v.split(',').map(t=>t.trim()).filter(t=>t&&!_tags.includes(t)).forEach(t=>_tags.push(t));
+    renderTags(); document.getElementById('tagInput').value='';
   }
-  function removeTag(tag) { _tags.splice(_tags.indexOf(tag),1); renderTags(); }
+  function removeTag(t) { _tags.splice(_tags.indexOf(t),1); renderTags(); }
   function renderTags() {
-    const container = document.getElementById('tagsContainer');
+    const list = document.getElementById('tagList');
     const input = document.getElementById('tagInput');
-    container.innerHTML='';
-    _tags.forEach(tag => {
-      const el = document.createElement('span');
-      el.className='tag-item';
-      el.innerHTML=`${tag}<button class="tag-remove" onclick="removeTag('${tag}')">×</button>`;
-      container.appendChild(el);
+    list.innerHTML='';
+    _tags.forEach(t => {
+      const span = document.createElement('span');
+      span.className='tag-item';
+      span.innerHTML=`${t}<button class="tag-remove" onclick="removeTag('${t.replace(/'/g,"\'")}')">×</button>`;
+      list.appendChild(span);
     });
-    container.appendChild(input);
+    list.appendChild(input);
   }
 
-  async function load() {
-    if (!_id) { location.href='sivra-products.html'; return; }
+  // ── COLLECTIONS ──────────────────────────────────
+  async function loadCollections() {
     try {
-      _product = await API.get('/api/products/' + _id);
-      _product = _product.product || _product;
-      const p = _product;
-
-      document.getElementById('crumbTitle').textContent = p.title||'Product';
-      document.getElementById('pageTitle').textContent = p.title||'Product';
-      document.getElementById('pTitle').value = p.title||'';
-      document.getElementById('pDesc').value = p.description||'';
-      document.getElementById('pPrice').value = p.price||'';
-      document.getElementById('pCompare').value = p.compare_price||'';
-      document.getElementById('pSku').value = p.sku||'';
-      document.getElementById('pBarcode').value = p.barcode||'';
-      document.getElementById('pQty').value = p.quantity||0;
-      document.getElementById('pTrackQty').checked = p.track_qty !== 0;
-      document.getElementById('pStatus').value = p.status||'active';
-      document.getElementById('pCategory').value = p.category||'';
-      document.getElementById('pType').value = p.type||p.product_type||'';
-      document.getElementById('pVendor').value = p.vendor||'';
-
-      // Images
-      const imgs = Array.isArray(p.images) ? p.images : (p.images ? JSON.parse(p.images) : []);
-      _imgs = [...imgs];
-      renderMedia();
-
-      // Tags
-      if (p.tags) {
-        p.tags.split(',').map(t=>t.trim()).filter(Boolean).forEach(t => _tags.push(t));
-        renderTags();
-      }
-
-      // Storefront link
-      const slug2 = Auth.getSlug();
-      document.getElementById('storefrontLink').href = `/sivra-product.html?id=${p.id}&store=${slug2}`;
-
-      // Insights
-      const oData = await API.get('/api/orders');
-      const orders = oData.orders || [];
-      let totalSales = 0, timesOrdered = 0;
-      orders.forEach(o => (o.items||[]).forEach(i => {
-        if (i.product_id === p.id) { totalSales += parseFloat(i.price||0)*parseInt(i.quantity||1); timesOrdered++; }
-      }));
-      document.getElementById('insightSales').textContent = Fmt.money(totalSales);
-      document.getElementById('insightOrders').textContent = timesOrdered;
-    } catch(e) { Toast.error('Failed to load product'); }
+      const data = await API.get('/api/collections');
+      _allCollections = data.collections || [];
+      const sel = document.getElementById('collectionSelect');
+      sel.innerHTML = '<option value="">Manage collections...</option>' +
+        _allCollections.map(c => {
+          const inColl = _collections.includes(c.id);
+          return `<option value="${c.id}">${inColl?'✓ ':''} ${c.name}</option>`;
+        }).join('');
+    } catch(e) {}
+  }
+  function toggleCollection(id) {
+    if (!id) return;
+    if (_collections.includes(id)) _collections.splice(_collections.indexOf(id),1);
+    else _collections.push(id);
+    renderCollectionPills();
+    loadCollections();
+    document.getElementById('collectionSelect').value='';
+  }
+  function renderCollectionPills() {
+    document.getElementById('collectionPills').innerHTML = _collections.map(id => {
+      const c = _allCollections.find(x=>x.id===id);
+      return c ? `<span class="tag-item">${c.name}<button class="tag-remove" onclick="toggleCollection('${id}')">×</button></span>` : '';
+    }).join('');
   }
 
-  async function saveProduct(statusOverride) {
-    const title = document.getElementById('pTitle').value.trim();
-    const price = parseFloat(document.getElementById('pPrice').value);
-    if (!title) { Toast.error('Product title is required'); return; }
+  // ── VARIANTS ─────────────────────────────────────
+  function renderVariants() {
+    const el = document.getElementById('variantsList');
+    const count = document.getElementById('variantCount');
+    count.textContent = _variants.length ? `${_variants.length} variant${_variants.length!==1?'s':''}` : '';
+    if (!_variants.length) {
+      el.innerHTML = '<div style="text-align:center;padding:20px;color:#8c9196;font-size:13px">No variants — single product</div>';
+      return;
+    }
+    el.innerHTML = `<div style="border:1px solid #e3e3e3;border-radius:8px;overflow:hidden">
+      <div style="display:grid;grid-template-columns:1fr 90px 90px 70px 60px;gap:8px;padding:8px 12px;background:#f9f9f9;border-bottom:1px solid #e3e3e3;font-size:12px;font-weight:600;color:#6d7175">
+        <span>Variant</span><span>Price</span><span>SKU</span><span>Stock</span><span></span>
+      </div>` +
+      _variants.map(v => `
+      <div style="display:grid;grid-template-columns:1fr 90px 90px 70px 60px;gap:8px;padding:10px 12px;border-bottom:1px solid #f0f0f0;align-items:center">
+        <span style="font-size:13px;font-weight:500">${v.title||v.option1||'Default'}</span>
+        <span style="font-size:13px">$${parseFloat(v.price||0).toFixed(2)}</span>
+        <span style="font-size:13px;color:#6d7175">${v.sku||'—'}</span>
+        <span style="font-size:13px;${!v.quantity?'color:var(--p-color-text-critical)':v.quantity<=5?'color:var(--p-color-text-caution)':''}">${v.quantity||0}</span>
+        <div style="display:flex;gap:4px">
+          <button onclick="editVariant('${v.id}')" class="btn btn-secondary btn-sm" style="padding:0 6px">Edit</button>
+        </div>
+      </div>`).join('') + '</div>';
+  }
 
+  function openVariantModal() {
+    _editingVariantId = null;
+    document.getElementById('varModalTitle').textContent = 'Add variant';
+    ['vTitle','vOpt1','vOpt2','vOpt3','vSku','vBarcode'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('vPrice').value = _product?.price || '';
+    document.getElementById('vQty').value = '0';
+    document.getElementById('variantModal').classList.add('open');
+  }
+
+  function editVariant(id) {
+    const v = _variants.find(x=>x.id===id);
+    if (!v) return;
+    _editingVariantId = id;
+    document.getElementById('varModalTitle').textContent = 'Edit variant';
+    document.getElementById('vTitle').value = v.title||'';
+    document.getElementById('vOpt1').value = v.option1||'';
+    document.getElementById('vOpt2').value = v.option2||'';
+    document.getElementById('vOpt3').value = v.option3||'';
+    document.getElementById('vPrice').value = v.price||'';
+    document.getElementById('vCompare').value = v.compare_price||'';
+    document.getElementById('vSku').value = v.sku||'';
+    document.getElementById('vBarcode').value = v.barcode||'';
+    document.getElementById('vQty').value = v.quantity||0;
+    document.getElementById('variantModal').classList.add('open');
+  }
+
+  async function saveVariant() {
+    const data = {
+      title: document.getElementById('vTitle').value || [document.getElementById('vOpt1').value,document.getElementById('vOpt2').value,document.getElementById('vOpt3').value].filter(Boolean).join(' / ') || 'Default',
+      option1: document.getElementById('vOpt1').value||null,
+      option2: document.getElementById('vOpt2').value||null,
+      option3: document.getElementById('vOpt3').value||null,
+      price: parseFloat(document.getElementById('vPrice').value)||0,
+      compare_price: parseFloat(document.getElementById('vCompare').value)||null,
+      sku: document.getElementById('vSku').value||null,
+      barcode: document.getElementById('vBarcode').value||null,
+      quantity: parseInt(document.getElementById('vQty').value)||0,
+    };
+    try {
+      if (_editingVariantId) {
+        await API.patch(`/api/products/${_id}/variants/${_editingVariantId}`, data);
+        const idx = _variants.findIndex(v=>v.id===_editingVariantId);
+        if (idx>-1) _variants[idx] = {..._variants[idx],...data};
+        Toast.success('Variant updated');
+      } else {
+        const v = await API.post(`/api/products/${_id}/variants`, data);
+        _variants.push(v);
+        Toast.success('Variant added');
+      }
+      renderVariants();
+      document.getElementById('variantModal').classList.remove('open');
+    } catch(e) { Toast.error(e.message); }
+  }
+
+  // ── INVENTORY ADJUST ─────────────────────────────
+  function openAdjustModal() {
+    const qty = parseInt(document.getElementById('pQty').value) || 0;
+    document.getElementById('adjCurrentQty').textContent = qty;
+    document.getElementById('adjAmount').value = '';
+    document.getElementById('adjNewTotal').textContent = '';
+    document.getElementById('adjAmount').oninput = function() {
+      const adj = parseInt(this.value) || 0;
+      const newQty = Math.max(0, qty + adj);
+      document.getElementById('adjNewTotal').textContent = `New quantity: ${newQty}`;
+    };
+    document.getElementById('adjModal').classList.add('open');
+  }
+
+  async function applyAdjustment() {
+    const current = parseInt(document.getElementById('pQty').value) || 0;
+    const adj = parseInt(document.getElementById('adjAmount').value);
+    if (isNaN(adj) || adj === 0) { Toast.error('Enter an adjustment value'); return; }
+    const newQty = Math.max(0, current + adj);
+    try {
+      await API.patch('/api/products/'+_id, { quantity: newQty });
+      document.getElementById('pQty').value = newQty;
+      document.getElementById('adjModal').classList.remove('open');
+      loadInventoryHistory();
+      Toast.success(`Inventory adjusted: ${adj>0?'+':''}${adj} units (now ${newQty})`);
+    } catch(e) { Toast.error(e.message); }
+  }
+
+  async function loadInventoryHistory() {
+    try {
+      const data = await API.get(`/api/products/${_id}/inventory-movements`);
+      const el = document.getElementById('invHistory');
+      const moves = data.movements || [];
+      if (!moves.length) { el.innerHTML = '<div style="padding:12px;text-align:center;color:#8c9196;font-size:13px">No inventory changes recorded</div>'; return; }
+      el.innerHTML = moves.map(m => {
+        const adj = m.adjustment;
+        const color = adj > 0 ? 'var(--p-color-text-success)' : adj < 0 ? 'var(--p-color-text-critical)' : '#303030';
+        return `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid #f0f0f0;font-size:13px">
+          <span style="color:${color};font-weight:600;width:40px;text-align:right">${adj>0?'+':''}${adj}</span>
+          <span style="flex:1;color:#6d7175">${m.reason?.replace(/_/g,' ')||'manual'}</span>
+          <span style="color:#8c9196;font-size:11px">${Fmt.datetime(m.created_at)}</span>
+        </div>`;
+      }).join('');
+    } catch(e) {}
+  }
+
+  // ── SEO ──────────────────────────────────────────
+  function toggleSeoEdit(btn) {
+    const edit = document.getElementById('seoEditSection');
+    const preview = document.getElementById('seoPreviewSection');
+    const showing = edit.style.display !== 'none';
+    edit.style.display = showing ? 'none' : 'flex';
+    preview.style.display = showing ? '' : 'none';
+    btn.textContent = showing ? 'Edit' : 'Done';
+  }
+
+  function updateSeoPreview() {
+    const title = document.getElementById('pSeoTitle').value || document.getElementById('pTitle')?.value || '—';
+    const desc = document.getElementById('pSeoDesc').value || '—';
+    const handle = document.getElementById('pSeoHandle').value || Fmt.slug(document.getElementById('pTitle')?.value||'');
+    const slug2 = Auth.getSlug();
+    document.getElementById('seoUrl').textContent = window.location.origin + '/sivra-storefront.html?store=' + slug2 + ' › products › ' + handle;
+    document.getElementById('seoTitle').textContent = title;
+    document.getElementById('seoDesc').textContent = desc;
+    document.getElementById('seoTitleLen').textContent = title.length + ' / 70';
+    document.getElementById('seoDescLen').textContent = desc.length + ' / 160';
+  }
+
+  // ── SAVE ─────────────────────────────────────────
+  async function saveProduct() {
     const btn = document.getElementById('saveBtn');
-    btn.textContent = 'Saving...'; btn.disabled = true;
-
+    btn.disabled = true; btn.textContent = 'Saving...';
     try {
       const data = {
-        title,
+        title: document.getElementById('pTitle').value.trim(),
         description: document.getElementById('pDesc').value,
-        price: isNaN(price) ? _product?.price || 0 : price,
+        price: parseFloat(document.getElementById('pPrice').value) || 0,
         comparePrice: parseFloat(document.getElementById('pCompare').value) || null,
-        sku: document.getElementById('pSku').value.trim() || null,
-        barcode: document.getElementById('pBarcode').value.trim() || null,
+        cost_per_item: parseFloat(document.getElementById('pCost').value) || null,
+        sku: document.getElementById('pSku').value || null,
+        barcode: document.getElementById('pBarcode').value || null,
         quantity: parseInt(document.getElementById('pQty').value) || 0,
         trackQty: document.getElementById('pTrackQty').checked,
+        continue_selling: document.getElementById('pContinue').checked,
         category: document.getElementById('pCategory').value || null,
-        type: document.getElementById('pType').value || null,
+        product_type: document.getElementById('pType').value || null,
         vendor: document.getElementById('pVendor').value || null,
         tags: _tags.join(','),
-        status: statusOverride || document.getElementById('pStatus').value,
+        taxable: document.getElementById('pTaxable').checked,
+        status: document.getElementById('pStatus').value,
         images: _imgs,
+        seo_title: document.getElementById('pSeoTitle').value || null,
+        seo_description: document.getElementById('pSeoDesc').value || null,
+        seo_handle: document.getElementById('pSeoHandle').value || null,
       };
+      if (!data.title) { Toast.error('Title is required'); btn.disabled=false; btn.textContent='Save'; return; }
       await API.patch('/api/products/' + _id, data);
-      Toast.success('Product updated');
-      btn.textContent = 'Save'; btn.disabled = false;
-    } catch(e) {
-      Toast.error(e.message || 'Failed to save');
-      btn.textContent = 'Save'; btn.disabled = false;
-    }
+      // Update collection memberships
+      const currentColls = _product?.collections?.map(c=>c.id) || [];
+      for (const id of _collections) {
+        if (!currentColls.includes(id)) {
+          try { await API.post(`/api/collections/${id}/products`, { productId: _id }); } catch(e) {}
+        }
+      }
+      for (const id of currentColls) {
+        if (!_collections.includes(id)) {
+          try { await API.del(`/api/collections/${id}/products/${_id}`); } catch(e) {}
+        }
+      }
+      Toast.success('Product saved');
+      btn.disabled=false; btn.textContent='Save';
+    } catch(e) { Toast.error(e.message||'Failed to save'); btn.disabled=false; btn.textContent='Save'; }
   }
 
   function deleteProduct() {
@@ -343,11 +656,67 @@
       try {
         await API.del('/api/products/' + _id);
         Toast.success('Product deleted');
-        setTimeout(() => location.href = 'sivra-products.html', 800);
+        setTimeout(() => location.href='sivra-products.html', 600);
       } catch(e) { Toast.error(e.message); }
     }, { danger: true });
   }
 
+  // ── LOAD ─────────────────────────────────────────
+  async function load() {
+    if (!_id) { location.href='sivra-products.html'; return; }
+    try {
+      const p = await API.get('/api/products/' + _id);
+      _product = p;
+      document.getElementById('crumb').textContent = p.title||'Product';
+      document.getElementById('pageTitle').textContent = p.title||'Product';
+      document.getElementById('pageSubtitle').textContent = p.status === 'active' ? '● Active' : p.status;
+      document.getElementById('pTitle').value = p.title||'';
+      document.getElementById('pDesc').value = p.description||'';
+      document.getElementById('pPrice').value = p.price||'';
+      document.getElementById('pCompare').value = p.compare_price||'';
+      document.getElementById('pCost').value = p.cost_per_item||'';
+      document.getElementById('pSku').value = p.sku||'';
+      document.getElementById('pBarcode').value = p.barcode||'';
+      document.getElementById('pQty').value = p.quantity||0;
+      document.getElementById('pTrackQty').checked = p.track_qty !== 0;
+      document.getElementById('pContinue').checked = !!p.continue_selling;
+      document.getElementById('pTaxable').checked = p.taxable !== 0;
+      document.getElementById('pStatus').value = p.status||'active';
+      document.getElementById('pCategory').value = p.category||'';
+      document.getElementById('pType').value = p.product_type||'';
+      document.getElementById('pVendor').value = p.vendor||'';
+      document.getElementById('pSeoTitle').value = p.seo_title||'';
+      document.getElementById('pSeoDesc').value = p.seo_description||'';
+      document.getElementById('pSeoHandle').value = p.seo_handle||Fmt.slug(p.title||'');
+      updateSeoPreview();
+      calcMargin();
+      if (!p.track_qty) document.getElementById('qtySection').style.display='none';
+      _imgs = Array.isArray(p.images) ? [...p.images] : [];
+      renderMedia();
+      if (p.tags) { p.tags.split(',').map(t=>t.trim()).filter(Boolean).forEach(t=>_tags.push(t)); renderTags(); }
+      _variants = p.variants||[];
+      renderVariants();
+      // Collections
+      _collections = (p.collections||[]).map(c=>c.id);
+      await loadCollections();
+      renderCollectionPills();
+      // Storefront preview link
+      const slug2 = Auth.getSlug();
+      document.getElementById('storefrontPreviewBtn').href = `/sivra-product.html?id=${_id}&store=${slug2}`;
+      // Load inventory history
+      loadInventoryHistory();
+      // Insights
+      try {
+        const oData = await API.get('/api/orders');
+        let sales = 0, ordersCount = 0;
+        (oData.orders||[]).forEach(o => (o.items||[]).forEach(i => {
+          if (i.product_id===_id) { sales += parseFloat(i.price||0)*parseInt(i.quantity||1); ordersCount++; }
+        }));
+        document.getElementById('insightSales').textContent = Fmt.money(sales);
+        document.getElementById('insightOrders').textContent = ordersCount;
+      } catch(e) {}
+    } catch(e) { Toast.error('Failed to load product'); }
+  }
   load();
 
 })();

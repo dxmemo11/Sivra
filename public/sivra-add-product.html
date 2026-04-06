@@ -20,10 +20,7 @@
       <div style="max-width:1280px;margin:0 auto">
 
         <div class="breadcrumb">
-          <a href="sivra-products.html" class="breadcrumb-link">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-            Products
-          </a>
+          <a href="sivra-products.html" class="breadcrumb-link">← Products</a>
           <span class="breadcrumb-sep">/</span>
           <span class="breadcrumb-current">Add product</span>
         </div>
@@ -32,59 +29,65 @@
           <h1 class="page-title">Add product</h1>
           <div class="btn-group">
             <button class="btn btn-secondary" onclick="location.href='sivra-products.html'">Discard</button>
-            <button class="btn btn-secondary" onclick="saveProduct('draft')">Save as draft</button>
+            <button class="btn btn-secondary" onclick="saveProduct('draft')" id="draftBtn">Save as draft</button>
             <button class="btn btn-primary" onclick="saveProduct('active')" id="saveBtn">Save</button>
           </div>
         </div>
 
         <div class="page-body">
-          <div class="layout-2col-wide">
+          <div style="display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:start">
 
-            <!-- LEFT -->
-            <div class="section-stack">
+            <!-- LEFT COLUMN -->
+            <div style="display:flex;flex-direction:column;gap:16px">
 
-              <!-- Title + description -->
+              <!-- Title + Description -->
               <div class="card">
-                <div class="card-body section-stack">
+                <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
                   <div class="form-group">
                     <label class="form-label">Title</label>
-                    <input class="input" id="pTitle" placeholder="Short sleeve t-shirt" autofocus/>
+                    <input class="input" id="pTitle" placeholder="e.g. Argentina Home Jersey 2026" autofocus
+                      oninput="updateSeoHandle()"/>
                   </div>
                   <div class="form-group">
                     <label class="form-label">Description</label>
-                    <textarea class="textarea" id="pDesc" style="min-height:160px" placeholder="Describe your product..."></textarea>
+                    <textarea class="textarea" id="pDesc" style="min-height:160px" placeholder="Describe this product..."></textarea>
                   </div>
                 </div>
               </div>
 
               <!-- Media -->
               <div class="card">
-                <div class="card-header"><span class="card-title">Media</span></div>
+                <div class="card-header">
+                  <span class="card-title">Media</span>
+                  <span class="text-sm text-muted">First image is the featured image</span>
+                </div>
                 <div class="card-body">
-                  <div id="mediaPreview" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-bottom:12px"></div>
-                  <div class="upload-zone" id="mediaZone" onclick="document.getElementById('mediaInput').click()"
+                  <div id="mediaGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-bottom:12px"></div>
+                  <div class="upload-zone" id="uploadZone"
+                    onclick="document.getElementById('mediaInput').click()"
                     ondragover="event.preventDefault();this.classList.add('drag')"
                     ondragleave="this.classList.remove('drag')"
-                    ondrop="event.preventDefault();this.classList.remove('drag');handleFiles(event.dataTransfer.files)">
+                    ondrop="event.preventDefault();this.classList.remove('drag');addFiles(event.dataTransfer.files)">
                     <div class="upload-icon">🖼️</div>
                     <div class="upload-title">Add photos or videos</div>
-                    <div class="upload-hint">Drag and drop or click to browse — JPG, PNG, GIF, WebP</div>
+                    <div class="upload-hint">Drag & drop, or click to browse — JPG, PNG, GIF up to 10MB</div>
+                    <input type="file" id="mediaInput" accept="image/*" multiple style="display:none" onchange="addFiles(this.files)"/>
                   </div>
-                  <input type="file" id="mediaInput" accept="image/*" multiple style="display:none" onchange="handleFiles(this.files)"/>
                 </div>
               </div>
 
               <!-- Pricing -->
               <div class="card">
                 <div class="card-header"><span class="card-title">Pricing</span></div>
-                <div class="card-body">
-                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+                <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
                     <div class="form-group">
                       <label class="form-label">Price</label>
                       <div class="input-prefix">
-                        <span class="input-prefix-text">$</span>
+                        <span class="input-prefix-text" id="currencySymbol">$</span>
                         <input type="number" id="pPrice" min="0" step="0.01" placeholder="0.00"
-                          style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"/>
+                          style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"
+                          oninput="calcMargin()"/>
                       </div>
                     </div>
                     <div class="form-group">
@@ -94,24 +97,26 @@
                         <input type="number" id="pCompare" min="0" step="0.01" placeholder="0.00"
                           style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"/>
                       </div>
+                      <div class="form-hint">Show a strikethrough price to indicate a sale</div>
                     </div>
                   </div>
                   <label class="checkbox-label">
-                    <input type="checkbox" id="pChargeTax"/> Charge tax on this product
+                    <input type="checkbox" id="pTaxable" checked/> Charge tax on this product
                   </label>
-                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
                     <div class="form-group">
                       <label class="form-label">Cost per item <span class="text-muted">(optional)</span></label>
                       <div class="input-prefix">
                         <span class="input-prefix-text">$</span>
                         <input type="number" id="pCost" min="0" step="0.01" placeholder="0.00"
-                          style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"/>
+                          style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"
+                          oninput="calcMargin()"/>
                       </div>
-                      <div class="form-hint">Customers won't see this</div>
+                      <div class="form-hint">Customers won't see this.</div>
                     </div>
                     <div class="form-group">
-                      <label class="form-label">Profit margin</label>
-                      <div style="height:36px;display:flex;align-items:center;padding:0 12px;background:#f6f6f7;border-radius:8px;font-size:13px;color:#6d7175" id="pMargin">—</div>
+                      <label class="form-label">Profit &amp; margin</label>
+                      <div style="height:36px;display:flex;align-items:center;padding:0 12px;background:#f6f6f7;border-radius:8px;border:1px solid #e3e3e3;font-size:13px;color:#6d7175" id="marginDisplay">—</div>
                     </div>
                   </div>
                 </div>
@@ -120,49 +125,113 @@
               <!-- Inventory -->
               <div class="card">
                 <div class="card-header"><span class="card-title">Inventory</span></div>
-                <div class="card-body section-stack">
-                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
                     <div class="form-group">
-                      <label class="form-label">SKU <span class="text-muted">(optional)</span></label>
-                      <input class="input" id="pSku" placeholder="e.g. JRS-001-BLU"/>
+                      <label class="form-label">SKU <span class="text-muted">(Stock Keeping Unit)</span></label>
+                      <input class="input" id="pSku" placeholder="e.g. ARG-HOME-L"/>
                     </div>
                     <div class="form-group">
-                      <label class="form-label">Barcode <span class="text-muted">(optional)</span></label>
-                      <input class="input" id="pBarcode" placeholder="ISBN, UPC, GTIN"/>
-                    </div>
-                  </div>
-                  <label class="checkbox-label" id="trackQtyToggle">
-                    <input type="checkbox" id="pTrackQty" checked onchange="toggleQty()"/> Track quantity
-                  </label>
-                  <div id="qtySection">
-                    <div class="form-group">
-                      <label class="form-label">Quantity</label>
-                      <input class="input" id="pQty" type="number" min="0" value="0" style="max-width:160px"/>
+                      <label class="form-label">Barcode (ISBN, UPC, GTIN, etc.)</label>
+                      <input class="input" id="pBarcode" placeholder=""/>
                     </div>
                   </div>
                   <label class="checkbox-label">
-                    <input type="checkbox" id="pContinue"/> Continue selling when out of stock
+                    <input type="checkbox" id="pTrackQty" checked onchange="toggleQtySection()"/>
+                    Track quantity
                   </label>
+                  <div id="qtySection">
+                    <div style="display:grid;grid-template-columns:200px 1fr;gap:12px;align-items:end">
+                      <div class="form-group">
+                        <label class="form-label">Available quantity</label>
+                        <input class="input" id="pQty" type="number" min="0" value="0"/>
+                      </div>
+                      <div></div>
+                    </div>
+                    <label class="checkbox-label" style="margin-top:10px">
+                      <input type="checkbox" id="pContinue"/> Continue selling when out of stock
+                    </label>
+                  </div>
                 </div>
               </div>
 
               <!-- Shipping -->
               <div class="card">
                 <div class="card-header"><span class="card-title">Shipping</span></div>
-                <div class="card-body section-stack">
+                <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
                   <label class="checkbox-label">
                     <input type="checkbox" id="pRequiresShipping" checked/> This is a physical product
                   </label>
-                  <div class="form-group">
-                    <label class="form-label">Weight <span class="text-muted">(optional)</span></label>
-                    <div style="display:flex;gap:8px;align-items:center">
-                      <input class="input" type="number" id="pWeight" min="0" step="0.01" placeholder="0.0" style="max-width:120px"/>
-                      <select class="select" style="width:80px">
-                        <option>kg</option>
-                        <option>lb</option>
-                        <option>g</option>
-                        <option>oz</option>
+                  <div style="display:grid;grid-template-columns:140px 100px;gap:12px">
+                    <div class="form-group">
+                      <label class="form-label">Weight</label>
+                      <input class="input" id="pWeight" type="number" min="0" step="0.01" placeholder="0.0"/>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Unit</label>
+                      <select class="select" id="pWeightUnit">
+                        <option value="kg">kg</option>
+                        <option value="g">g</option>
+                        <option value="lb">lb</option>
+                        <option value="oz">oz</option>
                       </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Variants -->
+              <div class="card" id="variantsCard">
+                <div class="card-header">
+                  <span class="card-title">Variants</span>
+                  <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#6d7175">
+                    <span>Add options like size or color</span>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div id="optionsList" style="display:flex;flex-direction:column;gap:12px"></div>
+                  <button class="btn btn-secondary btn-sm" onclick="addOption()" id="addOptionBtn" style="margin-top:8px">
+                    + Add option
+                  </button>
+                  <div id="variantPreview" style="margin-top:16px;display:none">
+                    <div class="divider" style="margin-bottom:14px"></div>
+                    <div class="font-semibold" style="font-size:13px;margin-bottom:8px">Preview variants</div>
+                    <div id="variantRows" style="display:flex;flex-direction:column;gap:6px"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SEO -->
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">Search engine listing</span>
+                  <button class="btn btn-plain btn-sm" onclick="toggleSeo(this)">Edit</button>
+                </div>
+                <div class="card-body" id="seoBody">
+                  <div class="seo-preview" id="seoPreview">
+                    <div class="seo-url" id="seoUrl">—</div>
+                    <div class="seo-title" id="seoTitle">Product title</div>
+                    <div class="seo-desc" id="seoDesc">Add a description to improve SEO</div>
+                  </div>
+                </div>
+                <div class="card-body" id="seoEdit" style="display:none;flex-direction:column;gap:12px">
+                  <div class="form-group">
+                    <label class="form-label">Page title</label>
+                    <input class="input" id="pSeoTitle" oninput="updateSeoPreview()"/>
+                    <div class="form-hint" id="seoTitleCount">0/70 characters</div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Meta description</label>
+                    <textarea class="textarea" id="pSeoDesc" style="min-height:60px" oninput="updateSeoPreview()"></textarea>
+                    <div class="form-hint" id="seoDescCount">0/160 characters</div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">URL handle</label>
+                    <div class="input-prefix">
+                      <span class="input-prefix-text">/products/</span>
+                      <input type="text" id="pSeoHandle"
+                        style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"
+                        oninput="updateSeoPreview()"/>
                     </div>
                   </div>
                 </div>
@@ -170,8 +239,8 @@
 
             </div>
 
-            <!-- RIGHT -->
-            <div class="section-stack">
+            <!-- RIGHT COLUMN -->
+            <div style="display:flex;flex-direction:column;gap:16px;position:sticky;top:16px">
 
               <!-- Status -->
               <div class="card">
@@ -185,76 +254,57 @@
                 </div>
               </div>
 
-              <!-- Product organization -->
+              <!-- Sales channels -->
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">Sales channels</span>
+                </div>
+                <div class="card-body">
+                  <label class="checkbox-label">
+                    <input type="checkbox" checked/> Online Store
+                  </label>
+                </div>
+              </div>
+
+              <!-- Organization -->
               <div class="card">
                 <div class="card-header"><span class="card-title">Product organization</span></div>
-                <div class="card-body section-stack">
+                <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
                   <div class="form-group">
-                    <label class="form-label">Category</label>
+                    <label class="form-label">Product category</label>
                     <select class="select" id="pCategory">
                       <option value="">— Select —</option>
-                      <option value="fashion">Fashion & Apparel</option>
-                      <option value="electronics">Electronics</option>
-                      <option value="sports">Sports & Outdoors</option>
-                      <option value="home">Home & Garden</option>
-                      <option value="beauty">Health & Beauty</option>
-                      <option value="food">Food & Beverage</option>
+                      <option value="apparel">Apparel & Clothing</option>
+                      <option value="jerseys">Jerseys & Sportswear</option>
+                      <option value="footwear">Footwear</option>
+                      <option value="accessories">Accessories</option>
+                      <option value="equipment">Sports Equipment</option>
+                      <option value="collectibles">Collectibles</option>
                       <option value="other">Other</option>
                     </select>
                   </div>
                   <div class="form-group">
                     <label class="form-label">Product type</label>
-                    <input class="input" id="pType" placeholder="e.g. T-Shirt, Jersey"/>
+                    <input class="input" id="pType" placeholder="e.g. Jersey, T-Shirt, Hoodie"/>
                   </div>
                   <div class="form-group">
                     <label class="form-label">Vendor</label>
-                    <input class="input" id="pVendor" placeholder="e.g. Nike, Adidas"/>
+                    <input class="input" id="pVendor" placeholder="e.g. Adidas, Nike, PUMA"/>
                   </div>
                   <div class="form-group">
                     <label class="form-label">Collections</label>
-                    <input class="input" id="pCollections" placeholder="Search collections"/>
-                    <div class="form-hint">Press Enter to add</div>
+                    <div id="collectionPills" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px"></div>
+                    <select class="select" id="collectionSelect" onchange="addToCollection(this.value)">
+                      <option value="">Add to collection...</option>
+                    </select>
                   </div>
                   <div class="form-group">
                     <label class="form-label">Tags</label>
-                    <div class="tag-list" id="tagsContainer">
-                      <input type="text" class="tag-input" id="tagInput" placeholder="Add tag" onkeydown="if(event.key==='Enter'||event.key===','){event.preventDefault();addTag()}"/>
+                    <div class="tag-list" id="tagList">
+                      <input type="text" class="tag-input" id="tagInput" placeholder="Add tag..."
+                        onkeydown="if(event.key==='Enter'||event.key===','){event.preventDefault();addTag(document.getElementById('tagInput').value)}"/>
                     </div>
-                    <div class="form-hint">Press Enter or comma to add a tag</div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- SEO -->
-              <div class="card">
-                <div class="card-header">
-                  <span class="card-title">SEO</span>
-                  <button class="btn btn-plain btn-sm" onclick="toggleSeo()">Edit</button>
-                </div>
-                <div class="card-body" id="seoSection" style="display:none;flex-direction:column;gap:14px">
-                  <div class="form-group">
-                    <label class="form-label">SEO title</label>
-                    <input class="input" id="pSeoTitle" placeholder="Product name — Store name"/>
-                    <div class="form-hint">Appears in search results. Leave blank to use product title.</div>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">SEO description</label>
-                    <textarea class="textarea" id="pSeoDesc" style="min-height:60px" placeholder="Brief description for search engines"></textarea>
-                  </div>
-                  <div>
-                    <div class="form-label" style="margin-bottom:8px">Preview</div>
-                    <div class="seo-preview">
-                      <div class="seo-url" id="seoPreviewUrl"></div>
-                      <div class="seo-title" id="seoPreviewTitle">Product title</div>
-                      <div class="seo-desc" id="seoPreviewDesc">Product description</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="card-body" id="seoTeaser">
-                  <div class="seo-preview" id="seoPreviewSmall">
-                    <div class="seo-url" id="seoPvUrl"></div>
-                    <div class="seo-title" id="seoPvTitle">Product title</div>
-                    <div class="seo-desc" id="seoPvDesc" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%">—</div>
+                    <div class="form-hint">Separate tags with commas or press Enter</div>
                   </div>
                 </div>
               </div>
@@ -274,78 +324,33 @@
   const session = await initAdmin('products');
   if (!session) return;
   
-  const _tags = [];
+  // ── STATE ─────────────────────────────────────────
   const _imgs = [];
+  const _tags = [];
+  const _collections = [];
+  let _allCollections = [];
+  let _options = [];
+  let _generatedVariants = [];
 
-  function toggleQty() {
+  // ── MARGIN CALCULATOR ─────────────────────────────
+  function calcMargin() {
+    const price = parseFloat(document.getElementById('pPrice').value) || 0;
+    const cost = parseFloat(document.getElementById('pCost').value) || 0;
+    const el = document.getElementById('marginDisplay');
+    if (!price) { el.textContent = '—'; return; }
+    const profit = price - cost;
+    const margin = price > 0 ? (profit / price * 100).toFixed(1) : 0;
+    el.textContent = profit >= 0 ? `$${profit.toFixed(2)} / ${margin}%` : `–$${Math.abs(profit).toFixed(2)} loss`;
+    el.style.color = profit >= 0 ? 'var(--p-color-text-success)' : 'var(--p-color-text-critical)';
+  }
+
+  // ── INVENTORY TOGGLE ──────────────────────────────
+  function toggleQtySection() {
     document.getElementById('qtySection').style.display = document.getElementById('pTrackQty').checked ? '' : 'none';
   }
 
-  function toggleSeo() {
-    const s = document.getElementById('seoSection');
-    const t = document.getElementById('seoTeaser');
-    const showing = s.style.display !== 'none';
-    s.style.display = showing ? 'none' : 'flex';
-    t.style.display = showing ? '' : 'none';
-  }
-
-  // Live SEO preview
-  document.getElementById('pTitle').addEventListener('input', () => {
-    const title = document.getElementById('pTitle').value || 'Product title';
-    const slug2 = Auth.getSlug();
-    const url = window.location.origin + '/sivra-storefront.html?store=' + slug2;
-    document.getElementById('seoPreviewUrl').textContent = url;
-    document.getElementById('seoPreviewTitle').textContent = title;
-    document.getElementById('seoPvUrl').textContent = url;
-    document.getElementById('seoPvTitle').textContent = title;
-  });
-
-  // Margin calculator
-  function updateMargin() {
-    const price = parseFloat(document.getElementById('pPrice').value) || 0;
-    const cost = parseFloat(document.getElementById('pCost').value) || 0;
-    const el = document.getElementById('pMargin');
-    if (!price || !cost) { el.textContent = '—'; return; }
-    const margin = ((price - cost) / price * 100).toFixed(1);
-    const profit = (price - cost).toFixed(2);
-    el.textContent = `$${profit} (${margin}%)`;
-    el.style.color = parseFloat(profit) >= 0 ? 'var(--p-color-text-success)' : 'var(--p-color-text-critical)';
-  }
-  document.getElementById('pPrice').addEventListener('input', updateMargin);
-  document.getElementById('pCost').addEventListener('input', updateMargin);
-
-  // Tag handling
-  function addTag() {
-    const input = document.getElementById('tagInput');
-    const val = input.value.trim().replace(/,$/, '');
-    if (!val || _tags.includes(val)) { input.value=''; return; }
-    _tags.push(val);
-    renderTags();
-    input.value = '';
-  }
-
-  function removeTag(tag) {
-    const idx = _tags.indexOf(tag);
-    if (idx > -1) _tags.splice(idx, 1);
-    renderTags();
-  }
-
-  function renderTags() {
-    const container = document.getElementById('tagsContainer');
-    const input = document.getElementById('tagInput');
-    container.innerHTML = '';
-    _tags.forEach(tag => {
-      const el = document.createElement('span');
-      el.className = 'tag-item';
-      el.innerHTML = `${tag}<button class="tag-remove" onclick="removeTag('${tag}')">×</button>`;
-      container.appendChild(el);
-    });
-    container.appendChild(input);
-    input.focus();
-  }
-
-  // Image handling
-  function handleFiles(files) {
+  // ── MEDIA ─────────────────────────────────────────
+  function addFiles(files) {
     Array.from(files).forEach(file => {
       if (!file.type.startsWith('image/')) return;
       const reader = new FileReader();
@@ -355,11 +360,10 @@
           const MAX = 900;
           const scale = img.width > MAX ? MAX / img.width : 1;
           const canvas = document.createElement('canvas');
-          canvas.width = img.width * scale;
-          canvas.height = img.height * scale;
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
           canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
-          _imgs.push(dataUrl);
+          _imgs.push(canvas.toDataURL('image/jpeg', 0.82));
           renderMedia();
         };
         img.src = e.target.result;
@@ -369,67 +373,296 @@
   }
 
   function renderMedia() {
-    const preview = document.getElementById('mediaPreview');
-    const zone = document.getElementById('mediaZone');
-    zone.style.display = _imgs.length ? 'none' : '';
-    preview.innerHTML = _imgs.map((src, i) => `
-      <div style="position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid #e3e3e3">
+    const grid = document.getElementById('mediaGrid');
+    const zone = document.getElementById('uploadZone');
+    zone.style.display = _imgs.length === 0 ? '' : 'none';
+    grid.innerHTML = _imgs.map((src, i) => `
+      <div style="position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid ${i===0?'#1a1a1a':'#e3e3e3'};background:#f6f6f7">
         <img src="${src}" style="width:100%;height:100%;object-fit:cover"/>
-        ${i===0?'<span style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.5);color:white;font-size:10px;text-align:center;padding:4px">Main</span>':''}
-        <button onclick="_imgs.splice(${i},1);renderMedia()" style="position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.5);border:none;color:white;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">×</button>
+        ${i===0?'<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.55);color:white;font-size:10px;font-weight:600;text-align:center;padding:3px">Main</div>':''}
+        <button onclick="_imgs.splice(${i},1);renderMedia()" style="position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.55);border:none;color:white;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center">×</button>
+      </div>`).join('') +
+      (_imgs.length > 0 ? `<div onclick="document.getElementById('mediaInput').click()" style="aspect-ratio:1;border:2px dashed #e3e3e3;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#8c9196;font-size:24px;transition:all 0.1s" onmouseover="this.style.borderColor='#1a1a1a'" onmouseout="this.style.borderColor='#e3e3e3'">+</div>` : '');
+  }
+
+  // ── TAGS ──────────────────────────────────────────
+  function addTag(val) {
+    const tags = val.split(',').map(t => t.trim()).filter(t => t && !_tags.includes(t));
+    tags.forEach(t => _tags.push(t));
+    renderTags();
+    document.getElementById('tagInput').value = '';
+  }
+  function removeTag(t) { _tags.splice(_tags.indexOf(t), 1); renderTags(); }
+  function renderTags() {
+    const list = document.getElementById('tagList');
+    const input = document.getElementById('tagInput');
+    list.innerHTML = '';
+    _tags.forEach(t => {
+      const span = document.createElement('span');
+      span.className = 'tag-item';
+      span.innerHTML = `${t}<button class="tag-remove" onclick="removeTag('${t.replace(/'/g,"\'")}')">×</button>`;
+      list.appendChild(span);
+    });
+    list.appendChild(input);
+  }
+
+  // ── COLLECTIONS ───────────────────────────────────
+  async function loadCollections() {
+    try {
+      const data = await API.get('/api/collections');
+      _allCollections = data.collections || [];
+      const sel = document.getElementById('collectionSelect');
+      sel.innerHTML = '<option value="">Add to collection...</option>' +
+        _allCollections.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    } catch(e) {}
+  }
+
+  function addToCollection(id) {
+    if (!id || _collections.includes(id)) { document.getElementById('collectionSelect').value=''; return; }
+    _collections.push(id);
+    renderCollections();
+    document.getElementById('collectionSelect').value = '';
+  }
+
+  function removeFromCollection(id) { _collections.splice(_collections.indexOf(id), 1); renderCollections(); }
+
+  function renderCollections() {
+    const pills = document.getElementById('collectionPills');
+    pills.innerHTML = _collections.map(id => {
+      const c = _allCollections.find(x => x.id === id);
+      return c ? `<span class="tag-item">${c.name}<button class="tag-remove" onclick="removeFromCollection('${id}')">×</button></span>` : '';
+    }).join('');
+  }
+
+  // ── OPTIONS & VARIANTS ────────────────────────────
+  function addOption() {
+    if (_options.length >= 3) { Toast.error('Maximum 3 options (e.g. Size, Color, Material)'); return; }
+    const idx = _options.length;
+    const defaultNames = ['Size','Color','Material'];
+    _options.push({ name: defaultNames[idx] || 'Option', values: [] });
+    renderOptions();
+  }
+
+  function removeOption(idx) {
+    _options.splice(idx, 1);
+    renderOptions();
+    generateVariants();
+  }
+
+  function updateOptionName(idx, name) {
+    _options[idx].name = name;
+    generateVariants();
+  }
+
+  function addOptionValue(idx, val) {
+    val = val.trim();
+    if (!val || _options[idx].values.includes(val)) return;
+    _options[idx].values.push(val);
+    renderOptionValues(idx);
+    generateVariants();
+  }
+
+  function removeOptionValue(oIdx, vIdx) {
+    _options[oIdx].values.splice(vIdx, 1);
+    renderOptionValues(oIdx);
+    generateVariants();
+  }
+
+  function renderOptions() {
+    const list = document.getElementById('optionsList');
+    const addBtn = document.getElementById('addOptionBtn');
+    if (!_options.length) { list.innerHTML = ''; addBtn.style.display = ''; return; }
+    addBtn.style.display = _options.length >= 3 ? 'none' : '';
+    list.innerHTML = _options.map((opt, i) => `
+      <div style="border:1px solid #e3e3e3;border-radius:8px;overflow:hidden">
+        <div style="padding:10px 12px;background:#f9f9f9;border-bottom:1px solid #e3e3e3;display:flex;align-items:center;gap:8px">
+          <div class="form-label" style="margin:0;width:80px">Option name</div>
+          <input class="input" value="${opt.name}" onchange="updateOptionName(${i},this.value)"
+            style="flex:1;font-weight:600" placeholder="Size, Color, etc."/>
+          <button onclick="removeOption(${i})" class="btn btn-secondary btn-sm" style="color:#c0392b">Remove</button>
+        </div>
+        <div style="padding:12px">
+          <div class="form-label" style="margin-bottom:6px">Option values</div>
+          <div id="optVals-${i}" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">${opt.values.map((v,vi) => `
+            <span style="display:flex;align-items:center;gap:4px;padding:4px 10px;background:#e3e3e3;border-radius:20px;font-size:12px;font-weight:500">
+              ${v}<button onclick="removeOptionValue(${i},${vi})" style="background:none;border:none;cursor:pointer;color:#5c5f62;font-size:14px;line-height:1;padding:0 0 0 2px">×</button>
+            </span>`).join('')}
+          </div>
+          <div style="display:flex;gap:6px">
+            <input class="input" id="optInput-${i}" placeholder="Add value (e.g. S, M, L, XL)"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();addOptionValue(${i},this.value);this.value=''}"
+              style="flex:1"/>
+            <button class="btn btn-secondary btn-sm" onclick="addOptionValue(${i},document.getElementById('optInput-${i}').value);document.getElementById('optInput-${i}').value=''">Add</button>
+          </div>
+        </div>
       </div>`).join('');
-    if (_imgs.length) {
-      const addMore = document.createElement('div');
-      addMore.style.cssText='aspect-ratio:1;border:2px dashed #e3e3e3;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:24px;color:#8c9196';
-      addMore.textContent = '+';
-      addMore.onclick = () => document.getElementById('mediaInput').click();
-      preview.appendChild(addMore);
+  }
+
+  function renderOptionValues(idx) {
+    const el = document.getElementById('optVals-'+idx);
+    if (!el) { renderOptions(); return; }
+    const opt = _options[idx];
+    el.innerHTML = opt.values.map((v,vi) => `
+      <span style="display:flex;align-items:center;gap:4px;padding:4px 10px;background:#e3e3e3;border-radius:20px;font-size:12px;font-weight:500">
+        ${v}<button onclick="removeOptionValue(${idx},${vi})" style="background:none;border:none;cursor:pointer;color:#5c5f62;font-size:14px;line-height:1;padding:0 0 0 2px">×</button>
+      </span>`).join('');
+  }
+
+  function cartesian(arrays) {
+    return arrays.reduce((acc, arr) => acc.flatMap(a => arr.map(b => [...a, b])), [[]]);
+  }
+
+  function generateVariants() {
+    const filledOpts = _options.filter(o => o.values.length > 0);
+    if (!filledOpts.length) { _generatedVariants = []; document.getElementById('variantPreview').style.display='none'; return; }
+    const combos = cartesian(filledOpts.map(o => o.values));
+    const basePrice = parseFloat(document.getElementById('pPrice').value) || 0;
+    _generatedVariants = combos.map(combo => {
+      const title = combo.join(' / ');
+      const existing = _generatedVariants.find(v => v._title === title) || {};
+      return {
+        _title: title,
+        option1: combo[0] || null,
+        option2: combo[1] || null,
+        option3: combo[2] || null,
+        title, price: existing.price !== undefined ? existing.price : basePrice,
+        sku: existing.sku || '',
+        quantity: existing.quantity !== undefined ? existing.quantity : 0,
+      };
+    });
+    renderVariantPreview();
+  }
+
+  function renderVariantPreview() {
+    const preview = document.getElementById('variantPreview');
+    if (!_generatedVariants.length) { preview.style.display='none'; return; }
+    preview.style.display = '';
+    document.getElementById('variantRows').innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 100px 100px 80px;gap:8px;padding:6px 0;font-size:12px;font-weight:600;color:#6d7175;border-bottom:1px solid #e3e3e3">
+        <span>Variant</span><span>Price</span><span>SKU</span><span>Qty</span>
+      </div>` +
+      _generatedVariants.map((v, i) => `
+      <div style="display:grid;grid-template-columns:1fr 100px 100px 80px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid #f0f0f0">
+        <span style="font-size:13px;font-weight:500">${v._title}</span>
+        <div class="input-prefix" style="height:30px">
+          <span class="input-prefix-text" style="padding:0 6px;height:30px">$</span>
+          <input type="number" value="${v.price}" step="0.01" min="0"
+            style="flex:1;height:30px;padding:0 8px;border:none;outline:none;font-size:12px;font-family:inherit;background:none;color:#303030"
+            onchange="_generatedVariants[${i}].price=parseFloat(this.value)||0"/>
+        </div>
+        <input class="input" value="${v.sku}" placeholder="SKU"
+          style="height:30px;padding:0 8px;font-size:12px"
+          onchange="_generatedVariants[${i}].sku=this.value"/>
+        <input class="input" type="number" value="${v.quantity}" min="0"
+          style="height:30px;padding:0 8px;font-size:12px"
+          onchange="_generatedVariants[${i}].quantity=parseInt(this.value)||0"/>
+      </div>`).join('');
+  }
+
+  // ── SEO ───────────────────────────────────────────
+  function toggleSeo(btn) {
+    const edit = document.getElementById('seoEdit');
+    const body = document.getElementById('seoBody');
+    if (edit.style.display === 'none') {
+      edit.style.display = 'flex';
+      body.style.display = 'none';
+      btn.textContent = 'Done';
+      // Pre-fill
+      if (!document.getElementById('pSeoTitle').value) {
+        document.getElementById('pSeoTitle').value = document.getElementById('pTitle').value;
+        updateSeoPreview();
+      }
+    } else {
+      edit.style.display = 'none';
+      body.style.display = '';
+      btn.textContent = 'Edit';
+      updateSeoPreview();
     }
   }
 
+  function updateSeoHandle() {
+    const title = document.getElementById('pTitle').value;
+    const handle = Fmt.slug(title);
+    document.getElementById('pSeoHandle').value = handle;
+    updateSeoPreview();
+  }
+
+  function updateSeoPreview() {
+    const title = document.getElementById('pSeoTitle').value || document.getElementById('pTitle').value || 'Product title';
+    const desc = document.getElementById('pSeoDesc').value || 'Add a description to improve SEO';
+    const handle = document.getElementById('pSeoHandle').value || Fmt.slug(document.getElementById('pTitle').value || 'product');
+    const slug2 = Auth.getSlug();
+    const url = window.location.origin + '/sivra-storefront.html?store=' + slug2;
+    document.getElementById('seoUrl').textContent = url + ' › ' + handle;
+    document.getElementById('seoTitle').textContent = title;
+    document.getElementById('seoDesc').textContent = desc;
+    document.getElementById('seoTitleCount').textContent = title.length + '/70 characters';
+    document.getElementById('seoDescCount').textContent = desc.length + '/160 characters';
+  }
+
+  // ── SAVE ──────────────────────────────────────────
   async function saveProduct(statusOverride) {
     const title = document.getElementById('pTitle').value.trim();
-    const price = parseFloat(document.getElementById('pPrice').value);
+    const priceVal = document.getElementById('pPrice').value;
     if (!title) { Toast.error('Product title is required'); return; }
-    if (isNaN(price) || price < 0) { Toast.error('Enter a valid price'); return; }
+    if (!priceVal && !_generatedVariants.length) { Toast.error('Price is required'); return; }
 
     const btn = document.getElementById('saveBtn');
-    btn.textContent = 'Saving...'; btn.disabled = true;
+    const draftBtn = document.getElementById('draftBtn');
+    btn.disabled = true; btn.textContent = 'Saving...';
+    draftBtn.disabled = true;
 
     try {
+      const hasVariants = _options.length > 0 && _generatedVariants.length > 0;
       const data = {
         title,
         description: document.getElementById('pDesc').value,
-        price,
+        price: parseFloat(priceVal) || (hasVariants ? Math.min(..._generatedVariants.map(v => v.price)) : 0),
         comparePrice: parseFloat(document.getElementById('pCompare').value) || null,
-        cost: parseFloat(document.getElementById('pCost').value) || null,
+        cost_per_item: parseFloat(document.getElementById('pCost').value) || null,
         sku: document.getElementById('pSku').value.trim() || null,
         barcode: document.getElementById('pBarcode').value.trim() || null,
         quantity: parseInt(document.getElementById('pQty').value) || 0,
         trackQty: document.getElementById('pTrackQty').checked,
+        continue_selling: document.getElementById('pContinue').checked,
         weight: parseFloat(document.getElementById('pWeight').value) || 0,
+        weight_unit: document.getElementById('pWeightUnit').value,
         category: document.getElementById('pCategory').value || null,
-        type: document.getElementById('pType').value || null,
+        product_type: document.getElementById('pType').value || null,
         vendor: document.getElementById('pVendor').value || null,
         tags: _tags.join(','),
+        taxable: document.getElementById('pTaxable').checked,
         status: statusOverride || document.getElementById('pStatus').value,
         images: _imgs,
+        seo_title: document.getElementById('pSeoTitle').value || null,
+        seo_description: document.getElementById('pSeoDesc').value || null,
+        seo_handle: document.getElementById('pSeoHandle').value || null,
+        options: _options.map(o => ({ name: o.name, values: o.values })),
+        variants: _generatedVariants.map(v => ({
+          title: v._title, option1: v.option1, option2: v.option2, option3: v.option3,
+          price: v.price, sku: v.sku, quantity: v.quantity,
+        })),
       };
 
-      await API.post('/api/products', data);
-      Toast.success('Product saved!');
-      setTimeout(() => location.href = 'sivra-products.html', 800);
+      const product = await API.post('/api/products', data);
+
+      // Assign to collections
+      for (const colId of _collections) {
+        try { await API.post(`/api/collections/${colId}/products`, { productId: product.id }); } catch(e) {}
+      }
+
+      Toast.success(statusOverride === 'draft' ? 'Saved as draft' : 'Product saved!');
+      setTimeout(() => location.href = 'sivra-products.html', 600);
     } catch(e) {
       Toast.error(e.message || 'Failed to save product');
-      btn.textContent = 'Save'; btn.disabled = false;
+      btn.disabled = false; btn.textContent = 'Save';
+      draftBtn.disabled = false;
     }
   }
 
-  // Set today's date in SEO preview
-  const slug3 = Auth.getSlug();
-  const storeUrl = window.location.origin + '/sivra-storefront.html?store=' + slug3;
-  document.getElementById('seoPreviewUrl').textContent = storeUrl;
-  document.getElementById('seoPvUrl').textContent = storeUrl;
+  // ── INIT ──────────────────────────────────────────
+  loadCollections();
+  updateSeoPreview();
 
 })();
 </script>
