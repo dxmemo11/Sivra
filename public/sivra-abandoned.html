@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sivra — Abandoned checkouts</title>
+  <link rel="stylesheet" href="admin-tokens.css"/>
+  <link rel="stylesheet" href="admin-layout.css"/>
+  <link rel="stylesheet" href="admin-components.css"/>
+  
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div>
+</aside>
+  <div class="main">
+    <div class="topbar" id="sivraTopbar"></div>
+    <div class="page-scroll">
+      <div style="max-width:1280px;margin:0 auto">
+
+        <div class="breadcrumb">
+          <a href="sivra-orders.html" class="breadcrumb-link">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Orders
+          </a>
+          <span class="breadcrumb-sep">/</span>
+          <span class="breadcrumb-current">Abandoned checkouts</span>
+        </div>
+
+        <div class="page-header">
+          <h1 class="page-title">Abandoned checkouts</h1>
+          <button class="btn btn-secondary" onclick="exportAbandoned()">Export</button>
+        </div>
+
+        <div class="page-body">
+
+          <!-- Stats -->
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+            <div class="stat-card">
+              <div class="stat-label">Total abandoned</div>
+              <div class="stat-value" id="statTotal">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Recovered</div>
+              <div class="stat-value" id="statRecovered" style="color:var(--p-color-text-success)">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Recovery rate</div>
+              <div class="stat-value" id="statRate">—</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="tabs">
+              <div class="tab active" onclick="setTab(this,'all')">All</div>
+              <div class="tab" onclick="setTab(this,'open')">Open</div>
+              <div class="tab" onclick="setTab(this,'recovered')">Recovered</div>
+            </div>
+
+            <div style="overflow-x:auto">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Email</th>
+                    <th class="cell-number">Cart value</th>
+                    <th>Items</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="aBody">
+                  <tr><td colspan="6">
+                    <div class="empty-state">
+                      <div class="empty-icon">🛒</div>
+                      <div class="empty-title">No abandoned checkouts</div>
+                      <div class="empty-desc">When customers add items to their cart but don't complete checkout, they'll appear here</div>
+                    </div>
+                  </td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:16px">
+            <div class="card-header"><span class="card-title">Recovery tips</span></div>
+            <div class="card-body">
+              <div style="display:flex;flex-direction:column;gap:16px">
+                <div style="display:flex;gap:14px;padding:14px;background:#f9f9f9;border-radius:8px">
+                  <div style="font-size:24px;flex-shrink:0">📧</div>
+                  <div>
+                    <div class="font-semibold" style="font-size:13px;margin-bottom:4px">Recovery emails</div>
+                    <div class="text-muted text-sm">Send automated emails to customers who abandon their cart. Set up in <a href="sivra-settings.html" style="color:var(--p-color-text-emphasis)">Notifications settings</a>.</div>
+                  </div>
+                </div>
+                <div style="display:flex;gap:14px;padding:14px;background:#f9f9f9;border-radius:8px">
+                  <div style="font-size:24px;flex-shrink:0">🏷️</div>
+                  <div>
+                    <div class="font-semibold" style="font-size:13px;margin-bottom:4px">Discount codes</div>
+                    <div class="text-muted text-sm">Create a discount code to include in recovery emails. <a href="sivra-discounts.html" style="color:var(--p-color-text-emphasis)">Create a discount →</a></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="sivra-toast"></div>
+<script src="admin.js"></script>
+<script>
+(async function() {
+  const session = await initAdmin('orders');
+  if (!session) return;
+  
+  let _all = [], _tab = 'all';
+
+  function setTab(el, tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active'); _tab = tab; render();
+  }
+
+  function render() {
+    let list = [..._all];
+    if (_tab === 'open') list = list.filter(a => !a.recovered_at);
+    if (_tab === 'recovered') list = list.filter(a => a.recovered_at);
+
+    const tbody = document.getElementById('aBody');
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">
+        <div class="empty-icon">🛒</div>
+        <div class="empty-title">${_all.length===0?'No abandoned checkouts':'No checkouts in this category'}</div>
+        <div class="empty-desc">Abandoned carts will appear here when customers leave without completing checkout</div>
+      </div></td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = list.map(a => {
+      const status = a.recovered_at
+        ? '<span class="badge badge-success">Recovered</span>'
+        : '<span class="badge badge-warning">Open</span>';
+      return `<tr>
+        <td class="cell-muted">${Fmt.datetime(a.created_at)}</td>
+        <td>${a.first_name||''} ${a.last_name||''} ${!a.first_name&&!a.last_name?'<span class="text-muted">Guest</span>':''}</td>
+        <td class="cell-muted">${a.email||'—'}</td>
+        <td class="cell-number font-medium">${Fmt.money(a.total_price||0)}</td>
+        <td class="cell-muted">${a.line_items_count||'—'} items</td>
+        <td>${status}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function exportAbandoned() {
+    const rows = [['Date','Customer','Email','Value','Status']];
+    _all.forEach(a => rows.push([
+      Fmt.date(a.created_at), [a.first_name,a.last_name].filter(Boolean).join(' '),
+      a.email||'', a.total_price||0, a.recovered_at?'Recovered':'Open'
+    ]));
+    exportCSV(rows, 'abandoned-checkouts.csv');
+    Toast.success('Exported');
+  }
+
+  (async () => {
+    try {
+      const data = await API.get('/api/abandoned');
+      _all = data.checkouts || [];
+      const recovered = _all.filter(a => a.recovered_at).length;
+      document.getElementById('statTotal').textContent = _all.length;
+      document.getElementById('statRecovered').textContent = recovered;
+      document.getElementById('statRate').textContent = _all.length ? Math.round(recovered/_all.length*100)+'%' : '0%';
+      render();
+    } catch(e) {
+      // Endpoint may not exist yet
+      document.getElementById('statTotal').textContent = '0';
+      document.getElementById('statRecovered').textContent = '0';
+      document.getElementById('statRate').textContent = '0%';
+      render();
+    }
+  })();
+
+})();
+</script>
+</body>
+</html>

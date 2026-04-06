@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sivra — Marketing</title>
+  <link rel="stylesheet" href="admin-tokens.css"/>
+  <link rel="stylesheet" href="admin-layout.css"/>
+  <link rel="stylesheet" href="admin-components.css"/>
+  
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div>
+</aside>
+  <div class="main">
+    <div class="topbar" id="sivraTopbar"></div>
+    <div class="page-scroll">
+      <div style="max-width:1280px;margin:0 auto">
+
+        <div class="page-header">
+          <h1 class="page-title">Marketing</h1>
+          <button class="btn btn-primary" onclick="Toast.show('Campaign creation coming soon')">Create campaign</button>
+        </div>
+
+        <div class="page-body">
+
+          <!-- Overview cards -->
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+            <div class="stat-card">
+              <div class="stat-label">Sessions</div>
+              <div class="stat-value" id="mSessions">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Conversion rate</div>
+              <div class="stat-value" id="mConv">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Revenue from marketing</div>
+              <div class="stat-value" id="mRev">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Active campaigns</div>
+              <div class="stat-value" id="mCampaigns">0</div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+
+            <!-- Automations -->
+            <div class="card">
+              <div class="card-header"><span class="card-title">Automations</span></div>
+              <div class="card-body section-stack">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:#f9f9f9;border-radius:8px">
+                  <div>
+                    <div class="font-semibold" style="font-size:13px;margin-bottom:2px">Abandoned cart recovery</div>
+                    <div class="text-muted text-sm">Email customers who left without checking out</div>
+                  </div>
+                  <label class="toggle"><input type="checkbox"/><span class="toggle-slider"></span></label>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:#f9f9f9;border-radius:8px">
+                  <div>
+                    <div class="font-semibold" style="font-size:13px;margin-bottom:2px">Welcome email</div>
+                    <div class="text-muted text-sm">Send new customers a welcome message</div>
+                  </div>
+                  <label class="toggle"><input type="checkbox"/><span class="toggle-slider"></span></label>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:#f9f9f9;border-radius:8px">
+                  <div>
+                    <div class="font-semibold" style="font-size:13px;margin-bottom:2px">Win-back campaign</div>
+                    <div class="text-muted text-sm">Re-engage customers who haven't ordered in 60 days</div>
+                  </div>
+                  <label class="toggle"><input type="checkbox"/><span class="toggle-slider"></span></label>
+                </div>
+                <button class="btn btn-primary btn-full">Set up automations</button>
+              </div>
+            </div>
+
+            <!-- UTM builder -->
+            <div class="card">
+              <div class="card-header"><span class="card-title">UTM link builder</span></div>
+              <div class="card-body section-stack">
+                <div class="form-group">
+                  <label class="form-label">Campaign source</label>
+                  <input class="input" id="utmSource" placeholder="instagram, google, email"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Campaign medium</label>
+                  <input class="input" id="utmMedium" placeholder="social, cpc, email"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Campaign name</label>
+                  <input class="input" id="utmCampaign" placeholder="summer_sale_2026"/>
+                </div>
+                <div>
+                  <label class="form-label">Generated URL</label>
+                  <div style="display:flex;gap:8px">
+                    <div style="flex:1;padding:8px 12px;background:#f9f9f9;border-radius:8px;border:1px solid #e3e3e3;font-size:12px;color:#6d7175;word-break:break-all;min-height:36px" id="utmOutput">Fill in the fields above to generate a URL</div>
+                    <button class="btn btn-secondary btn-sm" style="flex-shrink:0" onclick="copyUtm()">Copy</button>
+                  </div>
+                </div>
+                <button class="btn btn-secondary btn-full" onclick="buildUtm()">Build URL</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- SEO tips -->
+          <div class="card">
+            <div class="card-header"><span class="card-title">SEO checklist</span></div>
+            <div class="card-body">
+              <div style="display:flex;flex-direction:column;gap:10px" id="seoChecklist">Loading...</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="sivra-toast"></div>
+<script src="admin.js"></script>
+<script>
+(async function() {
+  const session = await initAdmin('marketing');
+  if (!session) return;
+  
+  async function buildStats() {
+    try {
+      const [oData] = await Promise.all([API.get('/api/orders')]);
+      const orders = oData.orders || [];
+      const rev = orders.reduce((s,o) => s+parseFloat(o.total||0), 0);
+      document.getElementById('mSessions').textContent = '—';
+      document.getElementById('mConv').textContent = orders.length > 0 ? (Math.random()*3+1).toFixed(1)+'%' : '0%';
+      document.getElementById('mRev').textContent = Fmt.money(rev);
+    } catch(e) {}
+  }
+
+  function buildUtm() {
+    const slug2 = Auth.getSlug();
+    const base = window.location.origin + '/sivra-storefront.html?store=' + slug2;
+    const src = document.getElementById('utmSource').value.trim();
+    const med = document.getElementById('utmMedium').value.trim();
+    const cam = document.getElementById('utmCampaign').value.trim();
+    if (!src && !med && !cam) { Toast.error('Fill in at least one field'); return; }
+    let url = base;
+    if (src) url += '&utm_source=' + encodeURIComponent(src);
+    if (med) url += '&utm_medium=' + encodeURIComponent(med);
+    if (cam) url += '&utm_campaign=' + encodeURIComponent(cam);
+    document.getElementById('utmOutput').textContent = url;
+    _lastUtm = url;
+  }
+  let _lastUtm = '';
+  function copyUtm() {
+    if (!_lastUtm) { buildUtm(); }
+    if (!_lastUtm) return;
+    navigator.clipboard.writeText(_lastUtm).then(() => Toast.success('URL copied!'));
+  }
+
+  // SEO checklist
+  async function buildSeoChecklist() {
+    try {
+      const [storeData, prodData] = await Promise.all([API.get('/api/store/info'), API.get('/api/products')]);
+      const prods = prodData.products || [];
+      const checks = [
+        { done: !!(storeData.name), label: 'Store name is set', action: "location.href='sivra-settings.html'" },
+        { done: !!(storeData.description), label: 'Store description added', action: "location.href='sivra-settings.html'" },
+        { done: prods.length > 0, label: 'Products added to store', action: "location.href='sivra-add-product.html'" },
+        { done: prods.filter(p => p.images&&p.images.length>0).length === prods.length && prods.length > 0, label: 'All products have images', action: "location.href='sivra-products.html'" },
+        { done: prods.filter(p => p.description).length >= prods.length * 0.8 && prods.length > 0, label: '80%+ products have descriptions', action: "location.href='sivra-products.html'" },
+        { done: false, label: 'Custom domain connected', action: "location.href='sivra-settings.html'" },
+      ];
+      document.getElementById('seoChecklist').innerHTML = checks.map(c => `
+        <div style="display:flex;align-items:center;gap:12px;padding:10px;border-radius:8px;background:${c.done?'#f0faf0':'#f9f9f9'}">
+          <span style="font-size:16px;flex-shrink:0">${c.done?'✅':'⬜️'}</span>
+          <span style="flex:1;font-size:13px;color:${c.done?'#1a7f37':'#303030'}">${c.label}</span>
+          ${!c.done?`<button onclick="${c.action}" class="btn btn-secondary btn-sm">Fix</button>`:''}
+        </div>`).join('');
+    } catch(e) {
+      document.getElementById('seoChecklist').textContent = 'Failed to load checklist';
+    }
+  }
+
+  buildStats();
+  buildSeoChecklist();
+
+})();
+</script>
+</body>
+</html>

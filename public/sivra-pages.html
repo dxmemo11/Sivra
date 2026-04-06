@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sivra — Pages</title>
+  <link rel="stylesheet" href="admin-tokens.css"/>
+  <link rel="stylesheet" href="admin-layout.css"/>
+  <link rel="stylesheet" href="admin-components.css"/>
+  
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div>
+</aside>
+  <div class="main">
+    <div class="topbar" id="sivraTopbar"></div>
+    <div class="page-scroll">
+      <div style="max-width:1280px;margin:0 auto">
+
+        <div class="page-header">
+          <h1 class="page-title">Pages</h1>
+          <button class="btn btn-primary" onclick="openCreate()">Add page</button>
+        </div>
+
+        <div class="page-body">
+          <div class="card">
+            <div class="filter-bar">
+              <div class="filter-search">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4" stroke="#8c9196" stroke-width="1.3"/><path d="M9 9l3 3" stroke="#8c9196" stroke-width="1.3" stroke-linecap="round"/></svg>
+                <input type="text" placeholder="Search pages" id="searchInput" oninput="render()"/>
+              </div>
+            </div>
+            <div style="overflow-x:auto">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Slug</th>
+                    <th>Status</th>
+                    <th>Updated</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="pagesBody">
+                  <tr><td colspan="5" style="text-align:center;padding:48px;color:#8c9196">Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Create/Edit page modal -->
+        <div class="modal-overlay" id="pageModal">
+          <div class="modal" style="max-width:680px">
+            <div class="modal-header">
+              <span class="modal-title" id="pageModalTitle">Add page</span>
+              <button class="modal-close" onclick="closePage()">×</button>
+            </div>
+            <div class="modal-body" style="display:flex;flex-direction:column;gap:16px">
+              <div class="form-group">
+                <label class="form-label">Title</label>
+                <input class="input" id="pageTitle" placeholder="e.g. About Us" oninput="updateSlug()"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Handle / URL</label>
+                <div class="input-prefix">
+                  <span class="input-prefix-text">/pages/</span>
+                  <input type="text" id="pageSlug" placeholder="about-us"
+                    style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"/>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Content</label>
+                <textarea class="textarea" id="pageContent" style="min-height:200px" placeholder="Write your page content here..."></textarea>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div class="form-group">
+                  <label class="form-label">SEO title <span class="text-muted">(optional)</span></label>
+                  <input class="input" id="pageSeoTitle" placeholder="Leave blank to use page title"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">SEO description <span class="text-muted">(optional)</span></label>
+                  <input class="input" id="pageSeoDesc" placeholder="Brief description for search engines"/>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Visibility</label>
+                <select class="select" id="pageStatus">
+                  <option value="published">Published — visible on storefront</option>
+                  <option value="hidden">Hidden — not visible on storefront</option>
+                </select>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" onclick="closePage()">Cancel</button>
+              <button class="btn btn-primary" onclick="savePage()" id="savePageBtn">Save page</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="sivra-toast"></div>
+<script src="admin.js"></script>
+<script>
+(async function() {
+  const session = await initAdmin('online-store');
+  if (!session) return;
+  
+  let _pages = [], _editing = null;
+
+  function render() {
+    const q = (document.getElementById('searchInput')?.value||'').toLowerCase();
+    let list = [..._pages];
+    if (q) list = list.filter(p => (p.title||'').toLowerCase().includes(q));
+    const tbody = document.getElementById('pagesBody');
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state">
+        <div class="empty-icon">📄</div>
+        <div class="empty-title">${_pages.length===0?'No pages yet':'No pages match'}</div>
+        <div class="empty-desc">${_pages.length===0?'Create pages like "About", "Contact", or "FAQ" for your store':''}</div>
+        ${_pages.length===0?'<button class="btn btn-primary" onclick="openCreate()" style="margin-top:8px">Add page</button>':''}
+      </div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = list.map(p => {
+      const statusBadge = p.status==='published'
+        ? '<span class="badge badge-success">Published</span>'
+        : '<span class="badge badge-default">Hidden</span>';
+      return `<tr onclick="editPage('${p.id}')">
+        <td class="cell-primary">${p.title||'Untitled'}</td>
+        <td class="cell-muted">/pages/${p.slug||''}</td>
+        <td>${statusBadge}</td>
+        <td class="cell-muted">${Fmt.date(p.updated_at||p.created_at)}</td>
+        <td style="text-align:right">
+          <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();deletePage('${p.id}','${(p.title||'').replace(/'/g,"\'")}')">Delete</button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function openCreate() {
+    _editing = null;
+    document.getElementById('pageModalTitle').textContent = 'Add page';
+    document.getElementById('savePageBtn').textContent = 'Save page';
+    ['pageTitle','pageSlug','pageContent','pageSeoTitle','pageSeoDesc'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('pageStatus').value='published';
+    document.getElementById('pageModal').classList.add('open');
+    document.getElementById('pageTitle').focus();
+  }
+
+  function editPage(id) {
+    _editing = id;
+    const p = _pages.find(x => x.id===id);
+    if (!p) return;
+    document.getElementById('pageModalTitle').textContent = 'Edit page';
+    document.getElementById('savePageBtn').textContent = 'Update page';
+    document.getElementById('pageTitle').value = p.title||'';
+    document.getElementById('pageSlug').value = p.slug||'';
+    document.getElementById('pageContent').value = p.content||'';
+    document.getElementById('pageSeoTitle').value = p.seo_title||'';
+    document.getElementById('pageSeoDesc').value = p.seo_description||'';
+    document.getElementById('pageStatus').value = p.status||'published';
+    document.getElementById('pageModal').classList.add('open');
+  }
+
+  function closePage() { document.getElementById('pageModal').classList.remove('open'); }
+
+  function updateSlug() {
+    if (_editing) return; // Don't auto-update slug when editing
+    document.getElementById('pageSlug').value = Fmt.slug(document.getElementById('pageTitle').value);
+  }
+
+  async function savePage() {
+    const title = document.getElementById('pageTitle').value.trim();
+    const slug = document.getElementById('pageSlug').value.trim() || Fmt.slug(title);
+    if (!title) { Toast.error('Enter a page title'); return; }
+    try {
+      const body = {
+        title, slug,
+        content: document.getElementById('pageContent').value,
+        seo_title: document.getElementById('pageSeoTitle').value,
+        seo_description: document.getElementById('pageSeoDesc').value,
+        status: document.getElementById('pageStatus').value,
+      };
+      if (_editing) {
+        await API.patch('/api/pages/' + _editing, body);
+        Toast.success('Page updated');
+      } else {
+        await API.post('/api/pages', body);
+        Toast.success('Page created');
+      }
+      closePage();
+      loadPages();
+    } catch(e) { Toast.error(e.message || 'Failed to save page'); }
+  }
+
+  function deletePage(id, title) {
+    Modal.confirm('Delete page', `Delete "${title}"? This cannot be undone.`, async () => {
+      try {
+        await API.del('/api/pages/' + id);
+        _pages = _pages.filter(p => p.id !== id);
+        render();
+        Toast.success('Page deleted');
+      } catch(e) { Toast.error(e.message); }
+    }, { danger: true });
+  }
+
+  async function loadPages() {
+    try {
+      const data = await API.get('/api/pages');
+      _pages = data.pages || [];
+      render();
+    } catch(e) { _pages = []; render(); }
+  }
+  loadPages();
+
+})();
+</script>
+</body>
+</html>

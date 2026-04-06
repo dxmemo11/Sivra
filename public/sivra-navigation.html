@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sivra — Navigation</title>
+  <link rel="stylesheet" href="admin-tokens.css"/>
+  <link rel="stylesheet" href="admin-layout.css"/>
+  <link rel="stylesheet" href="admin-components.css"/>
+  
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div>
+</aside>
+  <div class="main">
+    <div class="topbar" id="sivraTopbar"></div>
+    <div class="page-scroll">
+      <div style="max-width:1280px;margin:0 auto">
+
+        <div class="page-header">
+          <h1 class="page-title">Navigation</h1>
+        </div>
+
+        <div class="page-body">
+
+          <div class="alert alert-info" style="margin-bottom:16px">
+            <span class="alert-icon">ℹ️</span>
+            <div class="alert-body">Navigation menus appear in your storefront header and footer. Changes save automatically to your store.</div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+            <!-- Main menu -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Main menu</div>
+                  <div class="card-subtitle">Shown in your storefront header</div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="addMenuItem('main')">+ Add item</button>
+              </div>
+              <div id="mainMenuItems" style="padding:8px"></div>
+              <div class="card-footer">
+                <button class="btn btn-primary" onclick="saveMenu('main')">Save menu</button>
+              </div>
+            </div>
+
+            <!-- Footer menu -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Footer menu</div>
+                  <div class="card-subtitle">Shown in your storefront footer</div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="addMenuItem('footer')">+ Add item</button>
+              </div>
+              <div id="footerMenuItems" style="padding:8px"></div>
+              <div class="card-footer">
+                <button class="btn btn-primary" onclick="saveMenu('footer')">Save menu</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add item modal -->
+        <div class="modal-overlay" id="menuItemModal">
+          <div class="modal" style="max-width:440px">
+            <div class="modal-header">
+              <span class="modal-title">Add menu item</span>
+              <button class="modal-close" onclick="document.getElementById('menuItemModal').classList.remove('open')">×</button>
+            </div>
+            <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
+              <div class="form-group">
+                <label class="form-label">Name</label>
+                <input class="input" id="menuItemName" placeholder="e.g. Home, About, Shop"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Link type</label>
+                <select class="select" id="menuLinkType" onchange="updateLinkType()">
+                  <option value="url">Custom URL</option>
+                  <option value="home">Home page</option>
+                  <option value="catalog">All products</option>
+                  <option value="page">Page</option>
+                  <option value="collection">Collection</option>
+                </select>
+              </div>
+              <div class="form-group" id="customUrlField">
+                <label class="form-label">URL</label>
+                <input class="input" id="menuItemUrl" placeholder="https://example.com or /pages/about"/>
+              </div>
+              <div class="form-group" id="pageSelectField" style="display:none">
+                <label class="form-label">Page</label>
+                <select class="select" id="menuPageSel"></select>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" onclick="document.getElementById('menuItemModal').classList.remove('open')">Cancel</button>
+              <button class="btn btn-primary" onclick="confirmAddItem()">Add item</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="sivra-toast"></div>
+<script src="admin.js"></script>
+<script>
+(async function() {
+  const session = await initAdmin('online-store');
+  if (!session) return;
+  
+  const slug = Auth.getSlug();
+  let _menus = {
+    main: [
+      {name:'Home', url: `/sivra-storefront.html?store=${slug}`},
+      {name:'All products', url: `/sivra-storefront.html?store=${slug}`},
+    ],
+    footer: [
+      {name:'About', url:'#'},
+      {name:'Contact', url:'#'},
+      {name:'Privacy Policy', url:'#'},
+    ]
+  };
+  let _addingTo = 'main';
+  let _pages = [];
+
+  function renderMenu(which) {
+    const items = _menus[which] || [];
+    const el = document.getElementById(which+'MenuItems');
+    if (!items.length) {
+      el.innerHTML = '<div style="padding:20px;text-align:center;color:#8c9196;font-size:13px">No menu items yet</div>';
+      return;
+    }
+    el.innerHTML = items.map((item, i) => `
+      <div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;transition:background 0.1s" onmouseover="this.style.background='#f9f9f9'" onmouseout="this.style.background=''">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="cursor:grab;color:#8c9196;flex-shrink:0"><path d="M4 5h8M4 8h8M4 11h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:500">${item.name}</div>
+          <div style="font-size:11px;color:#8c9196;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${item.url}</div>
+        </div>
+        <button onclick="removeItem('${which}',${i})" style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:16px;line-height:1;opacity:0.6" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">×</button>
+      </div>`).join('');
+  }
+
+  function removeItem(which, idx) {
+    _menus[which].splice(idx, 1);
+    renderMenu(which);
+  }
+
+  function addMenuItem(which) {
+    _addingTo = which;
+    document.getElementById('menuItemName').value='';
+    document.getElementById('menuItemUrl').value='';
+    document.getElementById('menuLinkType').value='url';
+    updateLinkType();
+    document.getElementById('menuItemModal').classList.add('open');
+    document.getElementById('menuItemName').focus();
+  }
+
+  function updateLinkType() {
+    const t = document.getElementById('menuLinkType').value;
+    const cu = document.getElementById('customUrlField');
+    const ps = document.getElementById('pageSelectField');
+    const slug2 = Auth.getSlug();
+    cu.style.display = ['url'].includes(t) ? '' : 'none';
+    ps.style.display = ['page','collection'].includes(t) ? '' : 'none';
+    if (t === 'home') document.getElementById('menuItemUrl').value = `/sivra-storefront.html?store=${slug2}`;
+    if (t === 'catalog') document.getElementById('menuItemUrl').value = `/sivra-storefront.html?store=${slug2}`;
+  }
+
+  function confirmAddItem() {
+    const name = document.getElementById('menuItemName').value.trim();
+    const type = document.getElementById('menuLinkType').value;
+    let url = document.getElementById('menuItemUrl').value.trim();
+    if (!name) { Toast.error('Enter a name'); return; }
+    if (!url && type === 'url') { Toast.error('Enter a URL'); return; }
+    _menus[_addingTo].push({name, url: url||'#'});
+    renderMenu(_addingTo);
+    document.getElementById('menuItemModal').classList.remove('open');
+  }
+
+  function saveMenu(which) {
+    // Save to localStorage as persistent config until backend is ready
+    localStorage.setItem('sivra_menu_'+which, JSON.stringify(_menus[which]));
+    Toast.success(which === 'main' ? 'Main menu saved' : 'Footer menu saved');
+  }
+
+  // Load saved menus
+  const savedMain = localStorage.getItem('sivra_menu_main');
+  const savedFtr = localStorage.getItem('sivra_menu_footer');
+  if (savedMain) _menus.main = JSON.parse(savedMain);
+  if (savedFtr) _menus.footer = JSON.parse(savedFtr);
+
+  renderMenu('main');
+  renderMenu('footer');
+
+})();
+</script>
+</body>
+</html>

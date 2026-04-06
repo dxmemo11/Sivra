@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sivra — Discounts</title>
+  <link rel="stylesheet" href="admin-tokens.css"/>
+  <link rel="stylesheet" href="admin-layout.css"/>
+  <link rel="stylesheet" href="admin-components.css"/>
+  
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div>
+</aside>
+  <div class="main">
+    <div class="topbar" id="sivraTopbar"></div>
+    <div class="page-scroll">
+      <div style="max-width:1280px;margin:0 auto">
+
+        <div class="page-header">
+          <h1 class="page-title">Discounts</h1>
+          <button class="btn btn-primary" onclick="openCreate()">Create discount</button>
+        </div>
+
+        <div class="page-body">
+          <div class="card">
+            <div class="tabs">
+              <div class="tab active" onclick="setTab(this,'all')">All</div>
+              <div class="tab" onclick="setTab(this,'active')">Active</div>
+              <div class="tab" onclick="setTab(this,'scheduled')">Scheduled</div>
+              <div class="tab" onclick="setTab(this,'expired')">Expired</div>
+            </div>
+
+            <div class="filter-bar">
+              <div class="filter-search">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4" stroke="#8c9196" stroke-width="1.3"/><path d="M9 9l3 3" stroke="#8c9196" stroke-width="1.3" stroke-linecap="round"/></svg>
+                <input type="text" placeholder="Search discount codes" id="searchInput" oninput="render()"/>
+              </div>
+            </div>
+
+            <div style="overflow-x:auto">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th class="col-check"><input type="checkbox" onchange="document.querySelectorAll('.row-check').forEach(c=>c.checked=this.checked)"/></th>
+                    <th>Discount code</th>
+                    <th>Type</th>
+                    <th>Value</th>
+                    <th>Status</th>
+                    <th class="cell-number">Used</th>
+                    <th>Expires</th>
+                  </tr>
+                </thead>
+                <tbody id="discBody">
+                  <tr><td colspan="7"><div class="empty-state">
+                    <div class="empty-icon">🏷️</div>
+                    <div class="empty-title">No discounts yet</div>
+                    <div class="empty-desc">Create discount codes to offer deals to your customers</div>
+                    <button class="btn btn-primary" onclick="openCreate()" style="margin-top:8px">Create discount</button>
+                  </div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Create discount modal -->
+        <div class="modal-overlay" id="createModal">
+          <div class="modal" style="max-width:600px">
+            <div class="modal-header">
+              <span class="modal-title">Create discount</span>
+              <button class="modal-close" onclick="closeCreate()">×</button>
+            </div>
+            <div class="modal-body" style="display:flex;flex-direction:column;gap:16px">
+
+              <!-- Type selector -->
+              <div>
+                <label class="form-label">Discount method</label>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px">
+                  <div class="disc-type-btn active" id="typeCode" onclick="setMethod('code')"
+                    style="border:2px solid #1a1a1a;border-radius:8px;padding:12px;cursor:pointer;transition:all 0.1s">
+                    <div style="font-size:13px;font-weight:600;margin-bottom:2px">Discount code</div>
+                    <div style="font-size:12px;color:#6d7175">Customers enter a code at checkout</div>
+                  </div>
+                  <div class="disc-type-btn" id="typeAuto" onclick="setMethod('automatic')"
+                    style="border:1px solid #e3e3e3;border-radius:8px;padding:12px;cursor:pointer;transition:all 0.1s">
+                    <div style="font-size:13px;font-weight:600;margin-bottom:2px">Automatic discount</div>
+                    <div style="font-size:12px;color:#6d7175">Applied automatically at checkout</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group" id="codeField">
+                <label class="form-label">Discount code</label>
+                <div style="display:flex;gap:8px">
+                  <input class="input" id="discCode" placeholder="e.g. SUMMER20" style="text-transform:uppercase;font-weight:600"/>
+                  <button class="btn btn-secondary" onclick="genCode()">Generate</button>
+                </div>
+              </div>
+
+              <div class="form-group" id="nameField" style="display:none">
+                <label class="form-label">Title</label>
+                <input class="input" id="discName" placeholder="e.g. Summer sale"/>
+              </div>
+
+              <div>
+                <label class="form-label">Discount type</label>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px">
+                  <div onclick="setType('percent')" id="vPercent" class="disc-val-btn active"
+                    style="border:2px solid #1a1a1a;border-radius:8px;padding:10px;text-align:center;cursor:pointer;font-size:13px;font-weight:600">
+                    % Percentage
+                  </div>
+                  <div onclick="setType('fixed')" id="vFixed" class="disc-val-btn"
+                    style="border:1px solid #e3e3e3;border-radius:8px;padding:10px;text-align:center;cursor:pointer;font-size:13px;font-weight:600">
+                    $ Fixed amount
+                  </div>
+                  <div onclick="setType('free_shipping')" id="vFree" class="disc-val-btn"
+                    style="border:1px solid #e3e3e3;border-radius:8px;padding:10px;text-align:center;cursor:pointer;font-size:13px;font-weight:600">
+                    🚚 Free shipping
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group" id="valueField">
+                <label class="form-label">Value</label>
+                <div class="input-prefix" style="max-width:160px">
+                  <span class="input-prefix-text" id="valuePfx">%</span>
+                  <input type="number" id="discValue" min="0" step="0.01" placeholder="20"
+                    style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"/>
+                </div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="form-group">
+                  <label class="form-label">Minimum order value <span class="text-muted">(optional)</span></label>
+                  <div class="input-prefix">
+                    <span class="input-prefix-text">$</span>
+                    <input type="number" id="discMinOrder" min="0" step="0.01" placeholder="0"
+                      style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"/>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Usage limit <span class="text-muted">(optional)</span></label>
+                  <input class="input" type="number" id="discLimit" placeholder="Unlimited" min="1"/>
+                </div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="form-group">
+                  <label class="form-label">Start date</label>
+                  <input class="input" type="date" id="discStart"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">End date <span class="text-muted">(optional)</span></label>
+                  <input class="input" type="date" id="discEnd"/>
+                </div>
+              </div>
+
+              <label class="checkbox-label">
+                <input type="checkbox" id="discOnce"/> Limit to one use per customer
+              </label>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" onclick="closeCreate()">Cancel</button>
+              <button class="btn btn-primary" onclick="saveDiscount()">Save discount</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="sivra-toast"></div>
+<script src="admin.js"></script>
+<script>
+(async function() {
+  const session = await initAdmin('discounts');
+  if (!session) return;
+  
+  let _all = [], _tab = 'all', _method = 'code', _valueType = 'percent';
+
+  function setTab(el, tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active'); _tab = tab; render();
+  }
+
+  function setMethod(m) {
+    _method = m;
+    document.getElementById('typeCode').style.border = m==='code' ? '2px solid #1a1a1a' : '1px solid #e3e3e3';
+    document.getElementById('typeAuto').style.border = m==='automatic' ? '2px solid #1a1a1a' : '1px solid #e3e3e3';
+    document.getElementById('codeField').style.display = m==='code' ? '' : 'none';
+    document.getElementById('nameField').style.display = m==='automatic' ? '' : 'none';
+  }
+
+  function setType(t) {
+    _valueType = t;
+    ['vPercent','vFixed','vFree'].forEach(id => {
+      document.getElementById(id).style.border = '1px solid #e3e3e3';
+    });
+    const map = {percent:'vPercent',fixed:'vFixed',free_shipping:'vFree'};
+    document.getElementById(map[t]).style.border = '2px solid #1a1a1a';
+    document.getElementById('valueField').style.display = t==='free_shipping' ? 'none' : '';
+    document.getElementById('valuePfx').textContent = t==='percent' ? '%' : '$';
+  }
+
+  function genCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const code = Array.from({length:8}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
+    document.getElementById('discCode').value = code;
+  }
+
+  function openCreate() {
+    document.getElementById('discStart').value = new Date().toISOString().split('T')[0];
+    document.getElementById('createModal').classList.add('open');
+  }
+  function closeCreate() { document.getElementById('createModal').classList.remove('open'); }
+
+  async function saveDiscount() {
+    const code = document.getElementById('discCode').value.trim().toUpperCase();
+    const name = document.getElementById('discName').value.trim();
+    const value = parseFloat(document.getElementById('discValue').value) || 0;
+    const minOrder = parseFloat(document.getElementById('discMinOrder').value) || null;
+    const limit = parseInt(document.getElementById('discLimit').value) || null;
+    const startDate = document.getElementById('discStart').value;
+    const endDate = document.getElementById('discEnd').value || null;
+    const once = document.getElementById('discOnce').checked;
+
+    if (_method === 'code' && !code) { Toast.error('Enter a discount code'); return; }
+    if (_method === 'automatic' && !name) { Toast.error('Enter a discount title'); return; }
+    if (_valueType !== 'free_shipping' && (!value || value <= 0)) { Toast.error('Enter a discount value'); return; }
+    if (_valueType === 'percent' && value > 100) { Toast.error('Percentage cannot exceed 100%'); return; }
+
+    try {
+      const disc = {
+        code: _method === 'code' ? code : name,
+        type: _valueType,
+        value: _valueType === 'free_shipping' ? 0 : value,
+        method: _method,
+        min_order: minOrder,
+        usage_limit: limit,
+        once_per_customer: once ? 1 : 0,
+        starts_at: startDate || null,
+        ends_at: endDate || null,
+      };
+      await API.post('/api/discounts', disc);
+      Toast.success('Discount created');
+      closeCreate();
+      loadDiscounts();
+    } catch(e) {
+      Toast.error(e.message || 'Failed to create discount');
+    }
+  }
+
+  function render() {
+    const q = (document.getElementById('searchInput')?.value||'').toLowerCase();
+    const now = new Date();
+    let list = [..._all];
+    if (_tab === 'active')    list = list.filter(d => {
+      const start = d.starts_at ? new Date(d.starts_at) : null;
+      const end = d.ends_at ? new Date(d.ends_at) : null;
+      return (!start || start <= now) && (!end || end >= now);
+    });
+    if (_tab === 'scheduled') list = list.filter(d => d.starts_at && new Date(d.starts_at) > now);
+    if (_tab === 'expired')   list = list.filter(d => d.ends_at && new Date(d.ends_at) < now);
+    if (q) list = list.filter(d => (d.code||'').toLowerCase().includes(q));
+
+    const tbody = document.getElementById('discBody');
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state">
+        <div class="empty-icon">🏷️</div>
+        <div class="empty-title">${_all.length===0?'No discounts yet':'No discounts match'}</div>
+        ${_all.length===0?'<div class="empty-desc">Create discount codes to reward your customers</div><button class="btn btn-primary" onclick="openCreate()" style="margin-top:8px">Create discount</button>':''}
+      </div></td></tr>`;
+      return;
+    }
+
+    const now2 = new Date();
+    tbody.innerHTML = list.map(d => {
+      const isActive = (!d.starts_at || new Date(d.starts_at) <= now2) && (!d.ends_at || new Date(d.ends_at) >= now2);
+      const statusBadge = isActive
+        ? '<span class="badge badge-success">Active</span>'
+        : d.ends_at && new Date(d.ends_at) < now2
+          ? '<span class="badge badge-default">Expired</span>'
+          : '<span class="badge badge-info">Scheduled</span>';
+      const typeLabel = d.type==='percent'?'Percentage off':d.type==='fixed'?'Fixed amount':'Free shipping';
+      const valueLabel = d.type==='free_shipping'?'Free':d.type==='percent'?`${d.value}% off`:`$${parseFloat(d.value).toFixed(2)} off`;
+      return `<tr onclick="editDiscount('${d.id}')">
+        <td class="col-check"><input type="checkbox" class="row-check" onclick="event.stopPropagation()"/></td>
+        <td class="cell-primary" style="font-family:monospace;letter-spacing:0.5px">${d.code||'—'}</td>
+        <td class="cell-muted">${typeLabel}</td>
+        <td class="font-medium">${valueLabel}</td>
+        <td>${statusBadge}</td>
+        <td class="cell-number cell-muted">${d.used_count||0}${d.usage_limit?' / '+d.usage_limit:''}</td>
+        <td class="cell-muted">${d.ends_at ? Fmt.date(d.ends_at) : 'No end date'}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function editDiscount(id) {
+    Toast.show('Discount editing coming soon');
+  }
+
+  async function loadDiscounts() {
+    try {
+      const data = await API.get('/api/discounts');
+      _all = data.discounts || [];
+      render();
+    } catch(e) {
+      // If endpoint doesn't exist yet, show empty state
+      _all = [];
+      render();
+    }
+  }
+
+  loadDiscounts();
+
+})();
+</script>
+</body>
+</html>

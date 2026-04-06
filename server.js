@@ -33,12 +33,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // ── ROUTES ──────────────────────────────────────────────────────────────────
 
-app.use('/api/auth',       require('./routes/auth'));
-app.use('/api/products',   require('./routes/products'));
-app.use('/api/orders',     require('./routes/orders'));
-app.use('/api/customers',  require('./routes/customers'));
-app.use('/api/store',      require('./routes/store'));
-app.use('/api/storefront', require('./routes/storefront')); // public — no auth
+app.use('/api/auth',        require('./routes/auth'));
+app.use('/api/products',    require('./routes/products'));
+app.use('/api/orders',      require('./routes/orders'));
+app.use('/api/customers',   require('./routes/customers'));
+app.use('/api/store',       require('./routes/store'));
+app.use('/api/storefront',  require('./routes/storefront')); // public — no auth
+app.use('/api/collections', require('./routes/collections'));
+app.use('/api/discounts',   require('./routes/discounts'));
+app.use('/api/pages',       require('./routes/pages'));
+app.use('/api/menus',       require('./routes/menus'));
+
+// Abandoned checkouts
+app.get('/api/abandoned', (req, res) => res.json({ checkouts: [] }));
+app.get('/api/abandoned-checkouts', (req, res) => res.json({ checkouts: [] }));
 
 // Health check — useful for server monitoring
 app.get('/api/health', (req, res) => {

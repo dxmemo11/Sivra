@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sivra — Inventory</title>
+  <link rel="stylesheet" href="admin-tokens.css"/>
+  <link rel="stylesheet" href="admin-layout.css"/>
+  <link rel="stylesheet" href="admin-components.css"/>
+  
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div>
+</aside>
+  <div class="main">
+    <div class="topbar" id="sivraTopbar"></div>
+    <div class="page-scroll">
+      <div style="max-width:1280px;margin:0 auto">
+
+        <div class="page-header">
+          <h1 class="page-title">Inventory</h1>
+          <div class="btn-group">
+            <button class="btn btn-secondary" onclick="exportInventory()">Export</button>
+            <button class="btn btn-primary" onclick="location.href='sivra-add-product.html'">Add product</button>
+          </div>
+        </div>
+
+        <div class="page-body">
+          <!-- Summary cards -->
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
+            <div class="stat-card">
+              <div class="stat-label">Total SKUs</div>
+              <div class="stat-value" id="statSkus">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">In stock</div>
+              <div class="stat-value" id="statInStock" style="color:var(--p-color-text-success)">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Low stock</div>
+              <div class="stat-value" id="statLow" style="color:var(--p-color-text-caution)">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Out of stock</div>
+              <div class="stat-value" id="statOut" style="color:var(--p-color-text-critical)">—</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="tabs">
+              <div class="tab active" onclick="setTab(this,'all')">All</div>
+              <div class="tab" onclick="setTab(this,'low')">Low stock <span class="tab-badge" id="lowBadge">0</span></div>
+              <div class="tab" onclick="setTab(this,'out')">Out of stock</div>
+              <div class="tab" onclick="setTab(this,'tracked')">Tracked</div>
+            </div>
+
+            <div class="filter-bar">
+              <div class="filter-search">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4" stroke="#8c9196" stroke-width="1.3"/><path d="M9 9l3 3" stroke="#8c9196" stroke-width="1.3" stroke-linecap="round"/></svg>
+                <input type="text" placeholder="Search products" id="searchInput" oninput="render()"/>
+              </div>
+              <select class="sort-select" onchange="_sort=this.value;render()">
+                <option value="qty-asc">Quantity: Low to High</option>
+                <option value="qty-desc">Quantity: High to Low</option>
+                <option value="title-asc">Title A–Z</option>
+              </select>
+            </div>
+
+            <div style="overflow-x:auto">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th class="col-check"><input type="checkbox" onchange="document.querySelectorAll('.row-check').forEach(c=>c.checked=this.checked)"/></th>
+                    <th class="col-img"></th>
+                    <th>Product</th>
+                    <th>SKU</th>
+                    <th>Status</th>
+                    <th class="cell-number">Available</th>
+                    <th class="cell-number">Adjust</th>
+                  </tr>
+                </thead>
+                <tbody id="invBody">
+                  <tr><td colspan="7" style="text-align:center;padding:48px;color:#8c9196">Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="pagination">
+              <div class="pagination-info" id="invInfo"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Adjust modal -->
+        <div class="modal-overlay" id="adjModal">
+          <div class="modal">
+            <div class="modal-header">
+              <span class="modal-title">Adjust inventory</span>
+              <button class="modal-close" onclick="closeAdj()">×</button>
+            </div>
+            <div class="modal-body">
+              <div style="margin-bottom:12px;font-size:13px;font-weight:500" id="adjProduct"></div>
+              <div class="form-group">
+                <label class="form-label">Current quantity</label>
+                <div style="font-size:24px;font-weight:700;color:#1a1a1a;margin-bottom:16px" id="adjCurrent">0</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Adjustment</label>
+                <div class="form-hint">Enter a positive number to add stock, negative to remove</div>
+                <div class="input-prefix" style="max-width:160px">
+                  <span class="input-prefix-text">#</span>
+                  <input type="number" id="adjAmount" placeholder="e.g. 10 or -5" style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"/>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Reason <span class="text-muted">(optional)</span></label>
+                <select class="select">
+                  <option>Received shipment</option>
+  <option>Sold offline</option>
+                  <option>Damaged/lost</option>
+                  <option>Returned</option>
+                  <option>Manual count</option>
+                  <option>Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" onclick="closeAdj()">Cancel</button>
+              <button class="btn btn-primary" onclick="applyAdj()">Apply adjustment</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="sivra-toast"></div>
+<script src="admin.js"></script>
+<script>
+(async function() {
+  const session = await initAdmin('products');
+  if (!session) return;
+  
+  let _all = [], _tab = 'all', _sort = 'qty-asc', _adjId = null, _adjCurrent = 0;
+
+  function setTab(el, tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active'); _tab = tab; render();
+  }
+
+  function filtered() {
+    const q = (document.getElementById('searchInput')?.value||'').toLowerCase();
+    let list = [..._all];
+    if (_tab === 'low')     list = list.filter(p => p.quantity > 0 && p.quantity <= 5);
+    if (_tab === 'out')     list = list.filter(p => p.quantity <= 0);
+    if (_tab === 'tracked') list = list.filter(p => p.track_qty);
+    if (q) list = list.filter(p => (p.title||'').toLowerCase().includes(q) || (p.sku||'').toLowerCase().includes(q));
+    switch(_sort) {
+      case 'qty-desc':   list.sort((a,b) => (b.quantity||0)-(a.quantity||0)); break;
+      case 'title-asc':  list.sort((a,b) => (a.title||'').localeCompare(b.title||'')); break;
+      default:           list.sort((a,b) => (a.quantity||0)-(b.quantity||0));
+    }
+    return list;
+  }
+
+  function render() {
+    const list = filtered();
+    document.getElementById('invInfo').textContent = list.length + ' products';
+    const tbody = document.getElementById('invBody');
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">No products match</div></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = list.map(p => {
+      const qty = p.quantity || 0;
+      const qtyColor = qty <= 0 ? 'var(--p-color-text-critical)' : qty <= 5 ? 'var(--p-color-text-caution)' : 'var(--p-color-text-success)';
+      const qtyLabel = qty <= 0 ? 'Out of stock' : qty <= 5 ? 'Low stock' : 'In stock';
+      const img = p.images && p.images[0]
+        ? `<img src="${p.images[0]}" class="table-thumb"/>`
+        : `<div class="table-thumb-placeholder"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/></svg></div>`;
+      return `<tr onclick="location.href='sivra-edit-product.html?id=${p.id}'">
+        <td class="col-check"><input type="checkbox" class="row-check" onclick="event.stopPropagation()"/></td>
+        <td class="col-img">${img}</td>
+        <td class="cell-primary">${Fmt.truncate(p.title||'',40)}</td>
+        <td class="cell-muted">${p.sku||'—'}</td>
+        <td><span style="font-size:12px;font-weight:500;color:${qtyColor}">${qtyLabel}</span></td>
+        <td class="cell-number" style="font-weight:600;color:${qtyColor}">${qty}</td>
+        <td class="cell-number">
+          <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openAdj('${p.id}','${(p.title||'').replace(/'/g,"\'")}',${qty})">Adjust</button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function openAdj(id, title, current) {
+    _adjId = id; _adjCurrent = current;
+    document.getElementById('adjProduct').textContent = title;
+    document.getElementById('adjCurrent').textContent = current;
+    document.getElementById('adjAmount').value = '';
+    document.getElementById('adjModal').classList.add('open');
+  }
+
+  function closeAdj() { document.getElementById('adjModal').classList.remove('open'); }
+
+  async function applyAdj() {
+    const adj = parseInt(document.getElementById('adjAmount').value);
+    if (isNaN(adj)) { Toast.error('Enter a valid number'); return; }
+    const newQty = _adjCurrent + adj;
+    if (newQty < 0) { Toast.error('Quantity cannot go below 0'); return; }
+    try {
+      await API.patch('/api/products/' + _adjId, { quantity: newQty });
+      const p = _all.find(x => x.id === _adjId);
+      if (p) p.quantity = newQty;
+      closeAdj();
+      updateStats();
+      render();
+      Toast.success(`Inventory updated: ${adj > 0 ? '+' : ''}${adj} units`);
+    } catch(e) { Toast.error(e.message); }
+  }
+
+  function updateStats() {
+    const inStock = _all.filter(p => p.quantity > 5).length;
+    const low = _all.filter(p => p.quantity > 0 && p.quantity <= 5).length;
+    const out = _all.filter(p => p.quantity <= 0).length;
+    document.getElementById('statSkus').textContent = _all.length;
+    document.getElementById('statInStock').textContent = inStock;
+    document.getElementById('statLow').textContent = low;
+    document.getElementById('statOut').textContent = out;
+    document.getElementById('lowBadge').textContent = low;
+  }
+
+  function exportInventory() {
+    const rows = [['Product','SKU','Quantity','Status']];
+    _all.forEach(p => rows.push([p.title||'', p.sku||'', p.quantity||0, p.quantity<=0?'Out':p.quantity<=5?'Low':'In stock']));
+    exportCSV(rows, 'inventory.csv');
+    Toast.success('Inventory exported');
+  }
+
+  (async () => {
+    try {
+      const data = await API.get('/api/products');
+      _all = data.products || [];
+      updateStats();
+      render();
+    } catch(e) { Toast.error('Failed to load inventory'); }
+  })();
+
+})();
+</script>
+</body>
+</html>
