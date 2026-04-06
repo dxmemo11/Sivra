@@ -167,15 +167,24 @@ router.post('/:slug/checkout', async (req, res) => {
       resolved.push({ product, variant, qty, itemPrice });
     }
 
-    // Shipping calculation
+    // Shipping calculation — supports multi-rate zones
     let shipping = 0;
     try {
       const zones = safeJson(store.shipping_zones, []);
       if (zones.length > 0) {
         const zone = zones[0];
-        const rate = parseFloat(zone.rate) || 0;
-        const freeOver = zone.free_over ? parseFloat(zone.free_over) : null;
-        shipping = (freeOver !== null && subtotal >= freeOver) ? 0 : rate;
+        // Check for new multi-rate format
+        if (zone.rates && zone.rates.length > 0) {
+          const rate = zone.rates[0];
+          const r = parseFloat(rate.rate) || 0;
+          const freeOver = rate.free_over ? parseFloat(rate.free_over) : null;
+          shipping = (freeOver !== null && subtotal >= freeOver) ? 0 : r;
+        } else {
+          // Legacy single-rate format
+          const rate = parseFloat(zone.rate) || 0;
+          const freeOver = zone.free_over ? parseFloat(zone.free_over) : null;
+          shipping = (freeOver !== null && subtotal >= freeOver) ? 0 : rate;
+        }
       }
     } catch(e) { shipping = 0; }
 

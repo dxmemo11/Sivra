@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title id="pageTitle">Product — Store</title>
+  <title id="pageTitle">Collection — Store</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -117,74 +117,44 @@ img{max-width:100%;display:block}
 </nav>
 
 
-<div class="page-container" style="padding-top:24px;padding-bottom:80px">
+<div class="page-container" style="padding-top:24px;padding-bottom:64px">
 
+  <!-- Breadcrumb -->
   <div class="breadcrumb">
     <a href="javascript:void(0)" onclick="goHome()">Home</a>
     <span class="breadcrumb-sep">›</span>
-    <a href="javascript:void(0)" onclick="goHome()">Products</a>
+    <a href="javascript:void(0)" onclick="goHome()">Collections</a>
     <span class="breadcrumb-sep">›</span>
-    <span id="bcTitle">Product</span>
+    <span id="bcTitle">Collection</span>
   </div>
 
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start" id="productLayout">
-
-    <!-- Images -->
-    <div>
-      <div id="mainImg" style="aspect-ratio:1;background:#f6f6f7;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:10px;position:relative">
-        <div style="font-size:64px;opacity:0.1">⏳</div>
-        <div id="saleRibbon" style="display:none;position:absolute;top:14px;left:14px;background:#c0392b;color:white;font-size:13px;font-weight:700;padding:4px 12px;border-radius:20px">SALE</div>
-      </div>
-      <div id="thumbs" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+  <!-- Collection header -->
+  <div id="collHeader" style="margin-bottom:32px">
+    <div id="collImg" style="display:none;border-radius:12px;overflow:hidden;max-height:280px;margin-bottom:24px">
+      <img id="collImgEl" style="width:100%;object-fit:cover;max-height:280px"/>
     </div>
+    <h1 style="font-size:28px;font-weight:700;margin-bottom:8px" id="collTitle">Collection</h1>
+    <p style="font-size:15px;color:#6d7175;max-width:640px;line-height:1.6" id="collDesc"></p>
+  </div>
 
-    <!-- Product info -->
-    <div id="productInfo">
-      <div style="font-size:12px;color:#8c9196;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px" id="prodVendor"></div>
-      <h1 style="font-size:28px;font-weight:700;color:#1a1a1a;margin-bottom:10px;line-height:1.2;letter-spacing:-0.3px" id="prodTitle">Loading...</h1>
-
-      <!-- Price -->
-      <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:16px">
-        <span style="font-size:26px;font-weight:700;color:#1a1a1a" id="prodPrice">—</span>
-        <span style="font-size:18px;color:#8c9196;text-decoration:line-through" id="prodCompare" style="display:none"></span>
-        <span style="font-size:14px;font-weight:600;color:#c0392b" id="prodSavings" style="display:none"></span>
+  <!-- Filter + Sort -->
+  <div class="filter-bar">
+    <div class="filter-left">
+      <div class="search-bar">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="#8c9196" stroke-width="1.4"/><path d="M10.5 10.5L14 14" stroke="#8c9196" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <input type="text" id="searchInput" placeholder="Filter products..." oninput="filterProducts(this.value)"/>
       </div>
-
-      <!-- Stock indicator -->
-      <div id="stockInfo" style="margin-bottom:16px"></div>
-
-      <!-- Variants / Options -->
-      <div id="optionsSection" style="margin-bottom:20px"></div>
-
-      <!-- Quantity + CTA -->
-      <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px">
-        <div style="display:flex;align-items:center;border:1px solid #e3e3e3;border-radius:8px;overflow:hidden;height:48px">
-          <button onclick="changeQty(-1)" style="width:44px;height:100%;border:none;background:none;font-size:22px;cursor:pointer;color:#303030;display:flex;align-items:center;justify-content:center;transition:background 0.1s" onmouseover="this.style.background='#f6f6f7'" onmouseout="this.style.background=''">−</button>
-          <span id="qtyDisplay" style="width:48px;text-align:center;font-size:16px;font-weight:500">1</span>
-          <button onclick="changeQty(1)" style="width:44px;height:100%;border:none;background:none;font-size:22px;cursor:pointer;color:#303030;display:flex;align-items:center;justify-content:center;transition:background 0.1s" onmouseover="this.style.background='#f6f6f7'" onmouseout="this.style.background=''">+</button>
-        </div>
-        <button id="addCartBtn" onclick="addToCart()" style="flex:1;height:48px;background:#1a1a1a;color:white;border:none;border-radius:8px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;transition:background 0.1s" onmouseover="this.style.background='#303030'" onmouseout="this.style.background='#1a1a1a'">Add to cart</button>
-      </div>
-      <button onclick="buyNow()" style="width:100%;height:48px;background:#008060;color:white;border:none;border-radius:8px;font-size:15px;font-weight:500;font-family:inherit;cursor:pointer;margin-bottom:20px;transition:background 0.1s" onmouseover="this.style.background='#006b50'" onmouseout="this.style.background='#008060'">Buy it now</button>
-
-      <!-- Description -->
-      <div style="font-size:15px;color:#6d7175;line-height:1.8;margin-bottom:20px" id="prodDesc"></div>
-
-      <!-- Trust badges -->
-      <div style="border-top:1px solid #e3e3e3;padding-top:16px;display:flex;gap:20px;flex-wrap:wrap">
-        <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:#6d7175"><span>🚚</span>Fast delivery</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:#6d7175"><span>↩️</span>Easy returns</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:#6d7175"><span>🔒</span>Secure checkout</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:#6d7175"><span>✅</span>Quality guaranteed</div>
-      </div>
+      <div class="filter-count" id="productCount"></div>
     </div>
+    <select class="sort-select" onchange="sortProducts(this.value)">
+      <option value="newest">Newest</option>
+      <option value="price-asc">Price: Low to High</option>
+      <option value="price-desc">Price: High to Low</option>
+      <option value="title-asc">A – Z</option>
+    </select>
   </div>
 
-  <!-- Related products -->
-  <div id="relatedSection" style="margin-top:64px;display:none">
-    <h2 style="font-size:20px;font-weight:700;margin-bottom:20px">You may also like</h2>
-    <div id="relatedGrid" class="product-grid"></div>
-  </div>
+  <div id="productsGrid" class="product-grid"></div>
 </div>
 
 
@@ -301,182 +271,78 @@ async function loadStoreShell(){
 }
 
 
-const _id = new URLSearchParams(location.search).get('id');
-let _product = null, _qty = 1, _imgs = [], _options = [], _variants = [], _selectedVariant = null, _selectedOpts = {};
+let _allProducts = [], _sort = 'newest', _search = '';
+let _collId = new URLSearchParams(location.search).get('id');
 
-function changeQty(d) {
-  const max = _selectedVariant ? (_selectedVariant.quantity||0) : (_product?.quantity||0);
-  const trackQty = _selectedVariant ? _selectedVariant.track_qty : _product?.track_qty;
-  const cont = _selectedVariant ? _selectedVariant.continue_selling : _product?.continue_selling;
-  _qty = Math.max(1, _qty+d);
-  if (trackQty && !cont && _qty > max) _qty = max;
-  document.getElementById('qtyDisplay').textContent = _qty;
-}
+function filterProducts(q) { _search = q.toLowerCase(); renderGrid(); }
+function sortProducts(v) { _sort = v; renderGrid(); }
 
-function selectOption(optIdx, val) {
-  _selectedOpts[optIdx] = val;
-  // Update selected UI
-  document.querySelectorAll(`.opt-val-${optIdx}`).forEach(el => {
-    el.style.background = el.dataset.val === val ? '#1a1a1a' : 'white';
-    el.style.color = el.dataset.val === val ? 'white' : '#1a1a1a';
-    el.style.borderColor = el.dataset.val === val ? '#1a1a1a' : '#e3e3e3';
-  });
-  matchVariant();
-}
-
-function matchVariant() {
-  if (!_variants.length) return;
-  const keys = Object.values(_selectedOpts);
-  const match = _variants.find(v => {
-    const vVals = [v.option1, v.option2, v.option3].filter(Boolean);
-    return keys.every(k => vVals.includes(k));
-  });
-  _selectedVariant = match || null;
-  updatePriceDisplay();
-  updateStockInfo();
-}
-
-function updatePriceDisplay() {
-  const price = _selectedVariant ? _selectedVariant.price : _product?.price;
-  const compare = _selectedVariant ? _selectedVariant.compare_price : _product?.compare_price;
-  document.getElementById('prodPrice').textContent = fmtMoney(price);
-  if (compare && compare > price) {
-    document.getElementById('prodCompare').textContent = fmtMoney(compare);
-    document.getElementById('prodCompare').style.display = '';
-    const savings = Math.round((1-price/compare)*100);
-    document.getElementById('prodSavings').textContent = `Save ${savings}%`;
-    document.getElementById('prodSavings').style.display = '';
-    document.getElementById('saleRibbon').style.display = '';
-  } else {
-    document.getElementById('prodCompare').style.display = 'none';
-    document.getElementById('prodSavings').style.display = 'none';
-    document.getElementById('saleRibbon').style.display = 'none';
+function renderGrid() {
+  let list = [..._allProducts];
+  if (_search) list = list.filter(p => (p.title||'').toLowerCase().includes(_search));
+  switch(_sort) {
+    case 'price-asc': list.sort((a,b)=>a.price-b.price); break;
+    case 'price-desc': list.sort((a,b)=>b.price-a.price); break;
+    case 'title-asc': list.sort((a,b)=>(a.title||'').localeCompare(b.title||'')); break;
+    default: list.sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
   }
-}
-
-function updateStockInfo() {
-  const el = document.getElementById('stockInfo');
-  const btn = document.getElementById('addCartBtn');
-  const qty = _selectedVariant ? (_selectedVariant.quantity||0) : (_product?.quantity||0);
-  const trackQty = _selectedVariant ? _selectedVariant.track_qty : _product?.track_qty;
-  const cont = _selectedVariant ? _selectedVariant.continue_selling : _product?.continue_selling;
-  if (trackQty) {
-    if (qty <= 0 && !cont) {
-      el.innerHTML = '<span style="color:#c0392b;font-weight:500;font-size:14px">⚠️ Out of stock</span>';
-      btn.disabled = true; btn.style.background = '#8c9196'; btn.textContent = 'Out of stock';
-    } else if (qty <= 5) {
-      el.innerHTML = `<span style="color:#7d5c00;font-weight:500;font-size:14px">⚡ Only ${qty} left</span>`;
-      btn.disabled = false; btn.style.background = '#1a1a1a'; btn.textContent = 'Add to cart';
-    } else {
-      el.innerHTML = '<span style="color:#1a7f37;font-weight:500;font-size:14px">✓ In stock</span>';
-      btn.disabled = false; btn.style.background = '#1a1a1a'; btn.textContent = 'Add to cart';
-    }
-  } else {
-    el.innerHTML = '';
-    btn.disabled = false; btn.style.background = '#1a1a1a'; btn.textContent = 'Add to cart';
+  document.getElementById('productCount').textContent = list.length + ' products';
+  const grid = document.getElementById('productsGrid');
+  if (!list.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1"><div class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <div class="empty-title">No products found</div>
+      <div class="empty-desc">Try clearing your search or check back later</div>
+    </div></div>`;
+    return;
   }
-}
-
-function renderOptions() {
-  if (!_options.length) return;
-  document.getElementById('optionsSection').innerHTML = _options.map((opt, i) => {
-    _selectedOpts[i] = opt.values[0];
-    return `<div style="margin-bottom:14px">
-      <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:#303030">
-        ${opt.name}: <span style="font-weight:500;color:#6d7175" id="optLabel-${i}">${opt.values[0]}</span>
+  grid.innerHTML = list.map(p => {
+    const imgs = Array.isArray(p.images)?p.images:(typeof p.images==='string'?JSON.parse(p.images||'[]'):[]);
+    const img = imgs[0]?`<img src="${imgs[0]}" alt="${p.title}" loading="lazy"/>`:`<div style="display:flex;align-items:center;justify-content:center;height:100%;opacity:0.15"><svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="4" y="4" width="40" height="40" rx="4" stroke="#303030" stroke-width="2.5"/><path d="M4 32l10-10 8 8 10-14 16 16" stroke="#303030" stroke-width="2.5" stroke-linecap="round"/></svg></div>`;
+    const isSale = p.compare_price&&p.compare_price>p.price;
+    return `<a onclick="goProduct('${p.id}')" class="product-card" href="javascript:void(0)">
+      <div class="product-img-wrap">${img}${isSale?'<span class="product-badge badge-sale">Sale</span>':''}</div>
+      ${p.vendor?`<div class="product-vendor">${p.vendor}</div>`:''}
+      <div class="product-title">${p.title}</div>
+      <div class="product-price">
+        <span class="price-current">${fmtMoney(p.price)}</span>
+        ${isSale?`<span class="price-compare">${fmtMoney(p.compare_price)}</span>`:''}
       </div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px">
-        ${opt.values.map((v,vi) => `<button class="opt-val-${i}" data-val="${v}"
-          onclick="selectOption(${i},'${v}');document.getElementById('optLabel-${i}').textContent='${v}'"
-          style="padding:6px 14px;border-radius:6px;border:1px solid ${vi===0?'#1a1a1a':'#e3e3e3'};background:${vi===0?'#1a1a1a':'white'};color:${vi===0?'white':'#1a1a1a'};font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:all 0.1s">${v}</button>`).join('')}
-      </div>
-    </div>`;
+    </a>`;
   }).join('');
-  matchVariant();
 }
 
-function setMainImg(src) {
-  document.getElementById('mainImg').innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover"/>` + (document.getElementById('saleRibbon')?.outerHTML||'');
-}
-
-function addToCart() {
-  if (!_product) return;
-  const c = getCart();
-  const variantId = _selectedVariant?.id || null;
-  const key = _product.id + (variantId?'_'+variantId:'');
-  const ex = c.find(i => i.key === key);
-  const variantTitle = _selectedVariant ? Object.values(_selectedOpts).join(' / ') : null;
-  const price = _selectedVariant ? _selectedVariant.price : _product.price;
-  const image = _imgs[0] || '';
-  if (ex) { ex.qty += _qty; } else {
-    c.push({ key, id: _product.id, variantId, title: _product.title, variantTitle, price, image, qty: _qty });
-  }
-  saveCart(c);
-  toast(`${_product.title}${variantTitle?' ('+variantTitle+')':''} added to cart`);
-  // Flash button
-  const btn = document.getElementById('addCartBtn');
-  const orig = btn.textContent;
-  btn.textContent = '✓ Added'; btn.style.background = '#008060';
-  setTimeout(() => { btn.textContent = orig; btn.style.background='#1a1a1a'; }, 1500);
-}
-
-function buyNow() { addToCart(); location.href = 'sivra-checkout.html?store=' + _storeSlug; }
-
-async function loadRelated() {
-  try {
-    const res = await fetch(`/api/storefront/${_storeSlug}/products?limit=5`);
-    const data = await res.json();
-    const related = (data.products||[]).filter(p => p.id !== _id).slice(0,4);
-    if (!related.length) return;
-    document.getElementById('relatedSection').style.display = '';
-    document.getElementById('relatedGrid').innerHTML = related.map(p => {
-      const imgs = Array.isArray(p.images)?p.images:(typeof p.images==='string'?JSON.parse(p.images||'[]'):[]);
-      const img = imgs[0]?`<img src="${imgs[0]}" alt="${p.title}" loading="lazy"/>`:`<div style="display:flex;align-items:center;justify-content:center;height:100%;opacity:0.15;font-size:40px">📦</div>`;
-      return `<a onclick="goProduct('${p.id}')" class="product-card" href="javascript:void(0)">
-        <div class="product-img-wrap">${img}</div>
-        <div class="product-title">${p.title}</div>
-        <div class="product-price"><span class="price-current">${fmtMoney(p.price)}</span></div>
-      </a>`;
-    }).join('');
-  } catch(e) {}
-}
-
-async function loadProduct() {
-  if (!_id) { goHome(); return; }
+async function loadCollection() {
+  if (!_collId) { goHome(); return; }
   await loadStoreShell();
   try {
-    const [prodRes, storeRes] = await Promise.all([
-      fetch(`/api/storefront/${_storeSlug}/products/${_id}`),
-      fetch(`/api/storefront/${_storeSlug}`)
-    ]);
-    _product = await prodRes.json();
-    _store = await storeRes.json();
-    _options = _product.options || [];
-    _variants = _product.variants || [];
-    _imgs = Array.isArray(_product.images)?_product.images:(typeof _product.images==='string'?JSON.parse(_product.images||'[]'):[]);
-    const storeName = _store.name || 'Store';
-    document.title = (_product.title||'Product') + ' — ' + storeName;
-    document.getElementById('bcTitle').textContent = _product.title||'Product';
-    document.getElementById('prodTitle').textContent = _product.title||'Product';
-    document.getElementById('prodVendor').textContent = _product.vendor||'';
-    document.getElementById('prodDesc').textContent = _product.description||'';
-    if (_imgs.length) {
-      setMainImg(_imgs[0]);
-      if (_imgs.length > 1) {
-        document.getElementById('thumbs').innerHTML = _imgs.map((src,i) =>
-          `<div onclick="setMainImg('${src}')" style="width:72px;height:72px;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid ${i===0?'#1a1a1a':'#e3e3e3'};transition:border-color 0.1s;flex-shrink:0">
-            <img src="${src}" style="width:100%;height:100%;object-fit:cover"/></div>`).join('');
+    const res = await fetch(`/api/storefront/${_storeSlug}/products?collection=${_collId}&limit=200`);
+    const data = await res.json();
+    _allProducts = data.products || [];
+    // Try get collection details
+    try {
+      const cr = await fetch(`/api/collections/${_collId}`, { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('sivra_token')||'') } });
+      if (cr.ok) {
+        const coll = await cr.json();
+        document.getElementById('bcTitle').textContent = coll.name||'Collection';
+        document.getElementById('collTitle').textContent = coll.name||'Collection';
+        document.title = (coll.name||'Collection') + ' — ' + (_store?.name||'Store');
+        if (coll.description) document.getElementById('collDesc').textContent = coll.description;
+        if (coll.image) {
+          document.getElementById('collImgEl').src = coll.image;
+          document.getElementById('collImg').style.display = '';
+        }
       }
-    }
-    updatePriceDisplay();
-    updateStockInfo();
-    if (_options.length) renderOptions();
-    loadRelated();
+    } catch(e) {}
+    renderGrid();
   } catch(e) {
-    document.getElementById('prodTitle').textContent = 'Product not found';
+    document.getElementById('productsGrid').innerHTML = `<div style="grid-column:1/-1" class="empty-state">
+      <div class="empty-icon">⚠️</div>
+      <div class="empty-title">Failed to load collection</div>
+    </div>`;
   }
 }
-loadProduct();
+loadCollection();
 
 
 loadStoreShell();

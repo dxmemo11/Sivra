@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sivra — Theme settings</title>
+  <link rel="stylesheet" href="admin-tokens.css"/>
+  <link rel="stylesheet" href="admin-layout.css"/>
+  <link rel="stylesheet" href="admin-components.css"/>
+  
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div>
+</aside>
+  <div class="main">
+    <div class="topbar" id="sivraTopbar"></div>
+    <div class="page-scroll">
+      <div style="max-width:1280px;margin:0 auto">
+
+        <div class="page-header">
+          <h1 class="page-title">Theme settings</h1>
+          <div class="btn-group">
+            <a id="previewBtn" href="#" target="_blank" class="btn btn-secondary">Preview store ↗</a>
+            <button class="btn btn-primary" onclick="saveTheme()">Save</button>
+          </div>
+        </div>
+
+        <div class="page-body">
+          <div style="display:grid;grid-template-columns:280px 1fr;gap:20px;align-items:start">
+
+            <!-- Theme nav -->
+            <div class="card" style="padding:8px;position:sticky;top:16px">
+              <div class="sb-item active" id="tnav-brand" onclick="showSection('brand')" style="font-size:13px;margin-bottom:2px">🎨 Brand & colors</div>
+              <div class="sb-item" id="tnav-header" onclick="showSection('header')" style="font-size:13px;margin-bottom:2px">📢 Announcement bar</div>
+              <div class="sb-item" id="tnav-homepage" onclick="showSection('homepage')" style="font-size:13px;margin-bottom:2px">🏠 Homepage sections</div>
+              <div class="sb-item" id="tnav-product" onclick="showSection('product')" style="font-size:13px;margin-bottom:2px">📦 Product page</div>
+              <div class="sb-item" id="tnav-footer" onclick="showSection('footer')" style="font-size:13px">🔗 Footer</div>
+            </div>
+
+            <!-- Settings panels -->
+            <div id="themeMain">
+
+              <!-- BRAND & COLORS -->
+              <div id="section-brand" class="section-stack">
+                <div class="card">
+                  <div class="card-header"><span class="card-title">Logo & favicon</span></div>
+                  <div class="card-body section-stack">
+                    <div class="form-group">
+                      <label class="form-label">Logo image URL</label>
+                      <div class="form-hint">Enter a URL to your logo image. Recommended: PNG with transparent background, max 200px height.</div>
+                      <div style="display:flex;gap:8px;align-items:center">
+                        <input class="input" id="logoUrl" placeholder="https://example.com/logo.png" style="flex:1"/>
+                        <button class="btn btn-secondary btn-sm" onclick="previewLogo()">Preview</button>
+                      </div>
+                      <div id="logoPreview" style="margin-top:8px;display:none">
+                        <img id="logoPreviewImg" style="max-height:60px;max-width:200px;border:1px solid #e3e3e3;border-radius:6px;padding:8px;background:white"/>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Favicon URL</label>
+                      <div class="form-hint">16×16 or 32×32 pixel .ico or .png file</div>
+                      <input class="input" id="faviconUrl" placeholder="https://example.com/favicon.ico"/>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <div class="card-header"><span class="card-title">Colors</span></div>
+                  <div class="card-body">
+                    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px">
+                      <div class="form-group">
+                        <label class="form-label">Primary color</label>
+                        <div class="form-hint">Used for buttons, links, and navigation</div>
+                        <div style="display:flex;gap:8px;align-items:center">
+                          <input type="color" id="primaryColor" value="#1a1a1a" style="width:48px;height:36px;border:1px solid #e3e3e3;border-radius:6px;cursor:pointer;padding:2px"/>
+                          <input class="input" id="primaryColorHex" value="#1a1a1a" placeholder="#1a1a1a" oninput="syncColor('primary')" style="flex:1;font-family:monospace"/>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Accent color</label>
+                        <div class="form-hint">Used for success states and highlights</div>
+                        <div style="display:flex;gap:8px;align-items:center">
+                          <input type="color" id="accentColor" value="#008060" style="width:48px;height:36px;border:1px solid #e3e3e3;border-radius:6px;cursor:pointer;padding:2px"/>
+                          <input class="input" id="accentColorHex" value="#008060" placeholder="#008060" oninput="syncColor('accent')" style="flex:1;font-family:monospace"/>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Live preview -->
+                    <div style="margin-top:16px;padding:16px;border:1px solid #e3e3e3;border-radius:8px;background:white">
+                      <div class="text-sm font-medium" style="margin-bottom:10px;color:#6d7175">Preview</div>
+                      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                        <button id="previewBtn1" style="height:36px;padding:0 16px;border-radius:6px;border:none;font-size:14px;font-weight:600;cursor:pointer;color:white;background:#1a1a1a;font-family:inherit">Add to cart</button>
+                        <button id="previewBtn2" style="height:36px;padding:0 16px;border-radius:6px;border:none;font-size:14px;font-weight:500;cursor:pointer;color:white;background:#008060;font-family:inherit">Buy it now</button>
+                        <span id="previewLink" style="font-size:14px;color:#1a1a1a;text-decoration:underline;cursor:pointer">Shop all products</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ANNOUNCEMENT BAR -->
+              <div id="section-header" style="display:none" class="section-stack">
+                <div class="card">
+                  <div class="card-header">
+                    <div>
+                      <div class="card-title">Announcement bar</div>
+                      <div class="card-subtitle">Displayed at the very top of every storefront page</div>
+                    </div>
+                    <label class="toggle"><input type="checkbox" id="annEnabled"/><span class="toggle-slider"></span></label>
+                  </div>
+                  <div class="card-body section-stack">
+                    <div class="form-group">
+                      <label class="form-label">Message</label>
+                      <input class="input" id="annText" placeholder="🚚 Free shipping on orders over $100 | Use code WELCOME10 for 10% off"/>
+                      <div class="form-hint">Keep it short and actionable. Emojis are supported. ✨</div>
+                    </div>
+                    <div>
+                      <label class="form-label" style="margin-bottom:8px">Preview</label>
+                      <div id="annPreview" style="background:#1a1a1a;color:white;text-align:center;padding:10px 16px;font-size:13px;font-weight:500;border-radius:8px">
+                        Enter a message above to preview
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- HOMEPAGE -->
+              <div id="section-homepage" style="display:none" class="section-stack">
+                <div class="card">
+                  <div class="card-header"><span class="card-title">Homepage sections</span></div>
+                  <div class="card-body">
+                    <div style="display:flex;flex-direction:column;gap:0">
+                      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #f0f0f0">
+                        <div>
+                          <div class="font-medium" style="font-size:13px">Hero banner</div>
+                          <div class="text-muted text-sm">Large banner with headline and CTA at the top</div>
+                        </div>
+                        <label class="toggle"><input type="checkbox" id="showHero" checked/><span class="toggle-slider"></span></label>
+                      </div>
+                      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #f0f0f0">
+                        <div>
+                          <div class="font-medium" style="font-size:13px">Collections grid</div>
+                          <div class="text-muted text-sm">Show collection cards below hero</div>
+                        </div>
+                        <label class="toggle"><input type="checkbox" id="showCollections" checked/><span class="toggle-slider"></span></label>
+                      </div>
+                      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0">
+                        <div>
+                          <div class="font-medium" style="font-size:13px">Featured products</div>
+                          <div class="text-muted text-sm">Product grid with filters and sort</div>
+                        </div>
+                        <label class="toggle"><input type="checkbox" id="showProducts" checked/><span class="toggle-slider"></span></label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-header"><span class="card-title">Hero banner content</span></div>
+                  <div class="card-body section-stack">
+                    <div class="form-group">
+                      <label class="form-label">Eyebrow text</label>
+                      <input class="input" id="heroEyebrow" placeholder="New collection"/>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Headline</label>
+                      <input class="input" id="heroTitle" placeholder="Welcome to our store"/>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Subheading</label>
+                      <input class="input" id="heroDesc" placeholder="Discover our curated collection"/>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Background image URL <span class="text-muted">(optional)</span></label>
+                      <input class="input" id="heroBgImg" placeholder="https://example.com/hero-bg.jpg"/>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- PRODUCT PAGE -->
+              <div id="section-product" style="display:none" class="section-stack">
+                <div class="card">
+                  <div class="card-header"><span class="card-title">Product page settings</span></div>
+                  <div class="card-body">
+                    <div style="display:flex;flex-direction:column;gap:0">
+                      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #f0f0f0">
+                        <div>
+                          <div class="font-medium" style="font-size:13px">Show related products</div>
+                          <div class="text-muted text-sm">"You may also like" section at the bottom</div>
+                        </div>
+                        <label class="toggle"><input type="checkbox" id="showRelated" checked/><span class="toggle-slider"></span></label>
+                      </div>
+                      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #f0f0f0">
+                        <div>
+                          <div class="font-medium" style="font-size:13px">Show vendor name</div>
+                          <div class="text-muted text-sm">Display the product vendor/brand above the title</div>
+                        </div>
+                        <label class="toggle"><input type="checkbox" id="showVendor" checked/><span class="toggle-slider"></span></label>
+                      </div>
+                      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0">
+                        <div>
+                          <div class="font-medium" style="font-size:13px">Show trust badges</div>
+                          <div class="text-muted text-sm">Fast delivery, easy returns, secure checkout</div>
+                        </div>
+                        <label class="toggle"><input type="checkbox" id="showBadges" checked/><span class="toggle-slider"></span></label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- FOOTER -->
+              <div id="section-footer" style="display:none">
+                <div class="card">
+                  <div class="card-header"><span class="card-title">Footer settings</span></div>
+                  <div class="card-body section-stack">
+                    <div class="form-group">
+                      <label class="form-label">Footer description</label>
+                      <textarea class="textarea" id="footerDesc" style="min-height:60px" placeholder="Quality products, fast delivery."></textarea>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Copyright text <span class="text-muted">(optional)</span></label>
+                      <input class="input" id="footerCopy" placeholder="Leave blank to use auto-generated text"/>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="sivra-toast"></div>
+<script src="admin.js"></script>
+<script>
+(async function() {
+  const session = await initAdmin('online-store');
+  if (!session) return;
+  
+  const SECTIONS = ['brand','header','homepage','product','footer'];
+
+  function showSection(id) {
+    SECTIONS.forEach(s => {
+      document.getElementById('section-'+s).style.display = s===id?'':'none';
+      document.getElementById('tnav-'+s).classList.toggle('active', s===id);
+    });
+  }
+
+  function syncColor(which) {
+    const hex = document.getElementById(which+'ColorHex').value;
+    if (hex.match(/^#[0-9a-fA-F]{6}$/)) {
+      document.getElementById(which+'Color').value = hex;
+      updateColorPreview(which, hex);
+    }
+  }
+
+  document.getElementById('primaryColor').oninput = function() {
+    document.getElementById('primaryColorHex').value = this.value;
+    updateColorPreview('primary', this.value);
+  };
+  document.getElementById('accentColor').oninput = function() {
+    document.getElementById('accentColorHex').value = this.value;
+    updateColorPreview('accent', this.value);
+  };
+
+  function updateColorPreview(which, color) {
+    if (which === 'primary') {
+      document.getElementById('previewBtn1').style.background = color;
+      document.getElementById('previewLink').style.color = color;
+    } else {
+      document.getElementById('previewBtn2').style.background = color;
+    }
+  }
+
+  document.getElementById('annText').oninput = function() {
+    const preview = document.getElementById('annPreview');
+    const primary = document.getElementById('primaryColorHex').value || '#1a1a1a';
+    preview.textContent = this.value || 'Enter a message above to preview';
+    preview.style.background = primary;
+  };
+
+  function previewLogo() {
+    const url = document.getElementById('logoUrl').value.trim();
+    if (!url) { Toast.error('Enter a logo URL'); return; }
+    const preview = document.getElementById('logoPreview');
+    document.getElementById('logoPreviewImg').src = url;
+    preview.style.display = '';
+  }
+
+  async function loadTheme() {
+    try {
+      const s = await API.get('/api/store/info');
+      const slug = s.slug || '';
+      document.getElementById('previewBtn').href = '/sivra-storefront.html?store=' + slug;
+      if (s.primary_color) {
+        document.getElementById('primaryColor').value = s.primary_color;
+        document.getElementById('primaryColorHex').value = s.primary_color;
+        updateColorPreview('primary', s.primary_color);
+      }
+      if (s.accent_color) {
+        document.getElementById('accentColor').value = s.accent_color;
+        document.getElementById('accentColorHex').value = s.accent_color;
+        updateColorPreview('accent', s.accent_color);
+      }
+      if (s.logo_url) document.getElementById('logoUrl').value = s.logo_url;
+      if (s.favicon_url) document.getElementById('faviconUrl').value = s.favicon_url;
+      if (s.announcement_bar) document.getElementById('annText').value = s.announcement_bar;
+      document.getElementById('annEnabled').checked = !!s.announcement_bar_enabled;
+      // Theme settings
+      const ts = typeof s.theme_settings === 'string' ? JSON.parse(s.theme_settings||'{}') : (s.theme_settings||{});
+      if (ts.heroEyebrow) document.getElementById('heroEyebrow').value = ts.heroEyebrow;
+      if (ts.heroTitle) document.getElementById('heroTitle').value = ts.heroTitle;
+      if (ts.heroDesc) document.getElementById('heroDesc').value = ts.heroDesc;
+      if (ts.heroBgImg) document.getElementById('heroBgImg').value = ts.heroBgImg;
+      if (ts.footerDesc) document.getElementById('footerDesc').value = ts.footerDesc;
+      if (ts.footerCopy) document.getElementById('footerCopy').value = ts.footerCopy;
+    } catch(e) {}
+  }
+
+  async function saveTheme() {
+    try {
+      const ts = {
+        heroEyebrow: document.getElementById('heroEyebrow').value,
+        heroTitle: document.getElementById('heroTitle').value,
+        heroDesc: document.getElementById('heroDesc').value,
+        heroBgImg: document.getElementById('heroBgImg').value,
+        showRelated: document.getElementById('showRelated').checked,
+        showVendor: document.getElementById('showVendor').checked,
+        showBadges: document.getElementById('showBadges').checked,
+        showHero: document.getElementById('showHero').checked,
+        showCollections: document.getElementById('showCollections').checked,
+        showProducts: document.getElementById('showProducts').checked,
+        footerDesc: document.getElementById('footerDesc').value,
+        footerCopy: document.getElementById('footerCopy').value,
+      };
+      await API.patch('/api/store/info', {
+        primary_color: document.getElementById('primaryColorHex').value,
+        accent_color: document.getElementById('accentColorHex').value,
+        logo_url: document.getElementById('logoUrl').value || null,
+        favicon_url: document.getElementById('faviconUrl').value || null,
+        announcement_bar: document.getElementById('annText').value || null,
+        announcement_bar_enabled: document.getElementById('annEnabled').checked,
+        theme_settings: JSON.stringify(ts),
+      });
+      Toast.success('Theme settings saved!');
+    } catch(e) { Toast.error(e.message || 'Failed to save'); }
+  }
+
+  loadTheme();
+
+})();
+</script>
+</body>
+</html>
