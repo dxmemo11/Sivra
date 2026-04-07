@@ -24,6 +24,7 @@
         <div class="page-header">
           <h1 class="page-title">Customers</h1>
           <div class="btn-group">
+            <a href="sivra-customers-import.html" class="btn btn-secondary">Import CSV</a>
             <button class="btn btn-secondary" onclick="exportCSV(getExportRows(),'customers.csv');Toast.success('Exported')">Export</button>
           </div>
         </div>
@@ -185,7 +186,7 @@
     tbody.innerHTML = paged.items.map(c => {
       const name = [c.first_name, c.last_name].filter(Boolean).join(' ') || '—';
       const loc = [c.city, c.country].filter(Boolean).join(', ') || '—';
-      return `<tr onclick="openDrawer('${c.id}')">
+      return `<tr onclick="location.href='sivra-customer-detail.html?id=${c.id}'">
         <td class="col-check"><input type="checkbox" class="row-check" onclick="event.stopPropagation()"/></td>
         <td class="cell-primary">${name}</td>
         <td class="cell-muted">${c.email||'—'}</td>

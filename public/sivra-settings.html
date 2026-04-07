@@ -7,483 +7,501 @@
   <link rel="stylesheet" href="admin-tokens.css"/>
   <link rel="stylesheet" href="admin-layout.css"/>
   <link rel="stylesheet" href="admin-components.css"/>
-  
 </head>
 <body>
 <div class="app">
+<aside class="sidebar"><div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div></aside>
+<div class="main">
+  <div class="topbar" id="sivraTopbar"></div>
+  <div class="page-scroll">
+    <div style="max-width:1280px;margin:0 auto">
 
-<aside class="sidebar">
-  <div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div>
-</aside>
+      <div class="page-header">
+        <h1 class="page-title">Settings</h1>
+      </div>
 
-  <div class="main">
-    <div class="topbar" id="sivraTopbar"></div>
-    <div class="page-scroll">
-      <div style="max-width:1280px;margin:0 auto">
+      <div class="page-body">
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:20px;align-items:start">
 
-        <div class="page-header">
-          <h1 class="page-title">Settings</h1>
-        </div>
+          <!-- Settings nav -->
+          <div class="card" style="padding:8px;position:sticky;top:16px">
+            <div class="sb-item active" id="nav-general" onclick="showPanel('general')" style="font-size:13px;margin-bottom:2px">🏪 General</div>
+            <div class="sb-item" id="nav-shipping" onclick="showPanel('shipping')" style="font-size:13px;margin-bottom:2px">🚚 Shipping</div>
+            <div class="sb-item" id="nav-taxes" onclick="showPanel('taxes')" style="font-size:13px;margin-bottom:2px">🧾 Taxes</div>
+            <div class="sb-item" id="nav-checkout" onclick="showPanel('checkout')" style="font-size:13px;margin-bottom:2px">🛒 Checkout</div>
+            <div class="sb-item" id="nav-payments" onclick="showPanel('payments')" style="font-size:13px;margin-bottom:2px">💳 Payments</div>
+            <div class="sb-item" id="nav-notifications" onclick="showPanel('notifications')" style="font-size:13px;margin-bottom:2px">🔔 Notifications</div>
+            <div class="sb-item" id="nav-account" onclick="showPanel('account')" style="font-size:13px">👤 Account</div>
+          </div>
 
-        <div class="page-body">
-          <div style="display:grid;grid-template-columns:200px 1fr;gap:20px;align-items:start">
+          <!-- Panels -->
+          <div>
 
-            <!-- Settings nav -->
-            <div class="card" style="padding:8px;position:sticky;top:16px">
-              <div class="sb-item active" id="nav-general" onclick="showPanel('general')" style="font-size:13px;margin-bottom:2px">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="14" rx="3" stroke="currentColor" stroke-width="1.3"/><path d="M4 8h8M4 5h5M4 11h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-                General
-              </div>
-              <div class="sb-item" id="nav-shipping" onclick="showPanel('shipping')" style="font-size:13px;margin-bottom:2px">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 5h10v7H1V5zM11 7l4 2v3h-4V7z" stroke="currentColor" stroke-width="1.3"/><circle cx="3.5" cy="12.5" r="1.5" fill="currentColor"/><circle cx="12.5" cy="12.5" r="1.5" fill="currentColor"/></svg>
-                Shipping
-              </div>
-              <div class="sb-item" id="nav-taxes" onclick="showPanel('taxes')" style="font-size:13px;margin-bottom:2px">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="1" width="12" height="14" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M5 5h6M5 8h6M5 11h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-                Taxes
-              </div>
-              <div class="sb-item" id="nav-checkout" onclick="showPanel('checkout')" style="font-size:13px;margin-bottom:2px">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h2l2 8h7l1.5-5H5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="13" r="1" fill="currentColor"/><circle cx="12" cy="13" r="1" fill="currentColor"/></svg>
-                Checkout
-              </div>
-              <div class="sb-item" id="nav-payments" onclick="showPanel('payments')" style="font-size:13px;margin-bottom:2px">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M1 7h14" stroke="currentColor" stroke-width="1.3"/></svg>
-                Payments
-              </div>
-              <div class="sb-item" id="nav-notifications" onclick="showPanel('notifications')" style="font-size:13px;margin-bottom:2px">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1a4.5 4.5 0 0 1 4.5 4.5c0 3.5 1.5 4.5 1.5 4.5H2s1.5-1 1.5-4.5A4.5 4.5 0 0 1 8 1zM6.5 12a1.5 1.5 0 0 0 3 0" stroke="currentColor" stroke-width="1.3"/></svg>
-                Notifications
-              </div>
-              <div class="sb-item" id="nav-account" onclick="showPanel('account')" style="font-size:13px">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M2 14c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-                Account
+            <!-- GENERAL -->
+            <div id="panel-general">
+              <div class="card">
+                <div class="card-header"><span class="card-title">Store details</span></div>
+                <div class="card-body section-stack">
+                  <div class="form-group">
+                    <label class="form-label">Store name</label>
+                    <input class="input" id="settName" placeholder="Your store name"/>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="textarea" id="settDesc" style="min-height:80px" placeholder="Describe your store..."></textarea>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Store category</label>
+                    <select class="select" id="settCategory">
+                      <option value="">— Select —</option>
+                      <option value="fashion">Fashion & Apparel</option>
+                      <option value="jerseys">Jerseys & Sportswear</option>
+                      <option value="electronics">Electronics</option>
+                      <option value="sports">Sports & Outdoors</option>
+                      <option value="home">Home & Garden</option>
+                      <option value="beauty">Health & Beauty</option>
+                      <option value="food">Food & Beverage</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Currency</label>
+                    <select class="select" id="settCurrency">
+                      <option value="USD">USD — US Dollar</option>
+                      <option value="AUD">AUD — Australian Dollar</option>
+                      <option value="GBP">GBP — British Pound</option>
+                      <option value="EUR">EUR — Euro</option>
+                      <option value="CAD">CAD — Canadian Dollar</option>
+                      <option value="NZD">NZD — New Zealand Dollar</option>
+                      <option value="SGD">SGD — Singapore Dollar</option>
+                      <option value="AED">AED — UAE Dirham</option>
+                      <option value="SAR">SAR — Saudi Riyal</option>
+                      <option value="IQD">IQD — Iraqi Dinar</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Store URL</label>
+                    <div style="display:flex;gap:8px">
+                      <input class="input" id="storeUrl" readonly style="flex:1;background:#f6f6f7;color:#6d7175"/>
+                      <button class="btn btn-secondary" onclick="navigator.clipboard.writeText(document.getElementById('storeUrl').value).then(()=>Toast.success('URL copied!'))">Copy</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-footer">
+                  <button class="btn btn-primary" onclick="saveGeneral()">Save</button>
+                </div>
               </div>
             </div>
 
-            <!-- Panel area -->
-            <div id="panelArea" class="section-stack">
-
-              <!-- GENERAL -->
-              <div id="panel-general" class="section-stack">
-                <div class="card">
-                  <div class="card-header"><span class="card-title">Store details</span></div>
-                  <div class="card-body section-stack">
-                    <div class="form-group">
-                      <label class="form-label">Store name</label>
-                      <input class="input" id="settName" placeholder="e.g. World Cup Jerseys"/>
-                    </div>
-                    <div class="form-group">
-                      <label class="form-label">Store description</label>
-                      <div class="form-hint">Appears in search engines and on your storefront.</div>
-                      <textarea class="textarea" id="settDesc" style="min-height:80px" placeholder="Tell customers what you sell..."></textarea>
-                    </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-                      <div class="form-group">
-                        <label class="form-label">Currency</label>
-                        <select class="select" id="settCurrency">
-                          <option value="AUD">AUD — Australian Dollar</option>
-                          <option value="USD">USD — US Dollar</option>
-                          <option value="GBP">GBP — British Pound</option>
-                          <option value="EUR">EUR — Euro</option>
-                          <option value="AED">AED — UAE Dirham</option>
-                          <option value="SAR">SAR — Saudi Riyal</option>
-                          <option value="IQD">IQD — Iraqi Dinar</option>
-                          <option value="CAD">CAD — Canadian Dollar</option>
-                        </select>
-                      </div>
-                      <div class="form-group">
-                        <label class="form-label">Category</label>
-                        <select class="select" id="settCategory">
-                          <option value="fashion">Fashion & Apparel</option>
-                          <option value="electronics">Electronics</option>
-                          <option value="sports">Sports & Outdoors</option>
-                          <option value="home">Home & Garden</option>
-                          <option value="beauty">Health & Beauty</option>
-                          <option value="food">Food & Beverage</option>
-                          <option value="other">Other</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="card-footer">
-                    <button class="btn btn-primary" onclick="saveGeneral()">Save</button>
+            <!-- SHIPPING -->
+            <div id="panel-shipping" style="display:none">
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">Shipping zones</span>
+                  <button class="btn btn-secondary btn-sm" onclick="addZone()">Add zone</button>
+                </div>
+                <div class="card-body">
+                  <div id="zonesContainer">
+                    <div style="text-align:center;padding:32px;color:#8c9196;font-size:13px">Loading shipping zones...</div>
                   </div>
                 </div>
-
-                <div class="card">
-                  <div class="card-header"><span class="card-title">Store URL</span></div>
-                  <div class="card-body">
-                    <div class="form-hint" style="margin-bottom:8px">Your public storefront link:</div>
-                    <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#f6f6f7;border-radius:8px;border:1px solid #e3e3e3">
-                      <span style="font-size:13px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="storeUrlDisplay">—</span>
-                      <button class="btn btn-secondary btn-sm" onclick="copyUrl()">Copy</button>
-                      <a id="storeUrlLink" href="#" target="_blank" class="btn btn-secondary btn-sm">Open ↗</a>
-                    </div>
-                  </div>
+                <div class="card-footer">
+                  <button class="btn btn-primary" onclick="saveShipping()">Save shipping</button>
                 </div>
               </div>
+            </div>
 
-              <!-- SHIPPING -->
-              <div id="panel-shipping" style="display:none" class="section-stack">
-                <div class="card">
-                  <div class="card-header">
+            <!-- TAXES -->
+            <div id="panel-taxes" style="display:none">
+              <div class="card">
+                <div class="card-header"><span class="card-title">Tax settings</span></div>
+                <div class="card-body section-stack">
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f0f0f0">
                     <div>
-                      <div class="card-title">Shipping zones</div>
-                      <div class="card-subtitle">Set flat rates for different regions. Set rate to $0 for free shipping.</div>
+                      <div class="font-medium" style="font-size:13px">Charge tax on products</div>
+                      <div class="text-muted text-sm">Tax applied to order subtotal at checkout</div>
                     </div>
-                    <button class="btn btn-primary btn-sm" onclick="addZone()">+ Add zone</button>
+                    <label class="toggle"><input type="checkbox" id="taxEnabled"/><span class="toggle-slider"></span></label>
                   </div>
-                  <div id="shippingZones" style="padding:12px;display:flex;flex-direction:column;gap:10px">
-                    <div style="text-align:center;padding:24px;color:#8c9196;font-size:13px">Loading zones...</div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f0f0f0">
+                    <div>
+                      <div class="font-medium" style="font-size:13px">All prices include tax</div>
+                      <div class="text-muted text-sm">Tax is included in the displayed product price</div>
+                    </div>
+                    <label class="toggle"><input type="checkbox" id="taxIncluded"/><span class="toggle-slider"></span></label>
                   </div>
-                  <div class="card-footer">
-                    <button class="btn btn-primary" onclick="saveShipping()">Save shipping</button>
+                  <div class="form-group">
+                    <label class="form-label">Tax rate (%)</label>
+                    <div class="input-prefix" style="max-width:160px">
+                      <input type="number" id="taxRate" min="0" max="100" step="0.01" placeholder="e.g. 10"
+                        style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"/>
+                      <span class="input-prefix-text">%</span>
+                    </div>
+                    <div class="form-hint">Enter 10 for 10% GST, 20 for 20% VAT, etc.</div>
                   </div>
+                  <div class="form-group">
+                    <label class="form-label">Tax number <span class="text-muted">(optional)</span></label>
+                    <input class="input" id="taxNumber" placeholder="e.g. AU12345678" style="max-width:280px"/>
+                  </div>
+                </div>
+                <div class="card-footer">
+                  <button class="btn btn-primary" onclick="saveTax()">Save tax settings</button>
                 </div>
               </div>
-
-              <!-- TAXES -->
-              <div id="panel-taxes" style="display:none">
-                <div class="card">
-                  <div class="card-header"><span class="card-title">Taxes & duties</span></div>
-                  <div class="card-body section-stack">
-                    <div class="card-section" style="padding:0">
-                      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #f0f0f0">
-                        <div>
-                          <div class="font-medium" style="font-size:13px">Charge tax on products</div>
-                          <div class="text-muted text-sm">Tax applied to order subtotal</div>
-                        </div>
-                        <label class="toggle"><input type="checkbox" id="taxEnabled"/><span class="toggle-slider"></span></label>
-                      </div>
-                      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0">
-                        <div>
-                          <div class="font-medium" style="font-size:13px">Show prices including tax</div>
-                          <div class="text-muted text-sm">Tax is included in product prices</div>
-                        </div>
-                        <label class="toggle"><input type="checkbox" id="taxInclusive"/><span class="toggle-slider"></span></label>
-                      </div>
-                    </div>
-                    <div class="form-group">
-                      <label class="form-label">Tax rate (%)</label>
-                      <div class="form-hint">Applied as a percentage of the subtotal when tax is enabled</div>
-                      <div style="width:160px">
-                        <div class="input-prefix">
-                          <span class="input-prefix-text">%</span>
-                          <input type="number" step="0.01" min="0" max="100" id="taxRate" placeholder="10" style="width:100%;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"/>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="form-group">
-                      <label class="form-label">GST / VAT number <span class="text-muted">(optional)</span></label>
-                      <input class="input" id="taxNumber" placeholder="e.g. AU12345678" style="max-width:280px"/>
-                    </div>
-                  </div>
-                  <div class="card-footer">
-                    <button class="btn btn-primary" onclick="saveTax()">Save</button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- CHECKOUT -->
-              <div id="panel-checkout" style="display:none">
-                <div class="card">
-                  <div class="card-header"><span class="card-title">Checkout settings</span></div>
-                  <div class="card-body">
-                    <div style="display:flex;flex-direction:column;gap:0">
-                      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #f0f0f0">
-                        <div>
-                          <div class="font-medium" style="font-size:13px">Guest checkout</div>
-                          <div class="text-muted text-sm">Allow customers to check out without creating an account</div>
-                        </div>
-                        <label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label>
-                      </div>
-                      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #f0f0f0">
-                        <div>
-                          <div class="font-medium" style="font-size:13px">Require phone number</div>
-                          <div class="text-muted text-sm">Phone is required at checkout</div>
-                        </div>
-                        <label class="toggle"><input type="checkbox"/><span class="toggle-slider"></span></label>
-                      </div>
-                      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #f0f0f0">
-                        <div>
-                          <div class="font-medium" style="font-size:13px">Abandoned checkout recovery</div>
-                          <div class="text-muted text-sm">Save cart sessions before checkout is completed</div>
-                        </div>
-                        <label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label>
-                      </div>
-                      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0">
-                        <div>
-                          <div class="font-medium" style="font-size:13px">Order confirmation email</div>
-                          <div class="text-muted text-sm">Send customers an email when their order is placed</div>
-                        </div>
-                        <label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="card-footer">
-                    <button class="btn btn-primary" onclick="Toast.success('Checkout settings saved')">Save</button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- PAYMENTS -->
-              <div id="panel-payments" style="display:none">
-                <div class="card">
-                  <div class="card-header"><span class="card-title">Payment providers</span></div>
-                  <div class="card-body section-stack">
-                    <div style="border:2px solid #008060;border-radius:10px;padding:16px;display:flex;align-items:center;gap:16px">
-                      <div style="width:48px;height:32px;background:#f6f6f7;border-radius:6px;border:1px solid #e3e3e3;display:flex;align-items:center;justify-content:center;font-size:18px">🏦</div>
-                      <div style="flex:1">
-                        <div class="font-semibold" style="font-size:13px">Manual payment</div>
-                        <div class="text-muted text-sm">Bank transfer, cash on delivery</div>
-                      </div>
-                      <span class="badge badge-success">Active</span>
-                    </div>
-                    <div style="border:1px solid #e3e3e3;border-radius:10px;padding:16px;display:flex;align-items:center;gap:16px">
-                      <div style="width:48px;height:32px;background:#635bff;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="color:white;font-size:11px;font-weight:700">stripe</span></div>
-                      <div style="flex:1">
-                        <div class="font-semibold" style="font-size:13px">Stripe</div>
-                        <div class="text-muted text-sm">Accept cards, Apple Pay, Google Pay</div>
-                      </div>
-                      <span class="badge badge-default">Coming soon</span>
-                    </div>
-                    <div style="border:1px solid #e3e3e3;border-radius:10px;padding:16px;display:flex;align-items:center;gap:16px">
-                      <div style="width:48px;height:32px;background:#003087;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="color:white;font-size:9px;font-weight:700">PayPal</span></div>
-                      <div style="flex:1">
-                        <div class="font-semibold" style="font-size:13px">PayPal</div>
-                        <div class="text-muted text-sm">Accept PayPal and Venmo</div>
-                      </div>
-                      <span class="badge badge-default">Coming soon</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- NOTIFICATIONS -->
-              <div id="panel-notifications" style="display:none">
-                <div class="card">
-                  <div class="card-header"><span class="card-title">Email notifications</span></div>
-                  <div class="card-body">
-                    <div style="display:flex;flex-direction:column">
-                      ${[
-                        ['New order received', 'Get notified when a customer places an order', true],
-                        ['Order fulfilled', 'When you mark an order as fulfilled', true],
-                        ['Low stock alert', 'When a product drops below 5 units', true],
-                        ['New customer signup', 'When a new customer creates an account', false],
-                        ['Abandoned checkout', 'When a customer leaves without completing checkout', false],
-                        ['Daily sales summary', 'Daily email with store performance', false],
-                      ].map(([t,d,c],i,arr) => `
-                        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;${i<arr.length-1?'border-bottom:1px solid #f0f0f0':''}">
-                          <div>
-                            <div class="font-medium" style="font-size:13px">${t}</div>
-                            <div class="text-muted text-sm">${d}</div>
-                          </div>
-                          <label class="toggle"><input type="checkbox"${c?' checked':''}/><span class="toggle-slider"></span></label>
-                        </div>`).join('')}
-                    </div>
-                  </div>
-                  <div class="card-footer">
-                    <button class="btn btn-primary" onclick="Toast.success('Notification preferences saved')">Save</button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- ACCOUNT -->
-              <div id="panel-account" style="display:none" class="section-stack">
-                <div class="card">
-                  <div class="card-header"><span class="card-title">Account details</span></div>
-                  <div class="card-body section-stack">
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-                      <div class="form-group"><label class="form-label">First name</label><input class="input" id="accFirst"/></div>
-                      <div class="form-group"><label class="form-label">Last name</label><input class="input" id="accLast"/></div>
-                    </div>
-                    <div class="form-group"><label class="form-label">Email</label><input class="input" id="accEmail" type="email"/></div>
-                  </div>
-                  <div class="card-footer">
-                    <button class="btn btn-primary" onclick="Toast.success('Account updated')">Save</button>
-                  </div>
-                </div>
-                <div class="card">
-                  <div class="card-header"><span class="card-title">Change password</span></div>
-                  <div class="card-body section-stack">
-                    <div class="form-group"><label class="form-label">Current password</label><input class="input" id="pwCurrent" type="password"/></div>
-                    <div class="form-group"><label class="form-label">New password</label><input class="input" id="pwNew" type="password"/></div>
-                    <div class="form-group"><label class="form-label">Confirm new password</label><input class="input" id="pwConfirm" type="password"/></div>
-                  </div>
-                  <div class="card-footer card-footer-left">
-                    <button class="btn btn-plain btn-sm" style="color:#c0392b" onclick="confirmLogout()">Log out of all devices</button>
-                    <button class="btn btn-primary" onclick="changePassword()">Update password</button>
-                  </div>
-                </div>
-              </div>
-
             </div>
+
+            <!-- CHECKOUT -->
+            <div id="panel-checkout" style="display:none">
+              <div class="card">
+                <div class="card-header"><span class="card-title">Checkout settings</span></div>
+                <div class="card-body section-stack">
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f0f0f0">
+                    <div>
+                      <div class="font-medium" style="font-size:13px">Require account to checkout</div>
+                      <div class="text-muted text-sm">Customers must be logged in to place orders</div>
+                    </div>
+                    <label class="toggle"><input type="checkbox" id="chkRequireAccount"/><span class="toggle-slider"></span></label>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f0f0f0">
+                    <div>
+                      <div class="font-medium" style="font-size:13px">Show order notes field</div>
+                      <div class="text-muted text-sm">Allow customers to add notes to their order</div>
+                    </div>
+                    <label class="toggle"><input type="checkbox" id="chkOrderNotes" checked/><span class="toggle-slider"></span></label>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0">
+                    <div>
+                      <div class="font-medium" style="font-size:13px">Allow discount codes</div>
+                      <div class="text-muted text-sm">Show discount code field at checkout</div>
+                    </div>
+                    <label class="toggle"><input type="checkbox" id="chkDiscounts" checked/><span class="toggle-slider"></span></label>
+                  </div>
+                </div>
+                <div class="card-footer">
+                  <button class="btn btn-primary" onclick="Toast.success('Checkout settings saved')">Save</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- PAYMENTS -->
+            <div id="panel-payments" style="display:none">
+              <div class="card">
+                <div class="card-header"><span class="card-title">Payment providers</span></div>
+                <div class="card-body section-stack">
+                  <div class="alert alert-info">
+                    <span class="alert-icon">ℹ️</span>
+                    <div class="alert-body">Stripe payments are coming soon. Currently all orders are placed as manual payments.</div>
+                  </div>
+                  <div style="border:1px solid #e3e3e3;border-radius:8px;padding:16px;display:flex;align-items:center;gap:14px">
+                    <div style="width:48px;height:32px;background:#1a1a1a;border-radius:6px;display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700">STRIPE</div>
+                    <div style="flex:1">
+                      <div class="font-medium" style="font-size:13px">Stripe</div>
+                      <div class="text-muted text-sm">Credit cards, Apple Pay, Google Pay</div>
+                    </div>
+                    <span class="badge badge-warning">Coming soon</span>
+                  </div>
+                  <div style="border:1px solid #e3e3e3;border-radius:8px;padding:16px;display:flex;align-items:center;gap:14px">
+                    <div style="width:48px;height:32px;background:#003087;border-radius:6px;display:flex;align-items:center;justify-content:center;color:white;font-size:9px;font-weight:700">PayPal</div>
+                    <div style="flex:1">
+                      <div class="font-medium" style="font-size:13px">PayPal</div>
+                      <div class="text-muted text-sm">PayPal, Pay Later</div>
+                    </div>
+                    <span class="badge badge-warning">Coming soon</span>
+                  </div>
+                  <div style="border:2px solid #1a1a1a;border-radius:8px;padding:16px;display:flex;align-items:center;gap:14px;background:#f9f9f9">
+                    <div style="width:48px;height:32px;background:#f0f0f0;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px">🏦</div>
+                    <div style="flex:1">
+                      <div class="font-medium" style="font-size:13px">Manual payment</div>
+                      <div class="text-muted text-sm">Bank transfer, cash, or other manual methods</div>
+                    </div>
+                    <span class="badge badge-success">Active</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- NOTIFICATIONS -->
+            <div id="panel-notifications" style="display:none">
+              <div class="card">
+                <div class="card-header"><span class="card-title">Email notifications</span></div>
+                <div class="card-body section-stack">
+                  <div class="alert alert-info">
+                    <span class="alert-icon">📧</span>
+                    <div class="alert-body">
+                      To enable email notifications, add these to your Railway environment variables:
+                      <code style="display:block;margin-top:6px;font-size:11px;background:rgba(0,0,0,0.05);padding:6px 8px;border-radius:4px">EMAIL_PROVIDER=resend<br/>RESEND_API_KEY=re_xxxx<br/>EMAIL_FROM=orders@yourdomain.com<br/>ADMIN_EMAIL=you@gmail.com</code>
+                    </div>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:0">
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f0f0f0">
+                      <div>
+                        <div class="font-medium" style="font-size:13px">New order received</div>
+                        <div class="text-muted text-sm">Alert email sent to ADMIN_EMAIL on every new order</div>
+                      </div>
+                      <label class="toggle"><input type="checkbox" checked disabled/><span class="toggle-slider"></span></label>
+                    </div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f0f0f0">
+                      <div>
+                        <div class="font-medium" style="font-size:13px">Order confirmation to customer</div>
+                        <div class="text-muted text-sm">Sent automatically when customer completes checkout</div>
+                      </div>
+                      <label class="toggle"><input type="checkbox" checked disabled/><span class="toggle-slider"></span></label>
+                    </div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0">
+                      <div>
+                        <div class="font-medium" style="font-size:13px">Shipping confirmation</div>
+                        <div class="text-muted text-sm">Sent when you mark an order as fulfilled with tracking</div>
+                      </div>
+                      <label class="toggle"><input type="checkbox" checked disabled/><span class="toggle-slider"></span></label>
+                    </div>
+                  </div>
+                  <div style="margin-top:8px">
+                    <button class="btn btn-secondary" onclick="testEmail()">Send test email</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ACCOUNT -->
+            <div id="panel-account" style="display:none">
+              <div class="card">
+                <div class="card-header"><span class="card-title">Account details</span></div>
+                <div class="card-body section-stack">
+                  <div class="form-group">
+                    <label class="form-label">Name</label>
+                    <input class="input" id="accName" readonly style="background:#f6f6f7;color:#6d7175"/>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input class="input" id="accEmail" readonly style="background:#f6f6f7;color:#6d7175"/>
+                  </div>
+                </div>
+              </div>
+              <div class="card" style="margin-top:16px">
+                <div class="card-header"><span class="card-title">Change password</span></div>
+                <div class="card-body section-stack">
+                  <div class="form-group">
+                    <label class="form-label">Current password</label>
+                    <input class="input" type="password" id="pwCurrent"/>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">New password</label>
+                    <input class="input" type="password" id="pwNew"/>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Confirm new password</label>
+                    <input class="input" type="password" id="pwConfirm"/>
+                  </div>
+                </div>
+                <div class="card-footer">
+                  <button class="btn btn-primary" onclick="changePassword()">Update password</button>
+                </div>
+              </div>
+              <div class="card" style="margin-top:16px">
+                <div class="card-body">
+                  <button class="btn btn-secondary w-full" style="justify-content:center;color:#c0392b" onclick="logout()">Log out</button>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
-
       </div>
     </div>
   </div>
 </div>
-
+</div>
 <div class="toast" id="sivra-toast"></div>
-
 <script src="admin.js"></script>
 <script>
-// Page init
 (async function() {
   const session = await initAdmin('settings');
   if (!session) return;
-  const storeSlug = Auth.getSlug();
-  
+
   const PANELS = ['general','shipping','taxes','checkout','payments','notifications','account'];
   let _zones = [];
-  let _slug = '';
 
   function showPanel(id) {
     PANELS.forEach(p => {
-      document.getElementById('panel-'+p).style.display = p===id ? '' : 'none';
-      document.getElementById('nav-'+p).classList.toggle('active', p===id);
+      const panel = document.getElementById('panel-' + p);
+      const nav = document.getElementById('nav-' + p);
+      if (panel) panel.style.display = p === id ? '' : 'none';
+      if (nav) nav.classList.toggle('active', p === id);
     });
     if (id === 'shipping') loadShipping();
     if (id === 'taxes') loadTax();
+    if (id === 'account') loadAccount();
   }
 
-  // Load store info
-  (async () => {
+  // ── GENERAL ───────────────────────────────────────────────────────────────
+  async function loadGeneral() {
     try {
       const s = await API.get('/api/store/info');
-      _slug = s.slug || '';
       if (s.name) document.getElementById('settName').value = s.name;
       if (s.description) document.getElementById('settDesc').value = s.description;
       if (s.currency) document.getElementById('settCurrency').value = s.currency;
       if (s.category) document.getElementById('settCategory').value = s.category;
-      const url = window.location.origin + '/sivra-storefront.html?store=' + _slug;
-      document.getElementById('storeUrlDisplay').textContent = url;
-      document.getElementById('storeUrlLink').href = '/sivra-storefront.html?store=' + _slug;
-    } catch(e) {}
-    try {
-      const me = await API.get('/api/auth/me');
-      if (me.merchant) {
-        document.getElementById('accFirst').value = me.merchant.first_name || me.merchant.firstName || '';
-        document.getElementById('accLast').value = me.merchant.last_name || me.merchant.lastName || '';
-        document.getElementById('accEmail').value = me.merchant.email || '';
-      }
-    } catch(e) {}
-  })();
-
-  // ── TAX SETTINGS ──────────────────────────────────────────────
-  async function loadTax() {
-    try {
-      const data = await API.get('/api/store/info');
-      const te = document.getElementById('taxEnabled');
-      const tr = document.getElementById('taxRate');
-      const ti = document.getElementById('taxIncluded');
-      if (te) te.checked = !!data.tax_enabled;
-      if (tr) tr.value = data.tax_rate || '';
-      if (ti) ti.checked = !!data.tax_included;
-    } catch(e) { console.error('loadTax error:', e); }
+      const slug = s.slug || Auth.getSlug();
+      document.getElementById('storeUrl').value = window.location.origin + '/sivra-storefront.html?store=' + slug;
+    } catch(e) { Toast.error('Failed to load store info'); }
   }
-
-  async function saveTax() {
-    try {
-      await API.patch('/api/store/info', {
-        tax_enabled: document.getElementById('taxEnabled')?.checked ? 1 : 0,
-        tax_rate: parseFloat(document.getElementById('taxRate')?.value) || 0,
-        tax_included: document.getElementById('taxIncluded')?.checked ? 1 : 0,
-      });
-      Toast.success('Tax settings saved');
-    } catch(e) { Toast.error(e.message || 'Failed to save tax settings'); }
-  }
-
 
   async function saveGeneral() {
     try {
       await API.patch('/api/store/info', {
-        name: document.getElementById('settName').value,
+        name: document.getElementById('settName').value.trim(),
         description: document.getElementById('settDesc').value,
         currency: document.getElementById('settCurrency').value,
         category: document.getElementById('settCategory').value,
       });
-      Toast.success('Store settings saved');
-    } catch(e) { Toast.error('Failed to save: ' + e.message); }
+      Toast.success('General settings saved');
+    } catch(e) { Toast.error(e.message || 'Failed to save'); }
   }
 
-  function copyUrl() {
-    const url = document.getElementById('storeUrlDisplay').textContent;
-    navigator.clipboard.writeText(url).then(() => Toast.success('URL copied!')).catch(() => Toast.show(url));
-  }
-
+  // ── SHIPPING ──────────────────────────────────────────────────────────────
   async function loadShipping() {
     try {
       const data = await API.get('/api/store/shipping');
       _zones = data.zones || [];
       renderZones();
-    } catch(e) { _zones = []; renderZones(); }
+    } catch(e) { document.getElementById('zonesContainer').innerHTML = '<div style="color:#c0392b;font-size:13px">Failed to load shipping zones</div>'; }
   }
 
   function renderZones() {
-    const el = document.getElementById('shippingZones');
+    const el = document.getElementById('zonesContainer');
     if (!_zones.length) {
-      el.innerHTML = '<div class="empty-state" style="padding:32px"><div class="empty-icon">📦</div><div class="empty-title">No shipping zones</div><div class="empty-desc">Add a zone to set shipping rates for your customers</div></div>';
+      el.innerHTML = '<div style="text-align:center;padding:24px;color:#8c9196;font-size:13px">No shipping zones yet. Add a zone to enable shipping.</div>';
       return;
     }
-    el.innerHTML = _zones.map((z,i) => `
-      <div style="border:1px solid #e3e3e3;border-radius:10px;overflow:hidden">
-        <div style="padding:10px 14px;background:#f9f9f9;border-bottom:1px solid #e3e3e3;display:flex;align-items:center;justify-content:space-between">
-          <input value="${z.name||'Zone'}" onchange="_zones[${i}].name=this.value"
+    el.innerHTML = _zones.map((z, i) => {
+      const rates = z.rates || [{ id: 'r0', name: 'Standard', rate: z.rate || 0, free_over: z.free_over || null, eta: '5–7 business days' }];
+      return `<div style="border:1px solid #e3e3e3;border-radius:8px;overflow:hidden;margin-bottom:10px">
+        <div style="padding:10px 14px;background:#f9f9f9;border-bottom:1px solid #e3e3e3;display:flex;align-items:center;gap:10px">
+          <input value="${z.name || 'Zone'}" onchange="_zones[${i}].name=this.value"
             style="font-size:13px;font-weight:600;border:none;outline:none;background:none;flex:1;color:#1a1a1a" placeholder="Zone name"/>
-          <button onclick="removeZone(${i})" class="btn btn-plain btn-sm" style="color:#c0392b">Remove</button>
+          <input class="input" value="${z.countries || ''}" onchange="_zones[${i}].countries=this.value"
+            placeholder="Countries (e.g. Australia, USA)" style="flex:2;font-size:12px;height:30px"/>
+          <button onclick="removeZone(${i})" class="btn btn-plain btn-sm" style="color:#c0392b;flex-shrink:0">Remove</button>
         </div>
-        <div style="padding:14px 14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
-          <div><label class="form-label">Countries / regions</label>
-            <input class="input" value="${z.countries||''}" onchange="_zones[${i}].countries=this.value" placeholder="e.g. Australia, USA"/></div>
-          <div><label class="form-label">Rate</label>
-            <div class="input-prefix">
-              <span class="input-prefix-text">$</span>
-              <input type="number" step="0.01" min="0" value="${z.rate||0}" onchange="_zones[${i}].rate=parseFloat(this.value)||0"
-                style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"/>
-            </div></div>
-          <div><label class="form-label">Free over <span class="text-muted">(optional)</span></label>
-            <div class="input-prefix">
-              <span class="input-prefix-text">$</span>
-              <input type="number" step="0.01" min="0" value="${z.free_over||''}" onchange="_zones[${i}].free_over=this.value?parseFloat(this.value):null" placeholder="e.g. 100"
-                style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"/>
-            </div></div>
+        <div style="padding:10px 14px">
+          <div style="font-size:12px;font-weight:600;color:#6d7175;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.4px">Shipping rates</div>
+          ${rates.map((rate, ri) => `
+            <div style="display:grid;grid-template-columns:1fr 80px 90px 90px 28px;gap:8px;align-items:center;margin-bottom:6px">
+              <input class="input" value="${rate.name || 'Standard'}" onchange="_zones[${i}].rates[${ri}].name=this.value"
+                placeholder="Rate name" style="height:30px;font-size:12px"/>
+              <div class="input-prefix" style="height:30px">
+                <span class="input-prefix-text" style="padding:0 6px;height:30px;font-size:12px">$</span>
+                <input type="number" step="0.01" min="0" value="${rate.rate || 0}"
+                  onchange="_zones[${i}].rates[${ri}].rate=parseFloat(this.value)||0"
+                  style="flex:1;height:30px;padding:0 6px;border:none;outline:none;font-size:12px;font-family:inherit;background:none;color:#303030"/>
+              </div>
+              <div class="input-prefix" style="height:30px">
+                <span class="input-prefix-text" style="padding:0 4px;height:30px;font-size:11px">Free $</span>
+                <input type="number" step="0.01" min="0" value="${rate.free_over || ''}"
+                  onchange="_zones[${i}].rates[${ri}].free_over=this.value?parseFloat(this.value):null"
+                  placeholder="No" style="flex:1;height:30px;padding:0 4px;border:none;outline:none;font-size:12px;font-family:inherit;background:none;color:#303030"/>
+              </div>
+              <input class="input" value="${rate.eta || ''}" onchange="_zones[${i}].rates[${ri}].eta=this.value"
+                placeholder="ETA" style="height:30px;font-size:11px"/>
+              <button onclick="removeRate(${i},${ri})" style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:16px;line-height:1">×</button>
+            </div>`).join('')}
+          <button onclick="addRate(${i})" class="btn btn-secondary btn-sm" style="margin-top:4px;font-size:11px">+ Add rate</button>
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   }
 
   function addZone() {
-    _zones.push({id: Date.now(), name: 'New zone', countries: '', rate: 0, free_over: null});
+    _zones.push({ id: 'z' + Date.now(), name: 'New zone', countries: '', rates: [{ id: 'r' + Date.now(), name: 'Standard', rate: 0, free_over: null, eta: '5–7 business days' }] });
     renderZones();
   }
-  function removeZone(i) { _zones.splice(i,1); renderZones(); }
+
+  function removeZone(i) { _zones.splice(i, 1); renderZones(); }
+
+  function addRate(zoneIdx) {
+    if (!_zones[zoneIdx].rates) _zones[zoneIdx].rates = [];
+    _zones[zoneIdx].rates.push({ id: 'r' + Date.now(), name: 'Express', rate: 0, free_over: null, eta: '2–3 business days' });
+    renderZones();
+  }
+
+  function removeRate(zoneIdx, rateIdx) {
+    _zones[zoneIdx].rates.splice(rateIdx, 1);
+    if (!_zones[zoneIdx].rates.length) removeZone(zoneIdx);
+    else renderZones();
+  }
 
   async function saveShipping() {
     try {
       await API.patch('/api/store/shipping', { zones: _zones });
-      Toast.success('Shipping zones saved');
-    } catch(e) { Toast.error('Failed to save shipping'); }
+      Toast.success('Shipping saved');
+    } catch(e) { Toast.error(e.message || 'Failed to save shipping'); }
+  }
+
+  // ── TAX ───────────────────────────────────────────────────────────────────
+  async function loadTax() {
+    try {
+      const s = await API.get('/api/store/info');
+      document.getElementById('taxEnabled').checked = !!s.tax_enabled;
+      document.getElementById('taxIncluded').checked = !!s.tax_included;
+      document.getElementById('taxRate').value = s.tax_rate || '';
+    } catch(e) {}
+  }
+
+  async function saveTax() {
+    try {
+      await API.patch('/api/store/info', {
+        tax_enabled: document.getElementById('taxEnabled').checked ? 1 : 0,
+        tax_included: document.getElementById('taxIncluded').checked ? 1 : 0,
+        tax_rate: parseFloat(document.getElementById('taxRate').value) || 0,
+      });
+      Toast.success('Tax settings saved');
+    } catch(e) { Toast.error(e.message || 'Failed to save tax settings'); }
+  }
+
+  // ── ACCOUNT ───────────────────────────────────────────────────────────────
+  async function loadAccount() {
+    try {
+      const me = await API.get('/api/auth/me');
+      if (me.merchant) {
+        document.getElementById('accName').value = [me.merchant.first_name, me.merchant.last_name].filter(Boolean).join(' ');
+        document.getElementById('accEmail').value = me.merchant.email || '';
+      }
+    } catch(e) {}
   }
 
   async function changePassword() {
-    const curr = document.getElementById('pwCurrent').value;
-    const nw = document.getElementById('pwNew').value;
-    const conf = document.getElementById('pwConfirm').value;
-    if (!curr || !nw) { Toast.error('Fill in all password fields'); return; }
-    if (nw !== conf)  { Toast.error('New passwords do not match'); return; }
-    if (nw.length < 8){ Toast.error('Password must be at least 8 characters'); return; }
+    const current = document.getElementById('pwCurrent').value;
+    const newPw = document.getElementById('pwNew').value;
+    const confirm = document.getElementById('pwConfirm').value;
+    if (!current || !newPw) { Toast.error('Enter current and new password'); return; }
+    if (newPw !== confirm) { Toast.error('New passwords do not match'); return; }
+    if (newPw.length < 8) { Toast.error('Password must be at least 8 characters'); return; }
     try {
-      await API.post('/api/auth/change-password', {currentPassword: curr, newPassword: nw});
+      await API.post('/api/auth/change-password', { currentPassword: current, newPassword: newPw });
+      document.getElementById('pwCurrent').value = '';
+      document.getElementById('pwNew').value = '';
+      document.getElementById('pwConfirm').value = '';
       Toast.success('Password updated');
-      ['pwCurrent','pwNew','pwConfirm'].forEach(id => document.getElementById(id).value = '');
-    } catch(e) { Toast.error(e.message); }
+    } catch(e) { Toast.error(e.message || 'Failed to change password'); }
   }
 
-  function confirmLogout() {
-    Modal.confirm('Log out', 'This will log you out of all devices.', () => Auth.logout());
+  // ── NOTIFICATIONS ─────────────────────────────────────────────────────────
+  async function testEmail() {
+    try {
+      const res = await fetch('/api/test-email', { headers: { Authorization: 'Bearer ' + Auth.getToken() } });
+      const data = await res.json();
+      if (res.ok) Toast.success('Test email sent! Provider: ' + (data.provider || 'unknown'));
+      else Toast.error('Email not configured. Add EMAIL_PROVIDER to Railway env vars.');
+    } catch(e) { Toast.error('Email not configured'); }
   }
+
+  function logout() {
+    Auth.logout();
+    location.href = 'sivra-login.html';
+  }
+
+  // ── INIT ──────────────────────────────────────────────────────────────────
+  loadGeneral();
 
 })();
 </script>

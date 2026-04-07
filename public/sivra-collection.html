@@ -173,6 +173,7 @@ img{max-width:100%;display:block}
     <div>
       <div class="footer-heading">Help</div>
       <a class="footer-link" href="javascript:void(0)" onclick="goPage('contact')">Contact</a>
+      <a class="footer-link" href="javascript:void(0)" onclick="location.href='sivra-order-status.html?store='+_storeSlug">Track order</a>
       <a class="footer-link" href="javascript:void(0)" onclick="goPage('faq')">FAQ</a>
       <a class="footer-link" href="javascript:void(0)" onclick="goPage('shipping-policy')">Shipping policy</a>
       <a class="footer-link" href="javascript:void(0)" onclick="goPage('returns')">Returns</a>
@@ -213,6 +214,7 @@ function goHome(){location.href='sivra-storefront.html?store='+_storeSlug;}
 function goCart(){location.href='sivra-cart.html?store='+_storeSlug;}
 function goSearch(){location.href='sivra-storefront.html?store='+_storeSlug+'&search=open';}
 function goPage(slug){location.href='sivra-policy.html?store='+_storeSlug+'&page='+slug;}
+function goBlog(){location.href='sivra-blog-storefront.html?store='+_storeSlug;}
 function goCollection(id){location.href='sivra-collection.html?store='+_storeSlug+'&id='+id;}
 function goProduct(id){location.href='sivra-product.html?id='+id+'&store='+_storeSlug;}
 function fmtMoney(v){return '$'+parseFloat(v||0).toFixed(2);}
