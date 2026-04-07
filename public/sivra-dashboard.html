@@ -9,169 +9,193 @@
   <link rel="stylesheet" href="admin-components.css"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
-    .dash-shell{max-width:1120px;margin:0 auto;padding:12px 8px 28px;}
-    .dash-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
-    .dash-chip{height:32px;padding:0 12px;border:1px solid #d8d8d8;border-radius:10px;background:#fff;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:#303030;box-shadow:0 1px 0 rgba(0,0,0,.03);}
-    .dash-chip.green{font-weight:600;}
-    .dash-chip .dot{width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;}
-    .dash-overview{background:#fff;border:1px solid #e3e3e3;border-radius:16px;overflow:hidden;box-shadow:0 1px 0 rgba(0,0,0,.04);margin-bottom:14px;}
-    .dash-overview-head{display:grid;grid-template-columns:repeat(4,1fr) 24px;gap:0;border-bottom:1px solid #efefef;}
-    .dash-kpi{padding:14px 18px 10px;border-right:1px solid #efefef;min-height:74px;cursor:pointer;transition:background .12s;}
-    .dash-kpi:hover{background:#fafafa;}
-    .dash-kpi.active{background:#f6f6f6;}
-    .dash-kpi:last-of-type{border-right:none;}
-    .dash-kpi-label{font-size:12px;font-weight:600;color:#5f6368;margin-bottom:4px;}
-    .dash-kpi-value{font-size:26px;line-height:1.05;font-weight:700;letter-spacing:-.03em;color:#202124;}
-    .dash-kpi-meta{margin-top:4px;font-size:12px;color:#7a7d82;display:flex;gap:4px;align-items:center;}
-    .up{color:#16a34a;font-weight:700;}
-    .down{color:#7a7d82;font-weight:700;}
-    .dash-overview-icon{display:flex;align-items:flex-start;justify-content:center;padding:16px 8px;color:#8c9196;font-size:15px;}
-    .dash-chart-wrap{padding:8px 18px 12px;}
-    .dash-chart{height:165px;}
-    .dash-legend{display:flex;justify-content:center;gap:18px;padding:8px 0 2px;color:#7a7d82;font-size:12px;}
-    .dash-legend .sw{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;}
-    .dash-pill-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:16px;}
-    .dash-pill{height:32px;border-radius:10px;border:1px solid #d9d9d9;background:#fff;padding:0 12px;display:flex;align-items:center;gap:8px;color:#303030;font-size:13px;font-weight:600;box-shadow:0 1px 0 rgba(0,0,0,.03);}
-    .dash-pill svg{flex-shrink:0;color:#6d7175;}
-    .dash-title{font-size:15px;font-weight:700;color:#303030;margin:20px 0 8px;}
-    .dash-ai-card,.dash-task-card{background:#fff;border:1px solid #e3e3e3;border-radius:16px;box-shadow:0 1px 0 rgba(0,0,0,.04);}
-    .dash-ai-card{padding:14px 16px 10px;margin-bottom:22px;}
-    .dash-ai-input{display:flex;align-items:center;gap:10px;border:1px solid #e3e3e3;border-radius:14px;padding:12px 14px;background:#fff;min-height:64px;}
-    .dash-ai-placeholder{flex:1;color:#8c9196;font-size:14px;}
-    .dash-ai-icons{display:flex;align-items:center;gap:10px;color:#6d7175;}
-    .dash-ai-icons .circle{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#f2f3f5;border:1px solid #ececec;font-weight:700;}
-    .dash-task-list{display:flex;flex-direction:column;gap:14px;}
-    .dash-task-card{display:grid;grid-template-columns:1fr 160px;gap:20px;padding:14px 14px 14px 16px;align-items:center;overflow:hidden;}
-    .dash-task-top{font-size:12px;color:#5f6368;font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:10px;}
-    .dash-task-top .ring{width:14px;height:14px;border:2px solid #5f6368;border-radius:50%;display:inline-block;box-sizing:border-box;}
-    .dash-task-title{font-size:22px;font-weight:700;line-height:1.2;color:#303030;margin-bottom:8px;letter-spacing:-.02em;}
-    .dash-task-desc{font-size:14px;line-height:1.55;color:#5f6368;max-width:720px;}
-    .dash-task-footer{margin-top:14px;padding-top:8px;border-top:1px solid #efefef;display:flex;align-items:center;justify-content:space-between;gap:12px;}
-    .dash-task-next{height:34px;border-radius:10px;border:1px solid #e3e3e3;background:#f7f7f7;color:#303030;font-size:13px;font-weight:600;padding:0 12px;display:inline-flex;align-items:center;}
-    .dash-btn{height:34px;border-radius:10px;border:1px solid #d8d8d8;background:#fff;padding:0 12px;color:#303030;font-size:13px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 1px 0 rgba(0,0,0,.03);}
-    .dash-task-art{height:128px;border-radius:14px;background:linear-gradient(135deg,#f6d2fb 0%,#efb9ff 40%,#ffd0ef 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
-    .dash-task-art.blue{background:linear-gradient(135deg,#143c95 0%,#1f5bd4 55%,#6ca6ff 100%);}
-    .dash-task-art::before,.dash-task-art::after{content:'';position:absolute;border-radius:18px;background:rgba(255,255,255,.34);transform:rotate(-12deg);}
-    .dash-task-art::before{width:92px;height:56px;left:18px;top:24px;}
-    .dash-task-art::after{width:76px;height:76px;right:16px;bottom:20px;}
-    .dash-art-chip{position:absolute;width:42px;height:42px;border-radius:12px;background:#2a1f3d;color:#fff;font-size:22px;font-weight:700;display:flex;align-items:center;justify-content:center;left:18px;bottom:18px;box-shadow:0 8px 24px rgba(0,0,0,.18);}
-    .dash-art-chip.blue{background:#0f2460;}
-    .dash-art-mini{position:absolute;right:20px;top:18px;width:46px;height:46px;border-radius:12px;background:#fff;color:#303030;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 6px 20px rgba(0,0,0,.12);}
-    .dash-art-wave{position:absolute;left:54px;right:34px;bottom:26px;height:18px;border-bottom:4px solid #c93fd5;border-radius:999px;transform:rotate(-8deg);}
-    .dash-small-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-    .dash-mini-card{background:#fff;border:1px solid #e3e3e3;border-radius:16px;padding:14px 16px;min-height:120px;}
-    .dash-mini-title{font-size:12px;color:#5f6368;font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.03em;}
-    .dash-mini-body{font-size:14px;line-height:1.5;color:#5f6368;}
-    @media(max-width:1120px){.dash-overview-head{grid-template-columns:repeat(2,1fr);} .dash-overview-icon{display:none;} .dash-pill-grid{grid-template-columns:1fr 1fr;} .dash-task-card{grid-template-columns:1fr;} .dash-small-grid{grid-template-columns:1fr;} }
-    @media(max-width:760px){.dash-shell{padding:12px 0 24px;} .dash-toolbar,.dash-pill-grid{grid-template-columns:1fr;display:flex;flex-wrap:wrap;} .dash-overview-head{grid-template-columns:1fr;} .dash-kpi{border-right:none;border-bottom:1px solid #efefef;} .dash-chart{height:190px;} }
+    /* Shopify-style dashboard overrides */
+    .dash-metric-row { display:grid; grid-template-columns:repeat(4,1fr); gap:0; border:1px solid #e3e3e3; border-radius:12px; overflow:hidden; background:white; margin-bottom:16px; }
+    .dash-metric { padding:16px 20px; border-right:1px solid #e3e3e3; cursor:pointer; transition:background 0.1s; }
+    .dash-metric:last-child { border-right:none; }
+    .dash-metric:hover { background:#f9f9f9; }
+    .dash-metric.active { background:#f0f0f0; border-bottom:2px solid #1a1a1a; }
+    .dash-metric-label { font-size:12px; color:#6d7175; margin-bottom:4px; display:flex; align-items:center; gap:6px; }
+    .dash-metric-value { font-size:22px; font-weight:700; color:#1a1a1a; margin-bottom:3px; }
+    .dash-metric-delta { font-size:12px; display:flex; align-items:center; gap:3px; }
+    .delta-up { color:#1a7f37; }
+    .delta-down { color:#c0392b; }
+    .delta-neutral { color:#6d7175; }
+    .dash-chart-wrap { background:white; border:1px solid #e3e3e3; border-radius:12px; padding:20px; margin-bottom:16px; }
+    .dash-alert-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+    .dash-alert { display:flex; align-items:center; gap:8px; padding:9px 14px; background:white; border:1px solid #e3e3e3; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; text-decoration:none; color:#1a1a1a; transition:border-color 0.1s; white-space:nowrap; }
+    .dash-alert:hover { border-color:#1a1a1a; }
+    .dash-alert svg { flex-shrink:0; }
+    .dash-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+    .dash-card { background:white; border:1px solid #e3e3e3; border-radius:12px; overflow:hidden; }
+    .dash-card-header { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid #f0f0f0; }
+    .dash-card-title { font-size:14px; font-weight:600; color:#1a1a1a; }
+    .dash-card-link { font-size:13px; color:#2563eb; text-decoration:none; font-weight:500; }
+    .dash-card-link:hover { text-decoration:underline; }
+    .order-row { display:flex; align-items:center; gap:12px; padding:11px 18px; border-bottom:1px solid #f6f6f7; text-decoration:none; color:#1a1a1a; transition:background 0.1s; }
+    .order-row:hover { background:#f9f9f9; }
+    .order-row:last-child { border-bottom:none; }
+    .order-num { font-size:13px; font-weight:600; color:#1a1a1a; }
+    .order-meta { font-size:12px; color:#6d7175; }
+    .order-total { font-size:13px; font-weight:600; margin-left:auto; }
+    .order-badge { font-size:11px; padding:2px 7px; border-radius:20px; font-weight:500; }
+    .badge-paid { background:#d1fae5; color:#065f46; }
+    .badge-pending { background:#fef3c7; color:#92400e; }
+    .badge-refunded { background:#f3f4f6; color:#6b7280; }
+    .prod-row { display:flex; align-items:center; gap:12px; padding:11px 18px; border-bottom:1px solid #f6f6f7; text-decoration:none; color:#1a1a1a; transition:background 0.1s; }
+    .prod-row:hover { background:#f9f9f9; }
+    .prod-row:last-child { border-bottom:none; }
+    .prod-thumb { width:40px; height:40px; border-radius:8px; object-fit:cover; border:1px solid #e3e3e3; flex-shrink:0; background:#f6f6f7; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+    .prod-thumb img { width:100%; height:100%; object-fit:cover; }
+    .prod-name { font-size:13px; font-weight:500; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .prod-price { font-size:13px; color:#6d7175; }
+    .prod-stock { font-size:12px; font-weight:600; margin-left:auto; }
+    .quick-actions { display:flex; gap:8px; flex-wrap:wrap; }
+    .qa-btn { display:flex; align-items:center; gap:7px; height:36px; padding:0 14px; background:white; border:1px solid #e3e3e3; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; font-family:inherit; color:#303030; transition:all 0.1s; text-decoration:none; }
+    .qa-btn:hover { border-color:#1a1a1a; background:#f9f9f9; }
+    .live-dot { width:8px; height:8px; border-radius:50%; background:#22c55e; display:inline-block; animation:pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
   </style>
 </head>
 <body>
 <div class="app">
-  <aside class="sidebar"><div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div></aside>
+<aside class="sidebar"><div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div></aside>
   <div class="main">
     <div class="topbar" id="sivraTopbar"></div>
     <div class="page-scroll">
-      <div class="dash-shell">
-        <div class="dash-toolbar">
-          <button class="dash-chip" id="todayChip">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1.25" y="2" width="11.5" height="10" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 1v2M10 1v2M1.5 5h11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-            <span>Today</span>
-          </button>
-          <button class="dash-chip">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 4.25h10M2 7h10M2 9.75h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-            <span>All channels</span>
-          </button>
-          <button class="dash-chip green"><span class="dot"></span><span id="liveVisitors">0 live visitors</span></button>
+      <div style="max-width:1280px;margin:0 auto;padding:0 4px">
+
+        <!-- Page header -->
+        <div class="page-header" style="margin-bottom:16px">
+          <div>
+            <h1 class="page-title" id="dashGreeting" style="font-size:22px">Good morning</h1>
+            <div class="text-muted text-sm" id="dashDate"></div>
+          </div>
+          <div class="btn-group">
+            <select id="dashPeriod" class="sort-select" onchange="loadStats(parseInt(this.value))" style="height:32px">
+              <option value="1">Today</option>
+              <option value="7">Last 7 days</option>
+              <option value="30" selected>Last 30 days</option>
+              <option value="90">Last 90 days</option>
+            </select>
+            <a href="sivra-storefront.html" target="_blank" class="btn btn-secondary">→ View store</a>
+            <a href="sivra-add-product.html" class="btn btn-primary">+ Add product</a>
+          </div>
         </div>
 
-        <section class="dash-overview">
-          <div class="dash-overview-head">
-            <div class="dash-kpi active" data-mode="sessions">
-              <div class="dash-kpi-label">Sessions</div>
-              <div class="dash-kpi-value" id="dashSessions">—</div>
-              <div class="dash-kpi-meta" id="dashSessionsDelta"></div>
-            </div>
-            <div class="dash-kpi" data-mode="sales">
-              <div class="dash-kpi-label">Total sales</div>
-              <div class="dash-kpi-value" id="dashSales">—</div>
-              <div class="dash-kpi-meta" id="dashSalesDelta"></div>
-            </div>
-            <div class="dash-kpi" data-mode="orders">
-              <div class="dash-kpi-label">Orders</div>
-              <div class="dash-kpi-value" id="dashOrders">—</div>
-              <div class="dash-kpi-meta" id="dashOrdersDelta"></div>
-            </div>
-            <div class="dash-kpi" data-mode="conv">
-              <div class="dash-kpi-label">Conversion rate</div>
-              <div class="dash-kpi-value" id="dashConv">—</div>
-              <div class="dash-kpi-meta" id="dashConvDelta"></div>
-            </div>
-            <div class="dash-overview-icon">⌃</div>
-          </div>
-          <div class="dash-chart-wrap">
-            <div class="dash-chart"><canvas id="dashMainChart"></canvas></div>
-            <div class="dash-legend">
-              <span><span class="sw" style="background:#1ea7fd"></span><span id="legendNow">Today</span></span>
-              <span><span class="sw" style="background:#8fd3ff"></span><span id="legendPrev">Yesterday</span></span>
-            </div>
-          </div>
-        </section>
+        <!-- Alerts -->
+        <div id="dashAlerts" class="dash-alert-row" style="display:none"></div>
 
-        <div class="dash-pill-grid" id="dashPills"></div>
-
-        <div class="dash-title">Good evening, let's get started.</div>
-        <section class="dash-ai-card">
-          <div class="dash-ai-input">
-            <div style="width:20px;height:20px;border-radius:999px;background:linear-gradient(135deg,#7c3aed,#d946ef);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800">✦</div>
-            <div class="dash-ai-placeholder">Ask anything...</div>
-            <div class="dash-ai-icons">
-              <span style="font-size:22px;line-height:1">+</span>
-              <span class="circle">↑</span>
+        <!-- Metrics row — Shopify style clickable tabs -->
+        <div class="dash-metric-row" id="metricRow">
+          <div class="dash-metric active" onclick="setMetric('revenue',this)">
+            <div class="dash-metric-label">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M4 9.5c0 1.1.9 2 2 2h2a2 2 0 0 0 0-4H6a2 2 0 0 1 0-4h2a2 2 0 0 1 2 2" stroke="#6d7175" stroke-width="1.3" stroke-linecap="round"/></svg>
+              Total sales
             </div>
+            <div class="dash-metric-value" id="kpiRevenue"><div class="skeleton" style="height:26px;width:80px;border-radius:4px"></div></div>
+            <div class="dash-metric-delta" id="kpiRevDelta"></div>
           </div>
-        </section>
+          <div class="dash-metric" onclick="setMetric('orders',this)">
+            <div class="dash-metric-label">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="#6d7175" stroke-width="1.3"/><path d="M4 5h6M4 7.5h4" stroke="#6d7175" stroke-width="1.2" stroke-linecap="round"/></svg>
+              Orders
+            </div>
+            <div class="dash-metric-value" id="kpiOrders"><div class="skeleton" style="height:26px;width:40px;border-radius:4px"></div></div>
+            <div class="dash-metric-delta" id="kpiOrdDelta"></div>
+          </div>
+          <div class="dash-metric" onclick="setMetric('customers',this)">
+            <div class="dash-metric-label">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="#6d7175" stroke-width="1.3"/><path d="M2 12c0-2.76 2.24-5 5-5s5 2.24 5 5" stroke="#6d7175" stroke-width="1.3" stroke-linecap="round"/></svg>
+              Customers
+            </div>
+            <div class="dash-metric-value" id="kpiCustomers"><div class="skeleton" style="height:26px;width:40px;border-radius:4px"></div></div>
+            <div class="dash-metric-delta" id="kpiCustDelta"></div>
+          </div>
+          <div class="dash-metric" onclick="setMetric('aov',this)">
+            <div class="dash-metric-label">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M7 1l3 6-3 6-3-6 3-6z" stroke="#6d7175" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Avg. order value
+            </div>
+            <div class="dash-metric-value" id="kpiAov"><div class="skeleton" style="height:26px;width:60px;border-radius:4px"></div></div>
+            <div class="dash-metric-delta" id="kpiAovDelta"></div>
+          </div>
+        </div>
 
-        <div class="dash-task-list">
-          <section class="dash-task-card">
+        <!-- Main chart -->
+        <div class="dash-chart-wrap">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
             <div>
-              <div class="dash-task-top"><span class="ring"></span><span>2 of 5 tasks complete</span></div>
-              <div class="dash-task-title">Complete your migration to Shopify</div>
-              <div class="dash-task-desc">Import your remaining data from your previous platform, including customers and orders. Then, connect your domain to your new store.</div>
-              <div class="dash-task-footer">
-                <div class="dash-task-next">Up next: Import your orders</div>
-                <button class="dash-btn">Resume guide</button>
-              </div>
+              <div style="font-size:12px;color:#6d7175;margin-bottom:2px" id="chartLabel">Total sales over time</div>
+              <div style="font-size:26px;font-weight:700;color:#1a1a1a" id="chartTotal">—</div>
             </div>
-            <div class="dash-task-art">
-              <div class="dash-art-mini">↗</div>
-              <div class="dash-art-chip">▣</div>
-              <div class="dash-art-wave"></div>
-            </div>
-          </section>
-
-          <section class="dash-task-card">
-            <div>
-              <div class="dash-task-top"><span class="ring"></span><span>2 of 9 tasks complete</span></div>
-              <div class="dash-task-title">Get ready to sell</div>
-              <div class="dash-task-desc">Polish the parts of your storefront customers see first. Add products, review navigation, and make sure your store settings are ready for launch.</div>
-              <div class="dash-task-footer">
-                <div class="dash-task-next">Up next: Add your first products</div>
-                <button class="dash-btn">Continue setup</button>
-              </div>
-            </div>
-            <div class="dash-task-art blue">
-              <div class="dash-art-mini">✓</div>
-              <div class="dash-art-chip blue">🛍</div>
-              <div class="dash-art-wave" style="border-bottom-color:#d7e5ff"></div>
-            </div>
-          </section>
+          </div>
+          <div style="height:200px;margin-top:12px">
+            <canvas id="dashChart"></canvas>
+          </div>
         </div>
 
-        <div class="dash-small-grid" style="margin-top:14px;display:none" id="dashDebugGrid">
-          <div class="dash-mini-card"><div class="dash-mini-title">Recent orders</div><div class="dash-mini-body" id="miniOrders">—</div></div>
-          <div class="dash-mini-card"><div class="dash-mini-title">Top products</div><div class="dash-mini-body" id="miniProducts">—</div></div>
+        <!-- Orders to fulfill + other alerts below chart -->
+        <div id="actionAlerts" class="dash-alert-row"></div>
+
+        <!-- Two column: recent orders + top products -->
+        <div class="dash-grid">
+          <!-- Recent orders -->
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <span class="dash-card-title">Recent orders</span>
+              <a href="sivra-orders.html" class="dash-card-link">View all</a>
+            </div>
+            <div id="recentOrdersList">
+              <div style="padding:32px;text-align:center;color:#8c9196;font-size:13px">Loading...</div>
+            </div>
+          </div>
+
+          <!-- Top products -->
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <span class="dash-card-title">Products</span>
+              <a href="sivra-products.html" class="dash-card-link">View all</a>
+            </div>
+            <div id="topProductsList">
+              <div style="padding:32px;text-align:center;color:#8c9196;font-size:13px">Loading...</div>
+            </div>
+          </div>
         </div>
+
+        <!-- Quick actions -->
+        <div class="dash-card" style="margin-bottom:16px">
+          <div class="dash-card-header"><span class="dash-card-title">Quick actions</span></div>
+          <div style="padding:14px 18px">
+            <div class="quick-actions">
+              <a href="sivra-add-product.html" class="qa-btn">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Add product
+              </a>
+              <a href="sivra-orders.html" class="qa-btn">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M4 5h6M4 7.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                View orders
+              </a>
+              <a href="sivra-discounts.html" class="qa-btn">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="4.5" cy="4.5" r="1.5" stroke="currentColor" stroke-width="1.3"/><circle cx="9.5" cy="9.5" r="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M3 11L11 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                Create discount
+              </a>
+              <a href="sivra-themes.html" class="qa-btn">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M7 4v3l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                Customize theme
+              </a>
+              <a href="sivra-settings.html" class="qa-btn">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M7 1.5v1M7 11.5v1M1.5 7h1M11.5 7h1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                Settings
+              </a>
+              <a href="sivra-live-view.html" class="qa-btn">
+                <span class="live-dot"></span>
+                Live view
+              </a>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -179,140 +203,225 @@
 <div class="toast" id="sivra-toast"></div>
 <script src="admin.js"></script>
 <script>
-(async function(){
+(async function() {
   const session = await initAdmin('home');
   if (!session) return;
 
-  let chart;
-  const COLORS = {now:'#1ea7fd', prev:'#8fd3ff'};
+  const hr = new Date().getHours();
+  const greeting = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
+  const merchant = Auth.getMerchant();
+  document.getElementById('dashGreeting').textContent = greeting + (merchant ? ', ' + (merchant.firstName || merchant.first_name || '') : '');
+  document.getElementById('dashDate').textContent = new Date().toLocaleDateString('en-AU', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
 
-  function pctText(v, inverse){
-    const num = Number(v || 0);
-    const good = inverse ? num <= 0 : num >= 0;
-    return `<span class="${good ? 'up' : 'down'}">${good ? '↗' : '↘'} ${Math.abs(num)}%</span>`;
+  let _chart = null, _chartMode = 'revenue', _chartData = [], _overview = null;
+
+  function setMetric(mode, el) {
+    _chartMode = mode;
+    document.querySelectorAll('.dash-metric').forEach(m => m.classList.remove('active'));
+    el.classList.add('active');
+    const labels = { revenue:'Total sales over time', orders:'Orders over time', customers:'New customers over time', aov:'Avg. order value over time' };
+    document.getElementById('chartLabel').textContent = labels[mode];
+    drawChart();
   }
 
-  function drawChart(labels, nowData, prevData){
-    if (chart) chart.destroy();
-    const ctx = document.getElementById('dashMainChart');
-    chart = new Chart(ctx, {
-      type:'line',
-      data:{
-        labels,
-        datasets:[
-          {label:'Current',data:nowData,borderColor:COLORS.now,backgroundColor:'transparent',tension:.38,borderWidth:2.4,pointRadius:0,pointHoverRadius:4},
-          {label:'Previous',data:prevData,borderColor:COLORS.prev,backgroundColor:'transparent',tension:.38,borderWidth:2,borderDash:[3,4],pointRadius:0,pointHoverRadius:3}
-        ]
-      },
-      options:{
-        responsive:true, maintainAspectRatio:false,
-        interaction:{intersect:false,mode:'index'},
-        plugins:{legend:{display:false},tooltip:{backgroundColor:'#1a1a1a',titleColor:'#fff',bodyColor:'#d7d7d7',padding:10,cornerRadius:10,displayColors:true}},
-        scales:{
-          x:{grid:{display:false},border:{display:false},ticks:{color:'#7a7d82',font:{size:11},maxTicksLimit:12}},
-          y:{grid:{color:'rgba(0,0,0,.07)'},border:{display:false},ticks:{color:'#7a7d82',font:{size:11},callback:v=>v>=1000?(v/1000)+'K':v}}
+  function drawChart() {
+    const labels = _chartData.map(d => {
+      const dt = new Date(d.date);
+      return dt.toLocaleDateString('en-AU', {day:'numeric', month:'short'});
+    });
+    let data, total;
+    if (_chartMode === 'revenue') {
+      data = _chartData.map(d => parseFloat(d.revenue||0));
+      total = data.reduce((s,v) => s+v, 0);
+      document.getElementById('chartTotal').textContent = Fmt.money(total);
+    } else if (_chartMode === 'orders') {
+      data = _chartData.map(d => parseInt(d.orders||0));
+      total = data.reduce((s,v) => s+v, 0);
+      document.getElementById('chartTotal').textContent = total + ' orders';
+    } else if (_chartMode === 'customers') {
+      data = _chartData.map(d => parseInt(d.orders||0)); // proxy
+      total = _overview?.customers?.total || 0;
+      document.getElementById('chartTotal').textContent = total + ' customers';
+    } else {
+      data = _chartData.map(d => {
+        const rev = parseFloat(d.revenue||0);
+        const ord = parseInt(d.orders||0);
+        return ord > 0 ? rev/ord : 0;
+      });
+      const avgAov = data.filter(v=>v>0);
+      const aovVal = avgAov.length ? avgAov.reduce((s,v)=>s+v,0)/avgAov.length : 0;
+      document.getElementById('chartTotal').textContent = Fmt.money(aovVal);
+    }
+
+    if (_chart) _chart.destroy();
+    const ctx = document.getElementById('dashChart');
+    _chart = new Chart(ctx, {
+      type: 'line',
+      data: { labels, datasets: [{
+        data,
+        borderColor: '#1a1a1a',
+        backgroundColor: 'rgba(26,26,26,0.04)',
+        borderWidth: 2, tension: 0.4, fill: true,
+        pointRadius: 0, pointHoverRadius: 4,
+        pointHoverBackgroundColor: '#1a1a1a',
+        pointHoverBorderColor: 'white',
+        pointHoverBorderWidth: 2,
+      }]},
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { intersect: false, mode: 'index' },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1a1a1a', titleColor: '#fff', bodyColor: '#ccc',
+            padding: 10, cornerRadius: 8, displayColors: false,
+            callbacks: {
+              label: c => _chartMode === 'revenue' || _chartMode === 'aov' ? Fmt.money(c.raw) : c.raw + (_chartMode==='orders'?' orders':' customers')
+            }
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, border: { display: false }, ticks: { color: '#8c9196', font: { size: 11 }, maxTicksLimit: 10 }},
+          y: { grid: { color: 'rgba(0,0,0,0.04)' }, border: { display: false }, ticks: { color: '#8c9196', font: { size: 11 }, callback: v => _chartMode === 'revenue' || _chartMode === 'aov' ? '$' + v.toFixed(0) : v }}
         }
       }
     });
   }
 
-  function makeHourlySeries(points){
-    const len = Math.max(points.length, 24);
-    const out = Array.from({length:len}, (_, i) => points[i] != null ? Number(points[i]) : 0);
-    while (out.length < 24) out.push(0);
-    return out.slice(0,24);
+  function renderDelta(el, pct) {
+    if (!el || pct === undefined || pct === null) return;
+    const up = pct >= 0;
+    el.innerHTML = `<span class="${up?'delta-up':'delta-down'}">${up?'↑':'↓'} ${Math.abs(pct)}%</span> <span class="delta-neutral">vs prev period</span>`;
   }
 
-  function labels24h(){
-    return ['12 AM','1 AM','2 AM','3 AM','4 AM','5 AM','6 AM','7 AM','8 AM','9 AM','10 AM','11 AM','12 PM','1 PM','2 PM','3 PM','4 PM','5 PM','6 PM','7 PM','8 PM','9 PM','10 PM','11 PM'];
-  }
-
-  function buildSessionCurve(orderSeries){
-    return orderSeries.map((v, i) => {
-      const base = 220 + i * 6;
-      return Math.round(base + v * 130 + (i > 6 && i < 12 ? 180 : 0) + (i > 16 ? 80 : 0));
-    });
-  }
-
-  function currentDateLabel(offset){
-    const d = new Date();
-    d.setDate(d.getDate() + offset);
-    return d.toLocaleDateString('en-AU',{month:'short',day:'numeric',year:'numeric'});
-  }
-
-  async function load(){
+  async function loadStats(days) {
     try {
-      const [overview, salesData, ordersRes, productsRes] = await Promise.all([
-        API.get('/api/analytics/overview?days=1'),
-        API.get('/api/analytics/sales-over-time?days=2'),
-        API.get('/api/orders?limit=120&sort=newest'),
-        API.get('/api/products?limit=50&status=active')
+      const [overview, salesData] = await Promise.all([
+        API.get('/api/analytics/overview?days=' + days),
+        API.get('/api/analytics/sales-over-time?days=' + days),
       ]);
+      _overview = overview;
+      _chartData = salesData.data || [];
 
-      const salesPoints = salesData.data || [];
-      const todayPoint = salesPoints[salesPoints.length - 1] || {revenue:0,orders:0};
-      const prevPoint = salesPoints[salesPoints.length - 2] || {revenue:0,orders:0};
+      // KPI values
+      document.getElementById('kpiRevenue').textContent = Fmt.money(overview.revenue?.value || 0);
+      document.getElementById('kpiOrders').textContent = overview.orders?.value || 0;
+      document.getElementById('kpiCustomers').textContent = overview.customers?.total || 0;
+      document.getElementById('kpiAov').textContent = Fmt.money(overview.aov?.value || 0);
+      renderDelta(document.getElementById('kpiRevDelta'), overview.revenue?.change_pct);
+      renderDelta(document.getElementById('kpiOrdDelta'), overview.orders?.change_pct);
+      renderDelta(document.getElementById('kpiAovDelta'), overview.aov?.change_pct);
 
-      const orderSeries = makeHourlySeries([1,1,.7,.6,.5,.8,1.8,3.4,4.5,4.8,5.3,4.4,0,0,0,0,0,0,0,0,0,0,0,0].map(v=>Math.round(v * (Number(todayPoint.orders)||1))));
-      const prevSeries = makeHourlySeries([1.2,1,.9,.8,.7,.8,1.3,2.2,2.5,2.8,3,3.1,3.2,3.4,3.5,3.45,3.4,3.6,3.8,3.8,3.6,3.1,2.2,1.6].map(v=>Math.round(v * (Math.max(Number(prevPoint.orders)||1, 1)))));
-      const activeOrders = (ordersRes.orders||[]).filter(o=>o.status!=='cancelled');
-      const conv = activeOrders.length ? Math.min(4.5, (activeOrders.length / Math.max(1, buildSessionCurve(orderSeries).reduce((a,b)=>a+b,0) / 24)) * 100) : 0;
-      const sessionTotal = buildSessionCurve(orderSeries).reduce((a,b)=>a+b,0);
-      const prevSessionTotal = buildSessionCurve(prevSeries).reduce((a,b)=>a+b,0);
-      const sessionChange = prevSessionTotal ? Math.round(((sessionTotal - prevSessionTotal) / prevSessionTotal) * 100) : 0;
-      const salesChange = overview.revenue?.change_pct || 0;
-      const ordersChange = overview.orders?.change_pct || 0;
-      const convChange = Math.round((Math.abs(ordersChange) + Math.abs(sessionChange)) / 4) || 0;
+      // Chart total
+      const totalRev = _chartData.reduce((s,d) => s+parseFloat(d.revenue||0), 0);
+      document.getElementById('chartTotal').textContent = Fmt.money(totalRev);
 
-      document.getElementById('dashSessions').textContent = sessionTotal.toLocaleString('en-AU');
-      document.getElementById('dashSessionsDelta').innerHTML = pctText(sessionChange, false);
-      document.getElementById('dashSales').textContent = Fmt.money(overview.revenue?.value || todayPoint.revenue || 0);
-      document.getElementById('dashSalesDelta').innerHTML = pctText(salesChange, false);
-      document.getElementById('dashOrders').textContent = (overview.orders?.value || todayPoint.orders || 0).toLocaleString('en-AU');
-      document.getElementById('dashOrdersDelta').innerHTML = pctText(ordersChange, false);
-      document.getElementById('dashConv').textContent = conv.toFixed(2) + '%';
-      document.getElementById('dashConvDelta').innerHTML = pctText(convChange, false);
-      document.getElementById('legendNow').textContent = currentDateLabel(0);
-      document.getElementById('legendPrev').textContent = currentDateLabel(-1);
+      drawChart();
 
-      drawChart(labels24h(), buildSessionCurve(orderSeries), buildSessionCurve(prevSeries));
+      // Action alerts (orders to fulfill, low stock)
+      const alerts = [];
+      try {
+        const [unfulfData, invData] = await Promise.all([
+          API.get('/api/orders?fulfillment_status=unfulfilled&limit=100'),
+          API.get('/api/analytics/inventory'),
+        ]);
+        const unfulfilled = (unfulfData.orders||[]).filter(o=>o.status!=='cancelled');
+        const unpaid = (unfulfData.orders||[]).filter(o=>o.payment_status==='pending'&&o.status!=='cancelled');
+        const lowStock = (invData.products||[]).filter(p=>p.stock_status==='low_stock');
+        const outStock = (invData.products||[]).filter(p=>p.stock_status==='out_of_stock');
+        if (unfulfilled.length) alerts.push({ icon:'📦', label:`${unfulfilled.length} order${unfulfilled.length!==1?'s':''} to fulfill`, href:'sivra-orders.html' });
+        if (unpaid.length) alerts.push({ icon:'💳', label:`${unpaid.length} payment${unpaid.length!==1?'s':''} to capture`, href:'sivra-orders.html' });
+        if (outStock.length) alerts.push({ icon:'⚠️', label:`${outStock.length} out of stock`, href:'sivra-inventory.html' });
+        if (lowStock.length) alerts.push({ icon:'📉', label:`${lowStock.length} low stock`, href:'sivra-inventory.html' });
+      } catch(e) {}
 
-      const liveVisitors = Math.max(3, Math.round(sessionTotal / 46));
-      document.getElementById('liveVisitors').textContent = liveVisitors + ' live visitors';
+      const alertsEl = document.getElementById('actionAlerts');
+      alertsEl.innerHTML = alerts.map(a =>
+        `<a href="${a.href}" class="dash-alert">${a.icon} ${a.label}</a>`
+      ).join('');
 
-      const unfulfilled = activeOrders.filter(o=>o.fulfillment_status === 'unfulfilled').length;
-      const pending = activeOrders.filter(o=>o.payment_status === 'pending').length;
-      const risk = Math.max(1, Math.round(activeOrders.length * 0.08));
-      const pills = [
-        {icon:'📦', text:`${unfulfilled || 1}+ orders to fulfill`},
-        {icon:'💳', text:`${pending || 1}+ payments to capture`},
-        {icon:'⚠️', text:`${risk} high-risk orders`},
-        {icon:'↩', text:`${Math.max(1, Math.round(activeOrders.length * 0.02))} chargeback`}
-      ];
-      document.getElementById('dashPills').innerHTML = pills.map(p => `<div class="dash-pill">${p.icon}<span>${p.text}</span></div>`).join('');
+      // Recent orders and top products in parallel
+      const [ordData, prodData] = await Promise.all([
+        API.get('/api/orders?limit=8&sort=newest'),
+        API.get('/api/products?limit=8&status=active'),
+      ]);
+      renderRecentOrders(ordData.orders || []);
+      renderTopProducts(prodData.products || []);
 
-      document.getElementById('miniOrders').innerHTML = activeOrders.slice(0,5).map(o => `#${o.order_number} · ${Fmt.money(o.total||0)}`).join('<br>') || 'No recent orders';
-      document.getElementById('miniProducts').innerHTML = (productsRes.products||[]).slice(0,5).map(p => `${p.title} · ${Fmt.money(p.price||0)}`).join('<br>') || 'No active products';
-
-      document.querySelectorAll('.dash-kpi').forEach((card, idx) => {
-        card.addEventListener('click', () => {
-          document.querySelectorAll('.dash-kpi').forEach(c => c.classList.remove('active'));
-          card.classList.add('active');
-          const mode = card.dataset.mode;
-          if (mode === 'sales') drawChart(labels24h(), orderSeries.map(v=>Math.round(v*190)), prevSeries.map(v=>Math.round(v*170)));
-          else if (mode === 'orders') drawChart(labels24h(), orderSeries, prevSeries);
-          else if (mode === 'conv') drawChart(labels24h(), orderSeries.map((v,i)=>Number(((v/Math.max(1, buildSessionCurve(orderSeries)[i]))*100).toFixed(2))), prevSeries.map((v,i)=>Number(((v/Math.max(1, buildSessionCurve(prevSeries)[i]))*100).toFixed(2))));
-          else drawChart(labels24h(), buildSessionCurve(orderSeries), buildSessionCurve(prevSeries));
-        }, {once:false});
-      });
-
-    } catch (err) {
-      console.error(err);
-      Toast.error('Failed to load dashboard');
+    } catch(e) {
+      console.error('Dashboard error:', e);
+      // Fallback
+      try {
+        const [oData, pData] = await Promise.all([API.get('/api/orders?limit=200'), API.get('/api/products?limit=100')]);
+        const orders = oData.orders||[];
+        const activeOrders = orders.filter(o=>o.status!=='cancelled');
+        const rev = activeOrders.reduce((s,o)=>s+parseFloat(o.total||0),0);
+        document.getElementById('kpiRevenue').textContent = Fmt.money(rev);
+        document.getElementById('kpiOrders').textContent = activeOrders.length;
+        document.getElementById('kpiCustomers').textContent = '—';
+        document.getElementById('kpiAov').textContent = activeOrders.length ? Fmt.money(rev/activeOrders.length) : '$0.00';
+        _chartData = [];
+        for (let i=days-1;i>=0;i--) {
+          const d=new Date();d.setDate(d.getDate()-i);
+          const ds=d.toISOString().split('T')[0];
+          const dayO=activeOrders.filter(o=>o.created_at&&o.created_at.startsWith(ds));
+          _chartData.push({date:ds,revenue:dayO.reduce((s,o)=>s+parseFloat(o.total||0),0),orders:dayO.length});
+        }
+        document.getElementById('chartTotal').textContent = Fmt.money(rev);
+        drawChart();
+        renderRecentOrders(orders.slice(0,8));
+        renderTopProducts(pData.products||[]);
+      } catch(e2) { Toast.error('Failed to load dashboard'); }
     }
   }
 
-  load();
+  function renderRecentOrders(orders) {
+    const el = document.getElementById('recentOrdersList');
+    if (!orders.length) {
+      el.innerHTML = '<div style="padding:32px;text-align:center;color:#8c9196;font-size:13px"><div style="font-size:28px;margin-bottom:8px">📋</div>No orders yet</div>';
+      return;
+    }
+    el.innerHTML = orders.slice(0,6).map(o => {
+      const badgeClass = o.payment_status==='paid'?'badge-paid':o.payment_status==='refunded'?'badge-refunded':'badge-pending';
+      const badgeLabel = (o.payment_status||'pending').replace(/_/g,' ');
+      const name = o.shipping_name || o.customer_email || 'Guest';
+      return `<a href="sivra-order-detail.html?id=${o.id}" class="order-row">
+        <div>
+          <div class="order-num">#${o.order_number}</div>
+          <div class="order-meta">${Fmt.relativeTime(o.created_at)} · ${name}</div>
+        </div>
+        <span class="order-badge ${badgeClass}" style="text-transform:capitalize">${badgeLabel}</span>
+        <span class="order-total">${Fmt.money(o.total||0)}</span>
+      </a>`;
+    }).join('');
+  }
+
+  function renderTopProducts(products) {
+    const el = document.getElementById('topProductsList');
+    const active = products.filter(p=>p.status==='active');
+    if (!active.length) {
+      el.innerHTML = '<div style="padding:32px;text-align:center;color:#8c9196;font-size:13px"><div style="font-size:28px;margin-bottom:8px">📦</div>No products yet</div>';
+      return;
+    }
+    el.innerHTML = active.slice(0,6).map(p => {
+      const imgs = Array.isArray(p.images)?p.images:(typeof p.images==='string'?JSON.parse(p.images||'[]'):[]);
+      const img = imgs[0]?`<img src="${imgs[0]}" alt=""/>`:`<span style="font-size:18px;opacity:0.3">📦</span>`;
+      const qty = parseInt(p.quantity||0);
+      const stockColor = qty<=0?'#c0392b':qty<=5?'#b57d00':'#6d7175';
+      const stockLabel = qty<=0?'Out of stock':qty<=5?`${qty} left`:`${qty} in stock`;
+      return `<a href="sivra-edit-product.html?id=${p.id}" class="prod-row">
+        <div class="prod-thumb">${img}</div>
+        <div style="flex:1;min-width:0">
+          <div class="prod-name">${p.title||'—'}</div>
+          <div class="prod-price">${Fmt.money(p.price||0)}</div>
+        </div>
+        <span class="prod-stock" style="color:${stockColor}">${stockLabel}</span>
+      </a>`;
+    }).join('');
+  }
+
+  loadStats(30);
+
 })();
 </script>
 </body>

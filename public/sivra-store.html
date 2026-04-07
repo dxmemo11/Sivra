@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sivra Store</title>
+<script src="https://js.stripe.com/v3/"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#fafaf8;--surface:#fff;--border:#eae8e2;--border2:#d4d0c8;
+  --text:#18181580;--text:#181815;--text2:#6b6860;--text3:#9c9a94;
+  --accent:#1a1916;--accent-hover:#2d2b27;
+  --radius:12px;--radius-sm:8px;--shadow:0 1px 3px rgba(0,0,0,.06);--shadow-lg:0 12px 40px rgba(0,0,0,.1);
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.5}
+a{color:inherit;text-decoration:none}
+
+/* Nav */
+nav{position:sticky;top:0;background:rgba(250,250,248,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);z-index:50;padding:0 5vw}
+.nav-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;height:60px;gap:24px}
+.nav-logo{font-family:'DM Serif Display',serif;font-size:22px;letter-spacing:-.5px}
+.nav-links{display:flex;gap:20px;font-size:14px;color:var(--text2)}
+.nav-links a:hover{color:var(--text)}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:16px}
+.cart-btn{display:flex;align-items:center;gap:7px;padding:8px 16px;background:var(--accent);color:#fff;border-radius:var(--radius-sm);font-size:13.5px;font-weight:500;cursor:pointer;border:none;font-family:inherit;transition:background .12s}
+.cart-btn:hover{background:var(--accent-hover)}
+.cart-count{background:#fff;color:var(--accent);width:18px;height:18px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.cart-count.hidden{display:none}
+
+/* Sections */
+.page{display:none;min-height:calc(100vh - 60px)}
+.page.active{display:block}
+
+/* ── SHOP PAGE ── */
+.shop-hero{max-width:1280px;margin:0 auto;padding:48px 5vw 32px}
+.shop-hero h1{font-family:'DM Serif Display',serif;font-size:clamp(32px,5vw,52px);letter-spacing:-1px;line-height:1.1;margin-bottom:8px}
+.shop-hero p{font-size:16px;color:var(--text2);max-width:480px}
+.shop-toolbar{max-width:1280px;margin:0 auto;padding:0 5vw 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.tag-filter{display:flex;gap:6px;flex-wrap:wrap}
+.tag-pill{padding:6px 14px;border:1px solid var(--border2);border-radius:20px;font-size:13px;cursor:pointer;transition:all .12s;color:var(--text2)}
+.tag-pill:hover{border-color:var(--accent);color:var(--accent)}
+.tag-pill.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.product-grid{max-width:1280px;margin:0 auto;padding:0 5vw 60px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px}
+.product-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:box-shadow .15s,transform .15s}
+.product-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+.card-img{aspect-ratio:1;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:56px;overflow:hidden;position:relative}
+.card-img img{width:100%;height:100%;object-fit:cover}
+.card-badge{position:absolute;top:10px;left:10px;background:var(--accent);color:#fff;font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px}
+.card-body{padding:14px 16px 16px}
+.card-name{font-weight:500;font-size:15px;margin-bottom:4px}
+.card-tags{font-size:12px;color:var(--text3);margin-bottom:10px}
+.card-footer{display:flex;align-items:center;justify-content:space-between}
+.card-price{font-size:16px;font-weight:600}
+.card-compare{text-decoration:line-through;color:var(--text3);font-size:13px;margin-left:6px}
+.card-stock{font-size:12px;color:var(--text3)}
+.card-stock.low{color:#dc4a38}
+.add-to-cart-mini{padding:7px 14px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:background .12s}
+.add-to-cart-mini:hover{background:var(--accent-hover)}
+.add-to-cart-mini:disabled{background:var(--border2);cursor:not-allowed}
+
+/* ── PRODUCT DETAIL PAGE ── */
+.detail-wrap{max-width:1100px;margin:0 auto;padding:40px 5vw 80px;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+@media(max-width:700px){.detail-wrap{grid-template-columns:1fr;gap:28px}}
+.detail-img-main{aspect-ratio:1;background:var(--bg);border-radius:var(--radius);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:80px;border:1px solid var(--border)}
+.detail-img-main img{width:100%;height:100%;object-fit:cover}
+.detail-breadcrumb{font-size:13px;color:var(--text3);margin-bottom:16px;cursor:pointer}
+.detail-breadcrumb span{color:var(--accent)}
+.detail-name{font-family:'DM Serif Display',serif;font-size:clamp(24px,4vw,36px);letter-spacing:-.5px;line-height:1.15;margin-bottom:12px}
+.detail-price-row{display:flex;align-items:baseline;gap:10px;margin-bottom:16px}
+.detail-price{font-size:24px;font-weight:600}
+.detail-compare{text-decoration:line-through;color:var(--text3);font-size:17px}
+.detail-desc{font-size:15px;color:var(--text2);line-height:1.7;margin-bottom:24px}
+.detail-label{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px;letter-spacing:.2px}
+.variant-pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.variant-pill{padding:7px 14px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;cursor:pointer;transition:all .12s}
+.variant-pill:hover{border-color:var(--accent)}
+.variant-pill.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.qty-row{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.qty-btn{width:34px;height:34px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s}
+.qty-btn:hover{background:var(--bg)}
+.qty-val{font-size:16px;font-weight:500;min-width:28px;text-align:center}
+.btn-atc{width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;transition:background .12s;margin-bottom:10px}
+.btn-atc:hover{background:var(--accent-hover)}
+.btn-atc:disabled{background:var(--border2);cursor:not-allowed}
+.detail-meta{font-size:13px;color:var(--text3);line-height:2}
+
+/* ── CART SIDEBAR ── */
+.cart-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:200}
+.cart-overlay.open{display:block}
+.cart-sidebar{position:fixed;top:0;right:0;bottom:0;width:400px;background:var(--surface);z-index:201;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);border-left:1px solid var(--border)}
+.cart-sidebar.open{transform:translateX(0)}
+.cart-header{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.cart-header h2{font-size:17px;font-weight:600}
+.close-btn{width:30px;height:30px;border:1px solid var(--border);border-radius:6px;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--text2)}
+.close-btn:hover{background:var(--bg)}
+.cart-items{flex:1;overflow-y:auto;padding:16px}
+.cart-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.cart-item:last-child{border-bottom:none}
+.ci-img{width:60px;height:60px;border-radius:8px;background:var(--bg);border:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden}
+.ci-img img{width:100%;height:100%;object-fit:cover}
+.ci-info{flex:1;min-width:0}
+.ci-name{font-weight:500;font-size:14px}
+.ci-variant{font-size:12px;color:var(--text3)}
+.ci-row{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.ci-price{font-size:14px;font-weight:500}
+.ci-qty{display:flex;align-items:center;gap:8px;font-size:13px}
+.ci-qty button{width:22px;height:22px;border:1px solid var(--border2);border-radius:4px;background:var(--surface);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+.ci-qty button:hover{background:var(--bg)}
+.cart-footer{padding:16px;border-top:1px solid var(--border)}
+.cart-subtotal{display:flex;justify-content:space-between;font-size:15px;font-weight:500;margin-bottom:14px}
+.btn-checkout{width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;transition:background .12s}
+.btn-checkout:hover{background:var(--accent-hover)}
+.cart-empty{text-align:center;padding:40px 20px;color:var(--text3)}
+.cart-empty-icon{font-size:40px;margin-bottom:12px}
+
+/* ── CHECKOUT PAGE ── */
+.checkout-wrap{max-width:900px;margin:0 auto;padding:40px 5vw 80px;display:grid;grid-template-columns:1fr 380px;gap:48px;align-items:start}
+@media(max-width:700px){.checkout-wrap{grid-template-columns:1fr}}
+.checkout-title{font-family:'DM Serif Display',serif;font-size:28px;margin-bottom:28px;letter-spacing:-.5px}
+.form-section-title{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin:24px 0 14px;padding-top:20px;border-top:1px solid var(--border)}
+.form-section-title:first-child{margin-top:0;padding-top:0;border-top:none}
+.form-group{margin-bottom:14px}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-label{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:6px;display:block}
+.form-input{width:100%;padding:10px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;color:var(--text);outline:none;transition:border .12s;background:var(--surface)}
+.form-input:focus{border-color:var(--accent)}
+#card-element{padding:10px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);min-height:42px}
+#card-element.focused{border-color:var(--accent)}
+.btn-pay{width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;margin-top:20px;transition:background .12s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-pay:hover:not(:disabled){background:var(--accent-hover)}
+.btn-pay:disabled{opacity:.55;cursor:not-allowed}
+.pay-error{color:#dc4a38;font-size:13px;margin-top:10px;min-height:20px}
+.order-summary-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;position:sticky;top:80px}
+.os-title{font-size:14px;font-weight:600;margin-bottom:16px}
+.os-item{display:flex;gap:10px;margin-bottom:12px}
+.os-item-img{width:44px;height:44px;border-radius:6px;background:var(--bg);border:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden;position:relative}
+.os-item-img img{width:100%;height:100%;object-fit:cover}
+.os-item-badge{position:absolute;top:-6px;right:-6px;background:var(--text2);color:#fff;width:18px;height:18px;border-radius:50%;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.os-item-name{font-size:13.5px;font-weight:500}
+.os-item-variant{font-size:12px;color:var(--text3)}
+.os-item-price{margin-left:auto;font-size:13.5px;font-weight:500;white-space:nowrap}
+.os-divider{border:none;border-top:1px solid var(--border);margin:14px 0}
+.os-row{display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px}
+.os-row.total{font-weight:600;font-size:15px}
+.os-muted{color:var(--text3)}
+
+/* ── CONFIRMATION PAGE ── */
+.confirm-wrap{max-width:560px;margin:80px auto;padding:0 5vw;text-align:center}
+.confirm-icon{font-size:52px;margin-bottom:20px}
+.confirm-title{font-family:'DM Serif Display',serif;font-size:32px;margin-bottom:10px;letter-spacing:-.5px}
+.confirm-sub{font-size:16px;color:var(--text2);margin-bottom:32px;line-height:1.6}
+.confirm-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:left;margin-bottom:24px}
+.confirm-row{display:flex;justify-content:space-between;font-size:14px;padding:6px 0;border-bottom:1px solid var(--border)}
+.confirm-row:last-child{border-bottom:none;font-weight:600;font-size:15px}
+.btn-continue{display:inline-flex;align-items:center;gap:6px;padding:12px 24px;background:var(--accent);color:#fff;border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;border:none;font-family:inherit}
+
+/* Spinner */
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.page-spinner{display:flex;align-items:center;justify-content:center;padding:80px;color:var(--text3)}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo" onclick="showPage('shop')" style="cursor:pointer">Sivra</div>
+    <div class="nav-links">
+      <a onclick="showPage('shop')" style="cursor:pointer">Shop</a>
+    </div>
+    <div class="nav-right">
+      <button class="cart-btn" onclick="openCart()">
+        🛒 Cart
+        <span class="cart-count hidden" id="cart-badge">0</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ── SHOP PAGE ────────────────────────────────────────────────── -->
+<div class="page active" id="page-shop">
+  <div class="shop-hero">
+    <h1 id="store-name">Our Store</h1>
+    <p>Thoughtfully made products, delivered to your door.</p>
+  </div>
+  <div class="shop-toolbar">
+    <div class="tag-filter" id="tag-filter"></div>
+  </div>
+  <div class="product-grid" id="product-grid">
+    <div class="page-spinner">Loading products…</div>
+  </div>
+</div>
+
+<!-- ── PRODUCT DETAIL PAGE ──────────────────────────────────────── -->
+<div class="page" id="page-detail">
+  <div class="detail-wrap">
+    <div>
+      <div class="detail-img-main" id="d-img">📦</div>
+    </div>
+    <div>
+      <div class="detail-breadcrumb" onclick="showPage('shop')">← Back to <span>Shop</span></div>
+      <h1 class="detail-name" id="d-name"></h1>
+      <div class="detail-price-row">
+        <span class="detail-price" id="d-price"></span>
+        <span class="detail-compare" id="d-compare" style="display:none"></span>
+      </div>
+      <p class="detail-desc" id="d-desc"></p>
+      <div id="d-variants-wrap" style="display:none">
+        <div class="detail-label">Options</div>
+        <div class="variant-pills" id="d-variants"></div>
+      </div>
+      <div class="detail-label">Quantity</div>
+      <div class="qty-row">
+        <button class="qty-btn" onclick="changeQty(-1)">−</button>
+        <span class="qty-val" id="d-qty">1</span>
+        <button class="qty-btn" onclick="changeQty(1)">+</button>
+      </div>
+      <button class="btn-atc" id="d-atc" onclick="addToCart()">Add to cart</button>
+      <div class="detail-meta" id="d-meta"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── CHECKOUT PAGE ────────────────────────────────────────────── -->
+<div class="page" id="page-checkout">
+  <div class="checkout-wrap">
+    <div>
+      <h1 class="checkout-title">Checkout</h1>
+
+      <div class="form-section-title">Contact</div>
+      <div class="form-group"><label class="form-label">Full name *</label><input class="form-input" id="c-name" placeholder="Jane Smith" /></div>
+      <div class="form-row-2">
+        <div class="form-group"><label class="form-label">Email *</label><input class="form-input" id="c-email" type="email" placeholder="jane@example.com" /></div>
+        <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="c-phone" type="tel" placeholder="+1 (555) 000-0000" /></div>
+      </div>
+
+      <div class="form-section-title">Shipping address</div>
+      <div class="form-group"><label class="form-label">Address *</label><input class="form-input" id="c-address" placeholder="123 Main St" /></div>
+      <div class="form-row-2">
+        <div class="form-group"><label class="form-label">City *</label><input class="form-input" id="c-city" placeholder="San Francisco" /></div>
+        <div class="form-group"><label class="form-label">ZIP *</label><input class="form-input" id="c-zip" placeholder="94102" /></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label class="form-label">State</label><input class="form-input" id="c-state" placeholder="CA" /></div>
+        <div class="form-group"><label class="form-label">Country</label><input class="form-input" id="c-country" value="US" /></div>
+      </div>
+
+      <div class="form-section-title">Payment</div>
+      <div class="form-group">
+        <label class="form-label">Card details</label>
+        <div id="card-element"></div>
+      </div>
+
+      <div class="pay-error" id="pay-error"></div>
+      <button class="btn-pay" id="btn-pay" onclick="submitPayment()">
+        <span id="pay-label">Pay <span id="pay-amount"></span></span>
+      </button>
+      <p style="font-size:12px;color:var(--text3);margin-top:12px;text-align:center">🔒 Secured by Stripe · Your card is never stored</p>
+    </div>
+
+    <!-- Order summary -->
+    <div class="order-summary-card">
+      <div class="os-title">Order summary</div>
+      <div id="os-items"></div>
+      <hr class="os-divider" />
+      <div class="os-row"><span class="os-muted">Subtotal</span><span id="os-subtotal"></span></div>
+      <div class="os-row"><span class="os-muted">Shipping</span><span id="os-shipping"></span></div>
+      <hr class="os-divider" />
+      <div class="os-row total"><span>Total</span><span id="os-total"></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── CONFIRMATION PAGE ────────────────────────────────────────── -->
+<div class="page" id="page-confirm">
+  <div class="confirm-wrap">
+    <div class="confirm-icon">✅</div>
+    <h1 class="confirm-title">Order confirmed!</h1>
+    <p class="confirm-sub" id="confirm-sub">Thank you for your order. You'll receive a confirmation email shortly.</p>
+    <div class="confirm-card" id="confirm-card"></div>
+    <button class="btn-continue" onclick="showPage('shop')">← Continue shopping</button>
+  </div>
+</div>
+
+<!-- ── CART SIDEBAR ─────────────────────────────────────────────── -->
+<div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
+<div class="cart-sidebar" id="cart-sidebar">
+  <div class="cart-header">
+    <h2>Your cart</h2>
+    <button class="close-btn" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cart-items-list"></div>
+  <div class="cart-footer" id="cart-footer" style="display:none">
+    <div class="cart-subtotal"><span>Subtotal</span><span id="cart-subtotal-val"></span></div>
+    <button class="btn-checkout" onclick="goCheckout()">Checkout →</button>
+  </div>
+</div>
+
+<script>
+const API = '/api';
+let stripe = null, cardElement = null;
+let products = [], cart = JSON.parse(localStorage.getItem('sivra_cart') || '[]');
+let currentProduct = null, currentQty = 1, currentVariant = null;
+let STRIPE_PK = '', SHIPPING_RATE = 5.99, FREE_SHIPPING_THRESHOLD = 50;
+let STORE_NAME = 'Our Store';
+let paymentIntentId = null;
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+async function init() {
+  await loadSettings();
+  await loadProducts();
+  updateCartBadge();
+}
+
+async function loadSettings() {
+  try {
+    const r = await fetch(`${API}/settings`);
+    if (!r.ok) return;
+    const s = await r.json();
+    STRIPE_PK = s.stripe_publishable_key || '';
+    SHIPPING_RATE = parseFloat(s.shipping_flat_rate) || 5.99;
+    FREE_SHIPPING_THRESHOLD = parseFloat(s.free_shipping_threshold) || 50;
+    STORE_NAME = s.store_name || 'Our Store';
+    document.getElementById('store-name').textContent = STORE_NAME;
+    document.title = STORE_NAME;
+  } catch {}
+}
+
+async function loadProducts() {
+  try {
+    const r = await fetch(`${API}/products?status=active&limit=100`);
+    if (r.ok) { const d = await r.json(); products = d.products || []; }
+    else throw new Error();
+  } catch {
+    products = [
+      {id:'p1',name:'Merino Wool Hoodie',description:'Premium merino wool sourced from New Zealand farms. Incredibly soft, naturally moisture-wicking, and built to last.',price:89,compare_price:110,sku:'MWH-NAV-L',inventory:24,status:'active',images:'["https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=600"]',tags:'clothing,wool,featured',variants:'[{"name":"S"},{"name":"M"},{"name":"L"},{"name":"XL"}]'},
+      {id:'p2',name:'Leather Wallet Slim',description:'Full-grain leather with 4 card slots and a cash pocket. Ages beautifully.',price:45,compare_price:null,sku:'LWS-TAN',inventory:67,status:'active',images:'[]',tags:'accessories,leather',variants:'[]'},
+      {id:'p3',name:'Ceramic Pour-over Kit',description:'Hand-thrown ceramic dripper with bamboo stand and stainless steel filter included.',price:62,compare_price:80,sku:'CPK-WHT',inventory:3,status:'active',images:'[]',tags:'kitchen,ceramic',variants:'[]'},
+      {id:'p4',name:'Bamboo Sunglasses',description:'Sustainable bamboo frames with polarized UV400 lenses. Lightweight and eco-friendly.',price:74,compare_price:95,sku:'BSG-TORT',inventory:15,status:'active',images:'[]',tags:'accessories,bamboo,featured',variants:'[]'},
+      {id:'p5',name:'Organic Cotton Tee',description:'GOTS-certified 100% organic cotton. Pre-washed for a lived-in feel from day one.',price:32,compare_price:null,sku:'OCT-WHT-M',inventory:112,status:'active',images:'[]',tags:'clothing',variants:'[{"name":"XS"},{"name":"S"},{"name":"M"},{"name":"L"},{"name":"XL"}]'},
+      {id:'p6',name:'Recycled Denim Jacket',description:'Made from post-consumer recycled denim. Classic cut, modern conscience.',price:118,compare_price:null,sku:'RDJ-IND-S',inventory:8,status:'active',images:'[]',tags:'clothing,denim,featured',variants:'[{"name":"S"},{"name":"M"},{"name":"L"}]'},
+    ];
+  }
+  renderShop();
+}
+
+// ── SHOP ──────────────────────────────────────────────────────────────────────
+const EMOJIS = {clothing:'👕',accessories:'🕶',kitchen:'☕',ceramic:'🥣',wool:'🧥',denim:'🥼',leather:'👛',bamboo:'🌿',default:'📦'};
+function productEmoji(p) { const tags=(p.tags||'').split(','); for(const t of tags){if(EMOJIS[t.trim()])return EMOJIS[t.trim()];} return EMOJIS.default; }
+function tryParse(s,f){try{return JSON.parse(s);}catch{return f;}}
+
+let activeTag = 'all';
+function renderShop() {
+  const tags = new Set(['all']);
+  products.forEach(p => (p.tags||'').split(',').forEach(t => { const tt=t.trim(); if(tt&&tt!=='featured')tags.add(tt); }));
+
+  const tf = document.getElementById('tag-filter');
+  tf.innerHTML = [...tags].map(t => `<div class="tag-pill ${t===activeTag?'active':''}" onclick="filterTag('${t}')">${t==='all'?'All':t}</div>`).join('');
+
+  const filtered = activeTag==='all' ? products : products.filter(p => (p.tags||'').split(',').map(t=>t.trim()).includes(activeTag));
+  const grid = document.getElementById('product-grid');
+  if (!filtered.length) { grid.innerHTML = '<div class="page-spinner">No products found.</div>'; return; }
+
+  grid.innerHTML = filtered.map(p => {
+    const imgs = tryParse(p.images, []);
+    const imgHtml = imgs[0] ? `<img src="${imgs[0]}" onerror="this.parentNode.innerHTML='${productEmoji(p)}'" alt="${p.name}" />` : productEmoji(p);
+    const isFeatured = (p.tags||'').includes('featured');
+    const isLow = p.inventory > 0 && p.inventory <= 5;
+    const isOut = p.inventory === 0;
+    const stockLabel = isOut ? 'Out of stock' : isLow ? `Only ${p.inventory} left` : '';
+    const stockClass = isLow||isOut ? 'low' : '';
+    return `<div class="product-card" onclick="showDetail('${p.id}')">
+      <div class="card-img">${imgHtml}${isFeatured?'<div class="card-badge">Featured</div>':''}</div>
+      <div class="card-body">
+        <div class="card-name">${p.name}</div>
+        ${p.tags?`<div class="card-tags">${(p.tags||'').split(',').filter(t=>t.trim()!=='featured').map(t=>t.trim()).join(' · ')}</div>`:''}
+        <div class="card-footer">
+          <div>
+            <span class="card-price">$${parseFloat(p.price).toFixed(2)}</span>
+            ${p.compare_price?`<span class="card-compare">$${parseFloat(p.compare_price).toFixed(2)}</span>`:''}
+            ${stockLabel?`<div class="card-stock ${stockClass}">${stockLabel}</div>`:''}
+          </div>
+          <button class="add-to-cart-mini" ${isOut?'disabled':''} onclick="event.stopPropagation(); quickAdd('${p.id}')">${isOut?'Out of stock':'Add'}</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterTag(t) { activeTag=t; renderShop(); }
+
+function quickAdd(id) {
+  const p = products.find(x=>x.id===id);
+  if (!p || p.inventory===0) return;
+  addItemToCart(p, null, 1);
+  openCart();
+}
+
+// ── DETAIL ────────────────────────────────────────────────────────────────────
+function showDetail(id) {
+  currentProduct = products.find(p=>p.id===id);
+  if (!currentProduct) return;
+  currentQty = 1; currentVariant = null;
+
+  const imgs = tryParse(currentProduct.images, []);
+  const imgEl = document.getElementById('d-img');
+  imgEl.innerHTML = imgs[0] ? `<img src="${imgs[0]}" alt="${currentProduct.name}" onerror="this.parentNode.innerHTML='📦'" />` : productEmoji(currentProduct);
+
+  document.getElementById('d-name').textContent = currentProduct.name;
+  document.getElementById('d-price').textContent = `$${parseFloat(currentProduct.price).toFixed(2)}`;
+  const comp = document.getElementById('d-compare');
+  if (currentProduct.compare_price) { comp.textContent = `$${parseFloat(currentProduct.compare_price).toFixed(2)}`; comp.style.display=''; }
+  else comp.style.display='none';
+  document.getElementById('d-desc').textContent = currentProduct.description || '';
+  document.getElementById('d-qty').textContent = 1;
+
+  const variants = tryParse(currentProduct.variants, []);
+  const vw = document.getElementById('d-variants-wrap');
+  const vp = document.getElementById('d-variants');
+  if (variants.length) {
+    vw.style.display = '';
+    vp.innerHTML = variants.map((v,i) => `<div class="variant-pill ${i===0?'active':''}" onclick="selectVariant(this,'${v.name}')">${v.name}</div>`).join('');
+    currentVariant = variants[0]?.name || null;
+  } else { vw.style.display='none'; }
+
+  const isOut = currentProduct.inventory === 0;
+  const atc = document.getElementById('d-atc');
+  atc.textContent = isOut ? 'Out of stock' : 'Add to cart';
+  atc.disabled = isOut;
+
+  document.getElementById('d-meta').innerHTML = [
+    currentProduct.sku ? `SKU: ${currentProduct.sku}` : '',
+    currentProduct.inventory > 0 ? `${currentProduct.inventory} in stock` : 'Out of stock',
+    currentProduct.tags ? `Tags: ${currentProduct.tags}` : ''
+  ].filter(Boolean).map(x=>`<div>${x}</div>`).join('');
+
+  showPage('detail');
+}
+
+function selectVariant(el, name) {
+  document.querySelectorAll('.variant-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  currentVariant = name;
+}
+
+function changeQty(d) {
+  currentQty = Math.max(1, Math.min(currentProduct?.inventory || 99, currentQty + d));
+  document.getElementById('d-qty').textContent = currentQty;
+}
+
+function addToCart() {
+  if (!currentProduct || currentProduct.inventory===0) return;
+  addItemToCart(currentProduct, currentVariant, currentQty);
+  openCart();
+}
+
+// ── CART ──────────────────────────────────────────────────────────────────────
+function addItemToCart(p, variant, qty) {
+  const key = `${p.id}_${variant||''}`;
+  const existing = cart.find(i=>i.key===key);
+  if (existing) existing.qty = Math.min(existing.qty+qty, p.inventory);
+  else cart.push({ key, product_id:p.id, name:p.name, price:parseFloat(p.price), variant:variant||'', qty, image:tryParse(p.images,[])[0]||null, inventory:p.inventory });
+  saveCart(); updateCartBadge();
+}
+
+function saveCart() { localStorage.setItem('sivra_cart', JSON.stringify(cart)); }
+function updateCartBadge() {
+  const total = cart.reduce((s,i)=>s+i.qty,0);
+  const badge = document.getElementById('cart-badge');
+  badge.textContent = total;
+  badge.classList.toggle('hidden', total===0);
+}
+
+function openCart() {
+  renderCart();
+  document.getElementById('cart-overlay').classList.add('open');
+  document.getElementById('cart-sidebar').classList.add('open');
+}
+function closeCart() {
+  document.getElementById('cart-overlay').classList.remove('open');
+  document.getElementById('cart-sidebar').classList.remove('open');
+}
+
+function renderCart() {
+  const list = document.getElementById('cart-items-list');
+  const footer = document.getElementById('cart-footer');
+  if (!cart.length) {
+    list.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛒</div><div>Your cart is empty</div></div>`;
+    footer.style.display='none'; return;
+  }
+  footer.style.display='';
+  list.innerHTML = cart.map((item,i) => {
+    const imgHtml = item.image ? `<img src="${item.image}" onerror="this.style.display='none'" />` : '📦';
+    return `<div class="cart-item">
+      <div class="ci-img">${imgHtml}</div>
+      <div class="ci-info">
+        <div class="ci-name">${item.name}</div>
+        ${item.variant?`<div class="ci-variant">${item.variant}</div>`:''}
+        <div class="ci-row">
+          <span class="ci-price">$${(item.price*item.qty).toFixed(2)}</span>
+          <div class="ci-qty">
+            <button onclick="updateQty(${i},-1)">−</button>
+            <span>${item.qty}</span>
+            <button onclick="updateQty(${i},1)">+</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  const subtotal = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  document.getElementById('cart-subtotal-val').textContent = `$${subtotal.toFixed(2)}`;
+}
+
+function updateQty(idx, d) {
+  cart[idx].qty += d;
+  if (cart[idx].qty <= 0) cart.splice(idx,1);
+  saveCart(); updateCartBadge(); renderCart();
+}
+
+function goCheckout() { closeCart(); initCheckout(); showPage('checkout'); }
+
+// ── CHECKOUT ──────────────────────────────────────────────────────────────────
+function initCheckout() {
+  renderOrderSummary();
+  if (STRIPE_PK && !stripe) {
+    stripe = Stripe(STRIPE_PK);
+    const elements = stripe.elements();
+    cardElement = elements.create('card', { style:{ base:{ fontFamily:"'DM Sans',sans-serif",fontSize:'14px',color:'#181815' } } });
+    cardElement.mount('#card-element');
+    cardElement.on('focus', ()=>document.getElementById('card-element').classList.add('focused'));
+    cardElement.on('blur', ()=>document.getElementById('card-element').classList.remove('focused'));
+  } else if (!STRIPE_PK) {
+    document.getElementById('card-element').innerHTML = '<div style="font-size:13px;color:var(--text3);padding:4px 0">Stripe not configured — add your publishable key in Settings.</div>';
+  }
+}
+
+function renderOrderSummary() {
+  const subtotal = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_RATE;
+  const total = subtotal + shipping;
+
+  document.getElementById('os-items').innerHTML = cart.map(item => {
+    const imgHtml = item.image ? `<img src="${item.image}" onerror="this.style.display='none'" style="width:100%;height:100%;object-fit:cover"/>` : '📦';
+    return `<div class="os-item">
+      <div class="os-item-img">${imgHtml}<span class="os-item-badge">${item.qty}</span></div>
+      <div><div class="os-item-name">${item.name}</div>${item.variant?`<div class="os-item-variant">${item.variant}</div>`:''}</div>
+      <span class="os-item-price">$${(item.price*item.qty).toFixed(2)}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('os-subtotal').textContent = `$${subtotal.toFixed(2)}`;
+  document.getElementById('os-shipping').textContent = shipping===0 ? 'Free' : `$${shipping.toFixed(2)}`;
+  document.getElementById('os-total').textContent = `$${total.toFixed(2)}`;
+  document.getElementById('pay-amount').textContent = `$${total.toFixed(2)}`;
+}
+
+async function submitPayment() {
+  const name = document.getElementById('c-name').value.trim();
+  const email = document.getElementById('c-email').value.trim();
+  const address = document.getElementById('c-address').value.trim();
+  const city = document.getElementById('c-city').value.trim();
+  const zip = document.getElementById('c-zip').value.trim();
+  const errEl = document.getElementById('pay-error');
+  errEl.textContent = '';
+
+  if (!name||!email||!address||!city||!zip) { errEl.textContent = 'Please fill in all required fields.'; return; }
+  if (!email.includes('@')) { errEl.textContent = 'Please enter a valid email.'; return; }
+
+  const btn = document.getElementById('btn-pay');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Processing…';
+
+  try {
+    const subtotal = cart.reduce((s,i)=>s+i.price*i.qty,0);
+    const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_RATE;
+    const total = subtotal + shipping;
+
+    // Upsert customer
+    let customerId = null;
+    try {
+      const cr = await fetch(`${API}/customers/upsert`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, email, phone:document.getElementById('c-phone').value, address:`${address}, ${city}, ${document.getElementById('c-state').value} ${zip}` }) });
+      if (cr.ok) { const cd = await cr.json(); customerId = cd.id; }
+    } catch {}
+
+    if (STRIPE_PK && stripe && cardElement) {
+      // Create payment intent
+      const piRes = await fetch(`${API}/checkout/create-intent`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ amount: Math.round(total*100), currency:'usd', metadata:{ customer_email:email } }) });
+      if (!piRes.ok) throw new Error('Could not create payment intent');
+      const { client_secret } = await piRes.json();
+
+      const { error, paymentIntent } = await stripe.confirmCardPayment(client_secret, { payment_method:{ card:cardElement, billing_details:{ name, email } } });
+      if (error) { errEl.textContent = error.message; btn.disabled=false; btn.innerHTML=`<span id="pay-label">Pay $${total.toFixed(2)}</span>`; return; }
+
+      paymentIntentId = paymentIntent.id;
+    }
+
+    // Create order
+    await fetch(`${API}/orders`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({
+      customer_id: customerId,
+      items: cart.map(i=>({ product_id:i.product_id, variant:i.variant, quantity:i.qty, unit_price:i.price })),
+      subtotal, shipping, discount:0, total,
+      payment_method:'stripe', channel:'Online',
+      stripe_payment_intent: paymentIntentId
+    }) });
+
+    showConfirmation(name, email, total, cart);
+    cart = []; saveCart(); updateCartBadge();
+  } catch(err) {
+    errEl.textContent = err.message || 'Payment failed. Please try again.';
+    btn.disabled=false;
+    const t = cart.reduce((s,i)=>s+i.price*i.qty,0) + (cart.reduce((s,i)=>s+i.price*i.qty,0) >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_RATE);
+    btn.innerHTML = `<span>Pay $${t.toFixed(2)}</span>`;
+  }
+}
+
+// ── CONFIRMATION ──────────────────────────────────────────────────────────────
+function showConfirmation(name, email, total, items) {
+  document.getElementById('confirm-sub').textContent = `Thank you, ${name.split(' ')[0]}! A confirmation has been sent to ${email}.`;
+  document.getElementById('confirm-card').innerHTML = items.map(i =>
+    `<div class="confirm-row"><span>${i.name}${i.variant?' · '+i.variant:''} × ${i.qty}</span><span>$${(i.price*i.qty).toFixed(2)}</span></div>`
+  ).join('') + `<div class="confirm-row"><span>Total paid</span><span>$${total.toFixed(2)}</span></div>`;
+  showPage('confirm');
+}
+
+// ── Routing ───────────────────────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(`page-${name}`).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+init();
+</script>
+</body>
+</html>
