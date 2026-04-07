@@ -1,1060 +1,340 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Orders — Sivra</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg: #f5f4f1;
-    --surface: #ffffff;
-    --surface2: #f9f8f6;
-    --border: #e8e6e0;
-    --border2: #d4d1c9;
-    --text: #1a1916;
-    --text2: #6b6860;
-    --text3: #9c9a94;
-    --accent: #1a1916;
-    --accent-hover: #2d2b27;
-    --green-bg: #ecf7f0;
-    --green-text: #1a6b3c;
-    --green-dot: #22c55e;
-    --amber-bg: #fef7e8;
-    --amber-text: #92540a;
-    --amber-dot: #f59e0b;
-    --blue-bg: #eff4ff;
-    --blue-text: #1d3f8a;
-    --blue-dot: #3b82f6;
-    --red-bg: #fef1f1;
-    --red-text: #8a1d1d;
-    --red-dot: #ef4444;
-    --gray-bg: #f2f1ef;
-    --gray-text: #5a5955;
-    --gray-dot: #9ca3af;
-    --sidebar-w: 280px;
-    --detail-w: 480px;
-    --radius: 10px;
-    --radius-sm: 6px;
-    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-    --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
-  }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    display: flex;
-    height: 100vh;
-    overflow: hidden;
-    font-size: 14px;
-    line-height: 1.5;
-  }
-
-  /* ── Sidebar ─────────────────────────────────── */
-  .sidebar {
-    width: var(--sidebar-w);
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-    overflow-y: auto;
-  }
-  .sidebar-logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 20px 20px 16px;
-    border-bottom: 1px solid var(--border);
-  }
-  .logo-mark {
-    width: 28px; height: 28px;
-    background: var(--text);
-    border-radius: 7px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 600; color: #fff; letter-spacing: -0.5px;
-  }
-  .logo-name {
-    font-size: 16px; font-weight: 600; letter-spacing: -0.3px;
-  }
-  .store-tag {
-    font-size: 11px; color: var(--text3); font-weight: 400;
-    margin-left: auto;
-    background: var(--gray-bg);
-    padding: 2px 7px;
-    border-radius: 20px;
-  }
-
-  .nav-section { padding: 12px 12px 4px; }
-  .nav-label {
-    font-size: 10px; font-weight: 500; color: var(--text3);
-    text-transform: uppercase; letter-spacing: 0.8px;
-    padding: 0 8px 6px;
-  }
-  .nav-item {
-    display: flex; align-items: center; gap: 9px;
-    padding: 8px 10px;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    font-size: 13.5px; color: var(--text2);
-    transition: background 0.12s, color 0.12s;
-    text-decoration: none;
-    position: relative;
-  }
-  .nav-item:hover { background: var(--bg); color: var(--text); }
-  .nav-item.active { background: var(--text); color: #fff; }
-  .nav-item .nav-icon { font-size: 15px; width: 18px; text-align: center; }
-  .nav-badge {
-    margin-left: auto;
-    font-size: 11px; font-weight: 500;
-    background: rgba(255,255,255,0.2);
-    padding: 1px 6px; border-radius: 10px;
-  }
-  .nav-item:not(.active) .nav-badge {
-    background: var(--gray-bg); color: var(--text2);
-  }
-  .nav-child {
-    padding-left: 28px;
-    font-size: 13px;
-  }
-
-  .sidebar-footer {
-    margin-top: auto;
-    padding: 12px;
-    border-top: 1px solid var(--border);
-  }
-  .user-row {
-    display: flex; align-items: center; gap: 9px;
-    padding: 8px 10px;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-  }
-  .user-row:hover { background: var(--bg); }
-  .avatar {
-    width: 30px; height: 30px;
-    border-radius: 50%;
-    background: var(--text);
-    color: #fff;
-    font-size: 12px; font-weight: 500;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .user-info { flex: 1; min-width: 0; }
-  .user-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .user-role { font-size: 11px; color: var(--text3); }
-
-  /* ── Main ────────────────────────────────────── */
-  .main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    min-width: 0;
-  }
-
-  .topbar {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 0 24px;
-    height: 56px;
-    display: flex; align-items: center; gap: 16px;
-    flex-shrink: 0;
-  }
-  .topbar-title { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; }
-  .topbar-count { font-size: 13px; color: var(--text3); }
-
-  .btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 7px 14px;
-    border-radius: var(--radius-sm);
-    font-size: 13px; font-weight: 500;
-    cursor: pointer; border: none; font-family: inherit;
-    transition: background 0.12s, opacity 0.12s;
-    text-decoration: none;
-  }
-  .btn-primary { background: var(--text); color: #fff; }
-  .btn-primary:hover { background: var(--accent-hover); }
-  .btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
-  .btn-ghost:hover { background: var(--bg); }
-  .topbar-actions { margin-left: auto; display: flex; gap: 8px; }
-
-  /* ── Toolbar ─────────────────────────────────── */
-  .toolbar {
-    padding: 14px 24px;
-    display: flex; align-items: center; gap: 10px;
-    flex-shrink: 0;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-  }
-  .search-wrap {
-    position: relative; flex: 1; max-width: 340px;
-  }
-  .search-icon {
-    position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
-    color: var(--text3); pointer-events: none; font-size: 14px;
-  }
-  .search-input {
-    width: 100%; height: 34px;
-    padding: 0 12px 0 32px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    font-size: 13px; font-family: inherit; color: var(--text);
-    outline: none; transition: border 0.12s;
-  }
-  .search-input:focus { border-color: var(--border2); background: var(--surface); }
-  .search-input::placeholder { color: var(--text3); }
-
-  .filter-tabs {
-    display: flex; gap: 2px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 2px;
-  }
-  .filter-tab {
-    padding: 5px 12px;
-    border-radius: 4px;
-    font-size: 12.5px; font-weight: 500;
-    cursor: pointer; color: var(--text2);
-    transition: all 0.12s;
-    white-space: nowrap;
-  }
-  .filter-tab.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
-
-  .select-filter {
-    height: 34px; padding: 0 28px 0 10px;
-    background: var(--bg); border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    font-size: 13px; font-family: inherit; color: var(--text2);
-    cursor: pointer; outline: none; appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239c9a94' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 10px center;
-  }
-
-  /* ── Table ───────────────────────────────────── */
-  .content { flex: 1; overflow-y: auto; padding: 0; }
-
-  .orders-table-wrap {
-    background: var(--surface);
-    margin: 16px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    box-shadow: var(--shadow);
-  }
-  table { width: 100%; border-collapse: collapse; }
-  thead th {
-    padding: 10px 16px;
-    text-align: left;
-    font-size: 11.5px; font-weight: 500; color: var(--text3);
-    text-transform: uppercase; letter-spacing: 0.5px;
-    background: var(--surface2);
-    border-bottom: 1px solid var(--border);
-    white-space: nowrap;
-    cursor: pointer; user-select: none;
-  }
-  thead th:hover { color: var(--text2); }
-  thead th.sorted { color: var(--text); }
-  thead th .sort-icon { margin-left: 4px; opacity: 0.5; font-size: 10px; }
-  thead th.sorted .sort-icon { opacity: 1; }
-
-  tbody tr {
-    border-bottom: 1px solid var(--border);
-    transition: background 0.1s;
-    cursor: pointer;
-  }
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: var(--surface2); }
-  tbody tr.selected { background: #eff4ff; }
-  tbody td { padding: 13px 16px; font-size: 13.5px; vertical-align: middle; }
-
-  .order-id { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text); font-weight: 500; }
-  .order-id-prefix { color: var(--text3); }
-
-  .customer-cell { display: flex; align-items: center; gap: 9px; }
-  .cust-avatar {
-    width: 28px; height: 28px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 600; flex-shrink: 0;
-  }
-  .cust-name { font-weight: 500; }
-  .cust-email { font-size: 12px; color: var(--text3); }
-
-  .status-badge {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 3px 9px;
-    border-radius: 20px;
-    font-size: 12px; font-weight: 500;
-    white-space: nowrap;
-  }
-  .status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-
-  .status-paid    { background: var(--green-bg); color: var(--green-text); }
-  .status-paid    .status-dot { background: var(--green-dot); }
-  .status-pending { background: var(--amber-bg); color: var(--amber-text); }
-  .status-pending .status-dot { background: var(--amber-dot); }
-  .status-shipped { background: var(--blue-bg); color: var(--blue-text); }
-  .status-shipped .status-dot { background: var(--blue-dot); }
-  .status-refunded { background: var(--red-bg); color: var(--red-text); }
-  .status-refunded .status-dot { background: var(--red-dot); }
-  .status-cancelled { background: var(--gray-bg); color: var(--gray-text); }
-  .status-cancelled .status-dot { background: var(--gray-dot); }
-
-  .amount { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; }
-  .items-count { color: var(--text3); font-size: 12.5px; }
-  .channel-badge {
-    display: inline-block; padding: 2px 8px;
-    background: var(--gray-bg); color: var(--gray-text);
-    border-radius: 4px; font-size: 11.5px; font-weight: 500;
-  }
-
-  .row-actions { display: flex; gap: 4px; opacity: 0; transition: opacity 0.12s; }
-  tbody tr:hover .row-actions { opacity: 1; }
-  .row-btn {
-    width: 26px; height: 26px;
-    border: 1px solid var(--border);
-    border-radius: 5px; background: var(--surface);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; font-size: 13px; color: var(--text2);
-    transition: background 0.1s;
-  }
-  .row-btn:hover { background: var(--bg); }
-
-  .empty-state {
-    text-align: center; padding: 60px 20px; color: var(--text3);
-  }
-  .empty-icon { font-size: 32px; margin-bottom: 12px; }
-  .empty-title { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 6px; }
-  .empty-sub { font-size: 13px; }
-
-  /* ── Pagination ──────────────────────────────── */
-  .pagination {
-    display: flex; align-items: center; gap: 8px;
-    padding: 12px 24px; background: var(--surface);
-    border-top: 1px solid var(--border);
-    flex-shrink: 0;
-  }
-  .page-info { font-size: 13px; color: var(--text3); flex: 1; }
-  .page-btns { display: flex; gap: 4px; }
-  .page-btn {
-    width: 30px; height: 30px;
-    border: 1px solid var(--border); border-radius: 6px;
-    background: var(--surface); font-size: 12.5px; font-weight: 500;
-    color: var(--text2); cursor: pointer; display: flex;
-    align-items: center; justify-content: center;
-    transition: all 0.12s;
-  }
-  .page-btn:hover { background: var(--bg); }
-  .page-btn.active { background: var(--text); color: #fff; border-color: var(--text); }
-  .page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-
-  /* ── Detail Panel ────────────────────────────── */
-  .overlay {
-    display: none;
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.25);
-    z-index: 100;
-    animation: fadeIn 0.18s ease;
-  }
-  .overlay.open { display: block; }
-
-  .detail-panel {
-    position: fixed; top: 0; right: 0; bottom: 0;
-    width: var(--detail-w);
-    background: var(--surface);
-    border-left: 1px solid var(--border);
-    z-index: 101;
-    display: flex; flex-direction: column;
-    transform: translateX(100%);
-    transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden;
-  }
-  .detail-panel.open { transform: translateX(0); }
-
-  .detail-header {
-    padding: 18px 20px 14px;
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: flex-start; gap: 12px;
-  }
-  .detail-close {
-    width: 28px; height: 28px;
-    border: 1px solid var(--border);
-    border-radius: 6px; background: transparent;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; font-size: 16px; color: var(--text2);
-    flex-shrink: 0; margin-left: auto;
-  }
-  .detail-close:hover { background: var(--bg); }
-  .detail-order-id { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text3); margin-bottom: 4px; }
-  .detail-title { font-size: 17px; font-weight: 600; letter-spacing: -0.3px; }
-
-  .detail-body { flex: 1; overflow-y: auto; padding: 0; }
-
-  .detail-section { padding: 18px 20px; border-bottom: 1px solid var(--border); }
-  .detail-section:last-child { border-bottom: none; }
-  .detail-section-title {
-    font-size: 11px; font-weight: 500; color: var(--text3);
-    text-transform: uppercase; letter-spacing: 0.7px;
-    margin-bottom: 14px;
-  }
-
-  .detail-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 9px; }
-  .detail-row:last-child { margin-bottom: 0; }
-  .detail-label { font-size: 13px; color: var(--text2); }
-  .detail-value { font-size: 13px; font-weight: 500; text-align: right; }
-
-  .line-item {
-    display: flex; align-items: center; gap: 12px;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .line-item:last-child { border-bottom: none; }
-  .line-img {
-    width: 42px; height: 42px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; flex-shrink: 0;
-  }
-  .line-info { flex: 1; min-width: 0; }
-  .line-name { font-size: 13.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .line-variant { font-size: 12px; color: var(--text3); }
-  .line-qty { font-size: 12.5px; color: var(--text2); }
-  .line-price { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; }
-
-  .totals-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 7px; }
-  .totals-row.total { font-weight: 600; font-size: 14.5px; padding-top: 10px; margin-top: 3px; border-top: 1px solid var(--border); }
-  .totals-row .muted { color: var(--text3); }
-
-  .timeline-item { display: flex; gap: 12px; padding: 8px 0; }
-  .timeline-dot-wrap { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
-  .timeline-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text); margin-top: 5px; flex-shrink: 0; }
-  .timeline-dot.pending { background: var(--amber-dot); }
-  .timeline-dot.done { background: var(--green-dot); }
-  .timeline-line { width: 1px; flex: 1; background: var(--border); margin: 4px 0; min-height: 12px; }
-  .timeline-content { flex: 1; padding-bottom: 12px; }
-  .timeline-event { font-size: 13px; font-weight: 500; }
-  .timeline-time { font-size: 12px; color: var(--text3); margin-top: 2px; }
-
-  .detail-footer {
-    padding: 14px 20px;
-    border-top: 1px solid var(--border);
-    display: flex; gap: 8px;
-    flex-shrink: 0;
-  }
-  .detail-footer .btn { flex: 1; justify-content: center; }
-
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-  /* ── Checkbox ─────────────────────────────────── */
-  .cb-wrap { display: flex; align-items: center; }
-  input[type="checkbox"] {
-    width: 15px; height: 15px; cursor: pointer;
-    accent-color: var(--text);
-  }
-
-  /* ── Bulk bar ────────────────────────────────── */
-  .bulk-bar {
-    display: none;
-    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-    background: var(--text); color: #fff;
-    padding: 10px 16px;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-lg);
-    z-index: 200;
-    align-items: center; gap: 12px;
-    font-size: 13px; white-space: nowrap;
-    animation: slideUp 0.18s ease;
-  }
-  .bulk-bar.show { display: flex; }
-  .bulk-divider { width: 1px; height: 18px; background: rgba(255,255,255,0.2); }
-  .bulk-btn {
-    background: rgba(255,255,255,0.12); border: none; color: #fff;
-    padding: 5px 10px; border-radius: 6px;
-    font-size: 12.5px; cursor: pointer; font-family: inherit;
-    transition: background 0.12s;
-  }
-  .bulk-btn:hover { background: rgba(255,255,255,0.2); }
-  .bulk-btn.danger { color: #fca5a5; }
-  @keyframes slideUp { from { transform: translateX(-50%) translateY(12px); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }
-</style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sivra — Orders</title>
+  <link rel="stylesheet" href="admin-tokens.css"/>
+  <link rel="stylesheet" href="admin-layout.css"/>
+  <link rel="stylesheet" href="admin-components.css"/>
 </head>
 <body>
-
-<!-- ── Sidebar ──────────────────────────────────── -->
+<div class="app">
 <aside class="sidebar">
-  <div class="sidebar-logo">
-    <div class="logo-mark">S</div>
-    <span class="logo-name">Sivra</span>
-    <span class="store-tag">Admin</span>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-label">Store</div>
-    <a class="nav-item" href="#"><span class="nav-icon">⊞</span> Dashboard</a>
-    <a class="nav-item active" href="#"><span class="nav-icon">≡</span> Orders <span class="nav-badge">247</span></a>
-    <a class="nav-item" href="#"><span class="nav-icon">◻</span> Products</a>
-    <a class="nav-item" href="#"><span class="nav-icon">◎</span> Customers</a>
-    <a class="nav-item" href="#"><span class="nav-icon">◈</span> Inventory</a>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-label">Insights</div>
-    <a class="nav-item" href="#"><span class="nav-icon">⬡</span> Analytics</a>
-    <a class="nav-item nav-child" href="#">↳ Reports</a>
-    <a class="nav-item nav-child" href="#">↳ Live View</a>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-label">System</div>
-    <a class="nav-item" href="#"><span class="nav-icon">⊕</span> Discounts</a>
-    <a class="nav-item" href="#"><span class="nav-icon">◉</span> Settings</a>
-  </div>
-
-  <div class="sidebar-footer">
-    <div class="user-row">
-      <div class="avatar">M</div>
-      <div class="user-info">
-        <div class="user-name">Mo Ali</div>
-        <div class="user-role">Store owner</div>
-      </div>
-    </div>
-  </div>
+  <div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div>
 </aside>
-
-<!-- ── Main ─────────────────────────────────────── -->
 <div class="main">
-  <!-- Topbar -->
-  <div class="topbar">
-    <span class="topbar-title">Orders</span>
-    <span class="topbar-count" id="topbar-count"></span>
-    <div class="topbar-actions">
-      <button class="btn btn-ghost" onclick="exportOrders()">↑ Export</button>
-      <button class="btn btn-primary">+ New order</button>
-    </div>
-  </div>
+  <div class="topbar" id="sivraTopbar"></div>
+  <div class="page-scroll">
+    <div style="max-width:1280px;margin:0 auto">
 
-  <!-- Toolbar -->
-  <div class="toolbar">
-    <div class="search-wrap">
-      <span class="search-icon">⌕</span>
-      <input class="search-input" type="text" id="search" placeholder="Search orders, customers…" oninput="applyFilters()" />
-    </div>
-
-    <div class="filter-tabs" id="status-tabs">
-      <div class="filter-tab active" data-status="all" onclick="setStatusTab(this)">All</div>
-      <div class="filter-tab" data-status="paid" onclick="setStatusTab(this)">Paid</div>
-      <div class="filter-tab" data-status="pending" onclick="setStatusTab(this)">Pending</div>
-      <div class="filter-tab" data-status="shipped" onclick="setStatusTab(this)">Shipped</div>
-      <div class="filter-tab" data-status="refunded" onclick="setStatusTab(this)">Refunded</div>
-      <div class="filter-tab" data-status="cancelled" onclick="setStatusTab(this)">Cancelled</div>
-    </div>
-
-    <select class="select-filter" id="channel-filter" onchange="applyFilters()">
-      <option value="">All channels</option>
-      <option value="Online">Online</option>
-      <option value="POS">POS</option>
-      <option value="API">API</option>
-    </select>
-
-    <select class="select-filter" id="sort-select" onchange="applyFilters()">
-      <option value="date-desc">Newest first</option>
-      <option value="date-asc">Oldest first</option>
-      <option value="amount-desc">Highest value</option>
-      <option value="amount-asc">Lowest value</option>
-    </select>
-  </div>
-
-  <!-- Content -->
-  <div class="content">
-    <div class="orders-table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th style="width:36px;"><input type="checkbox" id="select-all" onchange="toggleSelectAll(this)" /></th>
-            <th onclick="sortBy('id')">Order <span class="sort-icon">↕</span></th>
-            <th onclick="sortBy('date')">Date <span class="sort-icon">↕</span></th>
-            <th onclick="sortBy('customer')">Customer <span class="sort-icon">↕</span></th>
-            <th onclick="sortBy('status')">Status <span class="sort-icon">↕</span></th>
-            <th onclick="sortBy('items')">Items <span class="sort-icon">↕</span></th>
-            <th onclick="sortBy('channel')">Channel <span class="sort-icon">↕</span></th>
-            <th onclick="sortBy('amount')" style="text-align:right;">Total <span class="sort-icon">↕</span></th>
-            <th style="width:60px;"></th>
-          </tr>
-        </thead>
-        <tbody id="orders-tbody"></tbody>
-      </table>
-      <div class="empty-state" id="empty-state" style="display:none;">
-        <div class="empty-icon">📋</div>
-        <div class="empty-title">No orders found</div>
-        <div class="empty-sub">Try adjusting your search or filter</div>
+      <div class="page-header">
+        <h1 class="page-title">Orders</h1>
+        <div class="btn-group">
+          <button class="btn btn-secondary" onclick="exportOrders()">Export</button>
+          <a href="sivra-draft-orders.html" class="btn btn-secondary">Create order</a>
+        </div>
       </div>
-    </div>
-  </div>
 
-  <!-- Pagination -->
-  <div class="pagination">
-    <span class="page-info" id="page-info"></span>
-    <div class="page-btns" id="page-btns"></div>
-  </div>
-</div>
+      <div class="page-body">
 
-<!-- ── Bulk Bar ──────────────────────────────────── -->
-<div class="bulk-bar" id="bulk-bar">
-  <span id="bulk-count">0 selected</span>
-  <div class="bulk-divider"></div>
-  <button class="bulk-btn" onclick="bulkAction('ship')">Mark as shipped</button>
-  <button class="bulk-btn" onclick="bulkAction('paid')">Mark as paid</button>
-  <button class="bulk-btn danger" onclick="bulkAction('cancel')">Cancel orders</button>
-  <div class="bulk-divider"></div>
-  <button class="bulk-btn" onclick="clearSelection()">✕ Clear</button>
-</div>
+        <!-- Bulk action bar -->
+        <div id="bulkBar" style="display:none;background:#1a1a1a;color:white;padding:10px 16px;border-radius:8px;margin-bottom:10px;display:none;align-items:center;gap:12px">
+          <span id="bulkCount" style="font-size:13px;font-weight:600"></span> selected
+          <button onclick="bulkMarkPaid()" class="btn btn-secondary btn-sm" style="background:rgba(255,255,255,0.15);color:white;border:none">Mark as paid</button>
+          <button onclick="bulkFulfill()" class="btn btn-secondary btn-sm" style="background:rgba(255,255,255,0.15);color:white;border:none">Mark fulfilled</button>
+          <button onclick="bulkCancel()" class="btn btn-secondary btn-sm" style="background:rgba(220,38,38,0.3);color:white;border:none">Cancel</button>
+          <button onclick="clearBulk()" style="margin-left:auto;background:none;border:none;color:rgba(255,255,255,0.6);cursor:pointer;font-size:18px">×</button>
+        </div>
 
-<!-- ── Detail Overlay ───────────────────────────── -->
-<div class="overlay" id="overlay" onclick="closeDetail()"></div>
+        <div class="card">
+          <!-- Tabs -->
+          <div class="tabs">
+            <div class="tab active" onclick="setTab(this,'all')">All</div>
+            <div class="tab" onclick="setTab(this,'unfulfilled')">Unfulfilled</div>
+            <div class="tab" onclick="setTab(this,'fulfilled')">Fulfilled</div>
+            <div class="tab" onclick="setTab(this,'paid')">Paid</div>
+            <div class="tab" onclick="setTab(this,'unpaid')">Unpaid</div>
+            <div class="tab" onclick="setTab(this,'cancelled')">Cancelled</div>
+          </div>
 
-<!-- ── Detail Panel ─────────────────────────────── -->
-<div class="detail-panel" id="detail-panel">
-  <div class="detail-header">
-    <div>
-      <div class="detail-order-id" id="d-order-id"></div>
-      <div class="detail-title" id="d-title"></div>
-    </div>
-    <button class="detail-close" onclick="closeDetail()">✕</button>
-  </div>
-
-  <div class="detail-body">
-    <!-- Summary -->
-    <div class="detail-section">
-      <div class="detail-section-title">Summary</div>
-      <div class="detail-row">
-        <span class="detail-label">Status</span>
-        <span class="detail-value" id="d-status"></span>
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">Date placed</span>
-        <span class="detail-value" id="d-date"></span>
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">Channel</span>
-        <span class="detail-value" id="d-channel"></span>
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">Payment method</span>
-        <span class="detail-value" id="d-payment"></span>
-      </div>
-    </div>
-
-    <!-- Customer -->
-    <div class="detail-section">
-      <div class="detail-section-title">Customer</div>
-      <div class="detail-row">
-        <span class="detail-label">Name</span>
-        <span class="detail-value" id="d-cust-name"></span>
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">Email</span>
-        <span class="detail-value" style="color:var(--blue-text);" id="d-cust-email"></span>
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">Phone</span>
-        <span class="detail-value" id="d-cust-phone"></span>
-      </div>
-      <div class="detail-row">
-        <span class="detail-label">Shipping address</span>
-        <span class="detail-value" id="d-address" style="max-width:220px; text-align:right; font-size:12.5px;"></span>
-      </div>
-    </div>
-
-    <!-- Line items -->
-    <div class="detail-section">
-      <div class="detail-section-title">Items</div>
-      <div id="d-line-items"></div>
-    </div>
-
-    <!-- Totals -->
-    <div class="detail-section">
-      <div class="detail-section-title">Payment</div>
-      <div id="d-totals"></div>
-    </div>
-
-    <!-- Timeline -->
-    <div class="detail-section">
-      <div class="detail-section-title">Timeline</div>
-      <div id="d-timeline"></div>
-    </div>
-  </div>
-
-  <div class="detail-footer">
-    <button class="btn btn-ghost" id="d-action-1"></button>
-    <button class="btn btn-primary" id="d-action-2"></button>
-  </div>
-</div>
-
-<script>
-/* ── Data ──────────────────────────────────────── */
-const CUSTOMERS = [
-  { name: 'Aria Thompson', email: 'aria.t@email.com', phone: '+1 (415) 234-5678', address: '142 Market St, San Francisco, CA 94102', initials: 'AT', color: '#e0e7ff', textColor: '#3730a3' },
-  { name: 'James Okafor',  email: 'james.o@email.com', phone: '+1 (512) 876-3421', address: '88 Lamar Blvd, Austin, TX 78703', initials: 'JO', color: '#dcfce7', textColor: '#166534' },
-  { name: 'Mei Lin',       email: 'mei.lin@email.com', phone: '+1 (206) 543-9012', address: '23 Pike St, Seattle, WA 98101', initials: 'ML', color: '#fce7f3', textColor: '#9d174d' },
-  { name: 'Carlos Reyes',  email: 'c.reyes@email.com', phone: '+1 (305) 678-1234', address: '501 Biscayne Blvd, Miami, FL 33132', initials: 'CR', color: '#fef9c3', textColor: '#854d0e' },
-  { name: 'Sophie Dubois', email: 's.dubois@email.com', phone: '+1 (212) 901-4567', address: '400 5th Ave, New York, NY 10018', initials: 'SD', color: '#ffe4e6', textColor: '#9f1239' },
-  { name: 'Liam Park',     email: 'liam.park@email.com', phone: '+1 (617) 234-8901', address: '60 State St, Boston, MA 02109', initials: 'LP', color: '#e0f2fe', textColor: '#075985' },
-  { name: 'Amara Osei',    email: 'a.osei@email.com', phone: '+1 (404) 567-2345', address: '190 Peachtree St, Atlanta, GA 30303', initials: 'AO', color: '#f0fdf4', textColor: '#14532d' },
-  { name: 'Ryan Walsh',    email: 'r.walsh@email.com', phone: '+1 (773) 890-1234', address: '350 N Clark St, Chicago, IL 60654', initials: 'RW', color: '#faf5ff', textColor: '#581c87' },
-];
-
-const PRODUCTS = [
-  { name: 'Merino Wool Hoodie', variant: 'Navy / L', emoji: '🧥', price: 89 },
-  { name: 'Leather Wallet Slim', variant: 'Tan', emoji: '👛', price: 45 },
-  { name: 'Running Shorts Pro', variant: 'Black / M', emoji: '🩳', price: 38 },
-  { name: 'Ceramic Pour-over Kit', variant: 'White', emoji: '☕', price: 62 },
-  { name: 'Canvas Tote Bag', variant: 'Natural', emoji: '🛍', price: 29 },
-  { name: 'Bamboo Sunglasses', variant: 'Tortoise', emoji: '🕶', price: 74 },
-  { name: 'Recycled Denim Jacket', variant: 'Indigo / S', emoji: '🥼', price: 118 },
-  { name: 'Organic Cotton Tee', variant: 'White / M', emoji: '👕', price: 32 },
-  { name: 'Stainless Water Bottle', variant: '24 oz / Black', emoji: '🍶', price: 28 },
-  { name: 'Handmade Ceramic Bowl', variant: 'Speckled Blue', emoji: '🥣', price: 54 },
-];
-
-const STATUSES = ['paid', 'paid', 'paid', 'pending', 'shipped', 'shipped', 'refunded', 'cancelled'];
-const CHANNELS = ['Online', 'Online', 'Online', 'POS', 'API'];
-const PAYMENTS = ['Visa •••• 4242', 'Mastercard •••• 8821', 'PayPal', 'Apple Pay', 'Stripe', 'Cash (POS)'];
-
-function randBetween(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
-function randItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-
-function generateOrders(count) {
-  const now = Date.now();
-  return Array.from({ length: count }, (_, i) => {
-    const cust = randItem(CUSTOMERS);
-    const numItems = randBetween(1, 4);
-    const items = Array.from({ length: numItems }, () => {
-      const p = randItem(PRODUCTS);
-      return { ...p, qty: randBetween(1, 3) };
-    });
-    const subtotal = items.reduce((s, it) => s + it.price * it.qty, 0);
-    const shipping = randItem([0, 0, 5.99, 9.99, 14.99]);
-    const discount = Math.random() > 0.8 ? Math.round(subtotal * 0.1) : 0;
-    const total = subtotal + shipping - discount;
-    const daysAgo = randBetween(0, 90);
-    const date = new Date(now - daysAgo * 86400000);
-    return {
-      id: 1000 + i,
-      num: `#${1000 + i}`,
-      customer: cust,
-      status: randItem(STATUSES),
-      channel: randItem(CHANNELS),
-      payment: randItem(PAYMENTS),
-      items,
-      subtotal,
-      shipping,
-      discount,
-      total,
-      date,
-      dateStr: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-      timeStr: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-    };
-  });
-}
-
-let ORDERS = generateOrders(247);
-let filtered = [...ORDERS];
-let currentPage = 1;
-const PER_PAGE = 20;
-let selectedIds = new Set();
-let currentSort = { key: 'date', dir: 'desc' };
-let currentStatus = 'all';
-
-/* ── Filters & Sort ────────────────────────────── */
-function applyFilters() {
-  const q = document.getElementById('search').value.toLowerCase();
-  const ch = document.getElementById('channel-filter').value;
-  const sortVal = document.getElementById('sort-select').value;
-  const [sortKey, sortDir] = sortVal.split('-');
-
-  filtered = ORDERS.filter(o => {
-    const matchQ = !q || o.num.includes(q) || o.customer.name.toLowerCase().includes(q) || o.customer.email.toLowerCase().includes(q);
-    const matchStatus = currentStatus === 'all' || o.status === currentStatus;
-    const matchCh = !ch || o.channel === ch;
-    return matchQ && matchStatus && matchCh;
-  });
-
-  filtered.sort((a, b) => {
-    let va, vb;
-    if (sortKey === 'date') { va = a.date; vb = b.date; }
-    else if (sortKey === 'amount') { va = a.total; vb = b.total; }
-    else if (sortKey === 'id') { va = a.id; vb = b.id; }
-    else { va = 0; vb = 0; }
-    return sortDir === 'desc' ? vb - va : va - vb;
-  });
-
-  currentPage = 1;
-  render();
-}
-
-function setStatusTab(el) {
-  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  currentStatus = el.dataset.status;
-  applyFilters();
-}
-
-function sortBy(key) {
-  const sortSelect = document.getElementById('sort-select');
-  const cur = sortSelect.value;
-  const [curKey, curDir] = cur.includes('-') ? cur.split('-') : ['date', 'desc'];
-  const map = { id: 'id', date: 'date', amount: 'amount' };
-  const newKey = map[key] || 'date';
-  const newDir = (curKey === newKey && curDir === 'desc') ? 'asc' : 'desc';
-  sortSelect.value = `${newKey}-${newDir}`;
-  applyFilters();
-}
-
-/* ── Render ────────────────────────────────────── */
-function statusBadge(status) {
-  const labels = { paid: 'Paid', pending: 'Pending', shipped: 'Shipped', refunded: 'Refunded', cancelled: 'Cancelled' };
-  return `<span class="status-badge status-${status}"><span class="status-dot"></span>${labels[status]}</span>`;
-}
-
-function render() {
-  const start = (currentPage - 1) * PER_PAGE;
-  const page = filtered.slice(start, start + PER_PAGE);
-  const tbody = document.getElementById('orders-tbody');
-  const empty = document.getElementById('empty-state');
-
-  document.getElementById('topbar-count').textContent = `${filtered.length.toLocaleString()} orders`;
-
-  if (page.length === 0) {
-    tbody.innerHTML = '';
-    empty.style.display = 'block';
-  } else {
-    empty.style.display = 'none';
-    tbody.innerHTML = page.map(o => `
-      <tr onclick="openDetail(${o.id})" class="${selectedIds.has(o.id) ? 'selected' : ''}">
-        <td class="cb-wrap" onclick="event.stopPropagation()">
-          <input type="checkbox" ${selectedIds.has(o.id) ? 'checked' : ''} onchange="toggleSelect(${o.id}, this)" />
-        </td>
-        <td><span class="order-id"><span class="order-id-prefix">#</span>${o.id}</span></td>
-        <td style="color:var(--text2); white-space:nowrap;">${o.dateStr}</td>
-        <td>
-          <div class="customer-cell">
-            <div class="cust-avatar" style="background:${o.customer.color}; color:${o.customer.textColor};">${o.customer.initials}</div>
-            <div>
-              <div class="cust-name">${o.customer.name}</div>
-              <div class="cust-email">${o.customer.email}</div>
+          <!-- Filter bar -->
+          <div class="filter-bar">
+            <div class="filter-search">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4" stroke="#8c9196" stroke-width="1.3"/><path d="M9 9l3 3" stroke="#8c9196" stroke-width="1.3" stroke-linecap="round"/></svg>
+              <input type="text" placeholder="Search orders, customers, emails..." id="searchInput" oninput="_page=1;render()"/>
             </div>
+            <select class="sort-select" onchange="_sort=this.value;render()">
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+              <option value="total-desc">Total: High to Low</option>
+              <option value="total-asc">Total: Low to High</option>
+            </select>
           </div>
-        </td>
-        <td>${statusBadge(o.status)}</td>
-        <td><span class="items-count">${o.items.length} item${o.items.length !== 1 ? 's' : ''}</span></td>
-        <td><span class="channel-badge">${o.channel}</span></td>
-        <td style="text-align:right;"><span class="amount">$${o.total.toFixed(2)}</span></td>
-        <td>
-          <div class="row-actions" onclick="event.stopPropagation()">
-            <div class="row-btn" title="View" onclick="openDetail(${o.id})">⤢</div>
-            <div class="row-btn" title="More">⋯</div>
+
+          <!-- Table -->
+          <div style="overflow-x:auto">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th class="col-check">
+                    <input type="checkbox" id="checkAll" onchange="toggleAll(this.checked)"/>
+                  </th>
+                  <th>Order</th>
+                  <th>Date</th>
+                  <th>Customer</th>
+                  <th class="cell-number">Total</th>
+                  <th>Payment</th>
+                  <th>Fulfillment</th>
+                  <th class="cell-number">Items</th>
+                  <th>Location</th>
+                </tr>
+              </thead>
+              <tbody id="ordersBody">
+                <tr><td colspan="9" style="text-align:center;padding:48px;color:#8c9196">Loading orders...</td></tr>
+              </tbody>
+            </table>
           </div>
-        </td>
-      </tr>
-    `).join('');
-  }
 
-  renderPagination();
-}
+          <!-- Pagination -->
+          <div class="pagination">
+            <div class="pagination-info" id="paginationInfo"></div>
+            <div class="pagination-buttons" id="paginationBtns"></div>
+          </div>
+        </div>
 
-function renderPagination() {
-  const total = filtered.length;
-  const pages = Math.ceil(total / PER_PAGE);
-  const start = (currentPage - 1) * PER_PAGE + 1;
-  const end = Math.min(currentPage * PER_PAGE, total);
-
-  document.getElementById('page-info').textContent =
-    total === 0 ? 'No results' : `${start}–${end} of ${total.toLocaleString()} orders`;
-
-  const btns = document.getElementById('page-btns');
-  let html = `<button class="page-btn" onclick="goPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>‹</button>`;
-
-  const range = [];
-  for (let p = 1; p <= pages; p++) {
-    if (p === 1 || p === pages || (p >= currentPage - 1 && p <= currentPage + 1)) range.push(p);
-    else if (range[range.length - 1] !== '…') range.push('…');
-  }
-  range.forEach(p => {
-    if (p === '…') html += `<span class="page-btn" style="border:none; cursor:default;">…</span>`;
-    else html += `<button class="page-btn ${p === currentPage ? 'active' : ''}" onclick="goPage(${p})">${p}</button>`;
-  });
-
-  html += `<button class="page-btn" onclick="goPage(${currentPage + 1})" ${currentPage === pages ? 'disabled' : ''}>›</button>`;
-  btns.innerHTML = html;
-}
-
-function goPage(p) {
-  const pages = Math.ceil(filtered.length / PER_PAGE);
-  if (p < 1 || p > pages) return;
-  currentPage = p;
-  render();
-  document.querySelector('.content').scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-/* ── Selection ─────────────────────────────────── */
-function toggleSelect(id, cb) {
-  if (cb.checked) selectedIds.add(id); else selectedIds.delete(id);
-  updateBulkBar();
-  render();
-}
-
-function toggleSelectAll(cb) {
-  const start = (currentPage - 1) * PER_PAGE;
-  const page = filtered.slice(start, start + PER_PAGE);
-  page.forEach(o => cb.checked ? selectedIds.add(o.id) : selectedIds.delete(o.id));
-  updateBulkBar();
-  render();
-}
-
-function updateBulkBar() {
-  const bar = document.getElementById('bulk-bar');
-  document.getElementById('bulk-count').textContent = `${selectedIds.size} selected`;
-  bar.classList.toggle('show', selectedIds.size > 0);
-}
-
-function clearSelection() {
-  selectedIds.clear();
-  document.getElementById('select-all').checked = false;
-  updateBulkBar();
-  render();
-}
-
-function bulkAction(action) {
-  const labels = { ship: 'shipped', paid: 'paid', cancel: 'cancelled' };
-  const newStatus = labels[action];
-  ORDERS = ORDERS.map(o => selectedIds.has(o.id) ? { ...o, status: newStatus } : o);
-  clearSelection();
-  applyFilters();
-}
-
-/* ── Detail Panel ────────────────────────────────── */
-function openDetail(id) {
-  const o = ORDERS.find(x => x.id === id);
-  if (!o) return;
-
-  document.getElementById('d-order-id').textContent = o.num;
-  document.getElementById('d-title').textContent = o.customer.name;
-  document.getElementById('d-status').innerHTML = statusBadge(o.status);
-  document.getElementById('d-date').textContent = `${o.dateStr} at ${o.timeStr}`;
-  document.getElementById('d-channel').textContent = o.channel;
-  document.getElementById('d-payment').textContent = o.payment;
-
-  document.getElementById('d-cust-name').textContent = o.customer.name;
-  document.getElementById('d-cust-email').textContent = o.customer.email;
-  document.getElementById('d-cust-phone').textContent = o.customer.phone;
-  document.getElementById('d-address').textContent = o.customer.address;
-
-  document.getElementById('d-line-items').innerHTML = o.items.map(it => `
-    <div class="line-item">
-      <div class="line-img">${it.emoji}</div>
-      <div class="line-info">
-        <div class="line-name">${it.name}</div>
-        <div class="line-variant">${it.variant}</div>
-      </div>
-      <div style="text-align:right; flex-shrink:0;">
-        <div class="line-price">$${(it.price * it.qty).toFixed(2)}</div>
-        <div class="line-qty">× ${it.qty} @ $${it.price}</div>
       </div>
     </div>
-  `).join('');
+  </div>
+</div>
+</div>
 
-  const discountRow = o.discount > 0 ? `<div class="totals-row"><span class="muted">Discount</span><span style="color:var(--green-text);">−$${o.discount.toFixed(2)}</span></div>` : '';
-  document.getElementById('d-totals').innerHTML = `
-    <div class="totals-row"><span class="muted">Subtotal</span><span>$${o.subtotal.toFixed(2)}</span></div>
-    <div class="totals-row"><span class="muted">Shipping</span><span>${o.shipping === 0 ? 'Free' : '$' + o.shipping.toFixed(2)}</span></div>
-    ${discountRow}
-    <div class="totals-row total"><span>Total</span><span>$${o.total.toFixed(2)}</span></div>
-  `;
+<div class="toast" id="sivra-toast"></div>
+<script src="admin.js"></script>
+<script>
+(async function() {
+  const session = await initAdmin('orders');
+  if (!session) return;
 
-  const timeline = buildTimeline(o);
-  document.getElementById('d-timeline').innerHTML = timeline.map((ev, i) => `
-    <div class="timeline-item">
-      <div class="timeline-dot-wrap">
-        <div class="timeline-dot ${ev.type}"></div>
-        ${i < timeline.length - 1 ? '<div class="timeline-line"></div>' : ''}
-      </div>
-      <div class="timeline-content">
-        <div class="timeline-event">${ev.event}</div>
-        <div class="timeline-time">${ev.time}</div>
-      </div>
-    </div>
-  `).join('');
+  let _all = [], _tab = 'all', _sort = 'newest', _page = 1;
+  const PER_PAGE = 25;
 
-  const actions = {
-    paid:      ['Print invoice', 'Mark as shipped'],
-    pending:   ['Cancel order', 'Mark as paid'],
-    shipped:   ['Track shipment', 'Mark as delivered'],
-    refunded:  ['View refund', 'Re-order'],
-    cancelled: ['Delete order', 'Restore order'],
-  };
-  const [a1, a2] = actions[o.status] || ['View', 'Update'];
-  document.getElementById('d-action-1').textContent = a1;
-  document.getElementById('d-action-2').textContent = a2;
-
-  document.getElementById('overlay').classList.add('open');
-  document.getElementById('detail-panel').classList.add('open');
-}
-
-function buildTimeline(o) {
-  const events = [];
-  const base = o.date;
-  const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' · ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-  const offset = ms => new Date(base.getTime() + ms);
-
-  events.push({ event: 'Order placed', time: fmt(base), type: 'done' });
-
-  if (o.status !== 'cancelled') {
-    events.push({ event: 'Payment confirmed', time: fmt(offset(5 * 60000)), type: 'done' });
+  // ── TABS ──────────────────────────────────────────────────────────────────
+  function setTab(el, tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    _tab = tab; _page = 1; render();
   }
-  if (o.status === 'shipped' || o.status === 'paid') {
-    if (o.status === 'shipped') {
-      events.push({ event: 'Fulfillment started', time: fmt(offset(30 * 60000)), type: 'done' });
-      events.push({ event: 'Shipped via USPS', time: fmt(offset(4 * 3600000)), type: 'done' });
-    } else {
-      events.push({ event: 'Awaiting fulfillment', time: 'Pending', type: 'pending' });
+
+  // ── BULK SELECTION ────────────────────────────────────────────────────────
+  function toggleAll(checked) {
+    document.querySelectorAll('.row-check').forEach(c => c.checked = checked);
+    updateBulkBar();
+  }
+
+  function updateBulkBar() {
+    const checked = document.querySelectorAll('.row-check:checked');
+    const bar = document.getElementById('bulkBar');
+    document.getElementById('bulkCount').textContent = checked.length;
+    bar.style.display = checked.length > 0 ? 'flex' : 'none';
+  }
+
+  function clearBulk() {
+    document.querySelectorAll('.row-check').forEach(c => c.checked = false);
+    document.getElementById('checkAll').checked = false;
+    document.getElementById('bulkBar').style.display = 'none';
+  }
+
+  function getSelectedIds() {
+    return Array.from(document.querySelectorAll('.row-check:checked'))
+      .map(c => c.dataset.id)
+      .filter(Boolean);
+  }
+
+  // ── BULK ACTIONS ─────────────────────────────────────────────────────────
+  async function bulkMarkPaid() {
+    const ids = getSelectedIds();
+    if (!ids.length) return;
+    try {
+      for (const id of ids) {
+        await API.patch('/api/orders/' + id, { payment_status: 'paid' });
+        const o = _all.find(x => x.id === id);
+        if (o) o.payment_status = 'paid';
+      }
+      clearBulk(); render();
+      Toast.success(`${ids.length} order${ids.length!==1?'s':''} marked as paid`);
+    } catch(e) { Toast.error(e.message || 'Failed'); }
+  }
+
+  async function bulkFulfill() {
+    const ids = getSelectedIds();
+    if (!ids.length) return;
+    try {
+      for (const id of ids) {
+        await API.post('/api/orders/' + id + '/fulfill', {});
+        const o = _all.find(x => x.id === id);
+        if (o) o.fulfillment_status = 'fulfilled';
+      }
+      clearBulk(); render();
+      Toast.success(`${ids.length} order${ids.length!==1?'s':''} marked as fulfilled`);
+    } catch(e) { Toast.error(e.message || 'Failed'); }
+  }
+
+  async function bulkCancel() {
+    const ids = getSelectedIds();
+    if (!ids.length) return;
+    Modal.confirm(
+      'Cancel orders',
+      `Cancel ${ids.length} order${ids.length!==1?'s':''}? Stock will be restocked.`,
+      async () => {
+        try {
+          for (const id of ids) {
+            await API.post('/api/orders/' + id + '/cancel', { reason: 'other', restock: true });
+            const o = _all.find(x => x.id === id);
+            if (o) o.status = 'cancelled';
+          }
+          clearBulk(); render();
+          Toast.success(`${ids.length} order${ids.length!==1?'s':''} cancelled`);
+        } catch(e) { Toast.error(e.message || 'Failed'); }
+      },
+      { danger: true }
+    );
+  }
+
+  // ── FILTER / SORT ─────────────────────────────────────────────────────────
+  function filtered() {
+    const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
+    let list = [..._all];
+
+    if (_tab === 'unfulfilled') list = list.filter(o => (o.fulfillment_status||'unfulfilled') === 'unfulfilled' && o.status !== 'cancelled');
+    if (_tab === 'fulfilled')   list = list.filter(o => o.fulfillment_status === 'fulfilled');
+    if (_tab === 'paid')        list = list.filter(o => o.payment_status === 'paid');
+    if (_tab === 'unpaid')      list = list.filter(o => (o.payment_status === 'pending' || o.payment_status === 'unpaid') && o.status !== 'cancelled');
+    if (_tab === 'cancelled')   list = list.filter(o => o.status === 'cancelled');
+
+    if (q) list = list.filter(o =>
+      (o.order_number + '').includes(q) ||
+      (o.shipping_name||'').toLowerCase().includes(q) ||
+      (o.customer_email||'').toLowerCase().includes(q)
+    );
+
+    switch(_sort) {
+      case 'oldest':     list.sort((a,b) => new Date(a.created_at||0) - new Date(b.created_at||0)); break;
+      case 'total-desc': list.sort((a,b) => parseFloat(b.total||0) - parseFloat(a.total||0)); break;
+      case 'total-asc':  list.sort((a,b) => parseFloat(a.total||0) - parseFloat(b.total||0)); break;
+      default:           list.sort((a,b) => new Date(b.created_at||0) - new Date(a.created_at||0));
     }
+    return list;
   }
-  if (o.status === 'refunded') {
-    events.push({ event: 'Refund requested', time: fmt(offset(2 * 86400000)), type: 'done' });
-    events.push({ event: 'Refund processed', time: fmt(offset(3 * 86400000)), type: 'done' });
-  }
-  if (o.status === 'cancelled') {
-    events.push({ event: 'Order cancelled', time: fmt(offset(10 * 60000)), type: 'done' });
-  }
-  if (o.status === 'pending') {
-    events.push({ event: 'Awaiting payment', time: 'Pending', type: 'pending' });
-  }
-  return events;
-}
 
-function closeDetail() {
-  document.getElementById('overlay').classList.remove('open');
-  document.getElementById('detail-panel').classList.remove('open');
-}
+  // ── RENDER ────────────────────────────────────────────────────────────────
+  function render() {
+    const list = filtered();
+    const total = list.length;
+    const totalPages = Math.ceil(total / PER_PAGE);
+    const start = (_page - 1) * PER_PAGE;
+    const items = list.slice(start, start + PER_PAGE);
 
-function exportOrders() {
-  const rows = [['Order', 'Date', 'Customer', 'Email', 'Status', 'Channel', 'Total']];
-  filtered.forEach(o => rows.push([o.num, o.dateStr, o.customer.name, o.customer.email, o.status, o.channel, o.total.toFixed(2)]));
-  const csv = rows.map(r => r.join(',')).join('\n');
-  const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
-  a.download = 'sivra-orders.csv';
-  a.click();
-}
+    document.getElementById('paginationInfo').textContent =
+      total === 0 ? '' : `${start + 1}–${Math.min(start + PER_PAGE, total)} of ${total} order${total!==1?'s':''}`;
 
-/* ── Init ────────────────────────────────────────── */
-applyFilters();
+    const tbody = document.getElementById('ordersBody');
+
+    if (!items.length) {
+      tbody.innerHTML = `<tr><td colspan="9">
+        <div class="empty-state">
+          <div class="empty-icon">🛒</div>
+          <div class="empty-title">${_all.length === 0 ? 'No orders yet' : 'No orders match your filters'}</div>
+          <div class="empty-desc">${_all.length === 0 ? 'Orders will appear here when customers complete checkout' : 'Try clearing your search or switching tabs'}</div>
+        </div>
+      </td></tr>`;
+      document.getElementById('paginationBtns').innerHTML = '';
+      return;
+    }
+
+    tbody.innerHTML = items.map(o => {
+      const num = '#' + o.order_number;
+      const customer = o.shipping_name || o.customer_email || 'Guest';
+
+      // Payment badge
+      const payMap = { paid:'badge-success', unpaid:'badge-warning', pending:'badge-warning', refunded:'badge-default', voided:'badge-default' };
+      const payBadge = `<span class="badge ${payMap[o.payment_status]||'badge-warning'}" style="text-transform:capitalize">${o.payment_status||'pending'}</span>`;
+
+      // Fulfillment badge
+      const fulfMap = { fulfilled:'badge-success', unfulfilled:'badge-warning', partial:'badge-info', restocked:'badge-default' };
+      const fulfBadge = `<span class="badge ${fulfMap[o.fulfillment_status]||'badge-warning'}" style="text-transform:capitalize">${o.fulfillment_status||'unfulfilled'}</span>`;
+
+      const isCancelled = o.status === 'cancelled';
+
+      return `<tr onclick="location.href='sivra-order-detail.html?id=${o.id}'" style="${isCancelled?'opacity:0.5':''}">
+        <td class="col-check">
+          <input type="checkbox" class="row-check" data-id="${o.id}"
+            onclick="event.stopPropagation();updateBulkBar()"
+          />
+        </td>
+        <td class="cell-primary" style="font-family:monospace;letter-spacing:0.3px">${num}</td>
+        <td class="cell-muted">${Fmt.date(o.created_at)}</td>
+        <td>
+          <div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px">${Fmt.truncate(customer, 28)}</div>
+          ${o.customer_email && o.shipping_name ? `<div class="text-muted text-sm">${o.customer_email}</div>` : ''}
+        </td>
+        <td class="cell-number font-medium">${Fmt.money(o.total)}</td>
+        <td>${isCancelled ? '<span class="badge badge-default">Cancelled</span>' : payBadge}</td>
+        <td>${isCancelled ? '—' : fulfBadge}</td>
+        <td class="cell-number cell-muted">${o.items_count || '—'}</td>
+        <td class="cell-muted">${o.shipping_city || (o.shipping_country || '—')}</td>
+      </tr>`;
+    }).join('');
+
+    // Pagination buttons
+    const pBtn = document.getElementById('paginationBtns');
+    if (totalPages <= 1) { pBtn.innerHTML = ''; return; }
+    let btns = '';
+    if (_page > 1) btns += `<button class="pagination-btn" onclick="_page--;render()">‹ Prev</button>`;
+    for (let i = Math.max(1, _page - 2); i <= Math.min(totalPages, _page + 2); i++) {
+      btns += `<button class="pagination-btn${i === _page ? ' active' : ''}" onclick="_page=${i};render()">${i}</button>`;
+    }
+    if (_page < totalPages) btns += `<button class="pagination-btn" onclick="_page++;render()">Next ›</button>`;
+    pBtn.innerHTML = btns;
+  }
+
+  // ── EXPORT ────────────────────────────────────────────────────────────────
+  function exportOrders() {
+    const rows = [['Order #','Date','Customer','Email','Total','Payment','Fulfillment','City','Country']];
+    _all.forEach(o => rows.push([
+      '#' + o.order_number,
+      Fmt.date(o.created_at),
+      o.shipping_name || '',
+      o.customer_email || '',
+      parseFloat(o.total||0).toFixed(2),
+      o.payment_status || 'pending',
+      o.fulfillment_status || 'unfulfilled',
+      o.shipping_city || '',
+      o.shipping_country || '',
+    ]));
+    exportCSV(rows, 'orders.csv');
+    Toast.success('Orders exported');
+  }
+
+  // ── LOAD ──────────────────────────────────────────────────────────────────
+  try {
+    const data = await API.get('/api/orders?limit=500');
+    _all = data.orders || [];
+    render();
+
+    // Update sidebar badge with unfulfilled count
+    const unfulfilled = _all.filter(o =>
+      (o.fulfillment_status === 'unfulfilled' || !o.fulfillment_status) &&
+      o.status !== 'cancelled'
+    ).length;
+    const badge = document.getElementById('sbOrderBadge');
+    if (badge && unfulfilled > 0) {
+      badge.textContent = unfulfilled > 99 ? '99+' : unfulfilled;
+      badge.style.display = 'flex';
+    }
+  } catch(e) {
+    document.getElementById('ordersBody').innerHTML = `<tr><td colspan="9">
+      <div class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <div class="empty-title">Failed to load orders</div>
+        <div class="empty-desc">${e.message || 'Please try refreshing the page'}</div>
+        <button class="btn btn-secondary" onclick="location.reload()">Retry</button>
+      </div>
+    </td></tr>`;
+    Toast.error('Failed to load orders');
+  }
+
+})();
 </script>
 </body>
 </html>
