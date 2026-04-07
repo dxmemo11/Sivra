@@ -41,10 +41,6 @@ const PORT = process.env.PORT || 3000;
 // ── Middleware ────────────────────────────────────────────────────────────────
 app.use(cors());
 
-// Stripe webhook needs raw body — mount BEFORE express.json()
-const checkoutRouter = require('./routes/checkout');
-app.use('/api/checkout/webhook', express.raw({ type: 'application/json' }));
-
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -52,7 +48,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/products',  require('./routes/products'));
 app.use('/api/orders',    require('./routes/orders'));
 app.use('/api/customers', require('./routes/customers'));
-app.use('/api/checkout',  checkoutRouter);
+// Stripe checkout — add later: app.use('/api/checkout', require('./routes/checkout'));
 
 // ── Settings routes (inline — simple key/value store) ─────────────────────────
 app.get('/api/settings', async (req, res) => {
