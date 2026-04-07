@@ -86,11 +86,11 @@ app.get('/sitemap.xml', async (req, res) => {
       ...pages.rows.map(p => `  <url><loc>${baseUrl}/sivra-policy.html?store=${slug}&page=${p.slug}</loc><lastmod>${(p.updated_at||'').split('T')[0]}</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>`),
     ];
     res.set('Content-Type', 'application/xml');
-    res.send(`<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.join('
-')}
-</urlset>`);
+    const xml = '<?xml version="1.0" encoding="UTF-8"?>' +
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' +
+      urls.join('') +
+      '</urlset>';
+    res.send(xml);
   } catch(e) { res.status(500).send('Failed to generate sitemap'); }
 });
 
@@ -98,7 +98,14 @@ ${urls.join('
 app.get('/robots.txt', (req, res) => {
   const baseUrl = process.env.STORE_URL || req.protocol + '://' + req.get('host');
   res.set('Content-Type', 'text/plain');
-  res.send(`User-agent: *\nAllow: /\nDisallow: /sivra-dashboard.html\nDisallow: /sivra-admin\nDisallow: /api/\nSitemap: ${baseUrl}/sitemap.xml`);
+  const robotsTxt = [
+    'User-agent: *',
+    'Allow: /',
+    'Disallow: /sivra-dashboard.html',
+    'Disallow: /api/',
+    'Sitemap: ' + baseUrl + '/sitemap.xml',
+  ].join('\n');
+  res.send(robotsTxt);
 });
 
 // Catch-all: send index.html for any unknown route (SPA routing)
