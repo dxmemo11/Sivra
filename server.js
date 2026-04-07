@@ -1,36 +1,8 @@
-// ─── db.js ────────────────────────────────────────────────────────────────────
-// Save this file as db.js in your project root.
-// Usage: const { getDb } = require('./db');
-//
-// const { createClient } = require('@libsql/client');
-// let db;
-// function getDb() {
-//   if (!db) {
-//     db = createClient({
-//       url: process.env.TURSO_URL,
-//       authToken: process.env.TURSO_AUTH_TOKEN,
-//     });
-//   }
-//   return db;
-// }
-// module.exports = { getDb };
+// server.js
+// Sivra backend — main entry point
+// Run with: node server.js  OR  npm run dev (with nodemon)
 
-// ─── middleware/auth.js ───────────────────────────────────────────────────────
-// Save as middleware/auth.js
-//
-// const jwt = require('jsonwebtoken');
-// module.exports = (req, res, next) => {
-//   const auth = req.headers.authorization;
-//   if (!auth?.startsWith('Bearer ')) return res.status(401).json({ error: 'Unauthorized' });
-//   try {
-//     req.user = jwt.verify(auth.slice(7), process.env.JWT_SECRET);
-//     next();
-//   } catch { res.status(401).json({ error: 'Invalid token' }); }
-// };
-
-// ─── server.js ────────────────────────────────────────────────────────────────
-// This is your main entry point. Add/replace your existing server.js with this.
-
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -38,65 +10,78 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ── Middleware ────────────────────────────────────────────────────────────────
-app.use(cors());
+// ── MIDDLEWARE ──────────────────────────────────────────────────────────────
 
-app.use(express.json());
+// Allow requests from your frontend
+app.use(cors({
+  origin: process.env.FRONTEND_URL || '*',
+  credentials: true
+}));
+
+// Parse JSON request bodies
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+// Serve uploaded images as static files
+// e.g. GET /uploads/product-abc123.jpg
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Serve the frontend HTML files in production
+// (put your HTML files in a /public folder)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ── API Routes ────────────────────────────────────────────────────────────────
-app.use('/api/products',  require('./routes/products'));
-app.use('/api/orders',    require('./routes/orders'));
-app.use('/api/customers', require('./routes/customers'));
-// Stripe checkout — add later: app.use('/api/checkout', require('./routes/checkout'));
 
-// ── Settings routes (inline — simple key/value store) ─────────────────────────
-app.get('/api/settings', async (req, res) => {
-  try {
-    const { getDb } = require('./db');
-    const db = getDb();
-    const rows = await db.execute({ sql: `SELECT key, value FROM settings`, args: [] });
-    const settings = {};
-    rows.rows.forEach(r => { settings[r.key] = r.value; });
-    res.json(settings);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+// ── ROUTES ──────────────────────────────────────────────────────────────────
+
+app.use('/api/auth',        require('./routes/auth'));
+app.use('/api/products',    require('./routes/products'));
+app.use('/api/orders',      require('./routes/orders'));
+app.use('/api/customers',   require('./routes/customers'));
+app.use('/api/store',       require('./routes/store'));
+app.use('/api/storefront',  require('./routes/storefront')); // public — no auth
+app.use('/api/collections', require('./routes/collections'));
+app.use('/api/discounts',   require('./routes/discounts'));
+app.use('/api/analytics',   require('./routes/analytics'));
+app.use('/api/pages',       require('./routes/pages'));
+app.use('/api/menus',       require('./routes/menus'));
+app.use('/api/blog',        require('./routes/blog'));
+
+// Abandoned checkouts
+app.get('/api/abandoned', (req, res) => res.json({ checkouts: [] }));
+app.get('/api/abandoned-checkouts', (req, res) => res.json({ checkouts: [] }));
+
+// Health check — useful for server monitoring
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', platform: 'Sivra', time: new Date().toISOString() });
 });
 
-app.post('/api/settings', async (req, res) => {
-  try {
-    const { getDb } = require('./db');
-    const db = getDb();
-    for (const [key, value] of Object.entries(req.body)) {
-      await db.execute({ sql: `INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value`, args: [key, String(value)] });
-    }
-    res.json({ success: true });
-  } catch (err) { res.status(500).json({ error: err.message }); }
-});
-
-// ── Auth: login ───────────────────────────────────────────────────────────────
-app.post('/api/auth/login', async (req, res) => {
-  try {
-    const jwt = require('jsonwebtoken');
-    const { email, password } = req.body;
-    // TODO: replace with real user lookup from DB
-    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@sivra.com';
-    const ADMIN_PASS  = process.env.ADMIN_PASSWORD || 'changeme';
-    if (email !== ADMIN_EMAIL || password !== ADMIN_PASS) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-    const token = jwt.sign({ email, role: 'admin' }, process.env.JWT_SECRET || 'dev-secret', { expiresIn: '7d' });
-    res.json({ token });
-  } catch (err) { res.status(500).json({ error: err.message }); }
-});
-
-// ── Health check ──────────────────────────────────────────────────────────────
-app.get('/api/health', (_, res) => res.json({ status: 'ok', ts: new Date().toISOString() }));
-
-// ── SPA fallback (serve store for unknown routes) ─────────────────────────────
+// Catch-all: send index.html for any unknown route (SPA routing)
 app.get('*', (req, res) => {
-  if (req.path.startsWith('/api')) return res.status(404).json({ error: 'Not found' });
-  res.sendFile(path.join(__dirname, 'public', 'sivra-store.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'), err => {
+    if (err) res.status(404).json({ error: 'Not found' });
+  });
 });
 
-app.listen(PORT, () => console.log(`Sivra running on port ${PORT}`));
-module.exports = app;
+
+// ── ERROR HANDLER ───────────────────────────────────────────────────────────
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+  res.status(500).json({
+    error: process.env.NODE_ENV === 'production'
+      ? 'Something went wrong. Please try again.'
+      : err.message
+  });
+});
+
+
+// ── START ───────────────────────────────────────────────────────────────────
+app.listen(PORT, () => {
+  console.log(`
+  ╔══════════════════════════════════════╗
+  ║         SIVRA SERVER RUNNING         ║
+  ║                                      ║
+  ║  Local:   http://localhost:${PORT}      ║
+  ║  Mode:    ${(process.env.NODE_ENV || 'development').padEnd(10)}              ║
+  ╚══════════════════════════════════════╝
+  `);
+});
