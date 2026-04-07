@@ -7,98 +7,62 @@
   <link rel="stylesheet" href="admin-tokens.css"/>
   <link rel="stylesheet" href="admin-layout.css"/>
   <link rel="stylesheet" href="admin-components.css"/>
-  
 </head>
 <body>
 <div class="app">
-<aside class="sidebar">
-  <div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div>
-</aside>
-  <div class="main">
-    <div class="topbar" id="sivraTopbar"></div>
-    <div class="page-scroll">
-      <div style="max-width:1280px;margin:0 auto">
+<aside class="sidebar"><div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div></aside>
+<div class="main">
+  <div class="topbar" id="sivraTopbar"></div>
+  <div class="page-scroll">
+    <div style="max-width:960px;margin:0 auto">
 
-        <div class="page-header">
-          <h1 class="page-title">Navigation</h1>
+      <div class="page-header">
+        <h1 class="page-title">Navigation</h1>
+      </div>
+
+      <div class="page-body">
+        <div class="alert alert-info" style="margin-bottom:16px">
+          <span class="alert-icon">ℹ️</span>
+          <div class="alert-body">Changes save to your database and appear on your storefront immediately after saving.</div>
         </div>
 
-        <div class="page-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
 
-          <div class="alert alert-info" style="margin-bottom:16px">
-            <span class="alert-icon">ℹ️</span>
-            <div class="alert-body">Navigation menus appear in your storefront header and footer. Changes save automatically to your store.</div>
-          </div>
-
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-
-            <!-- Main menu -->
-            <div class="card">
-              <div class="card-header">
-                <div>
-                  <div class="card-title">Main menu</div>
-                  <div class="card-subtitle">Shown in your storefront header</div>
-                </div>
-                <button class="btn btn-secondary btn-sm" onclick="addMenuItem('main')">+ Add item</button>
-              </div>
-              <div id="mainMenuItems" style="padding:8px"></div>
-              <div class="card-footer">
-                <button class="btn btn-primary" onclick="saveMenu('main')">Save menu</button>
-              </div>
+          <!-- MAIN MENU -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Main menu</span>
+              <button class="btn btn-secondary btn-sm" onclick="addMenuItem('main')">+ Add item</button>
             </div>
-
-            <!-- Footer menu -->
-            <div class="card">
-              <div class="card-header">
-                <div>
-                  <div class="card-title">Footer menu</div>
-                  <div class="card-subtitle">Shown in your storefront footer</div>
-                </div>
-                <button class="btn btn-secondary btn-sm" onclick="addMenuItem('footer')">+ Add item</button>
-              </div>
-              <div id="footerMenuItems" style="padding:8px"></div>
-              <div class="card-footer">
-                <button class="btn btn-primary" onclick="saveMenu('footer')">Save menu</button>
-              </div>
+            <div id="mainMenuItems" style="min-height:80px;padding:8px"></div>
+            <div class="card-footer">
+              <button class="btn btn-primary" onclick="saveMenu('main')">Save main menu</button>
+              <a id="previewMainBtn" href="#" target="_blank" class="btn btn-secondary">Preview store ↗</a>
             </div>
           </div>
+
+          <!-- FOOTER MENU -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Footer menu</span>
+              <button class="btn btn-secondary btn-sm" onclick="addMenuItem('footer')">+ Add item</button>
+            </div>
+            <div id="footerMenuItems" style="min-height:80px;padding:8px"></div>
+            <div class="card-footer">
+              <button class="btn btn-primary" onclick="saveMenu('footer')">Save footer menu</button>
+            </div>
+          </div>
+
         </div>
 
-        <!-- Add item modal -->
-        <div class="modal-overlay" id="menuItemModal">
-          <div class="modal" style="max-width:440px">
-            <div class="modal-header">
-              <span class="modal-title">Add menu item</span>
-              <button class="modal-close" onclick="document.getElementById('menuItemModal').classList.remove('open')">×</button>
-            </div>
-            <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
-              <div class="form-group">
-                <label class="form-label">Name</label>
-                <input class="input" id="menuItemName" placeholder="e.g. Home, About, Shop"/>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Link type</label>
-                <select class="select" id="menuLinkType" onchange="updateLinkType()">
-                  <option value="url">Custom URL</option>
-                  <option value="home">Home page</option>
-                  <option value="catalog">All products</option>
-                  <option value="page">Page</option>
-                  <option value="collection">Collection</option>
-                </select>
-              </div>
-              <div class="form-group" id="customUrlField">
-                <label class="form-label">URL</label>
-                <input class="input" id="menuItemUrl" placeholder="https://example.com or /pages/about"/>
-              </div>
-              <div class="form-group" id="pageSelectField" style="display:none">
-                <label class="form-label">Page</label>
-                <select class="select" id="menuPageSel"></select>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button class="btn btn-secondary" onclick="document.getElementById('menuItemModal').classList.remove('open')">Cancel</button>
-              <button class="btn btn-primary" onclick="confirmAddItem()">Add item</button>
-            </div>
+        <!-- QUICK ADD from pages -->
+        <div class="card" style="margin-top:16px">
+          <div class="card-header">
+            <span class="card-title">Your pages</span>
+            <span class="text-muted text-sm">Click any page to add it to a menu</span>
+          </div>
+          <div id="quickAddPages" style="padding:12px 16px">
+            <div style="color:#8c9196;font-size:13px">Loading pages...</div>
           </div>
         </div>
 
@@ -106,127 +70,264 @@
     </div>
   </div>
 </div>
+</div>
+
+<!-- Add item modal -->
+<div class="modal-overlay" id="menuItemModal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <span class="modal-title">Add menu item</span>
+      <button class="modal-close" onclick="document.getElementById('menuItemModal').classList.remove('open')">×</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
+      <div class="form-group">
+        <label class="form-label">Link type</label>
+        <select class="select" id="menuLinkType" onchange="updateLinkType()">
+          <option value="url">Custom URL</option>
+          <option value="home">Homepage</option>
+          <option value="catalog">All products</option>
+          <option value="collection">Collection</option>
+          <option value="page">Page</option>
+          <option value="blog">Blog</option>
+        </select>
+      </div>
+      <div id="customUrlField" class="form-group">
+        <label class="form-label">URL</label>
+        <input class="input" id="menuItemUrl" placeholder="https:// or /path"/>
+      </div>
+      <div id="collectionSelectField" class="form-group" style="display:none">
+        <label class="form-label">Select collection</label>
+        <select class="select" id="collectionSelect"></select>
+      </div>
+      <div id="pageSelectField" class="form-group" style="display:none">
+        <label class="form-label">Select page</label>
+        <select class="select" id="pageSelect"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Label</label>
+        <input class="input" id="menuItemName" placeholder="What customers see, e.g. About Us"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="document.getElementById('menuItemModal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmAddItem()">Add to menu</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="sivra-toast"></div>
 <script src="admin.js"></script>
 <script>
+// ── ALL FUNCTIONS IN GLOBAL SCOPE ─────────────────────────────────────────────
+const _storeSlug = localStorage.getItem('sivra_store_slug') || '';
+let _menus = { main: [], footer: [] };
+let _addingTo = 'main';
+let _pages = [];
+let _collections = [];
+
+function renderMenu(which) {
+  const items = _menus[which] || [];
+  const el = document.getElementById(which + 'MenuItems');
+  if (!items.length) {
+    el.innerHTML = '<div style="padding:20px;text-align:center;color:#8c9196;font-size:13px">No items yet — click "+ Add item" to start</div>';
+    return;
+  }
+  el.innerHTML = items.map((item, i) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;margin-bottom:2px;background:white;border:1px solid #f0f0f0">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="color:#8c9196;flex-shrink:0;cursor:grab"><path d="M2 4h10M2 7h10M2 10h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:500">${item.name}</div>
+        <div style="font-size:11px;color:#8c9196;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px">${item.url || '#'}</div>
+      </div>
+      <button onclick="moveItemUp('${which}',${i})" style="background:none;border:none;cursor:pointer;color:#6d7175;padding:2px 4px" title="Move up">↑</button>
+      <button onclick="moveItemDown('${which}',${i})" style="background:none;border:none;cursor:pointer;color:#6d7175;padding:2px 4px" title="Move down">↓</button>
+      <button onclick="removeItem('${which}',${i})" style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:18px;line-height:1;padding:0 4px">×</button>
+    </div>`).join('');
+}
+
+function removeItem(which, idx) {
+  _menus[which].splice(idx, 1);
+  renderMenu(which);
+}
+
+function moveItemUp(which, idx) {
+  if (idx === 0) return;
+  const items = _menus[which];
+  [items[idx-1], items[idx]] = [items[idx], items[idx-1]];
+  renderMenu(which);
+}
+
+function moveItemDown(which, idx) {
+  const items = _menus[which];
+  if (idx >= items.length - 1) return;
+  [items[idx], items[idx+1]] = [items[idx+1], items[idx]];
+  renderMenu(which);
+}
+
+function addMenuItem(which) {
+  _addingTo = which;
+  document.getElementById('menuItemName').value = '';
+  document.getElementById('menuItemUrl').value = '';
+  document.getElementById('menuLinkType').value = 'url';
+  updateLinkType();
+  document.getElementById('menuItemModal').classList.add('open');
+  setTimeout(() => document.getElementById('menuItemName').focus(), 100);
+}
+
+function updateLinkType() {
+  const t = document.getElementById('menuLinkType').value;
+  document.getElementById('customUrlField').style.display = t === 'url' ? '' : 'none';
+  document.getElementById('collectionSelectField').style.display = t === 'collection' ? '' : 'none';
+  document.getElementById('pageSelectField').style.display = t === 'page' ? '' : 'none';
+
+  const nameEl = document.getElementById('menuItemName');
+  const urlEl = document.getElementById('menuItemUrl');
+
+  if (t === 'home') {
+    urlEl.value = '/sivra-storefront.html?store=' + _storeSlug;
+    if (!nameEl.value) nameEl.value = 'Home';
+  } else if (t === 'catalog') {
+    urlEl.value = '/sivra-storefront.html?store=' + _storeSlug;
+    if (!nameEl.value) nameEl.value = 'All products';
+  } else if (t === 'blog') {
+    urlEl.value = '/sivra-blog-storefront.html?store=' + _storeSlug;
+    if (!nameEl.value) nameEl.value = 'Blog';
+  } else if (t === 'collection') {
+    // populate collection select
+    const sel = document.getElementById('collectionSelect');
+    sel.innerHTML = _collections.map(c =>
+      `<option value="/sivra-collection.html?store=${_storeSlug}&id=${c.id}">${c.name}</option>`
+    ).join('') || '<option value="#">No collections yet</option>';
+    if (!nameEl.value && _collections[0]) nameEl.value = _collections[0].name;
+  } else if (t === 'page') {
+    // populate page select
+    const sel = document.getElementById('pageSelect');
+    sel.innerHTML = _pages.map(p =>
+      `<option value="/sivra-policy.html?store=${_storeSlug}&page=${p.slug}">${p.title}</option>`
+    ).join('') || '<option value="#">No pages yet</option>';
+    if (!nameEl.value && _pages[0]) nameEl.value = _pages[0].title;
+  }
+}
+
+function confirmAddItem() {
+  const name = document.getElementById('menuItemName').value.trim();
+  const type = document.getElementById('menuLinkType').value;
+  let url;
+
+  if (type === 'url') {
+    url = document.getElementById('menuItemUrl').value.trim();
+  } else if (type === 'collection') {
+    url = document.getElementById('collectionSelect').value;
+    // Also update name from selection if blank
+    if (!name) {
+      const sel = document.getElementById('collectionSelect');
+      document.getElementById('menuItemName').value = sel.options[sel.selectedIndex]?.text || 'Collection';
+    }
+  } else if (type === 'page') {
+    url = document.getElementById('pageSelect').value;
+    if (!name) {
+      const sel = document.getElementById('pageSelect');
+      document.getElementById('menuItemName').value = sel.options[sel.selectedIndex]?.text || 'Page';
+    }
+  } else {
+    url = document.getElementById('menuItemUrl').value;
+  }
+
+  const finalName = document.getElementById('menuItemName').value.trim();
+  if (!finalName) { Toast.error('Enter a name for this item'); return; }
+
+  _menus[_addingTo].push({ name: finalName, url: url || '#' });
+  renderMenu(_addingTo);
+  document.getElementById('menuItemModal').classList.remove('open');
+  Toast.show('Item added — click Save to publish');
+}
+
+async function saveMenu(which) {
+  try {
+    await API.patch('/api/menus/' + which, { items: _menus[which] });
+    localStorage.setItem('sivra_menu_' + which, JSON.stringify(_menus[which]));
+    Toast.success((which === 'main' ? 'Main' : 'Footer') + ' menu saved — live on your store now');
+  } catch(e) {
+    localStorage.setItem('sivra_menu_' + which, JSON.stringify(_menus[which]));
+    Toast.error('Could not save to server: ' + (e.message || 'check your connection'));
+  }
+}
+
+function renderQuickAddPages() {
+  const el = document.getElementById('quickAddPages');
+  const allItems = [
+    { label: '🏠 Homepage', url: '/sivra-storefront.html?store=' + _storeSlug, name: 'Home' },
+    { label: '🛍️ All Products', url: '/sivra-storefront.html?store=' + _storeSlug, name: 'All products' },
+    { label: '✍️ Blog', url: '/sivra-blog-storefront.html?store=' + _storeSlug, name: 'Blog' },
+    ..._collections.map(c => ({ label: '🗂️ ' + c.name, url: '/sivra-collection.html?store=' + _storeSlug + '&id=' + c.id, name: c.name })),
+    ..._pages.map(p => ({ label: '📄 ' + p.title, url: '/sivra-policy.html?store=' + _storeSlug + '&page=' + p.slug, name: p.title })),
+  ];
+
+  el.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:8px">
+    ${allItems.map(item => `
+      <div style="display:inline-flex;align-items:center;gap:6px;border:1px solid #e3e3e3;border-radius:8px;padding:6px 12px;font-size:13px;background:white">
+        <span>${item.label}</span>
+        <button onclick="quickAdd('main','${item.name.replace(/'/g,"\\'")}','${item.url.replace(/'/g,"\\'")}','footer')"
+          class="btn btn-plain btn-sm" style="font-size:11px;color:var(--p-color-text-emphasis)">+ Main</button>
+        <button onclick="quickAdd('footer','${item.name.replace(/'/g,"\\'")}','${item.url.replace(/'/g,"\\'")}','main')"
+          class="btn btn-plain btn-sm" style="font-size:11px;color:#6d7175">+ Footer</button>
+      </div>`).join('')}
+  </div>`;
+}
+
+function quickAdd(which, name, url) {
+  if (_menus[which].find(i => i.url === url)) {
+    Toast.show(name + ' already in ' + which + ' menu');
+    return;
+  }
+  _menus[which].push({ name, url });
+  renderMenu(which);
+  Toast.show('Added to ' + which + ' menu — click Save to publish');
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
 (async function() {
   const session = await initAdmin('online-store');
   if (!session) return;
-  
-  const slug = Auth.getSlug();
-  let _menus = {
-    main: [
-      {name:'Home', url: `/sivra-storefront.html?store=${slug}`},
-      {name:'All products', url: `/sivra-storefront.html?store=${slug}`},
-    ],
-    footer: [
-      {name:'About', url:'#'},
-      {name:'Contact', url:'#'},
-      {name:'Privacy Policy', url:'#'},
-    ]
-  };
-  let _addingTo = 'main';
-  let _pages = [];
 
-  function renderMenu(which) {
-    const items = _menus[which] || [];
-    const el = document.getElementById(which+'MenuItems');
-    if (!items.length) {
-      el.innerHTML = '<div style="padding:20px;text-align:center;color:#8c9196;font-size:13px">No menu items yet</div>';
-      return;
-    }
-    el.innerHTML = items.map((item, i) => `
-      <div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;transition:background 0.1s" onmouseover="this.style.background='#f9f9f9'" onmouseout="this.style.background=''">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="cursor:grab;color:#8c9196;flex-shrink:0"><path d="M4 5h8M4 8h8M4 11h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        <div style="flex:1">
-          <div style="font-size:13px;font-weight:500">${item.name}</div>
-          <div style="font-size:11px;color:#8c9196;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${item.url}</div>
-        </div>
-        <button onclick="removeItem('${which}',${i})" style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:16px;line-height:1;opacity:0.6" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">×</button>
-      </div>`).join('');
-  }
+  // Set preview link
+  const prevBtn = document.getElementById('previewMainBtn');
+  if (prevBtn) prevBtn.href = '/sivra-storefront.html?store=' + _storeSlug;
 
-  function removeItem(which, idx) {
-    _menus[which].splice(idx, 1);
-    renderMenu(which);
-  }
-
-  function addMenuItem(which) {
-    _addingTo = which;
-    document.getElementById('menuItemName').value='';
-    document.getElementById('menuItemUrl').value='';
-    document.getElementById('menuLinkType').value='url';
-    updateLinkType();
-    document.getElementById('menuItemModal').classList.add('open');
-    document.getElementById('menuItemName').focus();
-  }
-
-  function updateLinkType() {
-    const t = document.getElementById('menuLinkType').value;
-    const cu = document.getElementById('customUrlField');
-    const ps = document.getElementById('pageSelectField');
-    const slug2 = Auth.getSlug();
-    cu.style.display = ['url'].includes(t) ? '' : 'none';
-    ps.style.display = ['page','collection'].includes(t) ? '' : 'none';
-    if (t === 'home') document.getElementById('menuItemUrl').value = `/sivra-storefront.html?store=${slug2}`;
-    if (t === 'catalog') document.getElementById('menuItemUrl').value = `/sivra-storefront.html?store=${slug2}`;
-  }
-
-  function confirmAddItem() {
-    const name = document.getElementById('menuItemName').value.trim();
-    const type = document.getElementById('menuLinkType').value;
-    let url = document.getElementById('menuItemUrl').value.trim();
-    if (!name) { Toast.error('Enter a name'); return; }
-    if (!url && type === 'url') { Toast.error('Enter a URL'); return; }
-    _menus[_addingTo].push({name, url: url||'#'});
-    renderMenu(_addingTo);
-    document.getElementById('menuItemModal').classList.remove('open');
-  }
-
-  async function saveMenu(which) {
-    try {
-      await API.patch('/api/menus/' + which, { items: _menus[which] });
-      localStorage.setItem('sivra_menu_'+which, JSON.stringify(_menus[which]));
-      Toast.success(which === 'main' ? 'Main menu saved' : 'Footer menu saved');
-    } catch(e) {
-      localStorage.setItem('sivra_menu_'+which, JSON.stringify(_menus[which]));
-      Toast.success('Menu saved locally');
-    }
-  }
-
-  // Load menus from API, fallback to localStorage
+  // Load all data in parallel
   try {
-    const [mainData, ftrData] = await Promise.all([
-      API.get('/api/menus/main'),
-      API.get('/api/menus/footer'),
+    const [mainMenu, footerMenu, pagesData, collData] = await Promise.all([
+      API.get('/api/menus/main').catch(() => ({ items: [] })),
+      API.get('/api/menus/footer').catch(() => ({ items: [] })),
+      API.get('/api/pages').catch(() => ({ pages: [] })),
+      API.get('/api/collections').catch(() => ({ collections: [] })),
     ]);
-    if (mainData?.items?.length) _menus.main = mainData.items;
+
+    // Menus
+    if (mainMenu?.items?.length) _menus.main = mainMenu.items;
     else {
       const saved = localStorage.getItem('sivra_menu_main');
-      if (saved) _menus.main = JSON.parse(saved);
+      if (saved) try { _menus.main = JSON.parse(saved); } catch(e) {}
     }
-    if (ftrData?.items?.length) _menus.footer = ftrData.items;
+    if (footerMenu?.items?.length) _menus.footer = footerMenu.items;
     else {
       const saved = localStorage.getItem('sivra_menu_footer');
-      if (saved) _menus.footer = JSON.parse(saved);
+      if (saved) try { _menus.footer = JSON.parse(saved); } catch(e) {}
     }
+
+    // Pages and collections for selectors
+    _pages = (pagesData.pages || []).filter(p => p.status === 'published' || !p.status);
+    _collections = (collData.collections || []).filter(c => c.status !== 'archived');
+
+    renderMenu('main');
+    renderMenu('footer');
+    renderQuickAddPages();
+
   } catch(e) {
-    const sm = localStorage.getItem('sivra_menu_main');
-    const sf = localStorage.getItem('sivra_menu_footer');
-    if (sm) _menus.main = JSON.parse(sm);
-    if (sf) _menus.footer = JSON.parse(sf);
+    Toast.error('Failed to load navigation data');
+    renderMenu('main');
+    renderMenu('footer');
   }
-
-  renderMenu('main');
-  renderMenu('footer');
-
-
-  // Expose to global scope for onclick handlers
-  if (typeof addMenuItem === "function") window.addMenuItem = addMenuItem;
-  if (typeof saveMenu === "function") window.saveMenu = saveMenu;
-  if (typeof confirmAddItem === "function") window.confirmAddItem = confirmAddItem;
-  if (typeof removeItem === "function") window.removeItem = removeItem;
-  if (typeof moveItem === "function") window.moveItem = moveItem;
 })();
 </script>
 </body>

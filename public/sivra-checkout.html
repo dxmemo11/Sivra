@@ -312,6 +312,26 @@
       _store = await res.json();
       const name = _store.name || 'Store';
       document.getElementById('storeLogo').textContent = name;
+    // Load nav from saved menus
+    try {
+      const menuRes = await fetch('/api/storefront/' + _storeSlug + '/menus');
+      const menuData = await menuRes.json();
+      const navLinks = document.getElementById('navLinks');
+      if (navLinks) {
+        navLinks.querySelectorAll('.nav-dynamic').forEach(el => el.remove());
+        const items = menuData.items || [];
+        if (items.length) {
+          items.forEach(item => {
+            const a = document.createElement('a');
+            a.href = 'javascript:void(0)';
+            a.className = 'nav-link nav-dynamic';
+            a.textContent = item.name;
+            a.onclick = () => { if (item.url && item.url !== '#') location.href = item.url; };
+            navLinks.appendChild(a);
+          });
+        }
+      }
+    } catch(e) {}
       document.title = 'Checkout — ' + name;
       _shippingZones = Array.isArray(_store.shipping_zones) ? _store.shipping_zones :
         (typeof _store.shipping_zones === 'string' ? JSON.parse(_store.shipping_zones||'[]') : []);

@@ -393,23 +393,7 @@ router.get('/:slug/pages/:pageSlug', async (req, res) => {
 });
 
 
-// ── GET PAGE BY SLUG (public) ─────────────────────────────────────────────────
-router.get('/:slug/pages/:pageSlug', async (req, res) => {
-  try {
-    const db = getDB();
-    const storeResult = await db.execute({ sql: `SELECT id FROM stores WHERE slug = ?`, args: [req.params.slug] });
-    if (!storeResult.rows.length) return res.status(404).json({ error: 'Store not found.' });
-    const result = await db.execute({
-      sql: `SELECT * FROM store_pages WHERE store_id = ? AND (slug = ? OR title = ?) AND status = 'published' LIMIT 1`,
-      args: [storeResult.rows[0].id, req.params.pageSlug, req.params.pageSlug]
-    });
-    if (!result.rows.length) return res.status(404).json({ error: 'Page not found.' });
-    res.json(result.rows[0]);
-  } catch(err) { res.status(500).json({ error: 'Failed to fetch page.' }); }
-});
 
-
-// ── ORDER STATUS (public — customers track their own order) ──────────────────
 router.get('/:slug/order-status', async (req, res) => {
   try {
     const db = getDB();
@@ -466,6 +450,27 @@ router.post('/:slug/checkout-started', async (req, res) => {
     });
     res.json({ id });
   } catch(err) { res.status(500).json({ error: 'Failed.' }); }
+});
+
+
+// ── PUBLIC MENUS ─────────────────────────────────────────────────────────────
+router.get('/:slug/menus', async (req, res) => {
+  try {
+    const db = getDB();
+    const storeResult = await db.execute({ sql: 'SELECT id FROM stores WHERE slug=?', args: [req.params.slug] });
+    if (!storeResult.rows.length) return res.json({ items: [] });
+    const storeId = storeResult.rows[0].id;
+    try {
+      const result = await db.execute({
+        sql: 'SELECT items FROM menus WHERE store_id=? AND handle=? LIMIT 1',
+        args: [storeId, 'main']
+      });
+      if (result.rows.length) {
+        return res.json({ items: JSON.parse(result.rows[0].items || '[]') });
+      }
+    } catch(e) {}
+    res.json({ items: [] });
+  } catch(err) { res.json({ items: [] }); }
 });
 
 module.exports = router;

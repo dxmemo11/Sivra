@@ -2,6 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="description" id="metaDesc" content=""/>
+  <meta property="og:title" id="ogTitle" content=""/>
+  <meta property="og:description" id="ogDesc" content=""/>
+  <meta property="og:image" id="ogImage" content=""/>
+  <meta property="og:type" content="website"/>
+  <meta name="twitter:card" content="summary_large_image"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Order status</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -133,6 +139,26 @@
       const store = await res.json();
       const name = store.name || 'Store';
       document.getElementById('storeName').textContent = name;
+    // Load nav from saved menus
+    try {
+      const menuRes = await fetch('/api/storefront/' + _storeSlug + '/menus');
+      const menuData = await menuRes.json();
+      const navLinks = document.getElementById('navLinks');
+      if (navLinks) {
+        navLinks.querySelectorAll('.nav-dynamic').forEach(el => el.remove());
+        const items = menuData.items || [];
+        if (items.length) {
+          items.forEach(item => {
+            const a = document.createElement('a');
+            a.href = 'javascript:void(0)';
+            a.className = 'nav-link nav-dynamic';
+            a.textContent = item.name;
+            a.onclick = () => { if (item.url && item.url !== '#') location.href = item.url; };
+            navLinks.appendChild(a);
+          });
+        }
+      }
+    } catch(e) {}
       document.title = 'Order status — ' + name;
     } catch(e) {}
 
