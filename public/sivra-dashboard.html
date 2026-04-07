@@ -91,7 +91,9 @@
               </div>
               <div id="recentOrdersList">
                 <div style="padding:20px">
-                  ${[1,2,3].map(()=>`<div class="skeleton skeleton-text w-100" style="margin-bottom:12px"></div><div class="skeleton skeleton-text w-75" style="margin-bottom:16px"></div>`).join('')}
+                  <div class="skeleton skeleton-text w-100" style="margin-bottom:12px"></div><div class="skeleton skeleton-text w-75" style="margin-bottom:16px"></div>
+                  <div class="skeleton skeleton-text w-100" style="margin-bottom:12px"></div><div class="skeleton skeleton-text w-75" style="margin-bottom:16px"></div>
+                  <div class="skeleton skeleton-text w-100" style="margin-bottom:12px"></div><div class="skeleton skeleton-text w-75"></div>
                 </div>
               </div>
             </div>
@@ -104,7 +106,9 @@
               </div>
               <div id="topProductsList">
                 <div style="padding:20px">
-                  ${[1,2,3].map(()=>`<div class="skeleton skeleton-text w-100" style="margin-bottom:12px"></div><div class="skeleton skeleton-text w-75" style="margin-bottom:16px"></div>`).join('')}
+                  <div class="skeleton skeleton-text w-100" style="margin-bottom:12px"></div><div class="skeleton skeleton-text w-75" style="margin-bottom:16px"></div>
+                  <div class="skeleton skeleton-text w-100" style="margin-bottom:12px"></div><div class="skeleton skeleton-text w-75" style="margin-bottom:16px"></div>
+                  <div class="skeleton skeleton-text w-100" style="margin-bottom:12px"></div><div class="skeleton skeleton-text w-75"></div>
                 </div>
               </div>
             </div>
@@ -282,7 +286,34 @@
       drawChart(days);
     } catch(e) {
       console.error('Dashboard load error:', e);
-      Toast.error('Failed to load dashboard data');
+      // Fall back to direct API calls if analytics endpoint unavailable
+      try {
+        const [oData, pData, cData] = await Promise.all([
+          API.get('/api/orders?limit=200'),
+          API.get('/api/products?limit=200'),
+          API.get('/api/customers?limit=1'),
+        ]);
+        const orders = (oData.orders || []).filter(o => o.status !== 'cancelled');
+        const revenue = orders.reduce((s,o) => s + parseFloat(o.total||0), 0);
+        document.getElementById('kpiRevenue').textContent = Fmt.money(revenue);
+        document.getElementById('kpiOrders').textContent = orders.length;
+        document.getElementById('kpiCustomers').textContent = cData.total || 0;
+        document.getElementById('kpiProducts').textContent = (pData.products||[]).filter(p=>p.status==='active').length;
+        // Build simple chart from orders
+        _orders = [];
+        for (let i = days-1; i >= 0; i--) {
+          const d = new Date(); d.setDate(d.getDate()-i);
+          const ds = d.toISOString().split('T')[0];
+          const dayOrds = orders.filter(o => o.created_at && o.created_at.startsWith(ds));
+          _orders.push({ date: ds, revenue: dayOrds.reduce((s,o)=>s+parseFloat(o.total||0),0), orders: dayOrds.length });
+        }
+        drawChart(days);
+        // Load recent orders
+        loadRecentOrders(orders.slice(0,5));
+        loadTopProducts(pData.products||[]);
+      } catch(e2) {
+        Toast.error('Failed to load dashboard data');
+      }
     }
   }
 
