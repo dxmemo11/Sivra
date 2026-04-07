@@ -481,7 +481,8 @@ async function loadProduct() {
     if (metaDesc) metaDesc.content = seoDesc.slice(0, 160);
     if (ogTitle) ogTitle.content = seoTitle + ' — ' + storeName;
     if (ogDesc) ogDesc.content = seoDesc.slice(0, 200);
-    if (ogImg && seoImg) ogImg.content = seoImg;
+    // Only set og:image if it's a real URL (not base64)
+    if (ogImg && seoImg && !seoImg.startsWith('data:')) ogImg.content = seoImg;
     if (_imgs.length) {
       setMainImg(_imgs[0]);
       if (_imgs.length > 1) {

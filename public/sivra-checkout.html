@@ -293,6 +293,19 @@
 
     if (!_cart.length) { location.href = 'sivra-cart.html'; return; }
 
+    // Save as abandoned checkout (removed when order completes)
+    if (_cart.length) {
+      try {
+        const email = localStorage.getItem('sivra_last_email') || '';
+        const total = _cart.reduce((s,i) => s + parseFloat(i.price||0) * (i.qty||1), 0);
+        fetch('/api/storefront/' + _storeSlug + '/checkout-started', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, cart: _cart, total })
+        }).catch(() => {});
+      } catch(e) {}
+    }
+
     // Load store info
     try {
       const res = await fetch(`/api/storefront/${_storeSlug}`);

@@ -120,9 +120,8 @@
 
   async function loadPosts() {
     try {
-      const token = localStorage.getItem('sivra_token');
-      const headers = token ? { Authorization: 'Bearer ' + token } : {};
-      const res = await fetch('/api/blog?status=published', { headers });
+      // Use public endpoint - no auth required
+      const res = await fetch('/api/blog/public?store=' + _storeSlug);
       const data = await res.json();
       _posts = data.posts || [];
       renderList();

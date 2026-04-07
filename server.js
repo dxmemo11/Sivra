@@ -46,9 +46,8 @@ app.use('/api/pages',       require('./routes/pages'));
 app.use('/api/menus',       require('./routes/menus'));
 app.use('/api/blog',        require('./routes/blog'));
 
-// Abandoned checkouts
-app.get('/api/abandoned', (req, res) => res.json({ checkouts: [] }));
-app.get('/api/abandoned-checkouts', (req, res) => res.json({ checkouts: [] }));
+// Abandoned checkouts — real route
+app.use('/api/abandoned', require('./routes/abandoned'));
 
 // ── EMAIL SEND TEST (admin only) ────────────────────────────────────────────
 app.get('/api/test-email', async (req, res) => {

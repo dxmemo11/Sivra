@@ -5,6 +5,38 @@ const { v4: uuid } = require('uuid');
 const { getDB } = require('../db/database');
 const { requireAuth } = require('../middleware/auth');
 
+// Public GET - no auth required for reading published posts
+router.get('/public', async (req, res) => {
+  try {
+    const db = getDB();
+    const storeSlug = req.query.store;
+    if (!storeSlug) return res.status(400).json({ error: 'store param required' });
+    const storeResult = await db.execute({ sql: 'SELECT id FROM stores WHERE slug=?', args: [storeSlug] });
+    if (!storeResult.rows.length) return res.status(404).json({ error: 'Store not found' });
+    const result = await db.execute({
+      sql: "SELECT id,title,slug,author,excerpt,image_url,tags,published_at,created_at FROM blog_posts WHERE store_id=? AND status='published' ORDER BY created_at DESC LIMIT 50",
+      args: [storeResult.rows[0].id]
+    });
+    res.json({ posts: result.rows });
+  } catch(err) { res.status(500).json({ error: 'Failed to fetch posts' }); }
+});
+
+router.get('/public/:slug', async (req, res) => {
+  try {
+    const db = getDB();
+    const storeSlug = req.query.store;
+    if (!storeSlug) return res.status(400).json({ error: 'store param required' });
+    const storeResult = await db.execute({ sql: 'SELECT id FROM stores WHERE slug=?', args: [storeSlug] });
+    if (!storeResult.rows.length) return res.status(404).json({ error: 'Store not found' });
+    const result = await db.execute({
+      sql: "SELECT * FROM blog_posts WHERE store_id=? AND slug=? AND status='published'",
+      args: [storeResult.rows[0].id, req.params.slug]
+    });
+    if (!result.rows.length) return res.status(404).json({ error: 'Post not found' });
+    res.json(result.rows[0]);
+  } catch(err) { res.status(500).json({ error: 'Failed to fetch post' }); }
+});
+
 router.use(requireAuth);
 
 async function ensureTable(db) {
