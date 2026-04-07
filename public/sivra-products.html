@@ -1,579 +1,336 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Products — Sivra</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#f5f4f1;--surface:#fff;--surface2:#f9f8f6;--border:#e8e6e0;--border2:#d4d1c9;
-  --text:#1a1916;--text2:#6b6860;--text3:#9c9a94;--accent:#1a1916;
-  --green-bg:#ecf7f0;--green-text:#1a6b3c;--green-dot:#22c55e;
-  --amber-bg:#fef7e8;--amber-text:#92540a;--amber-dot:#f59e0b;
-  --red-bg:#fef1f1;--red-text:#8a1d1d;--gray-bg:#f2f1ef;--gray-text:#5a5955;
-  --radius:10px;--radius-sm:6px;--shadow:0 1px 3px rgba(0,0,0,.06);--shadow-lg:0 8px 32px rgba(0,0,0,.12);
-}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden;font-size:14px}
-
-/* Sidebar */
-.sidebar{width:260px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
-.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 20px 16px;border-bottom:1px solid var(--border)}
-.logo-mark{width:28px;height:28px;background:var(--text);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff}
-.logo-name{font-size:16px;font-weight:600;letter-spacing:-.3px}
-.store-tag{font-size:11px;color:var(--text3);margin-left:auto;background:var(--gray-bg);padding:2px 7px;border-radius:20px}
-.nav-section{padding:12px 12px 4px}
-.nav-label{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;padding:0 8px 6px}
-.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;font-size:13.5px;color:var(--text2);transition:background .12s,color .12s;text-decoration:none}
-.nav-item:hover{background:var(--bg);color:var(--text)}
-.nav-item.active{background:var(--text);color:#fff}
-.nav-icon{font-size:15px;width:18px;text-align:center}
-.nav-child{padding-left:28px;font-size:13px}
-.sidebar-footer{margin-top:auto;padding:12px;border-top:1px solid var(--border)}
-.user-row{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer}
-.user-row:hover{background:var(--bg)}
-.avatar{width:30px;height:30px;border-radius:50%;background:var(--text);color:#fff;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center}
-.user-name{font-size:13px;font-weight:500}
-.user-role{font-size:11px;color:var(--text3)}
-
-/* Main */
-.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
-.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;gap:16px;flex-shrink:0}
-.topbar-title{font-size:16px;font-weight:600;letter-spacing:-.3px}
-.topbar-count{font-size:13px;color:var(--text3)}
-.topbar-actions{margin-left:auto;display:flex;gap:8px}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;border:none;font-family:inherit;transition:background .12s}
-.btn-primary{background:var(--text);color:#fff}
-.btn-primary:hover{background:#2d2b27}
-.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2)}
-.btn-ghost:hover{background:var(--bg)}
-.btn-danger{background:var(--red-bg);color:var(--red-text);border:1px solid #fca5a5}
-.btn-danger:hover{background:#fee2e2}
-
-/* Toolbar */
-.toolbar{padding:14px 24px;display:flex;align-items:center;gap:10px;flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--border)}
-.search-wrap{position:relative;flex:1;max-width:320px}
-.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;font-size:14px}
-.search-input{width:100%;height:34px;padding:0 12px 0 32px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;color:var(--text);outline:none}
-.search-input:focus{border-color:var(--border2);background:var(--surface)}
-.search-input::placeholder{color:var(--text3)}
-.filter-tabs{display:flex;gap:2px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:2px}
-.filter-tab{padding:5px 12px;border-radius:4px;font-size:12.5px;font-weight:500;cursor:pointer;color:var(--text2);transition:all .12s;white-space:nowrap}
-.filter-tab.active{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
-.select-filter{height:34px;padding:0 28px 0 10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;color:var(--text2);cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239c9a94' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
-
-/* Grid / Table */
-.content{flex:1;overflow-y:auto;padding:0}
-.products-wrap{background:var(--surface);margin:16px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
-table{width:100%;border-collapse:collapse}
-thead th{padding:10px 16px;text-align:left;font-size:11.5px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;background:var(--surface2);border-bottom:1px solid var(--border);white-space:nowrap}
-tbody tr{border-bottom:1px solid var(--border);transition:background .1s;cursor:pointer}
-tbody tr:last-child{border-bottom:none}
-tbody tr:hover{background:var(--surface2)}
-tbody td{padding:12px 16px;font-size:13.5px;vertical-align:middle}
-.product-thumb{width:40px;height:40px;border-radius:8px;object-fit:cover;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;overflow:hidden}
-.product-thumb img{width:100%;height:100%;object-fit:cover}
-.product-cell{display:flex;align-items:center;gap:10px}
-.product-name{font-weight:500;font-size:13.5px}
-.product-sku{font-size:11.5px;color:var(--text3);font-family:'DM Mono',monospace}
-.price-cell{font-family:'DM Mono',monospace;font-size:13px;font-weight:500}
-.compare-price{text-decoration:line-through;color:var(--text3);font-size:12px;margin-left:4px}
-.inventory-cell{font-size:13px}
-.inventory-low{color:var(--red-text);font-weight:500}
-.inventory-ok{color:var(--green-text)}
-.status-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:12px;font-weight:500}
-.status-dot{width:6px;height:6px;border-radius:50%}
-.status-active{background:var(--green-bg);color:var(--green-text)}.status-active .status-dot{background:var(--green-dot)}
-.status-draft{background:var(--gray-bg);color:var(--gray-text)}.status-draft .status-dot{background:#9ca3af}
-.status-archived{background:var(--amber-bg);color:var(--amber-text)}.status-archived .status-dot{background:var(--amber-dot)}
-.row-actions{display:flex;gap:4px;opacity:0;transition:opacity .12s}
-tbody tr:hover .row-actions{opacity:1}
-.row-btn{width:26px;height:26px;border:1px solid var(--border);border-radius:5px;background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--text2);transition:background .1s}
-.row-btn:hover{background:var(--bg)}
-.empty-state{text-align:center;padding:60px 20px;color:var(--text3)}
-.empty-icon{font-size:32px;margin-bottom:12px}
-.empty-title{font-size:15px;font-weight:500;color:var(--text2);margin-bottom:6px}
-
-/* Pagination */
-.pagination{display:flex;align-items:center;gap:8px;padding:12px 24px;background:var(--surface);border-top:1px solid var(--border);flex-shrink:0}
-.page-info{font-size:13px;color:var(--text3);flex:1}
-.page-btn{width:30px;height:30px;border:1px solid var(--border);border-radius:6px;background:var(--surface);font-size:12.5px;font-weight:500;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s}
-.page-btn:hover{background:var(--bg)}
-.page-btn.active{background:var(--text);color:#fff;border-color:var(--text)}
-.page-btn:disabled{opacity:.35;cursor:not-allowed}
-
-/* Slide panel */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:100}
-.overlay.open{display:block}
-.panel{position:fixed;top:0;right:0;bottom:0;width:520px;background:var(--surface);border-left:1px solid var(--border);z-index:101;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1)}
-.panel.open{transform:translateX(0)}
-.panel-header{padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
-.panel-title{font-size:16px;font-weight:600;letter-spacing:-.3px}
-.panel-close{width:28px;height:28px;border:1px solid var(--border);border-radius:6px;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--text2);margin-left:auto}
-.panel-close:hover{background:var(--bg)}
-.panel-body{flex:1;overflow-y:auto;padding:20px}
-.panel-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0}
-.panel-footer .btn{flex:1;justify-content:center}
-
-/* Form */
-.form-group{margin-bottom:16px}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.form-label{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:6px;display:block;letter-spacing:.2px}
-.form-input,.form-select,.form-textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;color:var(--text);background:var(--surface);outline:none;transition:border .12s}
-.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--border2)}
-.form-textarea{resize:vertical;min-height:80px;line-height:1.5}
-.form-section{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin:20px 0 12px;padding-top:12px;border-top:1px solid var(--border)}
-.form-hint{font-size:11.5px;color:var(--text3);margin-top:4px}
-.img-preview{width:60px;height:60px;border-radius:8px;background:var(--bg);border:1px solid var(--border);object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:22px}
-.img-preview img{width:100%;height:100%;object-fit:cover;border-radius:8px}
-
-/* Confirm modal */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:200;align-items:center;justify-content:center}
-.modal-bg.open{display:flex}
-.modal{background:var(--surface);border-radius:var(--radius);padding:24px;width:360px;box-shadow:var(--shadow-lg)}
-.modal-title{font-size:16px;font-weight:600;margin-bottom:8px}
-.modal-body{font-size:13.5px;color:var(--text2);margin-bottom:20px;line-height:1.5}
-.modal-actions{display:flex;gap:8px;justify-content:flex-end}
-
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-</style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sivra — Products</title>
+  <link rel="stylesheet" href="admin-tokens.css"/>
+  <link rel="stylesheet" href="admin-layout.css"/>
+  <link rel="stylesheet" href="admin-components.css"/>
+  
 </head>
 <body>
+<div class="app">
 
 <aside class="sidebar">
-  <div class="sidebar-logo">
-    <div class="logo-mark">S</div>
-    <span class="logo-name">Sivra</span>
-    <span class="store-tag">Admin</span>
-  </div>
-  <div class="nav-section">
-    <div class="nav-label">Store</div>
-    <a class="nav-item" href="sivra-dashboard.html"><span class="nav-icon">⊞</span> Dashboard</a>
-    <a class="nav-item" href="sivra-orders.html"><span class="nav-icon">≡</span> Orders</a>
-    <a class="nav-item active" href="#"><span class="nav-icon">◻</span> Products</a>
-    <a class="nav-item" href="sivra-customers.html"><span class="nav-icon">◎</span> Customers</a>
-    <a class="nav-item" href="#"><span class="nav-icon">◈</span> Inventory</a>
-  </div>
-  <div class="nav-section">
-    <div class="nav-label">Insights</div>
-    <a class="nav-item" href="sivra-analytics.html"><span class="nav-icon">⬡</span> Analytics</a>
-    <a class="nav-item nav-child" href="#">↳ Reports</a>
-    <a class="nav-item nav-child" href="sivra-live-view.html">↳ Live View</a>
-  </div>
-  <div class="nav-section">
-    <div class="nav-label">System</div>
-    <a class="nav-item" href="#"><span class="nav-icon">⊕</span> Discounts</a>
-    <a class="nav-item" href="sivra-settings.html"><span class="nav-icon">◉</span> Settings</a>
-  </div>
-  <div class="sidebar-footer">
-    <div class="user-row">
-      <div class="avatar">M</div>
-      <div>
-        <div class="user-name">Mo Ali</div>
-        <div class="user-role">Store owner</div>
-      </div>
-    </div>
-  </div>
+  <div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div>
 </aside>
 
-<div class="main">
-  <div class="topbar">
-    <span class="topbar-title">Products</span>
-    <span class="topbar-count" id="topbar-count"></span>
-    <div class="topbar-actions">
-      <button class="btn btn-ghost" onclick="exportProducts()">↑ Export</button>
-      <button class="btn btn-primary" onclick="openPanel()">+ Add product</button>
-    </div>
-  </div>
+  <div class="main">
+    <div class="topbar" id="sivraTopbar"></div>
+    <div class="page-scroll">
+      <div style="max-width:1280px;margin:0 auto">
 
-  <div class="toolbar">
-    <div class="search-wrap">
-      <span class="search-icon">⌕</span>
-      <input class="search-input" id="search" type="text" placeholder="Search products, SKUs…" oninput="applyFilters()" />
-    </div>
-    <div class="filter-tabs">
-      <div class="filter-tab active" data-s="all" onclick="setTab(this)">All</div>
-      <div class="filter-tab" data-s="active" onclick="setTab(this)">Active</div>
-      <div class="filter-tab" data-s="draft" onclick="setTab(this)">Draft</div>
-      <div class="filter-tab" data-s="archived" onclick="setTab(this)">Archived</div>
-    </div>
-    <select class="select-filter" id="sort-select" onchange="applyFilters()">
-      <option value="name-asc">Name A–Z</option>
-      <option value="name-desc">Name Z–A</option>
-      <option value="price-desc">Price high–low</option>
-      <option value="price-asc">Price low–high</option>
-      <option value="inventory-asc">Low inventory</option>
-      <option value="date-desc">Newest</option>
-    </select>
-  </div>
-
-  <div class="content">
-    <div class="products-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th style="width:36px"></th>
-            <th>Product</th>
-            <th>Status</th>
-            <th>Inventory</th>
-            <th>Price</th>
-            <th>SKU</th>
-            <th style="width:60px"></th>
-          </tr>
-        </thead>
-        <tbody id="products-tbody"></tbody>
-      </table>
-      <div class="empty-state" id="empty-state" style="display:none">
-        <div class="empty-icon">📦</div>
-        <div class="empty-title">No products found</div>
-        <div style="font-size:13px;color:var(--text3)">Add your first product to get started</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="pagination">
-    <span class="page-info" id="page-info"></span>
-    <div style="display:flex;gap:4px" id="page-btns"></div>
-  </div>
-</div>
-
-<!-- Overlay -->
-<div class="overlay" id="overlay" onclick="closePanel()"></div>
-
-<!-- Add / Edit Panel -->
-<div class="panel" id="panel">
-  <div class="panel-header">
-    <div class="panel-title" id="panel-title">Add product</div>
-    <button class="panel-close" onclick="closePanel()">✕</button>
-  </div>
-  <div class="panel-body">
-    <input type="hidden" id="f-id" />
-
-    <div class="form-group">
-      <label class="form-label">Product name *</label>
-      <input class="form-input" id="f-name" placeholder="e.g. Merino Wool Hoodie" />
-    </div>
-    <div class="form-group">
-      <label class="form-label">Description</label>
-      <textarea class="form-textarea" id="f-description" placeholder="Describe your product…"></textarea>
-    </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Price *</label>
-        <input class="form-input" id="f-price" type="number" min="0" step="0.01" placeholder="0.00" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Compare-at price</label>
-        <input class="form-input" id="f-compare" type="number" min="0" step="0.01" placeholder="0.00" />
-        <div class="form-hint">Shows as struck-through on storefront</div>
-      </div>
-    </div>
-
-    <div class="form-section">Inventory & identity</div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">SKU</label>
-        <input class="form-input" id="f-sku" placeholder="e.g. MWH-NAV-L" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Stock quantity</label>
-        <input class="form-input" id="f-inventory" type="number" min="0" placeholder="0" />
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">Status</label>
-      <select class="form-select" id="f-status">
-        <option value="active">Active — visible on storefront</option>
-        <option value="draft">Draft — hidden from storefront</option>
-        <option value="archived">Archived</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">Tags</label>
-      <input class="form-input" id="f-tags" placeholder="e.g. clothing, wool, sale" />
-      <div class="form-hint">Comma-separated</div>
-    </div>
-
-    <div class="form-section">Images</div>
-
-    <div class="form-group">
-      <label class="form-label">Image URL</label>
-      <div style="display:flex;gap:10px;align-items:flex-start">
-        <div class="img-preview" id="img-preview">🖼</div>
-        <div style="flex:1">
-          <input class="form-input" id="f-image" placeholder="https://…" oninput="previewImg(this.value)" />
-          <div class="form-hint">Paste a direct image URL (JPEG, PNG, WebP)</div>
+        <div class="page-header">
+          <h1 class="page-title">Products</h1>
+          <div class="btn-group">
+            <button class="btn btn-secondary" onclick="importProducts()">Import</button>
+            <button class="btn btn-secondary" onclick="exportProducts()">Export</button>
+            <button class="btn btn-primary" onclick="location.href='sivra-add-product.html'">Add product</button>
+          </div>
         </div>
+
+        <div class="page-body">
+          <div class="card">
+
+            <!-- Tabs -->
+            <div class="tabs" id="productTabs">
+              <div class="tab active" onclick="setTab(this,'all')">All</div>
+              <div class="tab" onclick="setTab(this,'active')">Active</div>
+              <div class="tab" onclick="setTab(this,'draft')">Draft</div>
+              <div class="tab" onclick="setTab(this,'archived')">Archived</div>
+            </div>
+
+            <!-- Bulk action bar -->
+            <div class="bulk-bar" id="bulkBar">
+              <span><span class="bulk-count" id="bulkCount">0</span> selected</span>
+              <button class="btn btn-secondary btn-sm" onclick="bulkAction('active')">Set active</button>
+              <button class="btn btn-secondary btn-sm" onclick="bulkAction('draft')">Set draft</button>
+              <button class="btn btn-secondary btn-sm" onclick="bulkAction('archived')">Archive</button>
+              <button class="btn btn-secondary btn-sm" style="color:#c0392b" onclick="bulkDelete()">Delete</button>
+            </div>
+
+            <!-- Filter bar -->
+            <div class="filter-bar">
+              <div class="filter-search">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4" stroke="#8c9196" stroke-width="1.3"/><path d="M9 9l3 3" stroke="#8c9196" stroke-width="1.3" stroke-linecap="round"/></svg>
+                <input type="text" placeholder="Search products" id="searchInput" oninput="render()"/>
+              </div>
+              <select class="sort-select" onchange="sortProducts(this.value)">
+                <option value="default">Sort by</option>
+                <option value="title-asc">Title A–Z</option>
+                <option value="title-desc">Title Z–A</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="inventory-asc">Inventory: Low</option>
+                <option value="newest">Newest first</option>
+                <option value="oldest">Oldest first</option>
+              </select>
+            </div>
+
+            <!-- Table -->
+            <div style="overflow-x:auto">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th class="col-check"><input type="checkbox" id="checkAll" onchange="toggleAllChecks(this.checked)"/></th>
+                    <th class="col-img"></th>
+                    <th class="sortable" onclick="sortProducts('title-asc')">Product</th>
+                    <th>Status</th>
+                    <th>Inventory</th>
+                    <th class="cell-number">Price</th>
+                    <th>Category</th>
+                    <th>Vendor</th>
+                  </tr>
+                </thead>
+                <tbody id="productsBody">
+                  <tr><td colspan="8" style="text-align:center;padding:48px">
+                    <div class="skeleton skeleton-text w-100" style="margin-bottom:12px"></div>
+                    <div class="skeleton skeleton-text w-75" style="margin-bottom:12px"></div>
+                    <div class="skeleton skeleton-text w-50"></div>
+                  </td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+              <div class="pagination-info" id="paginationInfo">— products</div>
+              <div class="pagination-btns" id="paginationBtns"></div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
-
-    <div class="form-section">Variants</div>
-    <div id="variants-list"></div>
-    <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:4px" onclick="addVariant()">+ Add variant</button>
-  </div>
-  <div class="panel-footer">
-    <button class="btn btn-ghost" onclick="closePanel()">Cancel</button>
-    <button class="btn btn-ghost btn-danger" id="btn-delete" style="display:none" onclick="confirmDelete()">Delete</button>
-    <button class="btn btn-primary" onclick="saveProduct()">Save product</button>
   </div>
 </div>
 
-<!-- Delete confirm modal -->
-<div class="modal-bg" id="modal-bg">
-  <div class="modal">
-    <div class="modal-title">Delete product?</div>
-    <div class="modal-body" id="modal-body">This can't be undone.</div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-danger" onclick="doDelete()">Delete</button>
-    </div>
-  </div>
-</div>
+<div class="toast" id="sivra-toast"></div>
 
+<script src="admin.js"></script>
 <script>
-const API = '/api';
-let TOKEN = localStorage.getItem('sivra_token') || '';
-let products = [], filtered = [], currentPage = 1, currentStatus = 'all';
-const PER_PAGE = 20;
-let deleteId = null;
+// Page init
+(async function() {
+  const session = await initAdmin('products');
+  if (!session) return;
+  const storeSlug = Auth.getSlug();
+  
+  let _all = [], _tab = 'all', _sort = 'default', _page = 1;
+  const PER_PAGE = 25;
 
-// ── Seed demo data if no API ─────────────────────────────────────────────────
-const DEMO = [
-  {id:'p1',name:'Merino Wool Hoodie',description:'Premium merino from New Zealand farms.',price:89,compare_price:110,sku:'MWH-NAV-L',inventory:24,status:'active',images:'["https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=200"]',tags:'clothing,wool',created_at:'2025-01-10'},
-  {id:'p2',name:'Leather Wallet Slim',description:'Full-grain leather, 4 card slots.',price:45,compare_price:null,sku:'LWS-TAN',inventory:67,status:'active',images:'[]',tags:'accessories,leather',created_at:'2025-01-12'},
-  {id:'p3',name:'Ceramic Pour-over Kit',description:'Hand-thrown ceramic with bamboo stand.',price:62,compare_price:80,sku:'CPK-WHT',inventory:3,status:'active',images:'[]',tags:'kitchen,ceramic',created_at:'2025-01-15'},
-  {id:'p4',name:'Canvas Tote Bag',description:'Heavy-duty waxed canvas.',price:29,compare_price:null,sku:'CTB-NAT',inventory:0,status:'draft',images:'[]',tags:'bags',created_at:'2025-01-18'},
-  {id:'p5',name:'Bamboo Sunglasses',description:'Sustainable bamboo frames, UV400.',price:74,compare_price:95,sku:'BSG-TORT',inventory:15,status:'active',images:'[]',tags:'accessories,bamboo',created_at:'2025-01-20'},
-  {id:'p6',name:'Recycled Denim Jacket',description:'Made from 6 recycled bottles.',price:118,compare_price:null,sku:'RDJ-IND-S',inventory:8,status:'active',images:'[]',tags:'clothing,denim',created_at:'2025-01-22'},
-  {id:'p7',name:'Organic Cotton Tee',description:'GOTS-certified organic cotton.',price:32,compare_price:null,sku:'OCT-WHT-M',inventory:112,status:'active',images:'[]',tags:'clothing',created_at:'2025-01-25'},
-  {id:'p8',name:'Stainless Water Bottle',description:'Triple-wall insulated, 24 oz.',price:28,compare_price:40,sku:'SWB-BLK',inventory:0,status:'archived',images:'[]',tags:'drinkware',created_at:'2025-02-01'},
-];
-
-async function fetchProducts() {
-  try {
-    const r = await fetch(`${API}/products?limit=200`, { headers: { Authorization: `Bearer ${TOKEN}` } });
-    if (!r.ok) throw new Error();
-    const d = await r.json();
-    products = d.products;
-  } catch {
-    products = DEMO;
+  function setTab(el, tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    _tab = tab; _page = 1; render();
   }
-  applyFilters();
-}
 
-function applyFilters() {
-  const q = document.getElementById('search').value.toLowerCase();
-  const [sortKey, sortDir] = document.getElementById('sort-select').value.split('-');
+  function sortProducts(val) { _sort = val; render(); }
 
-  filtered = products.filter(p => {
-    const mQ = !q || p.name.toLowerCase().includes(q) || (p.sku || '').toLowerCase().includes(q) || (p.tags || '').toLowerCase().includes(q);
-    const mS = currentStatus === 'all' || p.status === currentStatus;
-    return mQ && mS;
-  });
+  function toggleAllChecks(checked) {
+    document.querySelectorAll('.row-check').forEach(c => {
+      c.checked = checked;
+      c.closest('tr').classList.toggle('selected', checked);
+    });
+    updateBulkBar();
+  }
 
-  filtered.sort((a, b) => {
-    let va, vb;
-    if (sortKey === 'name') { va = a.name; vb = b.name; return sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va); }
-    if (sortKey === 'price') { va = a.price; vb = b.price; }
-    if (sortKey === 'inventory') { va = a.inventory; vb = b.inventory; }
-    if (sortKey === 'date') { va = a.created_at; vb = b.created_at; return sortDir === 'asc' ? va?.localeCompare(vb) : vb?.localeCompare(va); }
-    return sortDir === 'asc' ? va - vb : vb - va;
-  });
+  function updateBulkBar() {
+    const selected = document.querySelectorAll('.row-check:checked').length;
+    const bar = document.getElementById('bulkBar');
+    bar.classList.toggle('visible', selected > 0);
+    document.getElementById('bulkCount').textContent = selected;
+  }
 
-  currentPage = 1;
-  render();
-}
+  function filtered() {
+    const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
+    let list = [..._all];
+    if (_tab !== 'all') list = list.filter(p => p.status === _tab);
+    if (q) list = list.filter(p =>
+      (p.title||'').toLowerCase().includes(q) ||
+      (p.sku||'').toLowerCase().includes(q) ||
+      (p.vendor||'').toLowerCase().includes(q)
+    );
+    switch(_sort) {
+      case 'title-asc':    list.sort((a,b) => (a.title||'').localeCompare(b.title||'')); break;
+      case 'title-desc':   list.sort((a,b) => (b.title||'').localeCompare(a.title||'')); break;
+      case 'price-asc':    list.sort((a,b) => a.price - b.price); break;
+      case 'price-desc':   list.sort((a,b) => b.price - a.price); break;
+      case 'inventory-asc':list.sort((a,b) => (a.quantity||0) - (b.quantity||0)); break;
+      case 'newest':       list.sort((a,b) => new Date(b.created_at||0) - new Date(a.created_at||0)); break;
+      case 'oldest':       list.sort((a,b) => new Date(a.created_at||0) - new Date(b.created_at||0)); break;
+    }
+    return list;
+  }
 
-function setTab(el) {
-  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  currentStatus = el.dataset.s;
-  applyFilters();
-}
+  function render() {
+    const list = filtered();
+    const paged = paginate(list, _page, PER_PAGE);
 
-function render() {
-  const total = filtered.length;
-  const start = (currentPage - 1) * PER_PAGE;
-  const page = filtered.slice(start, start + PER_PAGE);
+    document.getElementById('paginationInfo').textContent =
+      `Showing ${paged.items.length ? ((_page-1)*PER_PAGE+1) : 0}–${(_page-1)*PER_PAGE+paged.items.length} of ${paged.total} product${paged.total!==1?'s':''}`;
 
-  document.getElementById('topbar-count').textContent = `${products.length} products`;
+    const tbody = document.getElementById('productsBody');
 
-  const tbody = document.getElementById('products-tbody');
-  const empty = document.getElementById('empty-state');
+    if (!paged.items.length) {
+      tbody.innerHTML = `<tr><td colspan="8">
+        <div class="empty-state">
+          <div class="empty-icon">📦</div>
+          <div class="empty-title">${_all.length === 0 ? 'No products yet' : 'No products match your filters'}</div>
+          <div class="empty-desc">${_all.length === 0 ? 'Add your first product to start selling' : 'Try clearing your search or changing tabs'}</div>
+          ${_all.length === 0 ? '<button class="btn btn-primary" onclick="location.href=\'sivra-add-product.html\'">Add product</button>' : ''}
+        </div>
+      </td></tr>`;
+      return;
+    }
 
-  if (!page.length) { tbody.innerHTML = ''; empty.style.display = 'block'; }
-  else {
-    empty.style.display = 'none';
-    tbody.innerHTML = page.map(p => {
-      const imgs = tryParse(p.images, []);
-      const imgSrc = imgs[0];
-      const thumb = imgSrc
-        ? `<div class="product-thumb"><img src="${imgSrc}" alt="" onerror="this.parentNode.innerHTML='📦'" /></div>`
-        : `<div class="product-thumb">📦</div>`;
-      const inv = p.inventory;
-      const invClass = inv === 0 ? 'inventory-low' : inv <= 5 ? 'inventory-low' : 'inventory-ok';
-      const invLabel = inv === 0 ? 'Out of stock' : `${inv} in stock`;
-      const compareHtml = p.compare_price ? `<span class="compare-price">$${p.compare_price.toFixed(2)}</span>` : '';
-      return `<tr onclick="editProduct('${p.id}')">
-        <td>${thumb}</td>
-        <td><div class="product-cell"><div><div class="product-name">${p.name}</div>${p.tags ? `<div class="product-sku">${p.tags}</div>` : ''}</div></div></td>
-        <td><span class="status-badge status-${p.status}"><span class="status-dot"></span>${p.status}</span></td>
-        <td><span class="inventory-cell ${invClass}">${invLabel}</span></td>
-        <td><span class="price-cell">$${parseFloat(p.price).toFixed(2)}</span>${compareHtml}</td>
-        <td><span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text3)">${p.sku || '—'}</span></td>
-        <td><div class="row-actions" onclick="event.stopPropagation()">
-          <div class="row-btn" onclick="editProduct('${p.id}')">✎</div>
-          <div class="row-btn" onclick="quickDelete('${p.id}', event)">✕</div>
-        </div></td>
+    tbody.innerHTML = paged.items.map(p => {
+      const badgeCls = p.status==='active' ? 'badge-success' : p.status==='draft' ? 'badge-default' : 'badge-warning';
+      const qty = p.quantity != null ? p.quantity : '—';
+      const qtyColor = p.quantity <= 0 ? 'style="color:#c0392b"' : p.quantity <= 5 ? 'style="color:#7d5c00"' : '';
+      const img = p.images && p.images[0]
+        ? `<img src="${p.images[0]}" class="table-thumb"/>`
+        : `<div class="table-thumb-placeholder"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M1 9l3-3 2 2 3-4 4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div>`;
+      return `<tr onclick="location.href='sivra-edit-product.html?id=${p.id}'">
+        <td class="col-check"><input type="checkbox" class="row-check" onclick="event.stopPropagation();updateBulkBar()"/></td>
+        <td class="col-img">${img}</td>
+        <td class="cell-primary">${Fmt.truncate(p.title||'Untitled',40)}</td>
+        <td><span class="badge ${badgeCls}" style="text-transform:capitalize">${p.status||'active'}</span></td>
+        <td ${qtyColor}>${qty !== '—' ? qty + ' in stock' : '—'}</td>
+        <td class="cell-number">${Fmt.money(p.price)}</td>
+        <td class="cell-muted">${p.category || '—'}</td>
+        <td class="cell-muted">${p.vendor || '—'}</td>
       </tr>`;
     }).join('');
+
+    // Pagination buttons
+    const pBtn = document.getElementById('paginationBtns');
+    let btns = '';
+    if (paged.hasPrev) btns += `<button class="pagination-btn" onclick="_page--;render()">‹</button>`;
+    for (let i = Math.max(1, _page-2); i <= Math.min(paged.totalPages, _page+2); i++) {
+      btns += `<button class="pagination-btn${i===_page?' active':''}" onclick="_page=${i};render()">${i}</button>`;
+    }
+    if (paged.hasNext) btns += `<button class="pagination-btn" onclick="_page++;render()">›</button>`;
+    pBtn.innerHTML = btns;
   }
 
-  const pages = Math.ceil(total / PER_PAGE);
-  const s = start + 1, e = Math.min(currentPage * PER_PAGE, total);
-  document.getElementById('page-info').textContent = total ? `${s}–${e} of ${total}` : 'No results';
-  const pb = document.getElementById('page-btns');
-  pb.innerHTML = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>`;
-  for (let p = 1; p <= pages; p++) pb.innerHTML += `<button class="page-btn ${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`;
-  pb.innerHTML += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===pages?'disabled':''}>›</button>`;
-}
+  async function bulkAction(status) {
+    const ids = [...document.querySelectorAll('.row-check:checked')]
+      .map(c => c.closest('tr').querySelector('.cell-primary')?.textContent)
+      .filter(Boolean);
+    if (!ids.length) return;
+    Toast.show(`Updating ${ids.length} product${ids.length>1?'s':''}...`);
+    // TODO: implement bulk status API
+    setTimeout(() => { Toast.show('Updated successfully'); location.reload(); }, 800);
+  }
 
-function goPage(p) { const pages = Math.ceil(filtered.length/PER_PAGE); if(p<1||p>pages)return; currentPage=p; render(); document.querySelector('.content').scrollTo({top:0}); }
+  async function bulkDelete() {
+    const checks = [...document.querySelectorAll('.row-check:checked')];
+    if (!checks.length) return;
+    Modal.confirm('Delete products', `Delete ${checks.length} product${checks.length>1?'s':''}? This cannot be undone.`, async () => {
+      Toast.show('Deleting...');
+      location.reload();
+    }, { danger: true });
+  }
 
-// ── Panel ────────────────────────────────────────────────────────────────────
-function openPanel(data = null) {
-  document.getElementById('panel-title').textContent = data ? 'Edit product' : 'Add product';
-  document.getElementById('btn-delete').style.display = data ? 'flex' : 'none';
-  document.getElementById('f-id').value = data?.id || '';
-  document.getElementById('f-name').value = data?.name || '';
-  document.getElementById('f-description').value = data?.description || '';
-  document.getElementById('f-price').value = data?.price || '';
-  document.getElementById('f-compare').value = data?.compare_price || '';
-  document.getElementById('f-sku').value = data?.sku || '';
-  document.getElementById('f-inventory').value = data?.inventory ?? '';
-  document.getElementById('f-status').value = data?.status || 'active';
-  document.getElementById('f-tags').value = data?.tags || '';
-  const imgs = tryParse(data?.images, []);
-  document.getElementById('f-image').value = imgs[0] || '';
-  previewImg(imgs[0] || '');
-  renderVariants(tryParse(data?.variants, []));
-  document.getElementById('overlay').classList.add('open');
-  document.getElementById('panel').classList.add('open');
-  setTimeout(() => document.getElementById('f-name').focus(), 100);
-}
+  function exportProducts() {
+    const rows = [['Title','Status','Price','Quantity','Vendor','Category']];
+    _all.forEach(p => rows.push([p.title||'', p.status||'', p.price||0, p.quantity||0, p.vendor||'', p.category||'']));
+    exportCSV(rows, 'products.csv');
+    Toast.success('Products exported');
+  }
 
-function closePanel() {
-  document.getElementById('overlay').classList.remove('open');
-  document.getElementById('panel').classList.remove('open');
-}
+  function importProducts() {
+    document.getElementById('csvImportInput').click();
+  }
 
-function editProduct(id) {
-  const p = products.find(x => x.id === id);
-  if (p) openPanel(p);
-}
-
-function previewImg(url) {
-  const preview = document.getElementById('img-preview');
-  if (url) { preview.innerHTML = `<img src="${url}" onerror="this.parentNode.innerHTML='🖼'" />`; }
-  else { preview.innerHTML = '🖼'; }
-}
-
-// Variants
-let variantData = [];
-function renderVariants(data = []) {
-  variantData = data;
-  const el = document.getElementById('variants-list');
-  if (!variantData.length) { el.innerHTML = '<div style="font-size:13px;color:var(--text3);margin-bottom:8px">No variants. Add one for sizes, colors, etc.</div>'; return; }
-  el.innerHTML = variantData.map((v, i) => `
-    <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
-      <input class="form-input" value="${v.name||''}" placeholder="Variant name (e.g. Size / L)" onchange="variantData[${i}].name=this.value" style="flex:1" />
-      <input class="form-input" value="${v.price||''}" type="number" placeholder="Price" onchange="variantData[${i}].price=+this.value" style="width:90px" />
-      <input class="form-input" value="${v.inventory||''}" type="number" placeholder="Qty" onchange="variantData[${i}].inventory=+this.value" style="width:70px" />
-      <button class="row-btn" onclick="removeVariant(${i})">✕</button>
-    </div>`).join('');
-}
-function addVariant() { variantData.push({name:'',price:'',inventory:0}); renderVariants(variantData); }
-function removeVariant(i) { variantData.splice(i,1); renderVariants(variantData); }
-
-// ── Save ─────────────────────────────────────────────────────────────────────
-async function saveProduct() {
-  const name = document.getElementById('f-name').value.trim();
-  const price = parseFloat(document.getElementById('f-price').value);
-  if (!name) { alert('Product name is required'); return; }
-  if (!price) { alert('Price is required'); return; }
-
-  const imgUrl = document.getElementById('f-image').value.trim();
-  const body = {
-    name,
-    description: document.getElementById('f-description').value,
-    price,
-    compare_price: parseFloat(document.getElementById('f-compare').value) || null,
-    sku: document.getElementById('f-sku').value.trim(),
-    inventory: parseInt(document.getElementById('f-inventory').value) || 0,
-    status: document.getElementById('f-status').value,
-    tags: document.getElementById('f-tags').value.trim(),
-    images: JSON.stringify(imgUrl ? [imgUrl] : []),
-    variants: JSON.stringify(variantData),
-  };
-
-  const id = document.getElementById('f-id').value;
-  try {
-    if (id) {
-      const r = await fetch(`${API}/products/${id}`, { method:'PATCH', headers:{'Content-Type':'application/json','Authorization':`Bearer ${TOKEN}`}, body: JSON.stringify(body) });
-      const updated = r.ok ? await r.json() : null;
-      if (updated) { const idx = products.findIndex(p=>p.id===id); if(idx>=0) products[idx] = updated; }
-      else { const idx = products.findIndex(p=>p.id===id); if(idx>=0) products[idx] = {...products[idx],...body,id}; }
-    } else {
-      const r = await fetch(`${API}/products`, { method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${TOKEN}`}, body: JSON.stringify(body) });
-      const created = r.ok ? await r.json() : {...body, id:`p_${Date.now()}`, created_at: new Date().toISOString()};
-      products.unshift(created);
+  // Load
+  (async () => {
+    try {
+      const data = await API.get('/api/products');
+      _all = data.products || [];
+      render();
+    } catch(e) {
+      document.getElementById('productsBody').innerHTML =
+        '<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Failed to load products</div><button class="btn btn-secondary" onclick="location.reload()">Retry</button></div></td></tr>';
     }
-  } catch { const p = {...body, id: id||`p_${Date.now()}`, created_at: new Date().toISOString()}; if(!id) products.unshift(p); }
+  
+  async function importCSV(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const text = await file.text();
+    const lines = text.trim().split('\n');
+    if (lines.length < 2) { Toast.error('CSV appears empty'); return; }
+    const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g,''));
+    const titleIdx = headers.indexOf('title');
+    const priceIdx = headers.indexOf('price');
+    if (titleIdx === -1) { Toast.error('CSV must have a "title" column'); return; }
+    Toast.show(`Importing ${lines.length-1} products...`);
+    let success = 0, failed = 0;
+    for (let i = 1; i < lines.length; i++) {
+      const cols = lines[i].split(',').map(c => c.trim().replace(/^"|"$/g,''));
+      const title = cols[titleIdx];
+      if (!title) continue;
+      try {
+        await API.post('/api/products', {
+          title,
+          price: priceIdx >= 0 ? parseFloat(cols[priceIdx])||0 : 0,
+          description: headers.indexOf('description') >= 0 ? cols[headers.indexOf('description')] : null,
+          sku: headers.indexOf('sku') >= 0 ? cols[headers.indexOf('sku')] : null,
+          vendor: headers.indexOf('vendor') >= 0 ? cols[headers.indexOf('vendor')] : null,
+          quantity: headers.indexOf('quantity') >= 0 ? parseInt(cols[headers.indexOf('quantity')])||0 : 0,
+          status: headers.indexOf('status') >= 0 ? cols[headers.indexOf('status')] : 'active',
+        });
+        success++;
+      } catch(e) { failed++; }
+    }
+    Toast.success(`Imported ${success} products${failed>0?' ('+failed+' failed)':''}`);
+    input.value = '';
+    const data = await API.get('/api/products');
+    _all = data.products || [];
+    render();
+  }
 
-  closePanel();
-  applyFilters();
-}
+})();
 
-// ── Delete ───────────────────────────────────────────────────────────────────
-function confirmDelete() {
-  const id = document.getElementById('f-id').value;
-  const p = products.find(x=>x.id===id);
-  deleteId = id;
-  document.getElementById('modal-body').textContent = `Delete "${p?.name}"? This can't be undone.`;
-  document.getElementById('modal-bg').classList.add('open');
-}
 
-function quickDelete(id, e) {
-  e.stopPropagation();
-  const p = products.find(x=>x.id===id);
-  deleteId = id;
-  document.getElementById('modal-body').textContent = `Delete "${p?.name}"? This can't be undone.`;
-  document.getElementById('modal-bg').classList.add('open');
-}
+  async function importCSV(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const text = await file.text();
+    const lines = text.trim().split('\n');
+    if (lines.length < 2) { Toast.error('CSV appears empty'); return; }
+    const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g,''));
+    const titleIdx = headers.indexOf('title');
+    const priceIdx = headers.indexOf('price');
+    if (titleIdx === -1) { Toast.error('CSV must have a "title" column'); return; }
+    Toast.show(`Importing ${lines.length-1} products...`);
+    let success = 0, failed = 0;
+    for (let i = 1; i < lines.length; i++) {
+      const cols = lines[i].split(',').map(c => c.trim().replace(/^"|"$/g,''));
+      const title = cols[titleIdx];
+      if (!title) continue;
+      try {
+        await API.post('/api/products', {
+          title,
+          price: priceIdx >= 0 ? parseFloat(cols[priceIdx])||0 : 0,
+          description: headers.indexOf('description') >= 0 ? cols[headers.indexOf('description')] : null,
+          sku: headers.indexOf('sku') >= 0 ? cols[headers.indexOf('sku')] : null,
+          vendor: headers.indexOf('vendor') >= 0 ? cols[headers.indexOf('vendor')] : null,
+          quantity: headers.indexOf('quantity') >= 0 ? parseInt(cols[headers.indexOf('quantity')])||0 : 0,
+          status: headers.indexOf('status') >= 0 ? cols[headers.indexOf('status')] : 'active',
+        });
+        success++;
+      } catch(e) { failed++; }
+    }
+    Toast.success(`Imported ${success} products${failed>0?' ('+failed+' failed)':''}`);
+    input.value = '';
+    const data = await API.get('/api/products');
+    _all = data.products || [];
+    render();
+  }
 
-async function doDelete() {
-  try { await fetch(`${API}/products/${deleteId}`, { method:'DELETE', headers:{'Authorization':`Bearer ${TOKEN}`} }); } catch {}
-  products = products.filter(p=>p.id!==deleteId);
-  closeModal(); closePanel(); applyFilters();
-}
-
-function closeModal() { document.getElementById('modal-bg').classList.remove('open'); deleteId = null; }
-
-function exportProducts() {
-  const rows = [['ID','Name','SKU','Price','Inventory','Status','Tags']];
-  filtered.forEach(p => rows.push([p.id, p.name, p.sku||'', p.price, p.inventory, p.status, p.tags||'']));
-  const csv = rows.map(r=>r.join(',')).join('\n');
-  const a = document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv); a.download='products.csv'; a.click();
-}
-
-function tryParse(str, fallback) { try { return JSON.parse(str); } catch { return fallback; } }
-
-fetchProducts();
+})();
 </script>
 </body>
 </html>

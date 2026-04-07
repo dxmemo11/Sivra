@@ -1,393 +1,491 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Settings — Sivra</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#f5f4f1;--surface:#fff;--surface2:#f9f8f6;--border:#e8e6e0;--border2:#d4d1c9;--text:#1a1916;--text2:#6b6860;--text3:#9c9a94;--green-bg:#ecf7f0;--green-text:#1a6b3c;--red-bg:#fef1f1;--red-text:#8a1d1d;--gray-bg:#f2f1ef;--radius:10px;--radius-sm:6px;--shadow:0 1px 3px rgba(0,0,0,.06)}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden;font-size:14px}
-.sidebar{width:260px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
-.sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 20px 16px;border-bottom:1px solid var(--border)}
-.logo-mark{width:28px;height:28px;background:var(--text);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff}
-.logo-name{font-size:16px;font-weight:600}
-.store-tag{font-size:11px;color:var(--text3);margin-left:auto;background:var(--gray-bg);padding:2px 7px;border-radius:20px}
-.nav-section{padding:12px 12px 4px}
-.nav-label{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;padding:0 8px 6px}
-.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;font-size:13.5px;color:var(--text2);transition:background .12s;text-decoration:none}
-.nav-item:hover{background:var(--bg);color:var(--text)}
-.nav-item.active{background:var(--text);color:#fff}
-.nav-icon{font-size:15px;width:18px;text-align:center}
-.nav-child{padding-left:28px;font-size:13px}
-.sidebar-footer{margin-top:auto;padding:12px;border-top:1px solid var(--border)}
-.user-row{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer}
-.user-row:hover{background:var(--bg)}
-.avatar{width:30px;height:30px;border-radius:50%;background:var(--text);color:#fff;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center}
-.user-name{font-size:13px;font-weight:500}
-.user-role{font-size:11px;color:var(--text3)}
-.main{flex:1;display:flex;overflow:hidden}
-.settings-nav{width:200px;border-right:1px solid var(--border);padding:20px 12px;flex-shrink:0;background:var(--surface2)}
-.settings-nav-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--radius-sm);font-size:13.5px;color:var(--text2);cursor:pointer;transition:all .12s;margin-bottom:2px}
-.settings-nav-item:hover{background:var(--bg);color:var(--text)}
-.settings-nav-item.active{background:var(--surface);color:var(--text);font-weight:500;border:1px solid var(--border)}
-.content{flex:1;overflow-y:auto;padding:32px 40px}
-.content-title{font-size:20px;font-weight:600;letter-spacing:-.3px;margin-bottom:24px}
-.settings-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:20px;overflow:hidden}
-.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.card-header-title{font-size:14px;font-weight:600}
-.card-header-sub{font-size:12px;color:var(--text3);margin-top:2px}
-.card-body{padding:20px}
-.form-group{margin-bottom:16px}
-.form-group:last-child{margin-bottom:0}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.form-label{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:6px;display:block}
-.form-input,.form-select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;color:var(--text);background:var(--surface);outline:none;transition:border .12s}
-.form-input:focus,.form-select:focus{border-color:var(--border2)}
-.form-hint{font-size:11.5px;color:var(--text3);margin-top:4px}
-.form-input.secret{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.5px}
-.card-footer{padding:12px 20px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:flex-end;gap:10px;background:var(--surface2)}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;border:none;font-family:inherit;transition:background .12s}
-.btn-primary{background:var(--text);color:#fff}
-.btn-primary:hover{background:#2d2b27}
-.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2)}
-.btn-ghost:hover{background:var(--bg)}
-.btn-danger{background:var(--red-bg);color:var(--red-text);border:1px solid #fca5a5}
-.btn-danger:hover{background:#fee2e2}
-.save-status{font-size:13px;color:var(--green-text);display:none}
-.save-status.show{display:inline}
-.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
-.toggle-row:last-child{border-bottom:none}
-.toggle-info .toggle-label{font-size:13.5px;font-weight:500}
-.toggle-info .toggle-sub{font-size:12px;color:var(--text3);margin-top:2px}
-.toggle{position:relative;width:36px;height:20px;flex-shrink:0}
-.toggle input{opacity:0;width:0;height:0;position:absolute}
-.toggle-track{position:absolute;inset:0;background:var(--border2);border-radius:10px;transition:background .2s;cursor:pointer}
-.toggle input:checked+.toggle-track{background:var(--text)}
-.toggle-thumb{position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s;pointer-events:none}
-.toggle input:checked~.toggle-thumb{transform:translateX(16px)}
-.section-hidden{display:none}
-.section-active{display:block}
-.danger-card{border-color:#fca5a5}
-.danger-card .card-header{background:var(--red-bg)}
-.api-key-row{display:flex;gap:8px;align-items:center}
-.api-key-row .form-input{flex:1;font-family:'DM Mono',monospace;font-size:12px}
-.copy-btn{padding:7px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);font-size:12px;cursor:pointer;white-space:nowrap;font-family:inherit}
-.copy-btn:hover{background:var(--bg)}
-</style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sivra — Settings</title>
+  <link rel="stylesheet" href="admin-tokens.css"/>
+  <link rel="stylesheet" href="admin-layout.css"/>
+  <link rel="stylesheet" href="admin-components.css"/>
+  
 </head>
 <body>
+<div class="app">
 
 <aside class="sidebar">
-  <div class="sidebar-logo">
-    <div class="logo-mark">S</div>
-    <span class="logo-name">Sivra</span>
-    <span class="store-tag">Admin</span>
-  </div>
-  <div class="nav-section">
-    <div class="nav-label">Store</div>
-    <a class="nav-item" href="sivra-dashboard.html"><span class="nav-icon">⊞</span> Dashboard</a>
-    <a class="nav-item" href="sivra-orders.html"><span class="nav-icon">≡</span> Orders</a>
-    <a class="nav-item" href="sivra-products.html"><span class="nav-icon">◻</span> Products</a>
-    <a class="nav-item" href="sivra-customers.html"><span class="nav-icon">◎</span> Customers</a>
-  </div>
-  <div class="nav-section">
-    <div class="nav-label">Insights</div>
-    <a class="nav-item" href="sivra-analytics.html"><span class="nav-icon">⬡</span> Analytics</a>
-    <a class="nav-item nav-child" href="#">↳ Reports</a>
-    <a class="nav-item nav-child" href="sivra-live-view.html">↳ Live View</a>
-  </div>
-  <div class="nav-section">
-    <div class="nav-label">System</div>
-    <a class="nav-item" href="#"><span class="nav-icon">⊕</span> Discounts</a>
-    <a class="nav-item active" href="#"><span class="nav-icon">◉</span> Settings</a>
-  </div>
-  <div class="sidebar-footer">
-    <div class="user-row">
-      <div class="avatar">M</div>
-      <div><div class="user-name">Mo Ali</div><div class="user-role">Store owner</div></div>
-    </div>
-  </div>
+  <div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div>
 </aside>
 
-<div class="main">
-  <!-- Settings nav -->
-  <div class="settings-nav">
-    <div class="settings-nav-item active" onclick="showSection('store', this)">🏪 Store details</div>
-    <div class="settings-nav-item" onclick="showSection('payments', this)">💳 Payments</div>
-    <div class="settings-nav-item" onclick="showSection('shipping', this)">📦 Shipping</div>
-    <div class="settings-nav-item" onclick="showSection('notifications', this)">🔔 Notifications</div>
-    <div class="settings-nav-item" onclick="showSection('api', this)">🔑 API keys</div>
-    <div class="settings-nav-item" onclick="showSection('danger', this)">⚠️ Danger zone</div>
-  </div>
+  <div class="main">
+    <div class="topbar" id="sivraTopbar"></div>
+    <div class="page-scroll">
+      <div style="max-width:1280px;margin:0 auto">
 
-  <div class="content">
+        <div class="page-header">
+          <h1 class="page-title">Settings</h1>
+        </div>
 
-    <!-- ── Store details ── -->
-    <div id="section-store" class="section-active">
-      <div class="content-title">Store details</div>
-      <div class="settings-card">
-        <div class="card-header"><div><div class="card-header-title">General</div><div class="card-header-sub">Basic information about your store</div></div></div>
-        <div class="card-body">
-          <div class="form-row">
-            <div class="form-group"><label class="form-label">Store name</label><input class="form-input" id="store-name" value="My Store" /></div>
-            <div class="form-group"><label class="form-label">Store email</label><input class="form-input" id="store-email" type="email" placeholder="hello@mystore.com" /></div>
-          </div>
-          <div class="form-group"><label class="form-label">Store URL</label><input class="form-input" id="store-url" placeholder="https://mystore.com" /></div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Currency</label>
-              <select class="form-select" id="store-currency">
-                <option value="usd">USD — US Dollar ($)</option>
-                <option value="eur">EUR — Euro (€)</option>
-                <option value="gbp">GBP — British Pound (£)</option>
-                <option value="cad">CAD — Canadian Dollar (C$)</option>
-                <option value="aud">AUD — Australian Dollar (A$)</option>
-              </select>
+        <div class="page-body">
+          <div style="display:grid;grid-template-columns:200px 1fr;gap:20px;align-items:start">
+
+            <!-- Settings nav -->
+            <div class="card" style="padding:8px;position:sticky;top:16px">
+              <div class="sb-item active" id="nav-general" onclick="showPanel('general')" style="font-size:13px;margin-bottom:2px">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="14" rx="3" stroke="currentColor" stroke-width="1.3"/><path d="M4 8h8M4 5h5M4 11h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                General
+              </div>
+              <div class="sb-item" id="nav-shipping" onclick="showPanel('shipping')" style="font-size:13px;margin-bottom:2px">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 5h10v7H1V5zM11 7l4 2v3h-4V7z" stroke="currentColor" stroke-width="1.3"/><circle cx="3.5" cy="12.5" r="1.5" fill="currentColor"/><circle cx="12.5" cy="12.5" r="1.5" fill="currentColor"/></svg>
+                Shipping
+              </div>
+              <div class="sb-item" id="nav-taxes" onclick="showPanel('taxes')" style="font-size:13px;margin-bottom:2px">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="1" width="12" height="14" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M5 5h6M5 8h6M5 11h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                Taxes
+              </div>
+              <div class="sb-item" id="nav-checkout" onclick="showPanel('checkout')" style="font-size:13px;margin-bottom:2px">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h2l2 8h7l1.5-5H5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="13" r="1" fill="currentColor"/><circle cx="12" cy="13" r="1" fill="currentColor"/></svg>
+                Checkout
+              </div>
+              <div class="sb-item" id="nav-payments" onclick="showPanel('payments')" style="font-size:13px;margin-bottom:2px">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M1 7h14" stroke="currentColor" stroke-width="1.3"/></svg>
+                Payments
+              </div>
+              <div class="sb-item" id="nav-notifications" onclick="showPanel('notifications')" style="font-size:13px;margin-bottom:2px">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1a4.5 4.5 0 0 1 4.5 4.5c0 3.5 1.5 4.5 1.5 4.5H2s1.5-1 1.5-4.5A4.5 4.5 0 0 1 8 1zM6.5 12a1.5 1.5 0 0 0 3 0" stroke="currentColor" stroke-width="1.3"/></svg>
+                Notifications
+              </div>
+              <div class="sb-item" id="nav-account" onclick="showPanel('account')" style="font-size:13px">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M2 14c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                Account
+              </div>
             </div>
-            <div class="form-group">
-              <label class="form-label">Timezone</label>
-              <select class="form-select" id="store-tz">
-                <option>America/Los_Angeles</option>
-                <option>America/New_York</option>
-                <option>America/Chicago</option>
-                <option>Europe/London</option>
-                <option>Europe/Paris</option>
-                <option>Asia/Tokyo</option>
-                <option>Australia/Sydney</option>
-              </select>
+
+            <!-- Panel area -->
+            <div id="panelArea" class="section-stack">
+
+              <!-- GENERAL -->
+              <div id="panel-general" class="section-stack">
+                <div class="card">
+                  <div class="card-header"><span class="card-title">Store details</span></div>
+                  <div class="card-body section-stack">
+                    <div class="form-group">
+                      <label class="form-label">Store name</label>
+                      <input class="input" id="settName" placeholder="e.g. World Cup Jerseys"/>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Store description</label>
+                      <div class="form-hint">Appears in search engines and on your storefront.</div>
+                      <textarea class="textarea" id="settDesc" style="min-height:80px" placeholder="Tell customers what you sell..."></textarea>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                      <div class="form-group">
+                        <label class="form-label">Currency</label>
+                        <select class="select" id="settCurrency">
+                          <option value="AUD">AUD — Australian Dollar</option>
+                          <option value="USD">USD — US Dollar</option>
+                          <option value="GBP">GBP — British Pound</option>
+                          <option value="EUR">EUR — Euro</option>
+                          <option value="AED">AED — UAE Dirham</option>
+                          <option value="SAR">SAR — Saudi Riyal</option>
+                          <option value="IQD">IQD — Iraqi Dinar</option>
+                          <option value="CAD">CAD — Canadian Dollar</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select class="select" id="settCategory">
+                          <option value="fashion">Fashion & Apparel</option>
+                          <option value="electronics">Electronics</option>
+                          <option value="sports">Sports & Outdoors</option>
+                          <option value="home">Home & Garden</option>
+                          <option value="beauty">Health & Beauty</option>
+                          <option value="food">Food & Beverage</option>
+                          <option value="other">Other</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card-footer">
+                    <button class="btn btn-primary" onclick="saveGeneral()">Save</button>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <div class="card-header"><span class="card-title">Store URL</span></div>
+                  <div class="card-body">
+                    <div class="form-hint" style="margin-bottom:8px">Your public storefront link:</div>
+                    <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#f6f6f7;border-radius:8px;border:1px solid #e3e3e3">
+                      <span style="font-size:13px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="storeUrlDisplay">—</span>
+                      <button class="btn btn-secondary btn-sm" onclick="copyUrl()">Copy</button>
+                      <a id="storeUrlLink" href="#" target="_blank" class="btn btn-secondary btn-sm">Open ↗</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SHIPPING -->
+              <div id="panel-shipping" style="display:none" class="section-stack">
+                <div class="card">
+                  <div class="card-header">
+                    <div>
+                      <div class="card-title">Shipping zones</div>
+                      <div class="card-subtitle">Set flat rates for different regions. Set rate to $0 for free shipping.</div>
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="addZone()">+ Add zone</button>
+                  </div>
+                  <div id="shippingZones" style="padding:12px;display:flex;flex-direction:column;gap:10px">
+                    <div style="text-align:center;padding:24px;color:#8c9196;font-size:13px">Loading zones...</div>
+                  </div>
+                  <div class="card-footer">
+                    <button class="btn btn-primary" onclick="saveShipping()">Save shipping</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- TAXES -->
+              <div id="panel-taxes" style="display:none">
+                <div class="card">
+                  <div class="card-header"><span class="card-title">Taxes & duties</span></div>
+                  <div class="card-body section-stack">
+                    <div class="card-section" style="padding:0">
+                      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #f0f0f0">
+                        <div>
+                          <div class="font-medium" style="font-size:13px">Charge tax on products</div>
+                          <div class="text-muted text-sm">Tax applied to order subtotal</div>
+                        </div>
+                        <label class="toggle"><input type="checkbox" id="taxEnabled"/><span class="toggle-slider"></span></label>
+                      </div>
+                      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0">
+                        <div>
+                          <div class="font-medium" style="font-size:13px">Show prices including tax</div>
+                          <div class="text-muted text-sm">Tax is included in product prices</div>
+                        </div>
+                        <label class="toggle"><input type="checkbox" id="taxInclusive"/><span class="toggle-slider"></span></label>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Tax rate (%)</label>
+                      <div class="form-hint">Applied as a percentage of the subtotal when tax is enabled</div>
+                      <div style="width:160px">
+                        <div class="input-prefix">
+                          <span class="input-prefix-text">%</span>
+                          <input type="number" step="0.01" min="0" max="100" id="taxRate" placeholder="10" style="width:100%;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"/>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">GST / VAT number <span class="text-muted">(optional)</span></label>
+                      <input class="input" id="taxNumber" placeholder="e.g. AU12345678" style="max-width:280px"/>
+                    </div>
+                  </div>
+                  <div class="card-footer">
+                    <button class="btn btn-primary" onclick="saveTax()">Save</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- CHECKOUT -->
+              <div id="panel-checkout" style="display:none">
+                <div class="card">
+                  <div class="card-header"><span class="card-title">Checkout settings</span></div>
+                  <div class="card-body">
+                    <div style="display:flex;flex-direction:column;gap:0">
+                      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #f0f0f0">
+                        <div>
+                          <div class="font-medium" style="font-size:13px">Guest checkout</div>
+                          <div class="text-muted text-sm">Allow customers to check out without creating an account</div>
+                        </div>
+                        <label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label>
+                      </div>
+                      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #f0f0f0">
+                        <div>
+                          <div class="font-medium" style="font-size:13px">Require phone number</div>
+                          <div class="text-muted text-sm">Phone is required at checkout</div>
+                        </div>
+                        <label class="toggle"><input type="checkbox"/><span class="toggle-slider"></span></label>
+                      </div>
+                      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #f0f0f0">
+                        <div>
+                          <div class="font-medium" style="font-size:13px">Abandoned checkout recovery</div>
+                          <div class="text-muted text-sm">Save cart sessions before checkout is completed</div>
+                        </div>
+                        <label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label>
+                      </div>
+                      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0">
+                        <div>
+                          <div class="font-medium" style="font-size:13px">Order confirmation email</div>
+                          <div class="text-muted text-sm">Send customers an email when their order is placed</div>
+                        </div>
+                        <label class="toggle"><input type="checkbox" checked/><span class="toggle-slider"></span></label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card-footer">
+                    <button class="btn btn-primary" onclick="Toast.success('Checkout settings saved')">Save</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- PAYMENTS -->
+              <div id="panel-payments" style="display:none">
+                <div class="card">
+                  <div class="card-header"><span class="card-title">Payment providers</span></div>
+                  <div class="card-body section-stack">
+                    <div style="border:2px solid #008060;border-radius:10px;padding:16px;display:flex;align-items:center;gap:16px">
+                      <div style="width:48px;height:32px;background:#f6f6f7;border-radius:6px;border:1px solid #e3e3e3;display:flex;align-items:center;justify-content:center;font-size:18px">🏦</div>
+                      <div style="flex:1">
+                        <div class="font-semibold" style="font-size:13px">Manual payment</div>
+                        <div class="text-muted text-sm">Bank transfer, cash on delivery</div>
+                      </div>
+                      <span class="badge badge-success">Active</span>
+                    </div>
+                    <div style="border:1px solid #e3e3e3;border-radius:10px;padding:16px;display:flex;align-items:center;gap:16px">
+                      <div style="width:48px;height:32px;background:#635bff;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="color:white;font-size:11px;font-weight:700">stripe</span></div>
+                      <div style="flex:1">
+                        <div class="font-semibold" style="font-size:13px">Stripe</div>
+                        <div class="text-muted text-sm">Accept cards, Apple Pay, Google Pay</div>
+                      </div>
+                      <span class="badge badge-default">Coming soon</span>
+                    </div>
+                    <div style="border:1px solid #e3e3e3;border-radius:10px;padding:16px;display:flex;align-items:center;gap:16px">
+                      <div style="width:48px;height:32px;background:#003087;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="color:white;font-size:9px;font-weight:700">PayPal</span></div>
+                      <div style="flex:1">
+                        <div class="font-semibold" style="font-size:13px">PayPal</div>
+                        <div class="text-muted text-sm">Accept PayPal and Venmo</div>
+                      </div>
+                      <span class="badge badge-default">Coming soon</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- NOTIFICATIONS -->
+              <div id="panel-notifications" style="display:none">
+                <div class="card">
+                  <div class="card-header"><span class="card-title">Email notifications</span></div>
+                  <div class="card-body">
+                    <div style="display:flex;flex-direction:column">
+                      ${[
+                        ['New order received', 'Get notified when a customer places an order', true],
+                        ['Order fulfilled', 'When you mark an order as fulfilled', true],
+                        ['Low stock alert', 'When a product drops below 5 units', true],
+                        ['New customer signup', 'When a new customer creates an account', false],
+                        ['Abandoned checkout', 'When a customer leaves without completing checkout', false],
+                        ['Daily sales summary', 'Daily email with store performance', false],
+                      ].map(([t,d,c],i,arr) => `
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;${i<arr.length-1?'border-bottom:1px solid #f0f0f0':''}">
+                          <div>
+                            <div class="font-medium" style="font-size:13px">${t}</div>
+                            <div class="text-muted text-sm">${d}</div>
+                          </div>
+                          <label class="toggle"><input type="checkbox"${c?' checked':''}/><span class="toggle-slider"></span></label>
+                        </div>`).join('')}
+                    </div>
+                  </div>
+                  <div class="card-footer">
+                    <button class="btn btn-primary" onclick="Toast.success('Notification preferences saved')">Save</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ACCOUNT -->
+              <div id="panel-account" style="display:none" class="section-stack">
+                <div class="card">
+                  <div class="card-header"><span class="card-title">Account details</span></div>
+                  <div class="card-body section-stack">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                      <div class="form-group"><label class="form-label">First name</label><input class="input" id="accFirst"/></div>
+                      <div class="form-group"><label class="form-label">Last name</label><input class="input" id="accLast"/></div>
+                    </div>
+                    <div class="form-group"><label class="form-label">Email</label><input class="input" id="accEmail" type="email"/></div>
+                  </div>
+                  <div class="card-footer">
+                    <button class="btn btn-primary" onclick="Toast.success('Account updated')">Save</button>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-header"><span class="card-title">Change password</span></div>
+                  <div class="card-body section-stack">
+                    <div class="form-group"><label class="form-label">Current password</label><input class="input" id="pwCurrent" type="password"/></div>
+                    <div class="form-group"><label class="form-label">New password</label><input class="input" id="pwNew" type="password"/></div>
+                    <div class="form-group"><label class="form-label">Confirm new password</label><input class="input" id="pwConfirm" type="password"/></div>
+                  </div>
+                  <div class="card-footer card-footer-left">
+                    <button class="btn btn-plain btn-sm" style="color:#c0392b" onclick="confirmLogout()">Log out of all devices</button>
+                    <button class="btn btn-primary" onclick="changePassword()">Update password</button>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
-        <div class="card-footer"><span class="save-status" id="ss-store">✓ Saved</span><button class="btn btn-primary" onclick="save('store')">Save changes</button></div>
-      </div>
 
-      <div class="settings-card">
-        <div class="card-header"><div><div class="card-header-title">Branding</div><div class="card-header-sub">Logo and storefront appearance</div></div></div>
-        <div class="card-body">
-          <div class="form-group"><label class="form-label">Logo URL</label><input class="form-input" id="store-logo" placeholder="https://…/logo.png" /><div class="form-hint">Used in storefront header and emails</div></div>
-          <div class="form-group"><label class="form-label">Accent color</label><div style="display:flex;gap:8px;align-items:center"><input class="form-input" id="store-color" value="#1a1916" style="max-width:140px" /><input type="color" id="store-color-pick" value="#1a1916" onchange="document.getElementById('store-color').value=this.value" style="width:34px;height:34px;border:1px solid var(--border);border-radius:6px;cursor:pointer;padding:2px" /></div><div class="form-hint">Used for buttons and highlights on the storefront</div></div>
-        </div>
-        <div class="card-footer"><span class="save-status" id="ss-brand">✓ Saved</span><button class="btn btn-primary" onclick="save('brand')">Save changes</button></div>
       </div>
     </div>
-
-    <!-- ── Payments ── -->
-    <div id="section-payments" class="section-hidden">
-      <div class="content-title">Payments</div>
-      <div class="settings-card">
-        <div class="card-header"><div><div class="card-header-title">Stripe</div><div class="card-header-sub">Connect your Stripe account to accept card payments</div></div></div>
-        <div class="card-body">
-          <div class="form-group">
-            <label class="form-label">Publishable key (pk_live_… or pk_test_…)</label>
-            <input class="form-input secret" id="stripe-pk" placeholder="pk_live_…" />
-            <div class="form-hint">Safe to expose publicly — used in the storefront</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Secret key (sk_live_… or sk_test_…)</label>
-            <input class="form-input secret" id="stripe-sk" type="password" placeholder="sk_live_…" />
-            <div class="form-hint">Keep private — stored in Railway environment variables, never in code</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Webhook secret (whsec_…)</label>
-            <input class="form-input secret" id="stripe-wh" type="password" placeholder="whsec_…" />
-            <div class="form-hint">From Stripe Dashboard → Webhooks. Set endpoint to: <code style="font-family:'DM Mono',monospace;font-size:11.5px;background:var(--bg);padding:2px 6px;border-radius:4px">https://sivra-production.up.railway.app/api/checkout/webhook</code></div>
-          </div>
-        </div>
-        <div class="card-footer"><span class="save-status" id="ss-stripe">✓ Saved</span><button class="btn btn-primary" onclick="save('stripe')">Save keys</button></div>
-      </div>
-
-      <div class="settings-card">
-        <div class="card-header"><div><div class="card-header-title">Payment methods</div></div></div>
-        <div class="card-body">
-          <div class="toggle-row"><div class="toggle-info"><div class="toggle-label">Credit / debit cards</div><div class="toggle-sub">Visa, Mastercard, Amex via Stripe</div></div><label class="toggle"><input type="checkbox" checked /><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
-          <div class="toggle-row"><div class="toggle-info"><div class="toggle-label">Apple Pay & Google Pay</div><div class="toggle-sub">Enabled automatically when available</div></div><label class="toggle"><input type="checkbox" checked /><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
-          <div class="toggle-row"><div class="toggle-info"><div class="toggle-label">Test mode</div><div class="toggle-sub">Use pk_test_ / sk_test_ keys and test cards</div></div><label class="toggle"><input type="checkbox" id="toggle-test" /><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── Shipping ── -->
-    <div id="section-shipping" class="section-hidden">
-      <div class="content-title">Shipping</div>
-      <div class="settings-card">
-        <div class="card-header"><div><div class="card-header-title">Rates</div></div></div>
-        <div class="card-body">
-          <div class="form-row">
-            <div class="form-group"><label class="form-label">Flat rate shipping ($)</label><input class="form-input" id="ship-rate" type="number" min="0" step="0.01" value="5.99" /></div>
-            <div class="form-group"><label class="form-label">Free shipping threshold ($)</label><input class="form-input" id="ship-free" type="number" min="0" step="1" value="50" /><div class="form-hint">Orders above this amount ship free</div></div>
-          </div>
-        </div>
-        <div class="card-footer"><span class="save-status" id="ss-ship">✓ Saved</span><button class="btn btn-primary" onclick="save('ship')">Save</button></div>
-      </div>
-      <div class="settings-card">
-        <div class="card-header"><div><div class="card-header-title">Origin address</div><div class="card-header-sub">Used for shipping rate calculation and returns</div></div></div>
-        <div class="card-body">
-          <div class="form-group"><label class="form-label">Address</label><input class="form-input" id="ship-address" placeholder="123 Main St" /></div>
-          <div class="form-row">
-            <div class="form-group"><label class="form-label">City</label><input class="form-input" id="ship-city" placeholder="San Francisco" /></div>
-            <div class="form-group"><label class="form-label">ZIP</label><input class="form-input" id="ship-zip" placeholder="94102" /></div>
-          </div>
-        </div>
-        <div class="card-footer"><span class="save-status" id="ss-origin">✓ Saved</span><button class="btn btn-primary" onclick="save('origin')">Save</button></div>
-      </div>
-    </div>
-
-    <!-- ── Notifications ── -->
-    <div id="section-notifications" class="section-hidden">
-      <div class="content-title">Notifications</div>
-      <div class="settings-card">
-        <div class="card-header"><div><div class="card-header-title">Email notifications</div><div class="card-header-sub">Configure when emails are sent to customers and admins</div></div></div>
-        <div class="card-body">
-          <div class="toggle-row"><div class="toggle-info"><div class="toggle-label">Order confirmation</div><div class="toggle-sub">Sent to customer when payment succeeds</div></div><label class="toggle"><input type="checkbox" checked /><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
-          <div class="toggle-row"><div class="toggle-info"><div class="toggle-label">Shipping notification</div><div class="toggle-sub">Sent to customer when order is marked shipped</div></div><label class="toggle"><input type="checkbox" checked /><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
-          <div class="toggle-row"><div class="toggle-info"><div class="toggle-label">New order alert</div><div class="toggle-sub">Notify store owner on every new order</div></div><label class="toggle"><input type="checkbox" checked /><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
-          <div class="toggle-row"><div class="toggle-info"><div class="toggle-label">Low inventory alert</div><div class="toggle-sub">Alert when stock drops below 5 units</div></div><label class="toggle"><input type="checkbox" /><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
-        </div>
-        <div class="card-footer"><span class="save-status" id="ss-notif">✓ Saved</span><button class="btn btn-primary" onclick="save('notif')">Save</button></div>
-      </div>
-    </div>
-
-    <!-- ── API Keys ── -->
-    <div id="section-api" class="section-hidden">
-      <div class="content-title">API keys</div>
-      <div class="settings-card">
-        <div class="card-header"><div><div class="card-header-title">Admin API</div><div class="card-header-sub">Used to authenticate admin panel requests</div></div></div>
-        <div class="card-body">
-          <div class="form-group">
-            <label class="form-label">JWT secret (set as RAILWAY_JWT_SECRET env var)</label>
-            <div class="api-key-row">
-              <input class="form-input" id="jwt-secret" type="password" placeholder="your-secret-key" />
-              <button class="copy-btn" onclick="genSecret()">Generate new</button>
-            </div>
-            <div class="form-hint">Set this in Railway → Variables. Never commit to Git.</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Turso DB URL</label>
-            <div class="api-key-row">
-              <input class="form-input" id="turso-url" placeholder="libsql://your-db.turso.io" />
-              <button class="copy-btn" onclick="copyField('turso-url')">Copy</button>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Turso auth token</label>
-            <div class="api-key-row">
-              <input class="form-input" id="turso-token" type="password" placeholder="eyJ…" />
-              <button class="copy-btn" onclick="copyField('turso-token')">Copy</button>
-            </div>
-          </div>
-        </div>
-        <div class="card-footer"><span class="save-status" id="ss-api">✓ Saved</span><button class="btn btn-primary" onclick="save('api')">Save</button></div>
-      </div>
-
-      <div class="settings-card">
-        <div class="card-header"><div><div class="card-header-title">Railway environment variables</div><div class="card-header-sub">Copy these to Railway → your service → Variables</div></div></div>
-        <div class="card-body" style="font-family:'DM Mono',monospace;font-size:12px;line-height:2.2;color:var(--text2)">
-          <div><span style="color:var(--text3)">TURSO_URL</span>=libsql://your-db.turso.io</div>
-          <div><span style="color:var(--text3)">TURSO_AUTH_TOKEN</span>=eyJ…</div>
-          <div><span style="color:var(--text3)">JWT_SECRET</span>=your-secret</div>
-          <div><span style="color:var(--text3)">STRIPE_SECRET_KEY</span>=sk_live_…</div>
-          <div><span style="color:var(--text3)">STRIPE_WEBHOOK_SECRET</span>=whsec_…</div>
-          <div><span style="color:var(--text3)">PORT</span>=3000</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── Danger zone ── -->
-    <div id="section-danger" class="section-hidden">
-      <div class="content-title">Danger zone</div>
-      <div class="settings-card danger-card">
-        <div class="card-header"><div><div class="card-header-title" style="color:var(--red-text)">⚠️ Destructive actions</div><div class="card-header-sub">These actions cannot be undone</div></div></div>
-        <div class="card-body" style="display:flex;flex-direction:column;gap:16px">
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px;border:1px solid var(--border);border-radius:var(--radius-sm)">
-            <div><div style="font-size:13.5px;font-weight:500">Clear all demo data</div><div style="font-size:12px;color:var(--text3);margin-top:2px">Remove all seeded orders, customers, and products</div></div>
-            <button class="btn btn-danger" onclick="confirm('Clear all demo data? This cannot be undone.') && alert('Done — demo data cleared.')">Clear demo data</button>
-          </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px;border:1px solid var(--border);border-radius:var(--radius-sm)">
-            <div><div style="font-size:13.5px;font-weight:500">Reset store</div><div style="font-size:12px;color:var(--text3);margin-top:2px">Delete all orders, customers, products and settings</div></div>
-            <button class="btn btn-danger" onclick="confirm('Reset EVERYTHING? This deletes all data and cannot be undone.') && alert('Store reset.')">Reset store</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
   </div>
 </div>
 
+<div class="toast" id="sivra-toast"></div>
+
+<script src="admin.js"></script>
 <script>
-const API = '/api';
+// Page init
+(async function() {
+  const session = await initAdmin('settings');
+  if (!session) return;
+  const storeSlug = Auth.getSlug();
+  
+  const PANELS = ['general','shipping','taxes','checkout','payments','notifications','account'];
+  let _zones = [];
+  let _slug = '';
 
-function showSection(name, el) {
-  document.querySelectorAll('[id^="section-"]').forEach(s => { s.className = 'section-hidden'; });
-  document.getElementById(`section-${name}`).className = 'section-active';
-  document.querySelectorAll('.settings-nav-item').forEach(i => i.classList.remove('active'));
-  el.classList.add('active');
-}
-
-async function loadSettings() {
-  try {
-    const r = await fetch(`${API}/settings`);
-    if (!r.ok) return;
-    const s = await r.json();
-    if (s.store_name) document.getElementById('store-name').value = s.store_name;
-    if (s.store_email) document.getElementById('store-email').value = s.store_email;
-    if (s.store_currency) document.getElementById('store-currency').value = s.store_currency;
-    if (s.stripe_publishable_key) document.getElementById('stripe-pk').value = s.stripe_publishable_key;
-    if (s.shipping_flat_rate) document.getElementById('ship-rate').value = s.shipping_flat_rate;
-    if (s.free_shipping_threshold) document.getElementById('ship-free').value = s.free_shipping_threshold;
-  } catch {}
-}
-
-async function save(section) {
-  const statusEl = document.getElementById(`ss-${section}`);
-  const settings = {};
-
-  if (section === 'store') {
-    settings.store_name = document.getElementById('store-name').value;
-    settings.store_email = document.getElementById('store-email').value;
-    settings.store_currency = document.getElementById('store-currency').value;
-    settings.store_timezone = document.getElementById('store-tz').value;
-  } else if (section === 'brand') {
-    settings.store_logo = document.getElementById('store-logo').value;
-    settings.store_accent_color = document.getElementById('store-color').value;
-  } else if (section === 'stripe') {
-    settings.stripe_publishable_key = document.getElementById('stripe-pk').value;
-    // sk and webhook secret should go to Railway env vars, not stored in DB
-  } else if (section === 'ship') {
-    settings.shipping_flat_rate = document.getElementById('ship-rate').value;
-    settings.free_shipping_threshold = document.getElementById('ship-free').value;
+  function showPanel(id) {
+    PANELS.forEach(p => {
+      document.getElementById('panel-'+p).style.display = p===id ? '' : 'none';
+      document.getElementById('nav-'+p).classList.toggle('active', p===id);
+    });
+    if (id === 'shipping') loadShipping();
+    if (id === 'taxes') loadTax();
   }
 
-  try {
-    await fetch(`${API}/settings`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(settings) });
-  } catch {}
+  // Load store info
+  (async () => {
+    try {
+      const s = await API.get('/api/store/info');
+      _slug = s.slug || '';
+      if (s.name) document.getElementById('settName').value = s.name;
+      if (s.description) document.getElementById('settDesc').value = s.description;
+      if (s.currency) document.getElementById('settCurrency').value = s.currency;
+      if (s.category) document.getElementById('settCategory').value = s.category;
+      const url = window.location.origin + '/sivra-storefront.html?store=' + _slug;
+      document.getElementById('storeUrlDisplay').textContent = url;
+      document.getElementById('storeUrlLink').href = '/sivra-storefront.html?store=' + _slug;
+    } catch(e) {}
+    try {
+      const me = await API.get('/api/auth/me');
+      if (me.merchant) {
+        document.getElementById('accFirst').value = me.merchant.first_name || me.merchant.firstName || '';
+        document.getElementById('accLast').value = me.merchant.last_name || me.merchant.lastName || '';
+        document.getElementById('accEmail').value = me.merchant.email || '';
+      }
+    } catch(e) {}
+  })();
 
-  // Save to localStorage as fallback
-  Object.entries(settings).forEach(([k,v]) => localStorage.setItem(`sivra_${k}`, v));
+  // ── TAX SETTINGS ──────────────────────────────────────────────
+  async function loadTax() {
+    try {
+      const data = await API.get('/api/store/info');
+      const te = document.getElementById('taxEnabled');
+      const tr = document.getElementById('taxRate');
+      const ti = document.getElementById('taxIncluded');
+      if (te) te.checked = !!data.tax_enabled;
+      if (tr) tr.value = data.tax_rate || '';
+      if (ti) ti.checked = !!data.tax_included;
+    } catch(e) { console.error('loadTax error:', e); }
+  }
 
-  if (statusEl) { statusEl.classList.add('show'); setTimeout(() => statusEl.classList.remove('show'), 2500); }
-}
+  async function saveTax() {
+    try {
+      await API.patch('/api/store/info', {
+        tax_enabled: document.getElementById('taxEnabled')?.checked ? 1 : 0,
+        tax_rate: parseFloat(document.getElementById('taxRate')?.value) || 0,
+        tax_included: document.getElementById('taxIncluded')?.checked ? 1 : 0,
+      });
+      Toast.success('Tax settings saved');
+    } catch(e) { Toast.error(e.message || 'Failed to save tax settings'); }
+  }
 
-function genSecret() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
-  const secret = Array.from({length:48}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
-  document.getElementById('jwt-secret').value = secret;
-  document.getElementById('jwt-secret').type = 'text';
-  navigator.clipboard?.writeText(secret);
-  setTimeout(() => { document.getElementById('jwt-secret').type = 'password'; }, 5000);
-}
 
-function copyField(id) {
-  const val = document.getElementById(id).value;
-  if (!val) return;
-  navigator.clipboard?.writeText(val);
-  const btn = event.target;
-  btn.textContent = 'Copied!';
-  setTimeout(() => btn.textContent = 'Copy', 1500);
-}
+  async function saveGeneral() {
+    try {
+      await API.patch('/api/store/info', {
+        name: document.getElementById('settName').value,
+        description: document.getElementById('settDesc').value,
+        currency: document.getElementById('settCurrency').value,
+        category: document.getElementById('settCategory').value,
+      });
+      Toast.success('Store settings saved');
+    } catch(e) { Toast.error('Failed to save: ' + e.message); }
+  }
 
-loadSettings();
+  function copyUrl() {
+    const url = document.getElementById('storeUrlDisplay').textContent;
+    navigator.clipboard.writeText(url).then(() => Toast.success('URL copied!')).catch(() => Toast.show(url));
+  }
+
+  async function loadShipping() {
+    try {
+      const data = await API.get('/api/store/shipping');
+      _zones = data.zones || [];
+      renderZones();
+    } catch(e) { _zones = []; renderZones(); }
+  }
+
+  function renderZones() {
+    const el = document.getElementById('shippingZones');
+    if (!_zones.length) {
+      el.innerHTML = '<div class="empty-state" style="padding:32px"><div class="empty-icon">📦</div><div class="empty-title">No shipping zones</div><div class="empty-desc">Add a zone to set shipping rates for your customers</div></div>';
+      return;
+    }
+    el.innerHTML = _zones.map((z,i) => `
+      <div style="border:1px solid #e3e3e3;border-radius:10px;overflow:hidden">
+        <div style="padding:10px 14px;background:#f9f9f9;border-bottom:1px solid #e3e3e3;display:flex;align-items:center;justify-content:space-between">
+          <input value="${z.name||'Zone'}" onchange="_zones[${i}].name=this.value"
+            style="font-size:13px;font-weight:600;border:none;outline:none;background:none;flex:1;color:#1a1a1a" placeholder="Zone name"/>
+          <button onclick="removeZone(${i})" class="btn btn-plain btn-sm" style="color:#c0392b">Remove</button>
+        </div>
+        <div style="padding:14px 14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+          <div><label class="form-label">Countries / regions</label>
+            <input class="input" value="${z.countries||''}" onchange="_zones[${i}].countries=this.value" placeholder="e.g. Australia, USA"/></div>
+          <div><label class="form-label">Rate</label>
+            <div class="input-prefix">
+              <span class="input-prefix-text">$</span>
+              <input type="number" step="0.01" min="0" value="${z.rate||0}" onchange="_zones[${i}].rate=parseFloat(this.value)||0"
+                style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"/>
+            </div></div>
+          <div><label class="form-label">Free over <span class="text-muted">(optional)</span></label>
+            <div class="input-prefix">
+              <span class="input-prefix-text">$</span>
+              <input type="number" step="0.01" min="0" value="${z.free_over||''}" onchange="_zones[${i}].free_over=this.value?parseFloat(this.value):null" placeholder="e.g. 100"
+                style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"/>
+            </div></div>
+        </div>
+      </div>`).join('');
+  }
+
+  function addZone() {
+    _zones.push({id: Date.now(), name: 'New zone', countries: '', rate: 0, free_over: null});
+    renderZones();
+  }
+  function removeZone(i) { _zones.splice(i,1); renderZones(); }
+
+  async function saveShipping() {
+    try {
+      await API.patch('/api/store/shipping', { zones: _zones });
+      Toast.success('Shipping zones saved');
+    } catch(e) { Toast.error('Failed to save shipping'); }
+  }
+
+  async function changePassword() {
+    const curr = document.getElementById('pwCurrent').value;
+    const nw = document.getElementById('pwNew').value;
+    const conf = document.getElementById('pwConfirm').value;
+    if (!curr || !nw) { Toast.error('Fill in all password fields'); return; }
+    if (nw !== conf)  { Toast.error('New passwords do not match'); return; }
+    if (nw.length < 8){ Toast.error('Password must be at least 8 characters'); return; }
+    try {
+      await API.post('/api/auth/change-password', {currentPassword: curr, newPassword: nw});
+      Toast.success('Password updated');
+      ['pwCurrent','pwNew','pwConfirm'].forEach(id => document.getElementById(id).value = '');
+    } catch(e) { Toast.error(e.message); }
+  }
+
+  function confirmLogout() {
+    Modal.confirm('Log out', 'This will log you out of all devices.', () => Auth.logout());
+  }
+
+})();
 </script>
 </body>
 </html>
