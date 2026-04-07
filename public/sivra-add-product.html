@@ -664,6 +664,17 @@
   loadCollections();
   updateSeoPreview();
 
+
+  // Expose to global scope for onclick handlers
+  if (typeof addOption === "function") window.addOption = addOption;
+  if (typeof saveProduct === "function") window.saveProduct = saveProduct;
+  if (typeof toggleSeo === "function") window.toggleSeo = toggleSeo;
+  if (typeof removeOption === "function") window.removeOption = removeOption;
+  if (typeof addOptionValue === "function") window.addOptionValue = addOptionValue;
+  if (typeof removeOptionValue === "function") window.removeOptionValue = removeOptionValue;
+  if (typeof generateVariants === "function") window.generateVariants = generateVariants;
+  if (typeof addToCollection === "function") window.addToCollection = addToCollection;
+  if (typeof removeFromCollection === "function") window.removeFromCollection = removeFromCollection;
 })();
 </script>
 </body>

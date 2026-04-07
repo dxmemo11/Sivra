@@ -334,6 +334,15 @@
     Toast.error('Failed to load orders');
   }
 
+
+  // Expose to global scope for onclick handlers
+  if (typeof bulkFulfill === "function") window.bulkFulfill = bulkFulfill;
+  if (typeof clearBulk === "function") window.clearBulk = clearBulk;
+  if (typeof bulkMarkPaid === "function") window.bulkMarkPaid = bulkMarkPaid;
+  if (typeof setTab === "function") window.setTab = setTab;
+  if (typeof bulkCancel === "function") window.bulkCancel = bulkCancel;
+  if (typeof exportOrders === "function") window.exportOrders = exportOrders;
+  if (typeof toggleAll === "function") window.toggleAll = toggleAll;
 })();
 </script>
 </body>

@@ -259,6 +259,11 @@
     }
   })();
 
+
+  // Expose to global scope for onclick handlers
+  if (typeof setTab === "function") window.setTab = setTab;
+  if (typeof closeDrawer === "function") window.closeDrawer = closeDrawer;
+  if (typeof exportCustomers === "function") window.exportCustomers = exportCustomers;
 })();
 </script>
 </body>

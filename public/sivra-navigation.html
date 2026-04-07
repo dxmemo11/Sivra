@@ -220,6 +220,13 @@
   renderMenu('main');
   renderMenu('footer');
 
+
+  // Expose to global scope for onclick handlers
+  if (typeof addMenuItem === "function") window.addMenuItem = addMenuItem;
+  if (typeof saveMenu === "function") window.saveMenu = saveMenu;
+  if (typeof confirmAddItem === "function") window.confirmAddItem = confirmAddItem;
+  if (typeof removeItem === "function") window.removeItem = removeItem;
+  if (typeof moveItem === "function") window.moveItem = moveItem;
 })();
 </script>
 </body>

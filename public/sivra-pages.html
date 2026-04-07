@@ -219,6 +219,13 @@
   }
   loadPages();
 
+
+  // Expose to global scope for onclick handlers
+  if (typeof savePage === "function") window.savePage = savePage;
+  if (typeof openCreate === "function") window.openCreate = openCreate;
+  if (typeof closePage === "function") window.closePage = closePage;
+  if (typeof deletePage === "function") window.deletePage = deletePage;
+  if (typeof editPage === "function") window.editPage = editPage;
 })();
 </script>
 </body>

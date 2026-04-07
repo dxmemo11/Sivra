@@ -182,6 +182,10 @@
     }
   })();
 
+
+  // Expose to global scope for onclick handlers
+  if (typeof setTab === "function") window.setTab = setTab;
+  if (typeof exportAbandoned === "function") window.exportAbandoned = exportAbandoned;
 })();
 </script>
 </body>

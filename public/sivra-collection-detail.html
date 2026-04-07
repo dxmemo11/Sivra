@@ -339,6 +339,15 @@
 
   load();
 
+
+  // Expose to global scope for onclick handlers
+  if (typeof toggleSeo === "function") window.toggleSeo = toggleSeo;
+  if (typeof save === "function") window.save = save;
+  if (typeof deleteCollection === "function") window.deleteCollection = deleteCollection;
+  if (typeof addProduct === "function") window.addProduct = addProduct;
+  if (typeof removeProduct === "function") window.removeProduct = removeProduct;
+  if (typeof searchProducts === "function") window.searchProducts = searchProducts;
+  if (typeof handleImg === "function") window.handleImg = handleImg;
 })();
 </script>
 </body>

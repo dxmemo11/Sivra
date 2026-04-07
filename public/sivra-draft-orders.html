@@ -286,6 +286,15 @@
     render();
   })();
 
+
+  // Expose to global scope for onclick handlers
+  if (typeof convertToOrder === "function") window.convertToOrder = convertToOrder;
+  if (typeof saveDraft === "function") window.saveDraft = saveDraft;
+  if (typeof addCustomItem === "function") window.addCustomItem = addCustomItem;
+  if (typeof closeDraft === "function") window.closeDraft = closeDraft;
+  if (typeof openCreateDraft === "function") window.openCreateDraft = openCreateDraft;
+  if (typeof removeItem === "function") window.removeItem = removeItem;
+  if (typeof changeQty === "function") window.changeQty = changeQty;
 })();
 </script>
 </body>

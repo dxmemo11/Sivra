@@ -242,6 +242,14 @@
     }
   })();
 
+
+  // Expose to global scope for onclick handlers
+  if (typeof openCreate === "function") window.openCreate = openCreate;
+  if (typeof deletePost === "function") window.deletePost = deletePost;
+  if (typeof closeModal === "function") window.closeModal = closeModal;
+  if (typeof savePost === "function") window.savePost = savePost;
+  if (typeof setTab === "function") window.setTab = setTab;
+  if (typeof editPost === "function") window.editPost = editPost;
 })();
 </script>
 </body>

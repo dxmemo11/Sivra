@@ -247,6 +247,13 @@
     } catch(e) { Toast.error('Failed to load inventory'); }
   })();
 
+
+  // Expose to global scope for onclick handlers
+  if (typeof exportInventory === "function") window.exportInventory = exportInventory;
+  if (typeof setTab === "function") window.setTab = setTab;
+  if (typeof applyAdj === "function") window.applyAdj = applyAdj;
+  if (typeof closeAdj === "function") window.closeAdj = closeAdj;
+  if (typeof openAdj === "function") window.openAdj = openAdj;
 })();
 </script>
 </body>

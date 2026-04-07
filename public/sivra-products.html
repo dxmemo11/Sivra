@@ -330,6 +330,16 @@
     render();
   }
 
+
+  // Expose to global scope for onclick handlers
+  if (typeof exportProducts === "function") window.exportProducts = exportProducts;
+  if (typeof sortProducts === "function") window.sortProducts = sortProducts;
+  if (typeof bulkDelete === "function") window.bulkDelete = bulkDelete;
+  if (typeof bulkAction === "function") window.bulkAction = bulkAction;
+  if (typeof setTab === "function") window.setTab = setTab;
+  if (typeof importProducts === "function") window.importProducts = importProducts;
+  if (typeof importCSV === "function") window.importCSV = importCSV;
+  if (typeof exportCSV === "function") window.exportCSV = exportCSV;
 })();
 </script>
 </body>

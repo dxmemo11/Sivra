@@ -421,6 +421,13 @@
   setPeriodLabels();
   loadAll();
 
+
+  // Expose to global scope for onclick handlers
+  if (typeof exportReport === "function") window.exportReport = exportReport;
+  if (typeof openPeriod === "function") window.openPeriod = openPeriod;
+  if (typeof cyclePeriod === "function") window.cyclePeriod = cyclePeriod;
+  if (typeof loadAll === "function") window.loadAll = loadAll;
+  if (typeof setMetric === "function") window.setMetric = setMetric;
 })();
 </script>
 </body>

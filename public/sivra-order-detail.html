@@ -564,6 +564,19 @@
 
   load();
 
+
+  // Expose to global scope for onclick handlers
+  if (typeof submitCancel === "function") window.submitCancel = submitCancel;
+  if (typeof openFulfillModal === "function") window.openFulfillModal = openFulfillModal;
+  if (typeof submitRefund === "function") window.submitRefund = submitRefund;
+  if (typeof duplicateOrder === "function") window.duplicateOrder = duplicateOrder;
+  if (typeof cancelOrder === "function") window.cancelOrder = cancelOrder;
+  if (typeof saveTags === "function") window.saveTags = saveTags;
+  if (typeof markPaid === "function") window.markPaid = markPaid;
+  if (typeof submitFulfillment === "function") window.submitFulfillment = submitFulfillment;
+  if (typeof toggleActionMenu === "function") window.toggleActionMenu = toggleActionMenu;
+  if (typeof addNote === "function") window.addNote = addNote;
+  if (typeof openRefundModal === "function") window.openRefundModal = openRefundModal;
 })();
 </script>
 </body>

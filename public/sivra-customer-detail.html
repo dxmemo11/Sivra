@@ -276,6 +276,11 @@
 
   load();
 
+
+  // Expose to global scope for onclick handlers
+  if (typeof sendEmail === "function") window.sendEmail = sendEmail;
+  if (typeof deleteCustomer === "function") window.deleteCustomer = deleteCustomer;
+  if (typeof saveCustomer === "function") window.saveCustomer = saveCustomer;
 })();
 </script>
 </body>

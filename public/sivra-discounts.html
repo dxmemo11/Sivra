@@ -319,6 +319,16 @@
     } catch(e) { document.getElementById('discBody').innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Failed to load</div></div></td></tr>'; }
   })();
 
+
+  // Expose to global scope for onclick handlers
+  if (typeof setMethod === "function") window.setMethod = setMethod;
+  if (typeof openModal === "function") window.openModal = openModal;
+  if (typeof closeModal === "function") window.closeModal = closeModal;
+  if (typeof genCode === "function") window.genCode = genCode;
+  if (typeof saveDiscount === "function") window.saveDiscount = saveDiscount;
+  if (typeof setType === "function") window.setType = setType;
+  if (typeof setTab === "function") window.setTab = setTab;
+  if (typeof deleteDiscount === "function") window.deleteDiscount = deleteDiscount;
 })();
 </script>
 </body>

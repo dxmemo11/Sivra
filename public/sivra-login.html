@@ -127,6 +127,9 @@
     document.getElementById('loginBtn').disabled = false;
     document.getElementById('loginBtn').textContent = 'Sign in';
   }
+// Expose to global
+if (typeof login === "function") window.login = login;
+if (typeof showError === "function") window.showError = showError;
 </script>
 </body>
 </html>

@@ -353,6 +353,12 @@
 
   loadTheme();
 
+
+  // Expose to global scope for onclick handlers
+  if (typeof previewLogo === "function") window.previewLogo = previewLogo;
+  if (typeof saveTheme === "function") window.saveTheme = saveTheme;
+  if (typeof showSection === "function") window.showSection = showSection;
+  if (typeof loadTheme === "function") window.loadTheme = loadTheme;
 })();
 </script>
 </body>

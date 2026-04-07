@@ -193,6 +193,12 @@
     }
   })();
 
+
+  // Expose to global scope for onclick handlers
+  if (typeof openCreateModal === "function") window.openCreateModal = openCreateModal;
+  if (typeof saveCollection === "function") window.saveCollection = saveCollection;
+  if (typeof closeModal === "function") window.closeModal = closeModal;
+  if (typeof openEditModal === "function") window.openEditModal = openEditModal;
 })();
 </script>
 </body>

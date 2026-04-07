@@ -342,6 +342,9 @@
   // Clean up on page unload
   window.addEventListener('beforeunload', () => clearInterval(_refreshInterval));
 
+
+  // Expose to global scope for onclick handlers
+  if (typeof loadLive === "function") window.loadLive = loadLive;
 })();
 </script>
 </body>

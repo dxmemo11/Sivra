@@ -422,6 +422,11 @@
 
   loadStats(30);
 
+
+  // Expose to global scope for onclick handlers
+  if (typeof setMetric === "function") window.setMetric = setMetric;
+  if (typeof switchChart === "function") window.switchChart = switchChart;
+  if (typeof loadStats === "function") window.loadStats = loadStats;
 })();
 </script>
 </body>

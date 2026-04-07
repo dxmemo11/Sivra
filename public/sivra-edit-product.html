@@ -719,6 +719,17 @@
   }
   load();
 
+
+  // Expose to global scope for onclick handlers
+  if (typeof applyAdjustment === "function") window.applyAdjustment = applyAdjustment;
+  if (typeof toggleSeoEdit === "function") window.toggleSeoEdit = toggleSeoEdit;
+  if (typeof deleteProduct === "function") window.deleteProduct = deleteProduct;
+  if (typeof openAdjustModal === "function") window.openAdjustModal = openAdjustModal;
+  if (typeof saveProduct === "function") window.saveProduct = saveProduct;
+  if (typeof openVariantModal === "function") window.openVariantModal = openVariantModal;
+  if (typeof saveVariant === "function") window.saveVariant = saveVariant;
+  if (typeof closeVariantModal === "function") window.closeVariantModal = closeVariantModal;
+  if (typeof deleteVariant === "function") window.deleteVariant = deleteVariant;
 })();
 </script>
 </body>
