@@ -730,6 +730,11 @@
   if (typeof saveVariant === "function") window.saveVariant = saveVariant;
   if (typeof closeVariantModal === "function") window.closeVariantModal = closeVariantModal;
   if (typeof deleteVariant === "function") window.deleteVariant = deleteVariant;
+
+  // Additional window exposures
+  if (typeof removeTag === "function") window.removeTag = removeTag;
+  if (typeof toggleCollection === "function") window.toggleCollection = toggleCollection;
+  if (typeof editVariant === "function") window.editVariant = editVariant;
 })();
 </script>
 </body>

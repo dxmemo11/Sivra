@@ -75,31 +75,41 @@ router.get('/overview', async (req, res) => {
 router.get('/sales-over-time', async (req, res) => {
   try {
     const db = getDB();
-    const { days = 30, group = 'day' } = req.query;
+    const { days = 30 } = req.query;
     const d = parseInt(days);
     const since = new Date(); since.setDate(since.getDate() - d);
+    const sinceStr = since.toISOString().split('T')[0];
+
+    // Single query - group by date
+    const result = await db.execute({
+      sql: `SELECT
+        date(created_at) as date,
+        COUNT(*) as orders,
+        COALESCE(SUM(total),0) as revenue,
+        COALESCE(SUM(subtotal),0) as gross
+        FROM orders
+        WHERE store_id=? AND status!='cancelled'
+        AND date(created_at)>=?
+        GROUP BY date(created_at)
+        ORDER BY date(created_at) ASC`,
+      args: [req.storeId, sinceStr]
+    });
+
+    // Fill in missing dates with zeros
+    const byDate = {};
+    result.rows.forEach(r => { byDate[r.date] = r; });
 
     const data = [];
-    const step = d <= 30 ? 1 : d <= 90 ? 7 : 30;
-    let cursor = new Date(since);
-
-    while (cursor <= new Date()) {
-      const start = cursor.toISOString().split('T')[0];
-      const end = new Date(cursor); end.setDate(end.getDate() + step);
-      const endStr = end.toISOString().split('T')[0];
-
-      const result = await db.execute({
-        sql: `SELECT COUNT(*) as orders, COALESCE(SUM(total),0) as revenue, COALESCE(SUM(subtotal),0) as gross
-          FROM orders WHERE store_id=? AND status!='cancelled'
-          AND date(created_at)>=? AND date(created_at)<?`,
-        args: [req.storeId, start, endStr]
-      });
-      data.push({ date: start, ...result.rows[0] });
-      cursor.setDate(cursor.getDate() + step);
+    const cursor = new Date(since);
+    const now = new Date();
+    while (cursor <= now) {
+      const dateStr = cursor.toISOString().split('T')[0];
+      data.push(byDate[dateStr] || { date: dateStr, orders: 0, revenue: 0, gross: 0 });
+      cursor.setDate(cursor.getDate() + 1);
     }
 
     res.json({ data });
-  } catch(err) { res.status(500).json({ error: 'Failed.' }); }
+  } catch(err) { console.error('sales-over-time error:', err); res.status(500).json({ error: 'Failed.', details: err.message }); }
 });
 
 // ── TOP PRODUCTS ───────────────────────────────────────────────────────────────

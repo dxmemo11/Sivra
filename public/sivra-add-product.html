@@ -675,6 +675,9 @@
   if (typeof generateVariants === "function") window.generateVariants = generateVariants;
   if (typeof addToCollection === "function") window.addToCollection = addToCollection;
   if (typeof removeFromCollection === "function") window.removeFromCollection = removeFromCollection;
+
+  // Additional window exposures
+  if (typeof removeTag === "function") window.removeTag = removeTag;
 })();
 </script>
 </body>
