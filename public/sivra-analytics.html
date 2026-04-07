@@ -8,244 +8,197 @@
   <link rel="stylesheet" href="admin-layout.css"/>
   <link rel="stylesheet" href="admin-components.css"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    .ana-topbar { display:flex; align-items:center; gap:8px; padding:12px 0; margin-bottom:16px; border-bottom:1px solid #e3e3e3; flex-wrap:wrap; }
+    .ana-period-btn { display:flex; align-items:center; gap:6px; height:34px; padding:0 12px; border:1px solid #e3e3e3; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; background:white; font-family:inherit; color:#303030; transition:all 0.1s; }
+    .ana-period-btn:hover { border-color:#1a1a1a; }
+    .ana-refreshed { font-size:12px; color:#8c9196; margin-left:auto; }
+
+    /* KPI strip */
+    .ana-kpi-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+    .ana-kpi { background:white; border:1px solid #e3e3e3; border-radius:10px; padding:16px 18px; position:relative; overflow:hidden; }
+    .ana-kpi-label { font-size:12px; color:#6d7175; margin-bottom:6px; }
+    .ana-kpi-value { font-size:22px; font-weight:700; color:#1a1a1a; margin-bottom:4px; }
+    .ana-kpi-delta { font-size:12px; }
+    .ana-kpi-sparkline { position:absolute; bottom:0; right:0; width:100px; height:40px; opacity:0.5; }
+
+    /* Main content grid */
+    .ana-main-grid { display:grid; grid-template-columns:1fr 300px; gap:16px; margin-bottom:16px; }
+    .ana-chart-card { background:white; border:1px solid #e3e3e3; border-radius:10px; overflow:hidden; }
+    .ana-chart-header { padding:16px 20px 8px; border-bottom:1px solid #f0f0f0; }
+    .ana-chart-title { font-size:13px; color:#6d7175; margin-bottom:4px; }
+    .ana-chart-value { font-size:24px; font-weight:700; color:#1a1a1a; }
+    .ana-chart-canvas { padding:16px 20px; height:280px; }
+
+    /* Breakdown card */
+    .ana-breakdown { background:white; border:1px solid #e3e3e3; border-radius:10px; overflow:hidden; }
+    .ana-breakdown-header { padding:14px 18px; border-bottom:1px solid #f0f0f0; font-size:14px; font-weight:600; }
+    .ana-breakdown-row { display:flex; justify-content:space-between; align-items:center; padding:11px 18px; border-bottom:1px solid #f6f6f7; font-size:13px; }
+    .ana-breakdown-row:last-child { border-bottom:none; font-weight:700; }
+    .ana-breakdown-label { color:#2563eb; cursor:pointer; }
+    .ana-breakdown-label.plain { color:#303030; cursor:default; }
+    .ana-breakdown-val { font-weight:500; }
+    .ana-breakdown-delta { font-size:11px; margin-left:6px; }
+    .delta-green { color:#1a7f37; }
+    .delta-red { color:#c0392b; }
+
+    /* Bottom grid */
+    .ana-bottom-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:16px; }
+    .ana-donut-card { background:white; border:1px solid #e3e3e3; border-radius:10px; padding:16px 18px; }
+    .ana-donut-title { font-size:13px; color:#6d7175; margin-bottom:4px; }
+    .ana-donut-value { font-size:22px; font-weight:700; margin-bottom:12px; }
+    .ana-legend-row { display:flex; align-items:center; justify-content:space-between; font-size:12px; margin-bottom:6px; }
+    .ana-legend-dot { width:10px; height:10px; border-radius:50%; margin-right:6px; flex-shrink:0; }
+    .ana-table-card { background:white; border:1px solid #e3e3e3; border-radius:10px; overflow:hidden; }
+    .ana-table-card table { width:100%; border-collapse:collapse; }
+    .ana-table-card th { padding:10px 16px; font-size:11px; font-weight:600; color:#6d7175; text-align:left; text-transform:uppercase; letter-spacing:0.4px; border-bottom:1px solid #e3e3e3; background:#f9f9f9; }
+    .ana-table-card td { padding:10px 16px; font-size:13px; border-bottom:1px solid #f6f6f7; }
+    .ana-table-card tr:last-child td { border-bottom:none; }
+    .ana-bar { height:6px; border-radius:3px; background:#e3e3e3; overflow:hidden; margin-top:4px; }
+    .ana-bar-fill { height:100%; background:#1a1a1a; border-radius:3px; }
+    .export-btn { display:flex; align-items:center; gap:6px; height:30px; padding:0 12px; background:none; border:1px solid #e3e3e3; border-radius:6px; font-size:12px; font-weight:500; cursor:pointer; font-family:inherit; color:#303030; transition:all 0.1s; }
+    .export-btn:hover { border-color:#1a1a1a; }
+  </style>
 </head>
 <body>
 <div class="app">
-<aside class="sidebar">
-  <div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div>
-</aside>
+<aside class="sidebar"><div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div></aside>
   <div class="main">
     <div class="topbar" id="sivraTopbar"></div>
     <div class="page-scroll">
-      <div style="max-width:1280px;margin:0 auto">
+      <div style="max-width:1400px;margin:0 auto;padding:0 4px">
 
-        <div class="page-header">
-          <h1 class="page-title">Analytics</h1>
-          <div class="btn-group">
-            <select class="sort-select" id="periodSel" onchange="loadAll()" style="height:32px">
+        <!-- Analytics topbar -->
+        <div class="ana-topbar">
+          <div style="font-size:16px;font-weight:700;color:#1a1a1a;margin-right:8px">Analytics</div>
+          <button class="ana-period-btn" onclick="openPeriod()">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="2" width="11" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 1v2M9 1v2M1 5h11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            <span id="periodLabel">Mar 7–Apr 6, 2026</span>
+          </button>
+          <button class="ana-period-btn" onclick="cyclePeriod()">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="2" width="11" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 1v2M9 1v2M1 5h11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            <span id="comparePeriodLabel">Mar 6–Apr 5, 2026</span>
+          </button>
+
+          <div style="display:flex;gap:6px;margin-left:4px">
+            <select class="sort-select" id="daysSel" onchange="loadAll()" style="height:34px">
               <option value="7">Last 7 days</option>
               <option value="30" selected>Last 30 days</option>
               <option value="90">Last 90 days</option>
               <option value="365">Last year</option>
             </select>
-            <button class="btn btn-secondary" onclick="exportReport()">Export CSV</button>
+          </div>
+
+          <div class="ana-refreshed" id="lastRefreshed">Last refreshed: —</div>
+          <button class="export-btn" onclick="exportReport()">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5l3 3 3-3M1 10h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Export
+          </button>
+        </div>
+
+        <!-- KPI strip -->
+        <div class="ana-kpi-strip">
+          <div class="ana-kpi">
+            <div class="ana-kpi-label">Gross sales</div>
+            <div class="ana-kpi-value" id="kpiGross">—</div>
+            <div class="ana-kpi-delta" id="kpiGrossDelta"></div>
+            <canvas class="ana-kpi-sparkline" id="sparkGross"></canvas>
+          </div>
+          <div class="ana-kpi">
+            <div class="ana-kpi-label">Returning customer rate</div>
+            <div class="ana-kpi-value" id="kpiReturn">—</div>
+            <div class="ana-kpi-delta" id="kpiReturnDelta"></div>
+          </div>
+          <div class="ana-kpi">
+            <div class="ana-kpi-label">Orders fulfilled</div>
+            <div class="ana-kpi-value" id="kpiFulfilled">—</div>
+            <div class="ana-kpi-delta" id="kpiFulfilledDelta"></div>
+          </div>
+          <div class="ana-kpi">
+            <div class="ana-kpi-label">Orders</div>
+            <div class="ana-kpi-value" id="kpiOrders">—</div>
+            <div class="ana-kpi-delta" id="kpiOrdersDelta"></div>
+            <canvas class="ana-kpi-sparkline" id="sparkOrders"></canvas>
           </div>
         </div>
 
-        <div class="page-body">
-
-          <!-- KPI Cards row 1 -->
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px">
-            <div class="stat-card" onclick="switchTab('sales')">
-              <div class="stat-label">Total revenue</div>
-              <div class="stat-value" id="kpiRevenue"><span class="skeleton" style="height:24px;width:80px;display:block;border-radius:4px"></span></div>
-              <div class="stat-delta" id="kpiRevDelta"></div>
+        <!-- Main chart + breakdown -->
+        <div class="ana-main-grid">
+          <div class="ana-chart-card">
+            <div class="ana-chart-header">
+              <div class="ana-chart-title">Total sales over time</div>
+              <div style="display:flex;align-items:baseline;gap:10px">
+                <div class="ana-chart-value" id="totalSalesValue">—</div>
+                <span id="totalSalesDelta" class="ana-kpi-delta"></span>
+              </div>
             </div>
-            <div class="stat-card" onclick="switchTab('sales')">
-              <div class="stat-label">Net sales</div>
-              <div class="stat-value" id="kpiNetSales"><span class="skeleton" style="height:24px;width:70px;display:block;border-radius:4px"></span></div>
-              <div class="stat-delta text-muted text-sm">After discounts & refunds</div>
-            </div>
-            <div class="stat-card" onclick="switchTab('orders')">
-              <div class="stat-label">Orders</div>
-              <div class="stat-value" id="kpiOrders"><span class="skeleton" style="height:24px;width:40px;display:block;border-radius:4px"></span></div>
-              <div class="stat-delta" id="kpiOrdDelta"></div>
-            </div>
-            <div class="stat-card" onclick="switchTab('orders')">
-              <div class="stat-label">Avg. order value</div>
-              <div class="stat-value" id="kpiAov"><span class="skeleton" style="height:24px;width:60px;display:block;border-radius:4px"></span></div>
-              <div class="stat-delta" id="kpiAovDelta"></div>
+            <div class="ana-chart-canvas">
+              <canvas id="mainSalesChart"></canvas>
             </div>
           </div>
-
-          <!-- KPI Cards row 2 -->
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
-            <div class="stat-card">
-              <div class="stat-label">Total customers</div>
-              <div class="stat-value" id="kpiCustomers">—</div>
-              <div class="stat-delta text-muted text-sm" id="kpiReturning"></div>
+          <div class="ana-breakdown">
+            <div class="ana-breakdown-header" style="display:flex;align-items:center;justify-content:space-between">
+              <span>Total sales breakdown</span>
             </div>
-            <div class="stat-card">
-              <div class="stat-label">Gross sales</div>
-              <div class="stat-value" id="kpiGross">—</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">Total discounts</div>
-              <div class="stat-value" id="kpiDiscounts" style="color:var(--p-color-text-success)">—</div>
-              <div class="stat-delta text-muted text-sm" id="kpiDiscountCodes"></div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">Refunds issued</div>
-              <div class="stat-value" id="kpiRefunds" style="color:var(--p-color-text-critical)">—</div>
+            <div id="breakdownRows">
+              <div style="padding:24px;text-align:center;color:#8c9196;font-size:13px">Loading...</div>
             </div>
           </div>
+        </div>
 
-          <!-- Tabs -->
-          <div class="card" style="margin-bottom:16px">
-            <div class="tabs" id="analyticsTabs">
-              <div class="tab active" onclick="switchTab('sales')" id="tab-sales">Sales over time</div>
-              <div class="tab" onclick="switchTab('orders')" id="tab-orders">Orders</div>
-              <div class="tab" onclick="switchTab('products')" id="tab-products">Top products</div>
-              <div class="tab" onclick="switchTab('customers')" id="tab-customers">Top customers</div>
-              <div class="tab" onclick="switchTab('discounts')" id="tab-discounts">Discounts</div>
-              <div class="tab" onclick="switchTab('sources')" id="tab-sources">Traffic sources</div>
-              <div class="tab" onclick="switchTab('finance')" id="tab-finance">Finance</div>
+        <!-- Bottom grid: channel donut + AOV chart + top products -->
+        <div class="ana-bottom-grid">
+          <div class="ana-donut-card">
+            <div class="ana-donut-title">Total sales by channel</div>
+            <div class="ana-donut-value" id="channelTotal">—</div>
+            <div style="height:160px;position:relative">
+              <canvas id="channelChart"></canvas>
             </div>
-
-            <!-- Sales chart -->
-            <div id="panel-sales">
-              <div style="padding:16px"><canvas id="mainChart" height="220"></canvas></div>
+            <div id="channelLegend" style="margin-top:12px"></div>
+          </div>
+          <div class="ana-chart-card">
+            <div class="ana-chart-header">
+              <div class="ana-chart-title">Average order value over time</div>
+              <div class="ana-chart-value" id="aovValue">—</div>
             </div>
-
-            <!-- Orders chart -->
-            <div id="panel-orders" style="display:none">
-              <div style="padding:16px"><canvas id="ordersChart" height="220"></canvas></div>
-            </div>
-
-            <!-- Top products table -->
-            <div id="panel-products" style="display:none">
-              <div style="overflow-x:auto">
-                <table class="data-table">
-                  <thead><tr>
-                    <th>Product</th>
-                    <th class="cell-number">Units sold</th>
-                    <th class="cell-number">Orders</th>
-                    <th class="cell-number">Revenue</th>
-                  </tr></thead>
-                  <tbody id="topProdsBody">
-                    <tr><td colspan="4" style="text-align:center;padding:48px;color:#8c9196">Loading...</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Top customers table -->
-            <div id="panel-customers" style="display:none">
-              <div style="overflow-x:auto">
-                <table class="data-table">
-                  <thead><tr>
-                    <th>Customer</th>
-                    <th class="cell-number">Orders</th>
-                    <th class="cell-number">Total spent</th>
-                    <th>Last order</th>
-                  </tr></thead>
-                  <tbody id="topCustsBody">
-                    <tr><td colspan="4" style="text-align:center;padding:48px;color:#8c9196">Loading...</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Discounts table -->
-            <div id="panel-discounts" style="display:none">
-              <div style="overflow-x:auto">
-                <table class="data-table">
-                  <thead><tr>
-                    <th>Code</th>
-                    <th class="cell-number">Times used</th>
-                    <th class="cell-number">Total saved</th>
-                    <th class="cell-number">Revenue on orders</th>
-                  </tr></thead>
-                  <tbody id="discountsBody">
-                    <tr><td colspan="4" style="text-align:center;padding:48px;color:#8c9196">Loading...</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Traffic sources table -->
-            <div id="panel-sources" style="display:none">
-              <div style="padding:16px">
-                <div class="alert alert-info" style="margin-bottom:12px">
-                  <span class="alert-icon">ℹ️</span>
-                  <div class="alert-body">Traffic is tracked when customers visit your store via UTM links. Use the UTM Builder in <a href="sivra-marketing.html" style="color:var(--p-color-text-emphasis)">Marketing</a> to create tracked links.</div>
-                </div>
-              </div>
-              <div style="overflow-x:auto">
-                <table class="data-table">
-                  <thead><tr>
-                    <th>Source</th>
-                    <th>Medium</th>
-                    <th class="cell-number">Sessions</th>
-                    <th class="cell-number">Conversions</th>
-                    <th class="cell-number">Conv. rate</th>
-                  </tr></thead>
-                  <tbody id="sourcesBody">
-                    <tr><td colspan="5" style="text-align:center;padding:48px;color:#8c9196">Loading...</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Finance report -->
-            <div id="panel-finance" style="display:none">
-              <div style="padding:20px">
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
-                  <!-- Sales summary -->
-                  <div>
-                    <div class="font-semibold" style="font-size:14px;margin-bottom:14px">Sales summary</div>
-                    <div style="display:flex;flex-direction:column;gap:0">
-                      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:13px">
-                        <span class="text-muted">Gross sales</span>
-                        <span id="fGross">—</span>
-                      </div>
-                      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:13px">
-                        <span class="text-muted">Discounts</span>
-                        <span style="color:var(--p-color-text-success)" id="fDiscounts">—</span>
-                      </div>
-                      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:13px">
-                        <span class="text-muted">Returns & refunds</span>
-                        <span style="color:var(--p-color-text-critical)" id="fRefunds">—</span>
-                      </div>
-                      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #e3e3e3;font-size:13px;font-weight:600">
-                        <span>Net sales</span>
-                        <span id="fNet">—</span>
-                      </div>
-                      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:13px">
-                        <span class="text-muted">Shipping</span>
-                        <span id="fShipping">—</span>
-                      </div>
-                      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:13px">
-                        <span class="text-muted">Taxes</span>
-                        <span id="fTaxes">—</span>
-                      </div>
-                      <div style="display:flex;justify-content:space-between;padding:12px 0;font-size:15px;font-weight:700">
-                        <span>Total sales</span>
-                        <span id="fTotal">—</span>
-                      </div>
-                    </div>
-                  </div>
-                  <!-- By channel -->
-                  <div>
-                    <div class="font-semibold" style="font-size:14px;margin-bottom:14px">Sales by channel</div>
-                    <div id="fBySource">
-                      <div style="text-align:center;padding:40px;color:#8c9196;font-size:13px">No channel data</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <div style="padding:12px 16px;height:180px">
+              <canvas id="aovChart"></canvas>
             </div>
           </div>
-
-          <!-- Low stock alert card -->
-          <div class="card" id="lowStockCard" style="display:none">
-            <div class="card-header">
-              <span class="card-title">⚠️ Inventory alerts</span>
-              <a href="sivra-inventory.html" class="btn btn-secondary btn-sm">Manage inventory</a>
+          <div class="ana-table-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #e3e3e3;background:#f9f9f9">
+              <span style="font-size:12px;font-weight:600;color:#6d7175;text-transform:uppercase;letter-spacing:0.4px">Top products by revenue</span>
             </div>
-            <div style="overflow-x:auto">
-              <table class="data-table">
-                <thead><tr>
-                  <th>Product</th>
-                  <th>SKU</th>
-                  <th class="cell-number">Stock</th>
-                  <th>Status</th>
-                </tr></thead>
-                <tbody id="lowStockBody"></tbody>
-              </table>
-            </div>
+            <div id="topProductsTable"></div>
           </div>
+        </div>
 
+        <!-- Top customers + discount usage + sources -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+          <div class="ana-table-card">
+            <table>
+              <thead><tr>
+                <th>Customer</th>
+                <th class="cell-number" style="text-align:right">Orders</th>
+                <th class="cell-number" style="text-align:right">Total spent</th>
+              </tr></thead>
+              <tbody id="topCustomersBody">
+                <tr><td colspan="3" style="text-align:center;padding:24px;color:#8c9196">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="ana-table-card">
+            <table>
+              <thead><tr>
+                <th>Discount code</th>
+                <th class="cell-number" style="text-align:right">Uses</th>
+                <th class="cell-number" style="text-align:right">Total savings</th>
+              </tr></thead>
+              <tbody id="discountUsageBody">
+                <tr><td colspan="3" style="text-align:center;padding:24px;color:#8c9196">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
       </div>
@@ -258,216 +211,214 @@
 (async function() {
   const session = await initAdmin('analytics');
   if (!session) return;
-  
-  let _days = 30, _chart = null, _ordChart = null;
-  let _overview = null, _salesData = null, _topProds = [], _topCusts = [], _discounts = [], _sources = [], _finance = null;
+
+  let _days = 30, _mainChart = null, _aovChart = null, _channelChart = null;
+  let _finance = null, _salesData = [];
+
+  function getDelta(pct) {
+    if (pct===undefined||pct===null) return '';
+    const up = pct >= 0;
+    return `<span style="color:${up?'#1a7f37':'#c0392b'};font-weight:600">${up?'↑':'↓'} ${Math.abs(pct)}%</span>`;
+  }
+
+  function setPeriodLabels() {
+    const now = new Date();
+    const start = new Date(); start.setDate(start.getDate() - _days);
+    const prevEnd = new Date(start); prevEnd.setDate(prevEnd.getDate() - 1);
+    const prevStart = new Date(prevEnd); prevStart.setDate(prevStart.getDate() - _days);
+    const fmt = d => d.toLocaleDateString('en-AU', {day:'numeric', month:'short', year:'numeric'});
+    document.getElementById('periodLabel').textContent = fmt(start) + ' – ' + fmt(now);
+    document.getElementById('comparePeriodLabel').textContent = fmt(prevStart) + ' – ' + fmt(prevEnd);
+    document.getElementById('lastRefreshed').textContent = 'Last refreshed: ' + new Date().toLocaleTimeString('en-AU', {hour:'2-digit',minute:'2-digit'});
+  }
+
+  function drawSparkline(canvasId, data, color='#1a1a1a') {
+    const el = document.getElementById(canvasId);
+    if (!el || !data.length) return;
+    new Chart(el, {
+      type: 'line',
+      data: { labels: data.map((_,i)=>i), datasets: [{ data, borderColor: color, borderWidth: 1.5, tension: 0.4, pointRadius: 0, fill: false }]},
+      options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false},tooltip:{enabled:false}}, scales:{x:{display:false},y:{display:false}} }
+    });
+  }
 
   async function loadAll() {
-    _days = parseInt(document.getElementById('periodSel').value);
-    await Promise.all([loadOverview(), loadSalesChart(), loadTopProducts(), loadTopCustomers(), loadDiscounts(), loadSources(), loadFinance(), loadInventory()]);
-  }
+    _days = parseInt(document.getElementById('daysSel').value);
+    setPeriodLabels();
 
-  async function loadOverview() {
     try {
-      _overview = await API.get(`/api/analytics/overview?days=${_days}`);
-      const o = _overview;
-      const fmtDelta = (pct, dir='up') => {
-        if (!pct && pct !== 0) return '';
-        const color = (pct >= 0) ? 'var(--p-color-text-success)' : 'var(--p-color-text-critical)';
-        const arrow = pct >= 0 ? '↑' : '↓';
-        return `<span style="color:${color};font-size:12px">${arrow} ${Math.abs(pct)}% vs prev period</span>`;
-      };
-      document.getElementById('kpiRevenue').textContent = Fmt.money(o.revenue.value);
-      document.getElementById('kpiRevDelta').innerHTML = fmtDelta(o.revenue.change_pct);
-      document.getElementById('kpiNetSales').textContent = Fmt.money(o.net_sales);
-      document.getElementById('kpiOrders').textContent = o.orders.value;
-      document.getElementById('kpiOrdDelta').innerHTML = fmtDelta(o.orders.change_pct);
-      document.getElementById('kpiAov').textContent = Fmt.money(o.aov.value);
-      document.getElementById('kpiAovDelta').innerHTML = fmtDelta(o.aov.change_pct);
-      document.getElementById('kpiCustomers').textContent = o.customers.total || 0;
-      document.getElementById('kpiReturning').innerHTML = `<span class="text-muted">${o.customers.returning||0} returning</span>`;
-      document.getElementById('kpiGross').textContent = Fmt.money(o.gross_sales);
-      document.getElementById('kpiDiscounts').textContent = Fmt.money(o.total_discounts);
-      document.getElementById('kpiDiscountCodes').textContent = o.discounts.total_codes + ' codes, ' + o.discounts.total_uses + ' uses';
-      document.getElementById('kpiRefunds').textContent = Fmt.money(o.total_refunded);
-    } catch(e) { console.error(e); }
-  }
+      const [overview, salesData, finance, topProds, topCusts, discounts] = await Promise.all([
+        API.get('/api/analytics/overview?days=' + _days),
+        API.get('/api/analytics/sales-over-time?days=' + _days),
+        API.get('/api/analytics/finance?days=' + _days),
+        API.get('/api/analytics/top-products?days=' + _days + '&limit=8'),
+        API.get('/api/analytics/top-customers?days=' + _days + '&limit=6'),
+        API.get('/api/analytics/discounts?days=' + _days),
+      ]);
 
-  async function loadSalesChart() {
-    try {
-      const data = await API.get(`/api/analytics/sales-over-time?days=${_days}`);
-      _salesData = data.data || [];
-      drawChart('mainChart', _salesData, 'revenue', 'Revenue');
-      drawChart('ordersChart', _salesData, 'orders', 'Orders', false);
-    } catch(e) {}
-  }
+      _finance = finance;
+      _salesData = salesData.data || [];
 
-  function drawChart(id, data, field, label, isMoney=true) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const labels = data.map(d => {
-      const dt = new Date(d.date);
-      return dt.toLocaleDateString('en-AU', {day:'numeric', month:'short'});
-    });
-    const values = data.map(d => parseFloat(d[field]||0));
-    const chartRef = id === 'mainChart' ? '_chart' : '_ordChart';
-    if (window[chartRef]) window[chartRef].destroy();
-    window[chartRef] = new Chart(el, {
-      type: 'line',
-      data: { labels, datasets: [{ data: values,
-        borderColor: '#1a1a1a', backgroundColor: 'rgba(26,26,26,0.04)',
-        borderWidth: 2, tension: 0.4, fill: true,
-        pointRadius: 0, pointHoverRadius: 4, pointHoverBackgroundColor: '#1a1a1a'
-      }]},
-      options: { responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#303030',titleColor:'#fff',bodyColor:'#ccc',padding:8,cornerRadius:6,
-          callbacks:{label:c=>isMoney?'$'+c.raw.toFixed(2):c.raw+' orders'}}},
-        scales:{
-          x:{grid:{display:false},border:{display:false},ticks:{color:'#8c9196',font:{size:11},maxTicksLimit:12}},
-          y:{grid:{color:'rgba(0,0,0,0.04)'},border:{display:false},ticks:{color:'#8c9196',font:{size:11},
-            callback:v=>isMoney?'$'+v.toFixed(0):v}}
-        }}
-    });
-  }
+      // KPI strip
+      document.getElementById('kpiGross').textContent = Fmt.money(finance.gross_sales || 0);
+      document.getElementById('kpiGrossDelta').innerHTML = getDelta(overview.revenue?.change_pct);
+      const retRate = overview.customers?.returning && overview.customers?.total
+        ? ((overview.customers.returning / overview.customers.total) * 100).toFixed(1) + '%' : '—';
+      document.getElementById('kpiReturn').textContent = retRate;
+      const fulfilled = (overview.orders?.value || 0);
+      document.getElementById('kpiFulfilled').textContent = fulfilled;
+      document.getElementById('kpiOrders').textContent = overview.orders?.value || 0;
+      document.getElementById('kpiOrdersDelta').innerHTML = getDelta(overview.orders?.change_pct);
 
-  async function loadTopProducts() {
-    try {
-      const data = await API.get(`/api/analytics/top-products?days=${_days}`);
-      _topProds = data.products || [];
-      const tbody = document.getElementById('topProdsBody');
-      if (!_topProds.length) {
-        tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state" style="padding:40px"><div class="empty-icon">📦</div><div class="empty-title">No sales data yet</div></div></td></tr>';
-        return;
+      // Sparklines
+      const revPoints = _salesData.map(d => parseFloat(d.revenue||0));
+      const ordPoints = _salesData.map(d => parseInt(d.orders||0));
+      drawSparkline('sparkGross', revPoints, '#3b82f6');
+      drawSparkline('sparkOrders', ordPoints, '#3b82f6');
+
+      // Main chart
+      const totalRev = _salesData.reduce((s,d)=>s+parseFloat(d.revenue||0),0);
+      document.getElementById('totalSalesValue').textContent = Fmt.money(totalRev);
+      document.getElementById('totalSalesDelta').innerHTML = getDelta(overview.revenue?.change_pct);
+
+      if (_mainChart) _mainChart.destroy();
+      _mainChart = new Chart(document.getElementById('mainSalesChart'), {
+        type: 'line',
+        data: {
+          labels: _salesData.map(d => { const dt=new Date(d.date); return dt.toLocaleDateString('en-AU',{day:'numeric',month:'short'}); }),
+          datasets: [{
+            data: _salesData.map(d=>parseFloat(d.revenue||0)),
+            borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.06)',
+            borderWidth: 2, tension: 0.4, fill: true, pointRadius: 0, pointHoverRadius: 4,
+          }]
+        },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          interaction:{intersect:false,mode:'index'},
+          plugins:{legend:{display:false},tooltip:{backgroundColor:'#1a1a1a',titleColor:'#fff',bodyColor:'#ccc',padding:10,cornerRadius:8,displayColors:false,callbacks:{label:c=>'Revenue: '+Fmt.money(c.raw)}}},
+          scales:{
+            x:{grid:{display:false},border:{display:false},ticks:{color:'#8c9196',font:{size:11},maxTicksLimit:8}},
+            y:{grid:{color:'rgba(0,0,0,0.04)'},border:{display:false},ticks:{color:'#8c9196',font:{size:11},callback:v=>'$'+v.toFixed(0)}}
+          }
+        }
+      });
+
+      // Breakdown
+      renderBreakdown(finance);
+
+      // Channel donut
+      const bySource = finance.by_source || [];
+      document.getElementById('channelTotal').textContent = Fmt.money(finance.total_sales || 0);
+      const COLORS = ['#1a1a1a','#3b82f6','#8b5cf6','#06b6d4','#f59e0b','#10b981'];
+      if (_channelChart) _channelChart.destroy();
+      if (bySource.length) {
+        _channelChart = new Chart(document.getElementById('channelChart'), {
+          type: 'doughnut',
+          data: {
+            labels: bySource.map(s=>(s.source||'direct').replace(/_/g,' ')),
+            datasets: [{ data: bySource.map(s=>parseFloat(s.revenue||0)), backgroundColor: COLORS, borderWidth: 0 }]
+          },
+          options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.label}: ${Fmt.money(c.raw)}`}}} }
+        });
+        document.getElementById('channelLegend').innerHTML = bySource.slice(0,4).map((s,i)=>`
+          <div class="ana-legend-row">
+            <div style="display:flex;align-items:center">
+              <div class="ana-legend-dot" style="background:${COLORS[i]}"></div>
+              <span style="text-transform:capitalize">${(s.source||'direct').replace(/_/g,' ')}</span>
+            </div>
+            <span style="font-weight:600">${Fmt.money(s.revenue)}</span>
+          </div>`).join('');
       }
-      tbody.innerHTML = _topProds.map((p,i) => `<tr>
-        <td><div style="display:flex;align-items:center;gap:10px">
-          <span style="font-size:12px;color:#8c9196;width:20px">${i+1}</span>
-          <span class="font-medium" style="font-size:13px">${Fmt.truncate(p.title,40)}</span>
-        </div></td>
-        <td class="cell-number cell-muted">${p.units_sold||0}</td>
-        <td class="cell-number cell-muted">${p.order_count||0}</td>
-        <td class="cell-number font-medium">${Fmt.money(p.revenue)}</td>
-      </tr>`).join('');
-    } catch(e) {}
+
+      // AOV chart
+      const aovData = _salesData.map(d => {
+        const rev = parseFloat(d.revenue||0);
+        const ord = parseInt(d.orders||0);
+        return ord > 0 ? rev/ord : 0;
+      });
+      const avgAov = aovData.filter(v=>v>0);
+      document.getElementById('aovValue').textContent = avgAov.length ? Fmt.money(avgAov.reduce((s,v)=>s+v,0)/avgAov.length) : '$0.00';
+      if (_aovChart) _aovChart.destroy();
+      _aovChart = new Chart(document.getElementById('aovChart'), {
+        type: 'line',
+        data: {
+          labels: _salesData.map(d=>{ const dt=new Date(d.date); return dt.toLocaleDateString('en-AU',{day:'numeric',month:'short'}); }),
+          datasets:[{data:aovData,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.04)',borderWidth:2,tension:0.4,fill:true,pointRadius:0}]
+        },
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'AOV: '+Fmt.money(c.raw)}}},scales:{x:{display:false},y:{display:false}}}
+      });
+
+      // Top products
+      renderTopProducts(topProds.products || []);
+
+      // Top customers
+      const custBody = document.getElementById('topCustomersBody');
+      const custs = topCusts.customers || [];
+      custBody.innerHTML = custs.length ? custs.map(c=>`<tr>
+        <td><div style="font-weight:500">${[c.first_name,c.last_name].filter(Boolean).join(' ')||'Guest'}</div>
+        <div style="font-size:11px;color:#8c9196">${c.email||''}</div></td>
+        <td style="text-align:right;color:#6d7175">${c.order_count||0}</td>
+        <td style="text-align:right;font-weight:600">${Fmt.money(c.total_spent||0)}</td>
+      </tr>`).join('') : '<tr><td colspan="3" style="text-align:center;padding:24px;color:#8c9196">No data yet</td></tr>';
+
+      // Discount usage
+      const discBody = document.getElementById('discountUsageBody');
+      const discs = discounts.discounts || [];
+      discBody.innerHTML = discs.length ? discs.map(d=>`<tr>
+        <td><code style="font-family:monospace;font-size:12px;font-weight:700;background:#f6f6f7;padding:2px 6px;border-radius:4px">${d.discount_code}</code></td>
+        <td style="text-align:right;color:#6d7175">${d.orders_count||0}</td>
+        <td style="text-align:right;font-weight:600;color:#1a7f37">-${Fmt.money(d.total_savings||0)}</td>
+      </tr>`).join('') : '<tr><td colspan="3" style="text-align:center;padding:24px;color:#8c9196">No discount usage yet</td></tr>';
+
+    } catch(e) {
+      console.error('Analytics error:', e);
+      Toast.error('Failed to load analytics');
+    }
   }
 
-  async function loadTopCustomers() {
-    try {
-      const data = await API.get(`/api/analytics/top-customers?days=${_days}`);
-      _topCusts = data.customers || [];
-      const tbody = document.getElementById('topCustsBody');
-      if (!_topCusts.length) {
-        tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state" style="padding:40px"><div class="empty-icon">👥</div><div class="empty-title">No customer data yet</div></div></td></tr>';
-        return;
-      }
-      tbody.innerHTML = _topCusts.map(c => `<tr onclick="location.href='sivra-customers.html'">
-        <td>
-          <div class="font-medium" style="font-size:13px">${[c.first_name,c.last_name].filter(Boolean).join(' ')||'Guest'}</div>
-          <div class="text-muted text-sm">${c.email||'—'}</div>
-        </td>
-        <td class="cell-number cell-muted">${c.order_count||0}</td>
-        <td class="cell-number font-medium">${Fmt.money(c.total_spent)}</td>
-        <td class="cell-muted">${Fmt.date(c.last_order_at)}</td>
-      </tr>`).join('');
-    } catch(e) {}
+  function renderBreakdown(finance) {
+    const rows = [
+      { label:'Gross sales', val: finance.gross_sales, plain:false },
+      { label:'Discounts', val: -finance.discounts, plain:false, red: finance.discounts > 0 },
+      { label:'Returns', val: -finance.returns, plain:false, red: finance.returns > 0 },
+      { label:'Net sales', val: finance.net_sales, plain:true, bold:true },
+      { label:'Shipping', val: finance.shipping, plain:false },
+      { label:'Taxes', val: finance.taxes, plain:false },
+      { label:'Total sales', val: finance.total_sales, plain:true, bold:true, total:true },
+    ];
+    document.getElementById('breakdownRows').innerHTML = rows.map(r=>`
+      <div class="ana-breakdown-row" style="${r.total?'border-top:2px solid #e3e3e3;margin-top:4px;':''}">
+        <span class="ana-breakdown-label${r.plain?' plain':''}" style="${r.bold?'font-weight:700;color:#1a1a1a;':''}">${r.label}</span>
+        <span class="ana-breakdown-val" style="color:${r.red?'#c0392b':r.bold?'#1a1a1a':'#303030'}">${r.val<0?'-'+Fmt.money(Math.abs(r.val)):Fmt.money(r.val||0)}</span>
+      </div>`).join('');
   }
 
-  async function loadDiscounts() {
-    try {
-      const data = await API.get(`/api/analytics/discounts?days=${_days}`);
-      _discounts = data.discounts || [];
-      const tbody = document.getElementById('discountsBody');
-      if (!_discounts.length) {
-        tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state" style="padding:40px"><div class="empty-icon">🏷️</div><div class="empty-title">No discount usage in this period</div></div></td></tr>';
-        return;
-      }
-      tbody.innerHTML = _discounts.map(d => `<tr>
-        <td><code style="font-family:monospace;font-size:13px;font-weight:600;background:#f6f6f7;padding:2px 8px;border-radius:4px">${d.discount_code}</code></td>
-        <td class="cell-number cell-muted">${d.orders_count}</td>
-        <td class="cell-number" style="color:var(--p-color-text-success)">${Fmt.money(d.total_savings)}</td>
-        <td class="cell-number font-medium">${Fmt.money(d.total_revenue)}</td>
-      </tr>`).join('');
-    } catch(e) {}
-  }
-
-  async function loadSources() {
-    try {
-      const data = await API.get(`/api/analytics/sources?days=${_days}`);
-      _sources = data.sources || [];
-      const tbody = document.getElementById('sourcesBody');
-      if (!_sources.length) {
-        tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state" style="padding:40px"><div class="empty-icon">🌐</div><div class="empty-title">No traffic data yet</div><div class="empty-desc">Add UTM parameters to your links to track traffic sources</div></div></td></tr>';
-        return;
-      }
-      tbody.innerHTML = _sources.map(s => {
-        const convRate = s.sessions > 0 ? (s.conversions/s.sessions*100).toFixed(1)+'%' : '0%';
-        return `<tr>
-          <td class="font-medium">${s.source||'direct'}</td>
-          <td class="cell-muted">${s.medium||'—'}</td>
-          <td class="cell-number cell-muted">${s.sessions||0}</td>
-          <td class="cell-number cell-muted">${s.conversions||0}</td>
-          <td class="cell-number">${convRate}</td>
-        </tr>`;
-      }).join('');
-    } catch(e) {}
-  }
-
-  async function loadFinance() {
-    try {
-      const data = await API.get(`/api/analytics/finance?days=${_days}`);
-      _finance = data;
-      document.getElementById('fGross').textContent = Fmt.money(data.gross_sales);
-      document.getElementById('fDiscounts').textContent = '-' + Fmt.money(data.discounts);
-      document.getElementById('fRefunds').textContent = '-' + Fmt.money(data.returns);
-      document.getElementById('fNet').textContent = Fmt.money(data.net_sales);
-      document.getElementById('fShipping').textContent = Fmt.money(data.shipping);
-      document.getElementById('fTaxes').textContent = Fmt.money(data.taxes);
-      document.getElementById('fTotal').textContent = Fmt.money(data.total_sales);
-      const bySource = data.by_source || [];
-      document.getElementById('fBySource').innerHTML = bySource.length
-        ? bySource.map(s => `<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:13px">
-            <span class="text-muted" style="text-transform:capitalize">${(s.source||'direct').replace(/_/g,' ')}</span>
-            <div style="text-align:right"><div class="font-medium">${Fmt.money(s.revenue)}</div>
-            <div class="text-muted text-sm">${s.orders} orders</div></div>
-          </div>`).join('')
-        : '<div style="text-align:center;padding:32px;color:#8c9196;font-size:13px">No channel data</div>';
-    } catch(e) {}
-  }
-
-  async function loadInventory() {
-    try {
-      const data = await API.get('/api/analytics/inventory');
-      const alerts = (data.products||[]).filter(p => p.stock_status !== 'in_stock');
-      if (!alerts.length) return;
-      document.getElementById('lowStockCard').style.display = '';
-      document.getElementById('lowStockBody').innerHTML = alerts.map(p => {
-        const cls = p.stock_status === 'out_of_stock' ? 'badge-critical' : 'badge-warning';
-        const label = p.stock_status === 'out_of_stock' ? 'Out of stock' : 'Low stock';
-        return `<tr onclick="location.href='sivra-edit-product.html?id=${p.id}'">
-          <td class="cell-primary">${Fmt.truncate(p.title,40)}</td>
-          <td class="cell-muted">${p.sku||'—'}</td>
-          <td class="cell-number${p.stock_status==='out_of_stock'?' text-critical':' text-warning'}">${p.quantity||0}</td>
-          <td><span class="badge ${cls}">${label}</span></td>
-        </tr>`;
-      }).join('');
-    } catch(e) {}
-  }
-
-  function switchTab(tab) {
-    const panels = ['sales','orders','products','customers','discounts','sources','finance'];
-    panels.forEach(p => {
-      document.getElementById('panel-'+p).style.display = p===tab?'':'none';
-      document.getElementById('tab-'+p).classList.toggle('active', p===tab);
-    });
+  function renderTopProducts(products) {
+    const maxRev = Math.max(...products.map(p=>parseFloat(p.revenue||0)), 1);
+    document.getElementById('topProductsTable').innerHTML = products.length ? products.map(p=>{
+      const pct = Math.round(parseFloat(p.revenue||0)/maxRev*100);
+      return `<div style="padding:10px 16px;border-bottom:1px solid #f6f6f7">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+          <span style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60%">${Fmt.truncate(p.title,35)}</span>
+          <span style="font-size:12px;font-weight:700;flex-shrink:0">${Fmt.money(p.revenue||0)}</span>
+        </div>
+        <div class="ana-bar"><div class="ana-bar-fill" style="width:${pct}%;background:#3b82f6"></div></div>
+        <div style="font-size:11px;color:#8c9196;margin-top:3px">${p.units_sold||0} units · ${p.order_count||0} orders</div>
+      </div>`;
+    }).join('') : '<div style="padding:24px;text-align:center;color:#8c9196;font-size:13px">No sales data yet</div>';
   }
 
   function exportReport() {
-    const rows = [['Date','Orders','Revenue','Net Sales']];
-    (_salesData||[]).forEach(d => rows.push([d.date, d.orders, parseFloat(d.revenue||0).toFixed(2), parseFloat(d.gross||0).toFixed(2)]));
+    const rows = [['Date','Revenue','Orders']];
+    _salesData.forEach(d => rows.push([d.date, parseFloat(d.revenue||0).toFixed(2), d.orders||0]));
     exportCSV(rows, `analytics-${new Date().toISOString().split('T')[0]}.csv`);
     Toast.success('Report exported');
   }
 
+  function openPeriod() { Toast.show('Use the dropdown to change the period'); }
+  function cyclePeriod() { Toast.show('Comparison period adjusts automatically'); }
+
+  setPeriodLabels();
   loadAll();
 
 })();

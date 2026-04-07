@@ -8,313 +8,416 @@
   <link rel="stylesheet" href="admin-layout.css"/>
   <link rel="stylesheet" href="admin-components.css"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    /* Shopify-style dashboard overrides */
+    .dash-metric-row { display:grid; grid-template-columns:repeat(4,1fr); gap:0; border:1px solid #e3e3e3; border-radius:12px; overflow:hidden; background:white; margin-bottom:16px; }
+    .dash-metric { padding:16px 20px; border-right:1px solid #e3e3e3; cursor:pointer; transition:background 0.1s; }
+    .dash-metric:last-child { border-right:none; }
+    .dash-metric:hover { background:#f9f9f9; }
+    .dash-metric.active { background:#f0f0f0; border-bottom:2px solid #1a1a1a; }
+    .dash-metric-label { font-size:12px; color:#6d7175; margin-bottom:4px; display:flex; align-items:center; gap:6px; }
+    .dash-metric-value { font-size:22px; font-weight:700; color:#1a1a1a; margin-bottom:3px; }
+    .dash-metric-delta { font-size:12px; display:flex; align-items:center; gap:3px; }
+    .delta-up { color:#1a7f37; }
+    .delta-down { color:#c0392b; }
+    .delta-neutral { color:#6d7175; }
+    .dash-chart-wrap { background:white; border:1px solid #e3e3e3; border-radius:12px; padding:20px; margin-bottom:16px; }
+    .dash-alert-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+    .dash-alert { display:flex; align-items:center; gap:8px; padding:9px 14px; background:white; border:1px solid #e3e3e3; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; text-decoration:none; color:#1a1a1a; transition:border-color 0.1s; white-space:nowrap; }
+    .dash-alert:hover { border-color:#1a1a1a; }
+    .dash-alert svg { flex-shrink:0; }
+    .dash-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+    .dash-card { background:white; border:1px solid #e3e3e3; border-radius:12px; overflow:hidden; }
+    .dash-card-header { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid #f0f0f0; }
+    .dash-card-title { font-size:14px; font-weight:600; color:#1a1a1a; }
+    .dash-card-link { font-size:13px; color:#2563eb; text-decoration:none; font-weight:500; }
+    .dash-card-link:hover { text-decoration:underline; }
+    .order-row { display:flex; align-items:center; gap:12px; padding:11px 18px; border-bottom:1px solid #f6f6f7; text-decoration:none; color:#1a1a1a; transition:background 0.1s; }
+    .order-row:hover { background:#f9f9f9; }
+    .order-row:last-child { border-bottom:none; }
+    .order-num { font-size:13px; font-weight:600; color:#1a1a1a; }
+    .order-meta { font-size:12px; color:#6d7175; }
+    .order-total { font-size:13px; font-weight:600; margin-left:auto; }
+    .order-badge { font-size:11px; padding:2px 7px; border-radius:20px; font-weight:500; }
+    .badge-paid { background:#d1fae5; color:#065f46; }
+    .badge-pending { background:#fef3c7; color:#92400e; }
+    .badge-refunded { background:#f3f4f6; color:#6b7280; }
+    .prod-row { display:flex; align-items:center; gap:12px; padding:11px 18px; border-bottom:1px solid #f6f6f7; text-decoration:none; color:#1a1a1a; transition:background 0.1s; }
+    .prod-row:hover { background:#f9f9f9; }
+    .prod-row:last-child { border-bottom:none; }
+    .prod-thumb { width:40px; height:40px; border-radius:8px; object-fit:cover; border:1px solid #e3e3e3; flex-shrink:0; background:#f6f6f7; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+    .prod-thumb img { width:100%; height:100%; object-fit:cover; }
+    .prod-name { font-size:13px; font-weight:500; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .prod-price { font-size:13px; color:#6d7175; }
+    .prod-stock { font-size:12px; font-weight:600; margin-left:auto; }
+    .quick-actions { display:flex; gap:8px; flex-wrap:wrap; }
+    .qa-btn { display:flex; align-items:center; gap:7px; height:36px; padding:0 14px; background:white; border:1px solid #e3e3e3; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; font-family:inherit; color:#303030; transition:all 0.1s; text-decoration:none; }
+    .qa-btn:hover { border-color:#1a1a1a; background:#f9f9f9; }
+    .live-dot { width:8px; height:8px; border-radius:50%; background:#22c55e; display:inline-block; animation:pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+  </style>
 </head>
 <body>
 <div class="app">
-
-<aside class="sidebar">
-  <div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div>
-</aside>
-
+<aside class="sidebar"><div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div></aside>
   <div class="main">
     <div class="topbar" id="sivraTopbar"></div>
     <div class="page-scroll">
-      <div style="max-width:1280px;margin:0 auto">
+      <div style="max-width:1280px;margin:0 auto;padding:0 4px">
 
         <!-- Page header -->
-        <div class="page-header">
+        <div class="page-header" style="margin-bottom:16px">
           <div>
-            <h1 class="page-title" id="dashGreeting">Good morning</h1>
-            <p class="page-subtitle" id="dashDate"></p>
+            <h1 class="page-title" id="dashGreeting" style="font-size:22px">Good morning</h1>
+            <div class="text-muted text-sm" id="dashDate"></div>
           </div>
           <div class="btn-group">
-            <select class="sort-select" id="dashPeriod" onchange="loadStats(this.value)" style="height:32px">
+            <select id="dashPeriod" class="sort-select" onchange="loadStats(parseInt(this.value))" style="height:32px">
+              <option value="1">Today</option>
               <option value="7">Last 7 days</option>
               <option value="30" selected>Last 30 days</option>
-              <option value="90">Last 3 months</option>
+              <option value="90">Last 90 days</option>
             </select>
-            <button class="btn btn-secondary" onclick="openStorefront()">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1.5 7h11M7 1.5l5.5 5.5L7 12.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-              View store
-            </button>
-            <button class="btn btn-primary" onclick="location.href='sivra-add-product.html'">+ Add product</button>
+            <a href="sivra-storefront.html" target="_blank" class="btn btn-secondary">→ View store</a>
+            <a href="sivra-add-product.html" class="btn btn-primary">+ Add product</a>
           </div>
         </div>
 
-        <div class="page-body">
+        <!-- Alerts -->
+        <div id="dashAlerts" class="dash-alert-row" style="display:none"></div>
 
-          <!-- KPI cards -->
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
-            <div class="stat-card" onclick="location.href='sivra-analytics.html'">
-              <div class="stat-label">Revenue</div>
-              <div class="stat-value" id="kpiRevenue"><span class="skeleton skeleton-text w-50" style="height:24px;display:block"></span></div>
-              <div class="stat-delta" id="kpiRevDelta"></div>
+        <!-- Metrics row — Shopify style clickable tabs -->
+        <div class="dash-metric-row" id="metricRow">
+          <div class="dash-metric active" onclick="setMetric('revenue',this)">
+            <div class="dash-metric-label">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M4 9.5c0 1.1.9 2 2 2h2a2 2 0 0 0 0-4H6a2 2 0 0 1 0-4h2a2 2 0 0 1 2 2" stroke="#6d7175" stroke-width="1.3" stroke-linecap="round"/></svg>
+              Total sales
             </div>
-            <div class="stat-card" onclick="location.href='sivra-orders.html'">
-              <div class="stat-label">Orders</div>
-              <div class="stat-value" id="kpiOrders"><span class="skeleton skeleton-text w-50" style="height:24px;display:block"></span></div>
-              <div class="stat-delta" id="kpiOrdDelta"></div>
+            <div class="dash-metric-value" id="kpiRevenue"><div class="skeleton" style="height:26px;width:80px;border-radius:4px"></div></div>
+            <div class="dash-metric-delta" id="kpiRevDelta"></div>
+          </div>
+          <div class="dash-metric" onclick="setMetric('orders',this)">
+            <div class="dash-metric-label">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="#6d7175" stroke-width="1.3"/><path d="M4 5h6M4 7.5h4" stroke="#6d7175" stroke-width="1.2" stroke-linecap="round"/></svg>
+              Orders
             </div>
-            <div class="stat-card" onclick="location.href='sivra-customers.html'">
-              <div class="stat-label">Customers</div>
-              <div class="stat-value" id="kpiCustomers"><span class="skeleton skeleton-text w-50" style="height:24px;display:block"></span></div>
+            <div class="dash-metric-value" id="kpiOrders"><div class="skeleton" style="height:26px;width:40px;border-radius:4px"></div></div>
+            <div class="dash-metric-delta" id="kpiOrdDelta"></div>
+          </div>
+          <div class="dash-metric" onclick="setMetric('customers',this)">
+            <div class="dash-metric-label">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="#6d7175" stroke-width="1.3"/><path d="M2 12c0-2.76 2.24-5 5-5s5 2.24 5 5" stroke="#6d7175" stroke-width="1.3" stroke-linecap="round"/></svg>
+              Customers
             </div>
-            <div class="stat-card" onclick="location.href='sivra-products.html'">
-              <div class="stat-label">Active products</div>
-              <div class="stat-value" id="kpiProducts"><span class="skeleton skeleton-text w-50" style="height:24px;display:block"></span></div>
+            <div class="dash-metric-value" id="kpiCustomers"><div class="skeleton" style="height:26px;width:40px;border-radius:4px"></div></div>
+            <div class="dash-metric-delta" id="kpiCustDelta"></div>
+          </div>
+          <div class="dash-metric" onclick="setMetric('aov',this)">
+            <div class="dash-metric-label">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M7 1l3 6-3 6-3-6 3-6z" stroke="#6d7175" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Avg. order value
+            </div>
+            <div class="dash-metric-value" id="kpiAov"><div class="skeleton" style="height:26px;width:60px;border-radius:4px"></div></div>
+            <div class="dash-metric-delta" id="kpiAovDelta"></div>
+          </div>
+        </div>
+
+        <!-- Main chart -->
+        <div class="dash-chart-wrap">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <div>
+              <div style="font-size:12px;color:#6d7175;margin-bottom:2px" id="chartLabel">Total sales over time</div>
+              <div style="font-size:26px;font-weight:700;color:#1a1a1a" id="chartTotal">—</div>
+            </div>
+          </div>
+          <div style="height:200px;margin-top:12px">
+            <canvas id="dashChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Orders to fulfill + other alerts below chart -->
+        <div id="actionAlerts" class="dash-alert-row"></div>
+
+        <!-- Two column: recent orders + top products -->
+        <div class="dash-grid">
+          <!-- Recent orders -->
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <span class="dash-card-title">Recent orders</span>
+              <a href="sivra-orders.html" class="dash-card-link">View all</a>
+            </div>
+            <div id="recentOrdersList">
+              <div style="padding:32px;text-align:center;color:#8c9196;font-size:13px">Loading...</div>
             </div>
           </div>
 
-          <!-- Alerts -->
-          <div id="dashAlerts" style="margin-bottom:16px"></div>
-
-          <!-- Revenue chart -->
-          <div class="card" style="margin-bottom:16px">
-            <div class="card-header">
-              <span class="card-title">Revenue</span>
-              <div class="btn-group">
-                <button class="btn btn-secondary btn-sm active" id="chartRevBtn" onclick="switchChart('revenue')">Revenue</button>
-                <button class="btn btn-secondary btn-sm" id="chartOrdBtn" onclick="switchChart('orders')">Orders</button>
-              </div>
+          <!-- Top products -->
+          <div class="dash-card">
+            <div class="dash-card-header">
+              <span class="dash-card-title">Products</span>
+              <a href="sivra-products.html" class="dash-card-link">View all</a>
             </div>
-            <div style="padding:16px"><canvas id="dashChart" height="200"></canvas></div>
-          </div>
-
-          <!-- Two-col -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
-
-            <!-- Recent orders -->
-            <div class="card">
-              <div class="card-header">
-                <span class="card-title">Recent orders</span>
-                <a href="sivra-orders.html" class="btn btn-plain btn-sm">View all</a>
-              </div>
-              <div id="recentOrdersList">
-                <div style="padding:20px">
-                  <div class="skeleton skeleton-text w-100" style="margin-bottom:12px"></div><div class="skeleton skeleton-text w-75" style="margin-bottom:16px"></div>
-                  <div class="skeleton skeleton-text w-100" style="margin-bottom:12px"></div><div class="skeleton skeleton-text w-75" style="margin-bottom:16px"></div>
-                  <div class="skeleton skeleton-text w-100" style="margin-bottom:12px"></div><div class="skeleton skeleton-text w-75"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Top products -->
-            <div class="card">
-              <div class="card-header">
-                <span class="card-title">Products</span>
-                <a href="sivra-products.html" class="btn btn-plain btn-sm">View all</a>
-              </div>
-              <div id="topProductsList">
-                <div style="padding:20px">
-                  <div class="skeleton skeleton-text w-100" style="margin-bottom:12px"></div><div class="skeleton skeleton-text w-75" style="margin-bottom:16px"></div>
-                  <div class="skeleton skeleton-text w-100" style="margin-bottom:12px"></div><div class="skeleton skeleton-text w-75" style="margin-bottom:16px"></div>
-                  <div class="skeleton skeleton-text w-100" style="margin-bottom:12px"></div><div class="skeleton skeleton-text w-75"></div>
-                </div>
-              </div>
+            <div id="topProductsList">
+              <div style="padding:32px;text-align:center;color:#8c9196;font-size:13px">Loading...</div>
             </div>
           </div>
+        </div>
 
-          <!-- Quick actions -->
-          <div class="card">
-            <div class="card-header"><span class="card-title">Quick actions</span></div>
-            <div style="padding:12px;display:flex;gap:8px;flex-wrap:wrap">
-              <button class="btn btn-secondary" onclick="location.href='sivra-add-product.html'">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <!-- Quick actions -->
+        <div class="dash-card" style="margin-bottom:16px">
+          <div class="dash-card-header"><span class="dash-card-title">Quick actions</span></div>
+          <div style="padding:14px 18px">
+            <div class="quick-actions">
+              <a href="sivra-add-product.html" class="qa-btn">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                 Add product
-              </button>
-              <button class="btn btn-secondary" onclick="location.href='sivra-orders.html'">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M4 5h6M4 7.5h6M4 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              </a>
+              <a href="sivra-orders.html" class="qa-btn">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M4 5h6M4 7.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
                 View orders
-              </button>
-              <button class="btn btn-secondary" onclick="location.href='sivra-discounts.html'">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="5" cy="5" r="1.5" stroke="currentColor" stroke-width="1.3"/><circle cx="9" cy="9" r="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M3 11L11 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              </a>
+              <a href="sivra-discounts.html" class="qa-btn">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="4.5" cy="4.5" r="1.5" stroke="currentColor" stroke-width="1.3"/><circle cx="9.5" cy="9.5" r="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M3 11L11 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
                 Create discount
-              </button>
-              <button class="btn btn-secondary" onclick="location.href='sivra-settings.html'">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M7 1v2M7 11v2M1 7h2M11 7h2M2.9 2.9l1.4 1.4M9.7 9.7l1.4 1.4M11.1 2.9l-1.4 1.4M4.3 9.7l-1.4 1.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              </a>
+              <a href="sivra-themes.html" class="qa-btn">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M7 4v3l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                Customize theme
+              </a>
+              <a href="sivra-settings.html" class="qa-btn">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M7 1.5v1M7 11.5v1M1.5 7h1M11.5 7h1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
                 Settings
-              </button>
+              </a>
+              <a href="sivra-live-view.html" class="qa-btn">
+                <span class="live-dot"></span>
+                Live view
+              </a>
             </div>
           </div>
-
         </div>
 
       </div>
     </div>
   </div>
 </div>
-
 <div class="toast" id="sivra-toast"></div>
-
 <script src="admin.js"></script>
 <script>
-// Page init
 (async function() {
   const session = await initAdmin('home');
   if (!session) return;
-  const storeSlug = Auth.getSlug();
-  
-  // Set greeting
+
   const hr = new Date().getHours();
   const greeting = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
   const merchant = Auth.getMerchant();
   document.getElementById('dashGreeting').textContent = greeting + (merchant ? ', ' + (merchant.firstName || merchant.first_name || '') : '');
   document.getElementById('dashDate').textContent = new Date().toLocaleDateString('en-AU', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
 
-  let _chart = null, _chartMode = 'revenue', _orders = [], _products = [];
+  let _chart = null, _chartMode = 'revenue', _chartData = [], _overview = null;
 
-  function switchChart(mode) {
+  function setMetric(mode, el) {
     _chartMode = mode;
-    document.getElementById('chartRevBtn').classList.toggle('active', mode==='revenue');
-    document.getElementById('chartOrdBtn').classList.toggle('active', mode==='orders');
-    drawChart(parseInt(document.getElementById('dashPeriod').value));
+    document.querySelectorAll('.dash-metric').forEach(m => m.classList.remove('active'));
+    el.classList.add('active');
+    const labels = { revenue:'Total sales over time', orders:'Orders over time', customers:'New customers over time', aov:'Avg. order value over time' };
+    document.getElementById('chartLabel').textContent = labels[mode];
+    drawChart();
   }
 
-  function drawChart(days) {
-    const labels = [], data = [];
-    // _orders is now array of {date, revenue, orders} from analytics endpoint
-    const chartData = Array.isArray(_orders) ? _orders : [];
-    chartData.forEach(point => {
-      const d = new Date(point.date);
-      labels.push(d.toLocaleDateString('en-AU', {day:'numeric', month:'short'}));
-      data.push(_chartMode === 'revenue' ? parseFloat(point.revenue||0) : parseInt(point.orders||0));
+  function drawChart() {
+    const labels = _chartData.map(d => {
+      const dt = new Date(d.date);
+      return dt.toLocaleDateString('en-AU', {day:'numeric', month:'short'});
     });
+    let data, total;
+    if (_chartMode === 'revenue') {
+      data = _chartData.map(d => parseFloat(d.revenue||0));
+      total = data.reduce((s,v) => s+v, 0);
+      document.getElementById('chartTotal').textContent = Fmt.money(total);
+    } else if (_chartMode === 'orders') {
+      data = _chartData.map(d => parseInt(d.orders||0));
+      total = data.reduce((s,v) => s+v, 0);
+      document.getElementById('chartTotal').textContent = total + ' orders';
+    } else if (_chartMode === 'customers') {
+      data = _chartData.map(d => parseInt(d.orders||0)); // proxy
+      total = _overview?.customers?.total || 0;
+      document.getElementById('chartTotal').textContent = total + ' customers';
+    } else {
+      data = _chartData.map(d => {
+        const rev = parseFloat(d.revenue||0);
+        const ord = parseInt(d.orders||0);
+        return ord > 0 ? rev/ord : 0;
+      });
+      const avgAov = data.filter(v=>v>0);
+      const aovVal = avgAov.length ? avgAov.reduce((s,v)=>s+v,0)/avgAov.length : 0;
+      document.getElementById('chartTotal').textContent = Fmt.money(aovVal);
+    }
+
     if (_chart) _chart.destroy();
-    _chart = new Chart(document.getElementById('dashChart'), {
+    const ctx = document.getElementById('dashChart');
+    _chart = new Chart(ctx, {
       type: 'line',
-      data: { labels, datasets: [{ data,
-        borderColor: '#1a1a1a', backgroundColor: 'rgba(26,26,26,0.04)',
+      data: { labels, datasets: [{
+        data,
+        borderColor: '#1a1a1a',
+        backgroundColor: 'rgba(26,26,26,0.04)',
         borderWidth: 2, tension: 0.4, fill: true,
-        pointRadius: 0, pointHoverRadius: 4, pointHoverBackgroundColor: '#1a1a1a'
+        pointRadius: 0, pointHoverRadius: 4,
+        pointHoverBackgroundColor: '#1a1a1a',
+        pointHoverBorderColor: 'white',
+        pointHoverBorderWidth: 2,
       }]},
       options: {
         responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false },
-          tooltip: { backgroundColor: '#303030', titleColor: '#fff', bodyColor: '#ccc', padding: 8, cornerRadius: 6,
-            callbacks: { label: c => _chartMode === 'revenue' ? '$' + c.raw.toFixed(2) : c.raw + ' orders' } }},
+        interaction: { intersect: false, mode: 'index' },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1a1a1a', titleColor: '#fff', bodyColor: '#ccc',
+            padding: 10, cornerRadius: 8, displayColors: false,
+            callbacks: {
+              label: c => _chartMode === 'revenue' || _chartMode === 'aov' ? Fmt.money(c.raw) : c.raw + (_chartMode==='orders'?' orders':' customers')
+            }
+          }
+        },
         scales: {
           x: { grid: { display: false }, border: { display: false }, ticks: { color: '#8c9196', font: { size: 11 }, maxTicksLimit: 10 }},
-          y: { grid: { color: 'rgba(0,0,0,0.04)' }, border: { display: false }, ticks: { color: '#8c9196', font: { size: 11 },
-            callback: v => _chartMode === 'revenue' ? '$' + v.toFixed(0) : v }}
+          y: { grid: { color: 'rgba(0,0,0,0.04)' }, border: { display: false }, ticks: { color: '#8c9196', font: { size: 11 }, callback: v => _chartMode === 'revenue' || _chartMode === 'aov' ? '$' + v.toFixed(0) : v }}
         }
       }
     });
   }
 
-  async function loadStats(days = 30) {
+  function renderDelta(el, pct) {
+    if (!el || pct === undefined || pct === null) return;
+    const up = pct >= 0;
+    el.innerHTML = `<span class="${up?'delta-up':'delta-down'}">${up?'↑':'↓'} ${Math.abs(pct)}%</span> <span class="delta-neutral">vs prev period</span>`;
+  }
+
+  async function loadStats(days) {
     try {
-      const [overview, salesData, invData] = await Promise.all([
+      const [overview, salesData] = await Promise.all([
         API.get('/api/analytics/overview?days=' + days),
         API.get('/api/analytics/sales-over-time?days=' + days),
-        API.get('/api/analytics/inventory'),
       ]);
+      _overview = overview;
+      _chartData = salesData.data || [];
 
-      // KPI cards
-      const r = overview.revenue || {};
-      const o = overview.orders || {};
-      const aov = overview.aov || {};
-      document.getElementById('kpiRevenue').textContent = Fmt.money(r.value || 0);
-      document.getElementById('kpiOrders').textContent = o.value || 0;
+      // KPI values
+      document.getElementById('kpiRevenue').textContent = Fmt.money(overview.revenue?.value || 0);
+      document.getElementById('kpiOrders').textContent = overview.orders?.value || 0;
       document.getElementById('kpiCustomers').textContent = overview.customers?.total || 0;
-      document.getElementById('kpiProducts').textContent = overview.products?.active || 0;
+      document.getElementById('kpiAov').textContent = Fmt.money(overview.aov?.value || 0);
+      renderDelta(document.getElementById('kpiRevDelta'), overview.revenue?.change_pct);
+      renderDelta(document.getElementById('kpiOrdDelta'), overview.orders?.change_pct);
+      renderDelta(document.getElementById('kpiAovDelta'), overview.aov?.change_pct);
 
-      // Delta indicators
-      const fmtDelta = (pct) => {
-        if (pct === undefined || pct === null) return '';
-        const col = pct >= 0 ? 'var(--p-color-text-success)' : 'var(--p-color-text-critical)';
-        return `<span style="color:${col};font-size:12px">${pct >= 0 ? '↑' : '↓'} ${Math.abs(pct)}%</span>`;
-      };
-      const revDelta = document.getElementById('kpiRevDelta');
-      const ordDelta = document.getElementById('kpiOrdDelta');
-      if (revDelta) revDelta.innerHTML = fmtDelta(r.change_pct);
-      if (ordDelta) ordDelta.innerHTML = fmtDelta(o.change_pct);
+      // Chart total
+      const totalRev = _chartData.reduce((s,d) => s+parseFloat(d.revenue||0), 0);
+      document.getElementById('chartTotal').textContent = Fmt.money(totalRev);
 
-      // Store sales data for chart
-      _orders = salesData.data || [];
+      drawChart();
 
-      // Build alerts
+      // Action alerts (orders to fulfill, low stock)
       const alerts = [];
-      const unfulfilledCount = o.value > 0 ? null : 0; // from orders tab
-      const lowStock = overview.products?.low_stock || 0;
-      const outOfStock = overview.products?.out_of_stock || 0;
-      if (lowStock > 0) alerts.push({ type:'warning', msg: `${lowStock} product${lowStock!==1?'s':''} running low on stock`, href:'sivra-inventory.html' });
-      if (outOfStock > 0) alerts.push({ type:'critical', msg: `${outOfStock} product${outOfStock!==1?'s':''} out of stock`, href:'sivra-inventory.html' });
-
-      // Check unfulfilled orders
       try {
-        const unfData = await API.get('/api/orders?fulfillment_status=unfulfilled&limit=50');
-        const unfulfilledOrders = (unfData.orders || []).filter(x => x.status !== 'cancelled');
-        if (unfulfilledOrders.length > 0) {
-          alerts.push({ type:'warning', msg: `${unfulfilledOrders.length} unfulfilled order${unfulfilledOrders.length!==1?'s':''}`, href:'sivra-orders.html?fulfillment_status=unfulfilled' });
-        }
-        const unpaidOrders = (unfData.orders || []).filter(x => x.payment_status === 'pending' && x.status !== 'cancelled');
-        // also check unpaid
-        const unpaidData = await API.get('/api/orders?payment_status=pending&limit=50');
-        const unpaid = (unpaidData.orders || []).filter(x => x.status !== 'cancelled');
-        if (unpaid.length > 0) {
-          alerts.push({ type:'info', msg: `${unpaid.length} order${unpaid.length!==1?'s':''} awaiting payment`, href:'sivra-orders.html' });
-        }
+        const [unfulfData, invData] = await Promise.all([
+          API.get('/api/orders?fulfillment_status=unfulfilled&limit=100'),
+          API.get('/api/analytics/inventory'),
+        ]);
+        const unfulfilled = (unfulfData.orders||[]).filter(o=>o.status!=='cancelled');
+        const unpaid = (unfulfData.orders||[]).filter(o=>o.payment_status==='pending'&&o.status!=='cancelled');
+        const lowStock = (invData.products||[]).filter(p=>p.stock_status==='low_stock');
+        const outStock = (invData.products||[]).filter(p=>p.stock_status==='out_of_stock');
+        if (unfulfilled.length) alerts.push({ icon:'📦', label:`${unfulfilled.length} order${unfulfilled.length!==1?'s':''} to fulfill`, href:'sivra-orders.html' });
+        if (unpaid.length) alerts.push({ icon:'💳', label:`${unpaid.length} payment${unpaid.length!==1?'s':''} to capture`, href:'sivra-orders.html' });
+        if (outStock.length) alerts.push({ icon:'⚠️', label:`${outStock.length} out of stock`, href:'sivra-inventory.html' });
+        if (lowStock.length) alerts.push({ icon:'📉', label:`${lowStock.length} low stock`, href:'sivra-inventory.html' });
       } catch(e) {}
 
-      const alertsEl = document.getElementById('dashAlerts');
-      if (alertsEl) {
-        if (alerts.length === 0) {
-          alertsEl.style.display = 'none';
-        } else {
-          alertsEl.style.display = '';
-          alertsEl.innerHTML = alerts.map(a => `
-            <a href="${a.href}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:${a.type==='critical'?'#fde8e8':a.type==='warning'?'#fff8e1':'#e8f4fd'};border-radius:8px;text-decoration:none;color:#1a1a1a;font-size:13px;font-weight:500;transition:opacity 0.1s" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">
-              <span>${a.type==='critical'?'🔴':a.type==='warning'?'⚠️':'ℹ️'}</span>
-              <span style="flex:1">${a.msg}</span>
-              <span style="color:#8c9196">→</span>
-            </a>`).join('');
-        }
-      }
+      const alertsEl = document.getElementById('actionAlerts');
+      alertsEl.innerHTML = alerts.map(a =>
+        `<a href="${a.href}" class="dash-alert">${a.icon} ${a.label}</a>`
+      ).join('');
 
-      // Inventory low stock in sidebar
-      const invProducts = (invData.products || []).filter(p => p.stock_status !== 'in_stock');
-      const lowStockList = document.getElementById('lowStockList');
-      if (lowStockList && invProducts.length > 0) {
-        document.getElementById('lowStockSection').style.display = '';
-        lowStockList.innerHTML = invProducts.slice(0,5).map(p =>
-          `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f6f6f7;font-size:13px">
-            <a href="sivra-edit-product.html?id=${p.id}" style="font-weight:500;text-decoration:none;color:#1a1a1a;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.title}</a>
-            <span style="color:${p.stock_status==='out_of_stock'?'var(--p-color-text-critical)':'var(--p-color-text-caution)'};font-weight:600;margin-left:8px">${p.quantity}</span>
-          </div>`).join('');
-      }
+      // Recent orders and top products in parallel
+      const [ordData, prodData] = await Promise.all([
+        API.get('/api/orders?limit=8&sort=newest'),
+        API.get('/api/products?limit=8&status=active'),
+      ]);
+      renderRecentOrders(ordData.orders || []);
+      renderTopProducts(prodData.products || []);
 
-      drawChart(days);
     } catch(e) {
-      console.error('Dashboard load error:', e);
-      // Fall back to direct API calls if analytics endpoint unavailable
+      console.error('Dashboard error:', e);
+      // Fallback
       try {
-        const [oData, pData, cData] = await Promise.all([
-          API.get('/api/orders?limit=200'),
-          API.get('/api/products?limit=200'),
-          API.get('/api/customers?limit=1'),
-        ]);
-        const orders = (oData.orders || []).filter(o => o.status !== 'cancelled');
-        const revenue = orders.reduce((s,o) => s + parseFloat(o.total||0), 0);
-        document.getElementById('kpiRevenue').textContent = Fmt.money(revenue);
-        document.getElementById('kpiOrders').textContent = orders.length;
-        document.getElementById('kpiCustomers').textContent = cData.total || 0;
-        document.getElementById('kpiProducts').textContent = (pData.products||[]).filter(p=>p.status==='active').length;
-        // Build simple chart from orders
-        _orders = [];
-        for (let i = days-1; i >= 0; i--) {
-          const d = new Date(); d.setDate(d.getDate()-i);
-          const ds = d.toISOString().split('T')[0];
-          const dayOrds = orders.filter(o => o.created_at && o.created_at.startsWith(ds));
-          _orders.push({ date: ds, revenue: dayOrds.reduce((s,o)=>s+parseFloat(o.total||0),0), orders: dayOrds.length });
+        const [oData, pData] = await Promise.all([API.get('/api/orders?limit=200'), API.get('/api/products?limit=100')]);
+        const orders = oData.orders||[];
+        const activeOrders = orders.filter(o=>o.status!=='cancelled');
+        const rev = activeOrders.reduce((s,o)=>s+parseFloat(o.total||0),0);
+        document.getElementById('kpiRevenue').textContent = Fmt.money(rev);
+        document.getElementById('kpiOrders').textContent = activeOrders.length;
+        document.getElementById('kpiCustomers').textContent = '—';
+        document.getElementById('kpiAov').textContent = activeOrders.length ? Fmt.money(rev/activeOrders.length) : '$0.00';
+        _chartData = [];
+        for (let i=days-1;i>=0;i--) {
+          const d=new Date();d.setDate(d.getDate()-i);
+          const ds=d.toISOString().split('T')[0];
+          const dayO=activeOrders.filter(o=>o.created_at&&o.created_at.startsWith(ds));
+          _chartData.push({date:ds,revenue:dayO.reduce((s,o)=>s+parseFloat(o.total||0),0),orders:dayO.length});
         }
-        drawChart(days);
-        // Load recent orders
-        loadRecentOrders(orders.slice(0,5));
-        loadTopProducts(pData.products||[]);
-      } catch(e2) {
-        Toast.error('Failed to load dashboard data');
-      }
+        document.getElementById('chartTotal').textContent = Fmt.money(rev);
+        drawChart();
+        renderRecentOrders(orders.slice(0,8));
+        renderTopProducts(pData.products||[]);
+      } catch(e2) { Toast.error('Failed to load dashboard'); }
     }
+  }
+
+  function renderRecentOrders(orders) {
+    const el = document.getElementById('recentOrdersList');
+    if (!orders.length) {
+      el.innerHTML = '<div style="padding:32px;text-align:center;color:#8c9196;font-size:13px"><div style="font-size:28px;margin-bottom:8px">📋</div>No orders yet</div>';
+      return;
+    }
+    el.innerHTML = orders.slice(0,6).map(o => {
+      const badgeClass = o.payment_status==='paid'?'badge-paid':o.payment_status==='refunded'?'badge-refunded':'badge-pending';
+      const badgeLabel = (o.payment_status||'pending').replace(/_/g,' ');
+      const name = o.shipping_name || o.customer_email || 'Guest';
+      return `<a href="sivra-order-detail.html?id=${o.id}" class="order-row">
+        <div>
+          <div class="order-num">#${o.order_number}</div>
+          <div class="order-meta">${Fmt.relativeTime(o.created_at)} · ${name}</div>
+        </div>
+        <span class="order-badge ${badgeClass}" style="text-transform:capitalize">${badgeLabel}</span>
+        <span class="order-total">${Fmt.money(o.total||0)}</span>
+      </a>`;
+    }).join('');
+  }
+
+  function renderTopProducts(products) {
+    const el = document.getElementById('topProductsList');
+    const active = products.filter(p=>p.status==='active');
+    if (!active.length) {
+      el.innerHTML = '<div style="padding:32px;text-align:center;color:#8c9196;font-size:13px"><div style="font-size:28px;margin-bottom:8px">📦</div>No products yet</div>';
+      return;
+    }
+    el.innerHTML = active.slice(0,6).map(p => {
+      const imgs = Array.isArray(p.images)?p.images:(typeof p.images==='string'?JSON.parse(p.images||'[]'):[]);
+      const img = imgs[0]?`<img src="${imgs[0]}" alt=""/>`:`<span style="font-size:18px;opacity:0.3">📦</span>`;
+      const qty = parseInt(p.quantity||0);
+      const stockColor = qty<=0?'#c0392b':qty<=5?'#b57d00':'#6d7175';
+      const stockLabel = qty<=0?'Out of stock':qty<=5?`${qty} left`:`${qty} in stock`;
+      return `<a href="sivra-edit-product.html?id=${p.id}" class="prod-row">
+        <div class="prod-thumb">${img}</div>
+        <div style="flex:1;min-width:0">
+          <div class="prod-name">${p.title||'—'}</div>
+          <div class="prod-price">${Fmt.money(p.price||0)}</div>
+        </div>
+        <span class="prod-stock" style="color:${stockColor}">${stockLabel}</span>
+      </a>`;
+    }).join('');
   }
 
   loadStats(30);

@@ -177,7 +177,11 @@ const NAV = {
     },
     {
       id: 'analytics', label: 'Analytics', href: 'sivra-analytics.html',
-      icon: `<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="10" width="3" height="6" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="7" y="6" width="3" height="10" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="12" y="2" width="3" height="14" rx="1" stroke="currentColor" stroke-width="1.4"/></svg>`
+      icon: `<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="10" width="3" height="6" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="7" y="6" width="3" height="10" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="12" y="2" width="3" height="14" rx="1" stroke="currentColor" stroke-width="1.4"/></svg>`,
+      children: [
+        { label: 'Reports', href: 'sivra-analytics.html' },
+        { label: 'Live view', href: 'sivra-live-view.html' },
+      ]
     },
     {
       id: 'marketing', label: 'Marketing', href: 'sivra-marketing.html',

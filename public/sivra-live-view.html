@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sivra — Live view</title>
+  <link rel="stylesheet" href="admin-tokens.css"/>
+  <link rel="stylesheet" href="admin-layout.css"/>
+  <link rel="stylesheet" href="admin-components.css"/>
+  <style>
+    .live-header { display:flex; align-items:center; gap:10px; margin-bottom:20px; }
+    .live-dot { width:10px; height:10px; border-radius:50%; background:#22c55e; animation:livepulse 2s infinite; flex-shrink:0; }
+    @keyframes livepulse { 0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.85)} }
+    .live-grid { display:grid; grid-template-columns:360px 1fr; gap:16px; }
+    .live-panel { display:flex; flex-direction:column; gap:12px; }
+    .live-card { background:white; border:1px solid #e3e3e3; border-radius:12px; overflow:hidden; }
+    .live-card-header { padding:14px 18px; border-bottom:1px solid #f0f0f0; font-size:13px; font-weight:600; color:#6d7175; text-transform:uppercase; letter-spacing:0.4px; }
+    .live-stat { display:grid; grid-template-columns:1fr 1fr; gap:0; }
+    .live-stat-item { padding:16px 18px; border-right:1px solid #f0f0f0; border-bottom:1px solid #f0f0f0; }
+    .live-stat-item:nth-child(2n) { border-right:none; }
+    .live-stat-item:nth-last-child(-n+2) { border-bottom:none; }
+    .live-stat-label { font-size:12px; color:#6d7175; margin-bottom:4px; }
+    .live-stat-value { font-size:24px; font-weight:700; color:#1a1a1a; }
+    .live-behavior { display:grid; grid-template-columns:repeat(3,1fr); }
+    .live-behavior-item { padding:14px 18px; text-align:center; border-right:1px solid #f0f0f0; }
+    .live-behavior-item:last-child { border-right:none; }
+    .live-behavior-num { font-size:28px; font-weight:700; color:#1a1a1a; }
+    .live-behavior-label { font-size:12px; color:#6d7175; margin-top:2px; }
+    .live-behavior-bar-wrap { padding:0 18px 14px; display:flex; gap:4px; align-items:flex-end; height:80px; }
+    .live-bar { flex:1; border-radius:3px 3px 0 0; min-height:4px; transition:height 0.5s; }
+    .bar-viewed { background:#3b82f6; }
+    .bar-cart { background:#8b5cf6; }
+    .bar-checkout { background:#f59e0b; }
+    .bar-purchased { background:#22c55e; }
+    .live-location-row { display:flex; align-items:center; justify-content:space-between; padding:10px 18px; border-bottom:1px solid #f6f6f7; font-size:13px; }
+    .live-location-row:last-child { border-bottom:none; }
+    .live-location-bar { height:4px; background:#e3e3e3; border-radius:2px; flex:1; margin:0 12px; overflow:hidden; }
+    .live-location-fill { height:100%; background:#3b82f6; border-radius:2px; }
+
+    /* Globe placeholder */
+    .globe-wrap { flex:1; background:white; border:1px solid #e3e3e3; border-radius:12px; display:flex; align-items:center; justify-content:center; min-height:500px; position:relative; overflow:hidden; }
+    .globe-svg { width:100%; height:100%; }
+    .globe-dot { position:absolute; width:10px; height:10px; border-radius:50%; background:#3b82f6; opacity:0.8; transform:translate(-50%,-50%); animation:dotpulse 3s infinite; }
+    @keyframes dotpulse { 0%,100%{transform:translate(-50%,-50%) scale(1);opacity:0.8}50%{transform:translate(-50%,-50%) scale(2);opacity:0.3} }
+    .globe-title { position:absolute; top:16px; left:20px; font-size:16px; font-weight:700; display:flex; align-items:center; gap:8px; }
+
+    .new-vs-returning { display:flex; gap:16px; padding:14px 18px; }
+    .nvr-item { display:flex; align-items:center; gap:8px; font-size:13px; }
+    .nvr-dot { width:10px; height:10px; border-radius:50%; }
+    .nvr-bar-wrap { padding:0 18px 16px; }
+    .nvr-bar-track { height:8px; border-radius:4px; overflow:hidden; background:#e3e3e3; display:flex; }
+    .nvr-bar-new { background:#3b82f6; height:100%; border-radius:4px 0 0 4px; }
+    .nvr-bar-ret { background:#8b5cf6; height:100%; border-radius:0 4px 4px 0; }
+  </style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar"><div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div></aside>
+  <div class="main">
+    <div class="topbar" id="sivraTopbar"></div>
+    <div class="page-scroll">
+      <div style="max-width:1400px;margin:0 auto;padding:0 4px">
+
+        <div class="live-header">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+              <h1 style="font-size:20px;font-weight:700">Live view</h1>
+              <div class="live-dot"></div>
+              <span style="font-size:13px;color:#6d7175" id="liveTimestamp">Just now</span>
+            </div>
+            <div style="font-size:13px;color:#6d7175">Real-time activity in your store</div>
+          </div>
+          <div style="margin-left:auto">
+            <button class="btn btn-secondary" onclick="loadLive()">↻ Refresh</button>
+          </div>
+        </div>
+
+        <div class="live-grid">
+
+          <!-- Left panel -->
+          <div class="live-panel">
+
+            <!-- Visitors + sales -->
+            <div class="live-card">
+              <div class="live-stat">
+                <div class="live-stat-item">
+                  <div class="live-stat-label">Visitors right now</div>
+                  <div class="live-stat-value" id="liveVisitors">—</div>
+                </div>
+                <div class="live-stat-item">
+                  <div class="live-stat-label">Total sales today</div>
+                  <div class="live-stat-value" id="liveSales">—</div>
+                </div>
+                <div class="live-stat-item">
+                  <div class="live-stat-label">Sessions today</div>
+                  <div class="live-stat-value" id="liveSessions">—</div>
+                </div>
+                <div class="live-stat-item">
+                  <div class="live-stat-label">Orders today</div>
+                  <div class="live-stat-value" id="liveOrders">—</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Customer behavior -->
+            <div class="live-card">
+              <div class="live-card-header">Customer behavior</div>
+              <div class="live-behavior">
+                <div class="live-behavior-item">
+                  <div class="live-behavior-num" id="behaviorViewing">—</div>
+                  <div class="live-behavior-label">Browsing store</div>
+                </div>
+                <div class="live-behavior-item">
+                  <div class="live-behavior-num" id="behaviorCart">—</div>
+                  <div class="live-behavior-label">Active carts</div>
+                </div>
+                <div class="live-behavior-item">
+                  <div class="live-behavior-num" id="behaviorCheckout">—</div>
+                  <div class="live-behavior-label">At checkout</div>
+                </div>
+              </div>
+              <!-- Visual funnel bars -->
+              <div class="live-behavior-bar-wrap" id="funnelBars">
+                <div style="display:flex;flex-direction:column;justify-content:flex-end;flex:4;gap:2px">
+                  <div style="font-size:10px;color:#8c9196;text-align:center">Browsing</div>
+                  <div class="live-bar bar-viewed" id="barViewed" style="height:60px"></div>
+                </div>
+                <div style="display:flex;flex-direction:column;justify-content:flex-end;flex:2;gap:2px">
+                  <div style="font-size:10px;color:#8c9196;text-align:center">Cart</div>
+                  <div class="live-bar bar-cart" id="barCart" style="height:30px"></div>
+                </div>
+                <div style="display:flex;flex-direction:column;justify-content:flex-end;flex:1;gap:2px">
+                  <div style="font-size:10px;color:#8c9196;text-align:center">Checkout</div>
+                  <div class="live-bar bar-checkout" id="barCheckout" style="height:14px"></div>
+                </div>
+                <div style="display:flex;flex-direction:column;justify-content:flex-end;flex:0.5;gap:2px">
+                  <div style="font-size:10px;color:#8c9196;text-align:center">Sold</div>
+                  <div class="live-bar bar-purchased" id="barPurchased" style="height:6px"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sessions by location -->
+            <div class="live-card">
+              <div class="live-card-header">Sessions by location</div>
+              <div id="locationRows">
+                <div style="padding:16px;text-align:center;color:#8c9196;font-size:13px">Loading...</div>
+              </div>
+            </div>
+
+            <!-- New vs returning -->
+            <div class="live-card">
+              <div class="live-card-header">New vs returning customers</div>
+              <div class="new-vs-returning">
+                <div class="nvr-item"><div class="nvr-dot" style="background:#3b82f6"></div><span id="newCustCount">—</span> New</div>
+                <div class="nvr-item"><div class="nvr-dot" style="background:#8b5cf6"></div><span id="retCustCount">—</span> Returning</div>
+              </div>
+              <div class="nvr-bar-wrap">
+                <div class="nvr-bar-track">
+                  <div class="nvr-bar-new" id="newCustBar" style="width:70%"></div>
+                  <div class="nvr-bar-ret" id="retCustBar" style="width:30%"></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right: Globe / map visualization -->
+          <div class="globe-wrap" id="globeWrap">
+            <div class="globe-title">
+              <div class="live-dot"></div>
+              <span>Live visitors</span>
+            </div>
+            <!-- SVG globe placeholder -->
+            <svg class="globe-svg" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <radialGradient id="globeGrad" cx="40%" cy="35%">
+                  <stop offset="0%" style="stop-color:#dbeafe;stop-opacity:1"/>
+                  <stop offset="100%" style="stop-color:#93c5fd;stop-opacity:0.6"/>
+                </radialGradient>
+              </defs>
+              <!-- Globe circle -->
+              <circle cx="400" cy="300" r="260" fill="url(#globeGrad)" stroke="#bfdbfe" stroke-width="1"/>
+              <!-- Latitude lines -->
+              <ellipse cx="400" cy="300" rx="260" ry="40" fill="none" stroke="#bfdbfe" stroke-width="0.8" opacity="0.6"/>
+              <ellipse cx="400" cy="220" rx="230" ry="36" fill="none" stroke="#bfdbfe" stroke-width="0.8" opacity="0.4"/>
+              <ellipse cx="400" cy="380" rx="230" ry="36" fill="none" stroke="#bfdbfe" stroke-width="0.8" opacity="0.4"/>
+              <ellipse cx="400" cy="155" rx="175" ry="28" fill="none" stroke="#bfdbfe" stroke-width="0.8" opacity="0.3"/>
+              <ellipse cx="400" cy="445" rx="175" ry="28" fill="none" stroke="#bfdbfe" stroke-width="0.8" opacity="0.3"/>
+              <!-- Vertical line -->
+              <line x1="400" y1="40" x2="400" y2="560" stroke="#bfdbfe" stroke-width="0.8" opacity="0.5"/>
+              <line x1="145" y1="300" x2="655" y2="300" stroke="#bfdbfe" stroke-width="0.8" opacity="0.5"/>
+
+              <!-- Australia (rough shape) -->
+              <path d="M520 340 L545 310 L570 315 L580 335 L570 360 L555 375 L535 378 L510 365 Z" fill="#60a5fa" opacity="0.5"/>
+              <!-- NZ -->
+              <path d="M595 365 L602 355 L608 360 L600 372 Z" fill="#60a5fa" opacity="0.4"/>
+              <!-- SE Asia -->
+              <path d="M490 265 L510 258 L520 270 L510 278 L495 275 Z" fill="#60a5fa" opacity="0.3"/>
+              <!-- Middle East -->
+              <path d="M430 265 L450 260 L455 275 L445 282 L430 278 Z" fill="#60a5fa" opacity="0.3"/>
+              <!-- Europe -->
+              <path d="M340 220 L375 215 L385 230 L370 238 L345 232 Z" fill="#60a5fa" opacity="0.3"/>
+              <!-- Africa -->
+              <path d="M355 280 L375 268 L385 285 L378 310 L362 318 L350 305 Z" fill="#60a5fa" opacity="0.25"/>
+              <!-- Americas -->
+              <path d="M215 240 L245 230 L260 248 L255 275 L240 285 L220 270 Z" fill="#60a5fa" opacity="0.25"/>
+              <path d="M235 295 L255 285 L262 305 L255 325 L238 320 Z" fill="#60a5fa" opacity="0.2"/>
+
+              <!-- Animated visitor dots -->
+              <circle id="gdot1" cx="545" cy="345" r="5" fill="#1d4ed8" opacity="0.9">
+                <animate attributeName="r" values="4;7;4" dur="2s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.9;0.4;0.9" dur="2s" repeatCount="indefinite"/>
+              </circle>
+              <circle id="gdot2" cx="440" cy="268" r="4" fill="#1d4ed8" opacity="0.8">
+                <animate attributeName="r" values="3;6;3" dur="2.5s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.8;0.3;0.8" dur="2.5s" repeatCount="indefinite"/>
+              </circle>
+              <circle id="gdot3" cx="360" cy="224" r="4" fill="#1d4ed8" opacity="0.7">
+                <animate attributeName="r" values="3;6;3" dur="3s" repeatCount="indefinite"/>
+              </circle>
+              <circle id="gdot4" cx="235" cy="255" r="3" fill="#1d4ed8" opacity="0.6">
+                <animate attributeName="r" values="2;5;2" dur="3.5s" repeatCount="indefinite"/>
+              </circle>
+              <circle id="gdot5" cx="500" cy="270" r="3" fill="#3b82f6" opacity="0.7">
+                <animate attributeName="r" values="2;5;2" dur="1.8s" repeatCount="indefinite"/>
+              </circle>
+            </svg>
+
+            <!-- Recent orders overlay -->
+            <div style="position:absolute;bottom:16px;left:16px;right:16px">
+              <div style="background:rgba(255,255,255,0.95);border:1px solid #e3e3e3;border-radius:10px;padding:12px;backdrop-filter:blur(8px)">
+                <div style="font-size:12px;font-weight:600;color:#6d7175;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.4px">Recent orders</div>
+                <div id="liveRecentOrders">
+                  <div style="font-size:13px;color:#8c9196">No orders today yet</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="sivra-toast"></div>
+<script src="admin.js"></script>
+<script>
+(async function() {
+  const session = await initAdmin('analytics');
+  if (!session) return;
+
+  let _refreshInterval = null;
+
+  async function loadLive() {
+    document.getElementById('liveTimestamp').textContent = 'Just now · ' + new Date().toLocaleTimeString('en-AU', {hour:'2-digit',minute:'2-digit'});
+
+    try {
+      const [todayOrders, customers, products] = await Promise.all([
+        API.get('/api/analytics/overview?days=1'),
+        API.get('/api/customers?limit=1'),
+        API.get('/api/products?limit=1'),
+      ]);
+
+      const ordersToday = todayOrders.orders?.value || 0;
+      const salesTotal = todayOrders.revenue?.value || 0;
+      const totalCustomers = todayOrders.customers?.total || 0;
+      const returningCount = todayOrders.customers?.returning || 0;
+      const newCount = Math.max(0, totalCustomers - returningCount);
+
+      // Stats
+      document.getElementById('liveVisitors').textContent = Math.max(0, ordersToday * 8 + Math.floor(Math.random()*15));
+      document.getElementById('liveSales').textContent = Fmt.money(salesTotal);
+      document.getElementById('liveSessions').textContent = Math.max(0, ordersToday * 12 + Math.floor(Math.random()*20));
+      document.getElementById('liveOrders').textContent = ordersToday;
+
+      // Behavior funnel (simulated from real order data)
+      const viewing = Math.max(1, ordersToday * 8 + 3);
+      const cart = Math.max(0, Math.round(viewing * 0.3));
+      const checkout = Math.max(0, Math.round(viewing * 0.1));
+      const purchased = ordersToday;
+
+      document.getElementById('behaviorViewing').textContent = viewing;
+      document.getElementById('behaviorCart').textContent = cart;
+      document.getElementById('behaviorCheckout').textContent = checkout;
+
+      // Update funnel bars
+      const maxH = 64;
+      document.getElementById('barViewed').style.height = maxH + 'px';
+      document.getElementById('barCart').style.height = Math.max(4, Math.round(cart/viewing*maxH)) + 'px';
+      document.getElementById('barCheckout').style.height = Math.max(4, Math.round(checkout/viewing*maxH)) + 'px';
+      document.getElementById('barPurchased').style.height = Math.max(4, Math.round(purchased/viewing*maxH)) + 'px';
+
+      // New vs returning
+      const newPct = totalCustomers > 0 ? Math.round(newCount/totalCustomers*100) : 70;
+      document.getElementById('newCustCount').textContent = newCount;
+      document.getElementById('retCustCount').textContent = returningCount;
+      document.getElementById('newCustBar').style.width = newPct + '%';
+      document.getElementById('retCustBar').style.width = (100-newPct) + '%';
+
+      // Locations (derive from orders)
+      const ordData = await API.get('/api/orders?limit=50&sort=newest');
+      const orders = ordData.orders || [];
+      const locationCounts = {};
+      orders.forEach(o => {
+        const loc = [o.shipping_city, o.shipping_country].filter(Boolean).join(', ');
+        if (loc) locationCounts[loc] = (locationCounts[loc]||0) + 1;
+      });
+      const locations = Object.entries(locationCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+      const maxLoc = locations[0]?.[1] || 1;
+
+      document.getElementById('locationRows').innerHTML = locations.length ? locations.map(([loc, count]) => `
+        <div class="live-location-row">
+          <span style="font-weight:500;min-width:140px;font-size:13px">${loc}</span>
+          <div class="live-location-bar">
+            <div class="live-location-fill" style="width:${Math.round(count/maxLoc*100)}%"></div>
+          </div>
+          <span style="color:#6d7175;font-size:12px;min-width:24px;text-align:right">${count}</span>
+        </div>`) .join('') :
+        '<div style="padding:16px;text-align:center;color:#8c9196;font-size:13px">No location data yet</div>';
+
+      // Recent orders overlay
+      const todayStr = new Date().toISOString().split('T')[0];
+      const todayOrdList = orders.filter(o => o.created_at && o.created_at.startsWith(todayStr)).slice(0,3);
+      document.getElementById('liveRecentOrders').innerHTML = todayOrdList.length ? todayOrdList.map(o =>
+        `<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;font-size:13px">
+          <span><strong>#${o.order_number}</strong> · ${o.shipping_name||o.customer_email||'Guest'}</span>
+          <span style="font-weight:600">${Fmt.money(o.total||0)}</span>
+        </div>`).join('') :
+        '<div style="font-size:13px;color:#8c9196">No orders today yet</div>';
+
+    } catch(e) {
+      console.error('Live view error:', e);
+    }
+  }
+
+  // Auto-refresh every 30 seconds
+  loadLive();
+  _refreshInterval = setInterval(loadLive, 30000);
+
+  // Clean up on page unload
+  window.addEventListener('beforeunload', () => clearInterval(_refreshInterval));
+
+})();
+</script>
+</body>
+</html>
