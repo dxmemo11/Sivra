@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sivra — Gift cards</title>
+  <link rel="stylesheet" href="admin-tokens.css"/>
+  <link rel="stylesheet" href="admin-layout.css"/>
+  <link rel="stylesheet" href="admin-components.css"/>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar"><div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div></aside>
+  <div class="main">
+    <div class="topbar" id="sivraTopbar"></div>
+    <div class="page-scroll">
+      <div style="max-width:1280px;margin:0 auto">
+
+        <div class="page-header">
+          <h1 class="page-title">Gift cards</h1>
+          <button class="btn btn-primary" onclick="openCreate()">Issue gift card</button>
+        </div>
+
+        <div class="page-body">
+
+          <!-- Stats -->
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+            <div class="stat-card">
+              <div class="stat-label">Total issued</div>
+              <div class="stat-value" id="statIssued">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Outstanding balance</div>
+              <div class="stat-value" id="statBalance">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Redeemed</div>
+              <div class="stat-value" id="statRedeemed">—</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="filter-bar">
+              <div class="filter-search">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4" stroke="#8c9196" stroke-width="1.3"/><path d="M9 9l3 3" stroke="#8c9196" stroke-width="1.3" stroke-linecap="round"/></svg>
+                <input type="text" placeholder="Search by code or customer" id="searchInput" oninput="render()"/>
+              </div>
+              <div class="tabs" style="border:none;padding:0">
+                <div class="tab active" onclick="setTab(this,'all')">All</div>
+                <div class="tab" onclick="setTab(this,'active')">Active</div>
+                <div class="tab" onclick="setTab(this,'used')">Used</div>
+                <div class="tab" onclick="setTab(this,'disabled')">Disabled</div>
+              </div>
+            </div>
+            <div style="overflow-x:auto">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Code</th>
+                    <th>Customer</th>
+                    <th class="cell-number">Initial value</th>
+                    <th class="cell-number">Remaining</th>
+                    <th>Status</th>
+                    <th>Expires</th>
+                    <th>Issued</th>
+                  </tr>
+                </thead>
+                <tbody id="gcBody">
+                  <tr><td colspan="7">
+                    <div class="empty-state">
+                      <div class="empty-icon">🎁</div>
+                      <div class="empty-title">No gift cards yet</div>
+                      <div class="empty-desc">Issue gift cards to reward loyal customers or as store credit</div>
+                      <button class="btn btn-primary" onclick="openCreate()" style="margin-top:8px">Issue gift card</button>
+                    </div>
+                  </td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Issue modal -->
+        <div class="modal-overlay" id="gcModal">
+          <div class="modal" style="max-width:480px">
+            <div class="modal-header">
+              <span class="modal-title" id="gcModalTitle">Issue gift card</span>
+              <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
+              <div class="form-group">
+                <label class="form-label">Code</label>
+                <div style="display:flex;gap:8px">
+                  <input class="input" id="gcCode" placeholder="e.g. GIFT-XXXX-XXXX" style="font-family:monospace;font-weight:600;text-transform:uppercase;flex:1"/>
+                  <button class="btn btn-secondary" onclick="genCode()">Generate</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Initial value</label>
+                <div class="input-prefix">
+                  <span class="input-prefix-text">$</span>
+                  <input type="number" id="gcValue" min="1" step="0.01" placeholder="50.00"
+                    style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"/>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Customer email <span class="text-muted">(optional)</span></label>
+                <input class="input" id="gcEmail" type="email" placeholder="customer@example.com"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Note <span class="text-muted">(optional)</span></label>
+                <input class="input" id="gcNote" placeholder="e.g. Birthday gift, refund credit"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Expiry date <span class="text-muted">(optional)</span></label>
+                <input class="input" type="date" id="gcExpiry"/>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" id="gcDeleteBtn" style="color:#c0392b;display:none" onclick="disableCard()">Disable</button>
+              <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+              <button class="btn btn-primary" onclick="saveCard()" id="gcSaveBtn">Issue gift card</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="sivra-toast"></div>
+<script src="admin.js"></script>
+<script>
+(async function() {
+  const session = await initAdmin('products');
+  if (!session) return;
+
+  let _all = [], _tab = 'all', _editId = null;
+
+  // Load from localStorage (gift cards stored locally until backend built)
+  function loadCards() {
+    try {
+      _all = JSON.parse(localStorage.getItem('sivra_gift_cards') || '[]');
+    } catch(e) { _all = []; }
+  }
+
+  function saveCards() {
+    localStorage.setItem('sivra_gift_cards', JSON.stringify(_all));
+  }
+
+  function setTab(el, t) {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    el.classList.add('active'); _tab = t; render();
+  }
+
+  function genCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const seg = () => Array.from({length:4}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
+    document.getElementById('gcCode').value = `GIFT-${seg()}-${seg()}`;
+  }
+
+  function openCreate() {
+    _editId = null;
+    document.getElementById('gcModalTitle').textContent = 'Issue gift card';
+    document.getElementById('gcSaveBtn').textContent = 'Issue gift card';
+    document.getElementById('gcDeleteBtn').style.display = 'none';
+    ['gcCode','gcEmail','gcNote','gcExpiry'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('gcValue').value = '';
+    genCode();
+    document.getElementById('gcModal').classList.add('open');
+  }
+
+  function editCard(id) {
+    const c = _all.find(x => x.id === id);
+    if (!c) return;
+    _editId = id;
+    document.getElementById('gcModalTitle').textContent = 'Edit gift card';
+    document.getElementById('gcSaveBtn').textContent = 'Save changes';
+    document.getElementById('gcDeleteBtn').style.display = '';
+    document.getElementById('gcCode').value = c.code;
+    document.getElementById('gcValue').value = c.initial_value;
+    document.getElementById('gcEmail').value = c.customer_email || '';
+    document.getElementById('gcNote').value = c.note || '';
+    document.getElementById('gcExpiry').value = c.expires_at ? c.expires_at.split('T')[0] : '';
+    document.getElementById('gcModal').classList.add('open');
+  }
+
+  function closeModal() { document.getElementById('gcModal').classList.remove('open'); }
+
+  function saveCard() {
+    const code = document.getElementById('gcCode').value.trim().toUpperCase();
+    const value = parseFloat(document.getElementById('gcValue').value);
+    if (!code) { Toast.error('Enter a code'); return; }
+    if (!value || value <= 0) { Toast.error('Enter a value greater than $0'); return; }
+
+    if (_editId) {
+      const idx = _all.findIndex(c => c.id === _editId);
+      if (idx >= 0) {
+        _all[idx] = {
+          ..._all[idx], code,
+          initial_value: value,
+          customer_email: document.getElementById('gcEmail').value || null,
+          note: document.getElementById('gcNote').value || null,
+          expires_at: document.getElementById('gcExpiry').value || null,
+        };
+      }
+      Toast.success('Gift card updated');
+    } else {
+      // Check for duplicate code
+      if (_all.find(c => c.code === code)) { Toast.error('This code already exists'); return; }
+      _all.unshift({
+        id: 'gc_' + Date.now(),
+        code,
+        initial_value: value,
+        remaining_value: value,
+        customer_email: document.getElementById('gcEmail').value || null,
+        note: document.getElementById('gcNote').value || null,
+        expires_at: document.getElementById('gcExpiry').value || null,
+        status: 'active',
+        created_at: new Date().toISOString(),
+      });
+      Toast.success('Gift card issued');
+    }
+
+    saveCards();
+    closeModal();
+    updateStats();
+    render();
+  }
+
+  function disableCard() {
+    Modal.confirm('Disable gift card', 'Disable this gift card? It can no longer be used at checkout.', () => {
+      const idx = _all.findIndex(c => c.id === _editId);
+      if (idx >= 0) { _all[idx].status = 'disabled'; }
+      saveCards();
+      closeModal();
+      render();
+      Toast.success('Gift card disabled');
+    }, { danger: true });
+  }
+
+  function updateStats() {
+    const active = _all.filter(c => c.status === 'active');
+    const totalBalance = active.reduce((s, c) => s + parseFloat(c.remaining_value || 0), 0);
+    const totalRedeemed = _all.reduce((s, c) => s + (parseFloat(c.initial_value || 0) - parseFloat(c.remaining_value || 0)), 0);
+    document.getElementById('statIssued').textContent = _all.length;
+    document.getElementById('statBalance').textContent = Fmt.money(totalBalance);
+    document.getElementById('statRedeemed').textContent = Fmt.money(totalRedeemed);
+  }
+
+  function render() {
+    const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
+    const now = new Date();
+    let list = [..._all];
+    if (_tab === 'active') list = list.filter(c => c.status === 'active' && (!c.expires_at || new Date(c.expires_at) >= now));
+    if (_tab === 'used') list = list.filter(c => parseFloat(c.remaining_value || 0) === 0);
+    if (_tab === 'disabled') list = list.filter(c => c.status === 'disabled');
+    if (q) list = list.filter(c => (c.code || '').toLowerCase().includes(q) || (c.customer_email || '').toLowerCase().includes(q));
+
+    const tbody = document.getElementById('gcBody');
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state">
+        <div class="empty-icon">🎁</div>
+        <div class="empty-title">${_all.length === 0 ? 'No gift cards yet' : 'No gift cards match'}</div>
+        <div class="empty-desc">${_all.length === 0 ? 'Issue gift cards to reward customers or give store credit' : ''}</div>
+        ${_all.length === 0 ? '<button class="btn btn-primary" onclick="openCreate()" style="margin-top:8px">Issue gift card</button>' : ''}
+      </div></td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = list.map(c => {
+      const remaining = parseFloat(c.remaining_value || 0);
+      const initial = parseFloat(c.initial_value || 0);
+      const isExpired = c.expires_at && new Date(c.expires_at) < new Date();
+      const status = c.status === 'disabled' ? 'disabled' : isExpired ? 'expired' : remaining === 0 ? 'used' : 'active';
+      const badgeClass = status === 'active' ? 'badge-success' : status === 'expired' ? 'badge-warning' : 'badge-default';
+      const pct = initial > 0 ? Math.round((remaining / initial) * 100) : 0;
+
+      return `<tr onclick="editCard('${c.id}')">
+        <td><code style="font-family:monospace;font-size:13px;font-weight:600;background:#f6f6f7;padding:2px 8px;border-radius:4px;letter-spacing:1px">${c.code}</code></td>
+        <td class="cell-muted">${c.customer_email || '—'}</td>
+        <td class="cell-number">${Fmt.money(initial)}</td>
+        <td class="cell-number">
+          <span style="font-weight:600;color:${remaining > 0 ? 'var(--p-color-text-success)' : 'var(--p-color-text-critical)'}">${Fmt.money(remaining)}</span>
+          ${initial > 0 ? `<div style="height:3px;background:#e3e3e3;border-radius:2px;margin-top:3px;width:60px"><div style="height:3px;background:var(--p-color-text-success);border-radius:2px;width:${pct}%"></div></div>` : ''}
+        </td>
+        <td><span class="badge ${badgeClass}" style="text-transform:capitalize">${status}</span></td>
+        <td class="cell-muted">${c.expires_at ? Fmt.date(c.expires_at) : 'No expiry'}</td>
+        <td class="cell-muted">${Fmt.date(c.created_at)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  loadCards();
+  updateStats();
+  render();
+})();
+</script>
+</body>
+</html>

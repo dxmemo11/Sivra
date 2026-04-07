@@ -179,7 +179,7 @@
                     </div>
                   </div>
                   <div class="card-footer">
-                    <button class="btn btn-primary" onclick="Toast.success('Tax settings saved')">Save</button>
+                    <button class="btn btn-primary" onclick="saveTax()">Save</button>
                   </div>
                 </div>
               </div>
@@ -346,6 +346,7 @@
       document.getElementById('nav-'+p).classList.toggle('active', p===id);
     });
     if (id === 'shipping') loadShipping();
+    if (id === 'taxes') loadTax();
   }
 
   // Load store info
@@ -370,6 +371,31 @@
       }
     } catch(e) {}
   })();
+
+  // ── TAX SETTINGS ──────────────────────────────────────────────
+  async function loadTax() {
+    try {
+      const data = await API.get('/api/store/info');
+      const te = document.getElementById('taxEnabled');
+      const tr = document.getElementById('taxRate');
+      const ti = document.getElementById('taxIncluded');
+      if (te) te.checked = !!data.tax_enabled;
+      if (tr) tr.value = data.tax_rate || '';
+      if (ti) ti.checked = !!data.tax_included;
+    } catch(e) { console.error('loadTax error:', e); }
+  }
+
+  async function saveTax() {
+    try {
+      await API.patch('/api/store/info', {
+        tax_enabled: document.getElementById('taxEnabled')?.checked ? 1 : 0,
+        tax_rate: parseFloat(document.getElementById('taxRate')?.value) || 0,
+        tax_included: document.getElementById('taxIncluded')?.checked ? 1 : 0,
+      });
+      Toast.success('Tax settings saved');
+    } catch(e) { Toast.error(e.message || 'Failed to save tax settings'); }
+  }
+
 
   async function saveGeneral() {
     try {

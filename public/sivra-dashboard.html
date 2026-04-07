@@ -168,17 +168,13 @@
 
   function drawChart(days) {
     const labels = [], data = [];
-    for (let i = days-1; i >= 0; i--) {
-      const d = new Date(); d.setDate(d.getDate() - i);
-      const ds = d.toISOString().split('T')[0];
-      const dayOrders = _orders.filter(o => o.created_at && o.created_at.startsWith(ds));
-      if (days <= 30 || i % Math.ceil(days/20) === 0) {
-        labels.push(d.toLocaleDateString('en-AU', {day:'numeric', month:'short'}));
-        data.push(_chartMode === 'revenue'
-          ? dayOrders.reduce((s,o) => s + parseFloat(o.total||0), 0)
-          : dayOrders.length);
-      }
-    }
+    // _orders is now array of {date, revenue, orders} from analytics endpoint
+    const chartData = Array.isArray(_orders) ? _orders : [];
+    chartData.forEach(point => {
+      const d = new Date(point.date);
+      labels.push(d.toLocaleDateString('en-AU', {day:'numeric', month:'short'}));
+      data.push(_chartMode === 'revenue' ? parseFloat(point.revenue||0) : parseInt(point.orders||0));
+    });
     if (_chart) _chart.destroy();
     _chart = new Chart(document.getElementById('dashChart'), {
       type: 'line',
@@ -203,92 +199,89 @@
 
   async function loadStats(days = 30) {
     try {
-      const [oData, pData, cData] = await Promise.all([
-        API.get('/api/orders'),
-        API.get('/api/products'),
-        API.get('/api/customers'),
+      const [overview, salesData, invData] = await Promise.all([
+        API.get('/api/analytics/overview?days=' + days),
+        API.get('/api/analytics/sales-over-time?days=' + days),
+        API.get('/api/analytics/inventory'),
       ]);
-      _orders = oData.orders || [];
-      _products = pData.products || [];
 
-      const since = new Date(); since.setDate(since.getDate() - days);
-      const period = _orders.filter(o => o.created_at && new Date(o.created_at) >= since);
+      // KPI cards
+      const r = overview.revenue || {};
+      const o = overview.orders || {};
+      const aov = overview.aov || {};
+      document.getElementById('kpiRevenue').textContent = Fmt.money(r.value || 0);
+      document.getElementById('kpiOrders').textContent = o.value || 0;
+      document.getElementById('kpiCustomers').textContent = overview.customers?.total || 0;
+      document.getElementById('kpiProducts').textContent = overview.products?.active || 0;
 
-      const rev = period.reduce((s,o) => s + parseFloat(o.total||0), 0);
-      document.getElementById('kpiRevenue').textContent = Fmt.money(rev);
-      document.getElementById('kpiOrders').textContent = period.length;
-      document.getElementById('kpiRevDelta').innerHTML = `<span class="text-muted">${_orders.length} total all time</span>`;
-      document.getElementById('kpiOrdDelta').innerHTML = `<span class="text-muted">${_orders.length} total all time</span>`;
-      document.getElementById('kpiCustomers').textContent = (cData.customers || []).length;
-      document.getElementById('kpiProducts').textContent = _products.filter(p => p.status === 'active').length;
+      // Delta indicators
+      const fmtDelta = (pct) => {
+        if (pct === undefined || pct === null) return '';
+        const col = pct >= 0 ? 'var(--p-color-text-success)' : 'var(--p-color-text-critical)';
+        return `<span style="color:${col};font-size:12px">${pct >= 0 ? '↑' : '↓'} ${Math.abs(pct)}%</span>`;
+      };
+      const revDelta = document.getElementById('kpiRevDelta');
+      const ordDelta = document.getElementById('kpiOrdDelta');
+      if (revDelta) revDelta.innerHTML = fmtDelta(r.change_pct);
+      if (ordDelta) ordDelta.innerHTML = fmtDelta(o.change_pct);
 
-      // Alerts
-      const unfulfilled = _orders.filter(o => !o.fulfillment_status || o.fulfillment_status === 'unfulfilled').length;
-      const unpaid = _orders.filter(o => o.payment_status === 'unpaid' || o.payment_status === 'pending').length;
-      const lowStock = _products.filter(p => p.quantity <= 5 && p.status === 'active').length;
-      let alerts = '';
-      if (unfulfilled) alerts += `<div class="alert alert-warning" onclick="location.href='sivra-orders.html'" style="cursor:pointer">
-        <span class="alert-icon">⏳</span>
-        <div class="alert-body"><div class="alert-title">${unfulfilled} order${unfulfilled > 1 ? 's' : ''} awaiting fulfillment</div></div>
-        <a href="sivra-orders.html" class="btn btn-sm btn-secondary" style="margin-left:auto;flex-shrink:0">View</a>
-      </div>`;
-      if (unpaid) alerts += `<div class="alert alert-info" onclick="location.href='sivra-orders.html'" style="cursor:pointer">
-        <span class="alert-icon">💳</span>
-        <div class="alert-body"><div class="alert-title">${unpaid} order${unpaid > 1 ? 's' : ''} awaiting payment</div></div>
-        <a href="sivra-orders.html" class="btn btn-sm btn-secondary" style="margin-left:auto;flex-shrink:0">View</a>
-      </div>`;
-      if (lowStock) alerts += `<div class="alert alert-critical" onclick="location.href='sivra-inventory.html'" style="cursor:pointer">
-        <span class="alert-icon">⚠️</span>
-        <div class="alert-body"><div class="alert-title">${lowStock} product${lowStock > 1 ? 's' : ''} low in stock</div></div>
-        <a href="sivra-inventory.html" class="btn btn-sm btn-secondary" style="margin-left:auto;flex-shrink:0">View</a>
-      </div>`;
-      document.getElementById('dashAlerts').innerHTML = alerts;
+      // Store sales data for chart
+      _orders = salesData.data || [];
 
-      // Recent orders
-      const recentOrders = _orders.slice(0, 6);
-      document.getElementById('recentOrdersList').innerHTML = recentOrders.length
-        ? recentOrders.map(o => {
-            const payBadge = o.payment_status === 'paid' ? 'badge-success' : 'badge-warning';
-            const customer = o.shipping_name || 'Guest';
-            return `<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid #f6f6f7;cursor:pointer" onclick="location.href='sivra-order-detail.html?id=${o.id}'">
-              <span class="text-emphasis font-medium" style="font-size:13px;width:50px">#${o.order_number}</span>
-              <span style="flex:1;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${customer}</span>
-              <span class="badge ${payBadge}" style="text-transform:capitalize">${o.payment_status || 'pending'}</span>
-              <span class="font-medium" style="font-size:13px">${Fmt.money(o.total)}</span>
-            </div>`;
-          }).join('')
-        : `<div class="empty-state" style="padding:40px">
-            <div class="empty-icon">🛒</div>
-            <div class="empty-title">No orders yet</div>
-            <div class="empty-desc">Orders will appear here when customers place them</div>
-          </div>`;
+      // Build alerts
+      const alerts = [];
+      const unfulfilledCount = o.value > 0 ? null : 0; // from orders tab
+      const lowStock = overview.products?.low_stock || 0;
+      const outOfStock = overview.products?.out_of_stock || 0;
+      if (lowStock > 0) alerts.push({ type:'warning', msg: `${lowStock} product${lowStock!==1?'s':''} running low on stock`, href:'sivra-inventory.html' });
+      if (outOfStock > 0) alerts.push({ type:'critical', msg: `${outOfStock} product${outOfStock!==1?'s':''} out of stock`, href:'sivra-inventory.html' });
 
-      // Products list
-      document.getElementById('topProductsList').innerHTML = _products.length
-        ? _products.slice(0, 6).map(p => {
-            const img = p.images && p.images[0]
-              ? `<img src="${p.images[0]}" class="table-thumb"/>`
-              : `<div class="table-thumb-placeholder"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M1 9l3-3 2 2 3-4 4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></div>`;
-            return `<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid #f6f6f7;cursor:pointer" onclick="location.href='sivra-edit-product.html?id=${p.id}'">
-              ${img}
-              <span style="flex:1;font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.title}</span>
-              <span class="badge ${p.status === 'active' ? 'badge-success' : 'badge-default'}" style="text-transform:capitalize">${p.status}</span>
-              <span class="text-muted" style="font-size:13px">${Fmt.money(p.price)}</span>
-            </div>`;
-          }).join('')
-        : `<div class="empty-state" style="padding:40px">
-            <div class="empty-icon">📦</div>
-            <div class="empty-title">No products yet</div>
-            <button class="btn btn-primary" onclick="location.href='sivra-add-product.html'" style="margin-top:4px">Add product</button>
-          </div>`;
+      // Check unfulfilled orders
+      try {
+        const unfData = await API.get('/api/orders?fulfillment_status=unfulfilled&limit=50');
+        const unfulfilledOrders = (unfData.orders || []).filter(x => x.status !== 'cancelled');
+        if (unfulfilledOrders.length > 0) {
+          alerts.push({ type:'warning', msg: `${unfulfilledOrders.length} unfulfilled order${unfulfilledOrders.length!==1?'s':''}`, href:'sivra-orders.html?fulfillment_status=unfulfilled' });
+        }
+        const unpaidOrders = (unfData.orders || []).filter(x => x.payment_status === 'pending' && x.status !== 'cancelled');
+        // also check unpaid
+        const unpaidData = await API.get('/api/orders?payment_status=pending&limit=50');
+        const unpaid = (unpaidData.orders || []).filter(x => x.status !== 'cancelled');
+        if (unpaid.length > 0) {
+          alerts.push({ type:'info', msg: `${unpaid.length} order${unpaid.length!==1?'s':''} awaiting payment`, href:'sivra-orders.html' });
+        }
+      } catch(e) {}
 
-      // Badge
-      const badge = document.getElementById('sbOrderBadge');
-      if (badge && unfulfilled) { badge.textContent = unfulfilled; badge.style.display = ''; }
+      const alertsEl = document.getElementById('dashAlerts');
+      if (alertsEl) {
+        if (alerts.length === 0) {
+          alertsEl.style.display = 'none';
+        } else {
+          alertsEl.style.display = '';
+          alertsEl.innerHTML = alerts.map(a => `
+            <a href="${a.href}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:${a.type==='critical'?'#fde8e8':a.type==='warning'?'#fff8e1':'#e8f4fd'};border-radius:8px;text-decoration:none;color:#1a1a1a;font-size:13px;font-weight:500;transition:opacity 0.1s" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">
+              <span>${a.type==='critical'?'🔴':a.type==='warning'?'⚠️':'ℹ️'}</span>
+              <span style="flex:1">${a.msg}</span>
+              <span style="color:#8c9196">→</span>
+            </a>`).join('');
+        }
+      }
+
+      // Inventory low stock in sidebar
+      const invProducts = (invData.products || []).filter(p => p.stock_status !== 'in_stock');
+      const lowStockList = document.getElementById('lowStockList');
+      if (lowStockList && invProducts.length > 0) {
+        document.getElementById('lowStockSection').style.display = '';
+        lowStockList.innerHTML = invProducts.slice(0,5).map(p =>
+          `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f6f6f7;font-size:13px">
+            <a href="sivra-edit-product.html?id=${p.id}" style="font-weight:500;text-decoration:none;color:#1a1a1a;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.title}</a>
+            <span style="color:${p.stock_status==='out_of_stock'?'var(--p-color-text-critical)':'var(--p-color-text-caution)'};font-weight:600;margin-left:8px">${p.quantity}</span>
+          </div>`).join('');
+      }
 
       drawChart(days);
     } catch(e) {
-      console.error(e);
+      console.error('Dashboard load error:', e);
       Toast.error('Failed to load dashboard data');
     }
   }

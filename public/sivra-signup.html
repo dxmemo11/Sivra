@@ -3,143 +3,145 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sivra — Create your store</title>
+  <title>Sivra — Create account</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Inter',-apple-system,sans-serif;background:#f6f6f7;min-height:100vh;display:flex;align-items:center;justify-content:center;-webkit-font-smoothing:antialiased}
-    .wrap{width:100%;max-width:480px;padding:24px}
-    .logo{text-align:center;margin-bottom:28px}
-    .logo-mark{width:44px;height:44px;background:#1a1a1a;border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:18px;font-weight:800;color:white}
-    .logo-name{font-size:20px;font-weight:700;color:#1a1a1a}
-    .logo-sub{font-size:13px;color:#6d7175;margin-top:4px}
-    .card{background:white;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.08),0 0 0 1px rgba(0,0,0,0.06);overflow:hidden}
-    .card-body{padding:24px}
-    .card-footer{border-top:1px solid #e3e3e3;padding:14px 24px;text-align:center;font-size:13px;color:#6d7175}
-    .card-footer a{color:#005bd3;font-weight:500;text-decoration:none}
-    .card-title{font-size:17px;font-weight:600;color:#1a1a1a;margin-bottom:4px}
-    .card-sub{font-size:13px;color:#6d7175;margin-bottom:20px}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .field{margin-bottom:14px}
+    body{font-family:'Inter',-apple-system,sans-serif;background:#f5f5f5;min-height:100vh;display:flex;align-items:center;justify-content:center;-webkit-font-smoothing:antialiased;color:#1a1a1a;padding:24px}
+    .card{background:white;border-radius:12px;border:1px solid #e3e3e3;width:100%;max-width:460px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.06)}
+    .card-top{padding:32px 32px 0}
+    .card-body{padding:24px 32px 32px}
+    .brand{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+    .brand-mark{width:36px;height:36px;background:#1a1a1a;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px;flex-shrink:0}
+    .brand-name{font-size:18px;font-weight:700;color:#1a1a1a}
+    h1{font-size:22px;font-weight:700;margin-bottom:6px}
+    .subtitle{font-size:14px;color:#6d7175;margin-bottom:24px}
+    .form-group{margin-bottom:14px}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     label{display:block;font-size:13px;font-weight:500;color:#303030;margin-bottom:4px}
-    input{width:100%;height:36px;padding:0 12px;border:1px solid #e3e3e3;border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border-color 0.15s,box-shadow 0.15s;color:#303030}
-    input:focus{border-color:#005bd3;box-shadow:0 0 0 3px rgba(0,91,211,0.12)}
-    .hint{font-size:12px;color:#6d7175;margin-top:4px}
-    .hint span{color:#005bd3;font-weight:500}
-    .btn{width:100%;height:40px;background:#1a1a1a;color:white;border:none;border-radius:8px;font-size:14px;font-weight:500;font-family:inherit;cursor:pointer;transition:background 0.1s;margin-top:4px}
+    input,select{width:100%;height:40px;padding:0 12px;border:1px solid #d1d1d1;border-radius:8px;font-size:14px;color:#1a1a1a;background:white;outline:none;font-family:inherit;transition:border-color 0.15s,box-shadow 0.15s}
+    input:focus,select:focus{border-color:#1a1a1a;box-shadow:0 0 0 3px rgba(26,26,26,0.08)}
+    .btn{width:100%;height:44px;background:#1a1a1a;color:white;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.15s;margin-top:6px}
     .btn:hover{background:#303030}
     .btn:disabled{background:#8c9196;cursor:not-allowed}
-    .error{display:none;background:#fde8e8;border:1px solid #f5c6c6;border-radius:8px;padding:10px 12px;font-size:13px;color:#c0392b;margin-bottom:16px}
-    .terms{text-align:center;margin-top:16px;font-size:11px;color:#8c9196}
-    .terms a{color:#6d7175}
+    .error-msg{background:#fde8e8;border:1px solid #f5c6c6;border-radius:8px;padding:10px 14px;font-size:13px;color:#c0392b;margin-bottom:16px;display:none}
+    .footer-link{text-align:center;margin-top:20px;font-size:13px;color:#6d7175}
+    .footer-link a{color:#1a1a1a;font-weight:500;text-decoration:none}
+    .footer-link a:hover{text-decoration:underline}
+    .hint{font-size:12px;color:#8c9196;margin-top:4px}
   </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="logo">
-    <div class="logo-mark">S</div>
-    <div class="logo-name">Sivra</div>
-    <div class="logo-sub">No transaction fees. No merchant bans. You own everything.</div>
-  </div>
-  <div class="card">
-    <div class="card-body">
-      <div class="card-title">Create your store</div>
-      <div class="card-sub">Free to start. Takes 2 minutes.</div>
-      <div class="error" id="err"></div>
-      <div class="row">
-        <div class="field">
-          <label>First name</label>
-          <input type="text" id="first" placeholder="Mohammed" autocomplete="given-name"/>
-        </div>
-        <div class="field">
-          <label>Last name</label>
-          <input type="text" id="last" placeholder="Ali" autocomplete="family-name"/>
-        </div>
-      </div>
-      <div class="field">
-        <label>Email</label>
-        <input type="email" id="email" placeholder="you@example.com" autocomplete="email"/>
-      </div>
-      <div class="field">
-        <label>Password</label>
-        <input type="password" id="password" placeholder="Min. 8 characters" autocomplete="new-password"/>
-      </div>
-      <div class="field">
-        <label>Store name</label>
-        <input type="text" id="store" placeholder="e.g. World Cup Jerseys" oninput="updateSlug(this.value)" autocomplete="off"/>
-        <div class="hint">Your store URL: <span id="slugPreview">yourstore</span>.sivra.com</div>
-      </div>
-      <button class="btn" id="btn" onclick="signup()">Create your store</button>
+<div class="card">
+  <div class="card-top">
+    <div class="brand">
+      <div class="brand-mark">S</div>
+      <span class="brand-name">Sivra</span>
     </div>
-    <div class="card-footer">
-      Already have a store? <a href="sivra-login.html">Log in</a>
+    <h1>Create your store</h1>
+    <p class="subtitle">Get your store up and running in minutes</p>
+  </div>
+  <div class="card-body">
+    <div class="error-msg" id="errorMsg"></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>First name</label>
+        <input type="text" id="firstName" placeholder="Mohammed" autocomplete="given-name" autofocus/>
+      </div>
+      <div class="form-group">
+        <label>Last name</label>
+        <input type="text" id="lastName" placeholder="Smith" autocomplete="family-name"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Email address</label>
+      <input type="email" id="email" placeholder="you@example.com" autocomplete="email"/>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="At least 8 characters" autocomplete="new-password"/>
+    </div>
+    <div class="form-group">
+      <label>Store name</label>
+      <input type="text" id="storeName" placeholder="e.g. Sivra Jerseys" oninput="updateSlug()"/>
+      <div class="hint">Your store URL: <span id="slugPreview" style="color:#1a1a1a;font-weight:500">sivra-jerseys</span></div>
+    </div>
+    <div class="form-group">
+      <label>Store category</label>
+      <select id="category">
+        <option value="fashion">Fashion & Apparel</option>
+        <option value="jerseys" selected>Jerseys & Sportswear</option>
+        <option value="electronics">Electronics</option>
+        <option value="sports">Sports & Outdoors</option>
+        <option value="home">Home & Garden</option>
+        <option value="beauty">Health & Beauty</option>
+        <option value="food">Food & Beverage</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <button class="btn" id="signupBtn" onclick="signup()">Create store</button>
+    <div class="footer-link" style="margin-top:16px">
+      Already have an account? <a href="sivra-login.html">Sign in</a>
     </div>
   </div>
-  <div class="terms">By creating an account you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a></div>
 </div>
+
 <script>
-function updateSlug(val) {
-  const slug = val.toLowerCase().replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'') || 'yourstore';
-  document.getElementById('slugPreview').textContent = slug;
-}
-
-async function signup() {
-  const first = document.getElementById('first').value.trim();
-  const last = document.getElementById('last').value.trim();
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
-  const storeName = document.getElementById('store').value.trim();
-  const btn = document.getElementById('btn');
-  const err = document.getElementById('err');
-  err.style.display = 'none';
-
-  if (!first || !email || !password || !storeName) {
-    err.textContent = 'Please fill in all fields.';
-    err.style.display = ''; return;
-  }
-  if (password.length < 8) {
-    err.textContent = 'Password must be at least 8 characters.';
-    err.style.display = ''; return;
+  function updateSlug() {
+    const name = document.getElementById('storeName').value;
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'your-store';
+    document.getElementById('slugPreview').textContent = slug;
   }
 
-  btn.textContent = 'Creating your store...';
-  btn.disabled = true;
+  async function signup() {
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName = document.getElementById('lastName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const storeName = document.getElementById('storeName').value.trim();
+    const category = document.getElementById('category').value;
+    const btn = document.getElementById('signupBtn');
 
-  try {
-    const res = await fetch('/api/auth/signup', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({firstName: first, lastName: last, email, password, storeName})
-    });
-    const data = await res.json();
+    if (!firstName) { showError('Enter your first name'); return; }
+    if (!email || !email.includes('@')) { showError('Enter a valid email address'); return; }
+    if (!password || password.length < 8) { showError('Password must be at least 8 characters'); return; }
+    if (!storeName) { showError('Enter a name for your store'); return; }
 
-    if (data.token) {
-      const session = {
-        token: data.token,
-        merchant: data.merchant || null,
-        store: data.store || null
-      };
+    btn.disabled = true; btn.textContent = 'Creating store...';
+    document.getElementById('errorMsg').style.display = 'none';
+
+    try {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ firstName, lastName, email, password, storeName, category })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to create account');
+
       localStorage.setItem('sivra_token', data.token);
-      localStorage.setItem('sivra_session', JSON.stringify(session));
-      if (data.store?.slug) {
-        localStorage.setItem('sivra_store_slug', data.store.slug);
+      localStorage.setItem('sivra_token_expires', data.expiresAt || '');
+      if (data.store) {
+        localStorage.setItem('sivra_store_slug', data.store.slug || '');
+        localStorage.setItem('sivra_session', JSON.stringify({
+          token: data.token,
+          merchant: data.merchant,
+          store: data.store,
+        }));
       }
       location.href = 'sivra-dashboard.html';
-    } else {
-      err.textContent = data.error || data.message || 'Could not create account. Please try again.';
-      err.style.display = '';
-      btn.textContent = 'Create your store';
-      btn.disabled = false;
+    } catch(e) {
+      showError(e.message || 'Failed to create account. Please try again.');
+      btn.disabled = false; btn.textContent = 'Create store';
     }
-  } catch(e) {
-    err.textContent = 'Connection error. Is the server running?';
-    err.style.display = '';
-    btn.textContent = 'Create your store';
-    btn.disabled = false;
   }
-}
 
-document.getElementById('first').focus();
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg; el.style.display = '';
+    document.getElementById('signupBtn').disabled = false;
+    document.getElementById('signupBtn').textContent = 'Create store';
+  }
 </script>
 </body>
 </html>

@@ -168,7 +168,7 @@ const NAV = {
         { label: 'All products',   href: 'sivra-products.html' },
         { label: 'Collections',    href: 'sivra-collections.html' },
         { label: 'Inventory',      href: 'sivra-inventory.html' },
-        { label: 'Gift cards',     href: 'sivra-gift-cards.html' },
+        { label: 'Gift cards',     href: '#', comingSoon: true },
       ]
     },
     {
@@ -194,11 +194,11 @@ const NAV = {
       icon: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M8 2a9 9 0 0 1 0 12M8 2a9 9 0 0 0 0 12M2 8h12" stroke="currentColor" stroke-width="1.2"/></svg>`,
       children: [
         { label: 'Themes',       href: 'sivra-themes.html' },
-        { label: 'Customize',    href: 'sivra-customize.html' },
+        { label: 'Theme settings', href: 'sivra-themes.html' },
         { label: 'Blog posts',   href: 'sivra-blog.html' },
         { label: 'Pages',        href: 'sivra-pages.html' },
         { label: 'Navigation',   href: 'sivra-navigation.html' },
-        { label: 'Preferences',  href: 'sivra-preferences.html' },
+        { label: 'Preferences',  href: 'sivra-settings.html' },
       ]
     }
   ],
@@ -238,7 +238,7 @@ function buildSidebar(activeId) {
         ${hasKids ? `<svg class="sb-caret" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 4l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>` : ''}
       </div>
       ${hasKids ? `<div class="sb-children${isOpen ? ' open' : ''}" id="kids-${item.id}">
-        ${item.children.map(c => `<div class="sb-child${window.location.pathname.endsWith(c.href) ? ' active' : ''}" onclick="location.href='${c.href}'">${c.label}</div>`).join('')}
+        ${item.children.map(c => `<div class="sb-child${(c.href && c.href !== '#' && window.location.pathname.endsWith(c.href)) ? ' active' : ''}" onclick="${c.comingSoon ? 'sivraToast(\'Coming soon\')' : 'location.href=\''+c.href+'\''}">${c.label}${c.comingSoon ? ' <span style="font-size:9px;opacity:0.5;font-weight:500">SOON</span>' : ''}</div>`).join('')}
       </div>` : ''}`;
   }
 
@@ -399,6 +399,17 @@ async function initAdmin(activeId) {
   buildSidebar(activeId);
   buildTopbar();
 
+  // Fetch unfulfilled order count for sidebar badge
+  try {
+    const data = await API.get('/api/orders?fulfillment_status=unfulfilled&limit=100');
+    const count = (data.orders || []).filter(o => o.status !== 'cancelled').length;
+    const badge = document.getElementById('sbOrderBadge');
+    if (badge && count > 0) {
+      badge.textContent = count > 99 ? '99+' : count;
+      badge.style.display = 'flex';
+    }
+  } catch(e) { /* badge is optional */ }
+
   return session;
 }
 
@@ -452,6 +463,29 @@ const Fmt = {
   initials(name) {
     if (!name) return '?';
     return name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+  },
+  number(v) {
+    const n = parseFloat(v) || 0;
+    return n.toLocaleString('en-AU');
+  },
+  percent(v, decimals = 1) {
+    return (parseFloat(v) || 0).toFixed(decimals) + '%';
+  },
+  capitalize(v) {
+    if (!v) return '—';
+    return v.charAt(0).toUpperCase() + v.slice(1).replace(/_/g, ' ');
+  },
+  statusBadge(status) {
+    const map = {
+      active:'badge-success', published:'badge-success', paid:'badge-success',
+      fulfilled:'badge-success', open:'badge-info',
+      draft:'badge-default', archived:'badge-default', cancelled:'badge-default',
+      refunded:'badge-default', closed:'badge-default',
+      pending:'badge-warning', unpaid:'badge-warning', unfulfilled:'badge-warning',
+      partial:'badge-info',
+    };
+    const cls = map[(status||'').toLowerCase()] || 'badge-default';
+    return `<span class="badge ${cls}" style="text-transform:capitalize">${(status||'—').replace(/_/g,' ')}</span>`;
   }
 };
 

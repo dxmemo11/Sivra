@@ -316,4 +316,49 @@ function safeJson(v, fallback) {
   try { return JSON.parse(v); } catch(e) { return fallback; }
 }
 
+
+// ── PUBLIC PAGES ──────────────────────────────────────────────────────────────
+router.get('/:slug/pages/:pageSlug', async (req, res) => {
+  try {
+    const db = getDB();
+    const storeResult = await db.execute({
+      sql: "SELECT id FROM stores WHERE slug = ?", args: [req.params.slug]
+    });
+    if (!storeResult.rows.length) return res.status(404).json({ error: 'Store not found.' });
+    const storeId = storeResult.rows[0].id;
+
+    // Try store_pages table first
+    const result = await db.execute({
+      sql: "SELECT * FROM store_pages WHERE store_id = ? AND slug = ? AND status = 'published'",
+      args: [storeId, req.params.pageSlug]
+    });
+    if (result.rows.length) return res.json(result.rows[0]);
+
+    // Fall back to pages table
+    const result2 = await db.execute({
+      sql: "SELECT * FROM pages WHERE store_id = ? AND slug = ? AND status = 'published'",
+      args: [storeId, req.params.pageSlug]
+    });
+    if (result2.rows.length) return res.json(result2.rows[0]);
+
+    res.status(404).json({ error: 'Page not found.' });
+  } catch(err) { res.status(500).json({ error: 'Failed to fetch page.' }); }
+});
+
+
+// ── GET PAGE BY SLUG (public) ─────────────────────────────────────────────────
+router.get('/:slug/pages/:pageSlug', async (req, res) => {
+  try {
+    const db = getDB();
+    const storeResult = await db.execute({ sql: `SELECT id FROM stores WHERE slug = ?`, args: [req.params.slug] });
+    if (!storeResult.rows.length) return res.status(404).json({ error: 'Store not found.' });
+    const result = await db.execute({
+      sql: `SELECT * FROM store_pages WHERE store_id = ? AND (slug = ? OR title = ?) AND status = 'published' LIMIT 1`,
+      args: [storeResult.rows[0].id, req.params.pageSlug, req.params.pageSlug]
+    });
+    if (!result.rows.length) return res.status(404).json({ error: 'Page not found.' });
+    res.json(result.rows[0]);
+  } catch(err) { res.status(500).json({ error: 'Failed to fetch page.' }); }
+});
+
 module.exports = router;

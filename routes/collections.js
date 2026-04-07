@@ -76,7 +76,6 @@ router.get('/:id', async (req, res) => {
 router.patch('/:id', async (req, res) => {
   try {
     const db = getDB();
-    const { name, description, image_url, status } = req.body;
     const { name, description, image, image_url, status, sort_order, seo_title, seo_description, slug } = req.body;
     await db.execute({
       sql: `UPDATE collections SET
