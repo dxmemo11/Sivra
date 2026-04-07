@@ -183,17 +183,39 @@
     document.getElementById('menuItemModal').classList.remove('open');
   }
 
-  function saveMenu(which) {
-    // Save to localStorage as persistent config until backend is ready
-    localStorage.setItem('sivra_menu_'+which, JSON.stringify(_menus[which]));
-    Toast.success(which === 'main' ? 'Main menu saved' : 'Footer menu saved');
+  async function saveMenu(which) {
+    try {
+      await API.patch('/api/menus/' + which, { items: _menus[which] });
+      localStorage.setItem('sivra_menu_'+which, JSON.stringify(_menus[which]));
+      Toast.success(which === 'main' ? 'Main menu saved' : 'Footer menu saved');
+    } catch(e) {
+      localStorage.setItem('sivra_menu_'+which, JSON.stringify(_menus[which]));
+      Toast.success('Menu saved locally');
+    }
   }
 
-  // Load saved menus
-  const savedMain = localStorage.getItem('sivra_menu_main');
-  const savedFtr = localStorage.getItem('sivra_menu_footer');
-  if (savedMain) _menus.main = JSON.parse(savedMain);
-  if (savedFtr) _menus.footer = JSON.parse(savedFtr);
+  // Load menus from API, fallback to localStorage
+  try {
+    const [mainData, ftrData] = await Promise.all([
+      API.get('/api/menus/main'),
+      API.get('/api/menus/footer'),
+    ]);
+    if (mainData?.items?.length) _menus.main = mainData.items;
+    else {
+      const saved = localStorage.getItem('sivra_menu_main');
+      if (saved) _menus.main = JSON.parse(saved);
+    }
+    if (ftrData?.items?.length) _menus.footer = ftrData.items;
+    else {
+      const saved = localStorage.getItem('sivra_menu_footer');
+      if (saved) _menus.footer = JSON.parse(saved);
+    }
+  } catch(e) {
+    const sm = localStorage.getItem('sivra_menu_main');
+    const sf = localStorage.getItem('sivra_menu_footer');
+    if (sm) _menus.main = JSON.parse(sm);
+    if (sf) _menus.footer = JSON.parse(sf);
+  }
 
   renderMenu('main');
   renderMenu('footer');

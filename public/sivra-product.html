@@ -2,6 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="description" id="metaDesc" content=""/>
+  <meta property="og:title" id="ogTitle" content=""/>
+  <meta property="og:description" id="ogDesc" content=""/>
+  <meta property="og:image" id="ogImage" content=""/>
+  <meta property="og:type" content="website"/>
+  <meta name="twitter:card" content="summary_large_image"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title id="pageTitle">Product — Store</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -462,6 +468,20 @@ async function loadProduct() {
     document.getElementById('prodTitle').textContent = _product.title||'Product';
     document.getElementById('prodVendor').textContent = _product.vendor||'';
     document.getElementById('prodDesc').textContent = _product.description||'';
+    // SEO meta tags
+    const seoTitle = _product.seo_title || _product.title || 'Product';
+    const seoDesc = _product.seo_description || _product.description || '';
+    const seoImg = _imgs[0] || '';
+    const storeName = _store?.name || 'Store';
+    document.title = seoTitle + ' — ' + storeName;
+    const metaDesc = document.getElementById('metaDesc');
+    const ogTitle = document.getElementById('ogTitle');
+    const ogDesc = document.getElementById('ogDesc');
+    const ogImg = document.getElementById('ogImage');
+    if (metaDesc) metaDesc.content = seoDesc.slice(0, 160);
+    if (ogTitle) ogTitle.content = seoTitle + ' — ' + storeName;
+    if (ogDesc) ogDesc.content = seoDesc.slice(0, 200);
+    if (ogImg && seoImg) ogImg.content = seoImg;
     if (_imgs.length) {
       setMainImg(_imgs[0]);
       if (_imgs.length > 1) {

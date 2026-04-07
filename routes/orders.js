@@ -319,6 +319,17 @@ router.post('/', async (req, res) => {
     }
 
     await addEvent(db, orderId, 'order_created', `Order #${orderNumber} created via ${source}`);
+    // Update customer order count and total_spent
+    try {
+      let custId = customerId;
+      if (!custId && customerEmail) {
+        const cf = await db.execute({ sql: 'SELECT id FROM customers WHERE store_id=? AND LOWER(email)=LOWER(?)', args: [req.storeId, customerEmail] });
+        if (cf.rows.length) custId = cf.rows[0].id;
+      }
+      if (custId) {
+        await db.execute({ sql: 'UPDATE customers SET orders_count=COALESCE(orders_count,0)+1, total_spent=COALESCE(total_spent,0)+?, updated_at=CURRENT_TIMESTAMP WHERE id=? AND store_id=?', args: [parseFloat(total)||0, custId, req.storeId] });
+      }
+    } catch(e) {}
     const created = await getOrderWithItems(db, orderId);
     res.status(201).json(created);
   } catch(err) {

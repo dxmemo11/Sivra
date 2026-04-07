@@ -436,4 +436,36 @@ router.get('/:slug/order-status', async (req, res) => {
   } catch(err) { console.error(err); res.status(500).json({ error: 'Failed to fetch order.' }); }
 });
 
+
+// ── ABANDONED CHECKOUT CAPTURE (public) ──────────────────────────────────────
+router.post('/:slug/checkout-started', async (req, res) => {
+  try {
+    const db = getDB();
+    const storeResult = await db.execute({ sql: `SELECT id FROM stores WHERE slug=?`, args: [req.params.slug] });
+    if (!storeResult.rows.length) return res.status(404).json({ error: 'Store not found.' });
+    const storeId = storeResult.rows[0].id;
+    const { email, cart, total, currency } = req.body;
+
+    // Create table if needed
+    await db.execute({
+      sql: `CREATE TABLE IF NOT EXISTS abandoned_checkouts (
+        id TEXT PRIMARY KEY, store_id TEXT NOT NULL, email TEXT,
+        cart TEXT DEFAULT '[]', total REAL DEFAULT 0, currency TEXT DEFAULT 'USD',
+        recovery_url TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )`, args: []
+    });
+
+    const { v4: uuid } = require('uuid');
+    const id = uuid();
+    await db.execute({
+      sql: `INSERT OR REPLACE INTO abandoned_checkouts (id, store_id, email, cart, total, currency)
+            VALUES (?, ?, ?, ?, ?, ?)`,
+      args: [id, storeId, email || null, JSON.stringify(cart || []), parseFloat(total) || 0, currency || 'USD']
+    });
+    res.json({ id });
+  } catch(err) { res.status(500).json({ error: 'Failed.' }); }
+});
+
 module.exports = router;

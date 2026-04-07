@@ -2,6 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="description" id="metaDesc" content=""/>
+  <meta property="og:title" id="ogTitle" content=""/>
+  <meta property="og:description" id="ogDesc" content=""/>
+  <meta property="og:image" id="ogImage" content=""/>
+  <meta property="og:type" content="website"/>
+  <meta name="twitter:card" content="summary_large_image"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Checkout</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -432,6 +438,9 @@
 
   // ── PLACE ORDER ───────────────────────────────────
   async function placeOrder() {
+    // Track email for abandoned checkout
+    const emailVal = document.getElementById('email')?.value || document.getElementById('checkEmail')?.value || '';
+    if (emailVal) localStorage.setItem('sivra_last_email', emailVal);
     hideError();
     const email = document.getElementById('email').value.trim();
     const firstName = document.getElementById('firstName').value.trim();

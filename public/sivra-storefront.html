@@ -2,6 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="description" id="metaDesc" content=""/>
+  <meta property="og:title" id="ogTitle" content=""/>
+  <meta property="og:description" id="ogDesc" content=""/>
+  <meta property="og:image" id="ogImage" content=""/>
+  <meta property="og:type" content="website"/>
+  <meta name="twitter:card" content="summary_large_image"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title id="pageTitle">Store</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -348,6 +354,29 @@ async function loadCollections() {
           <div style="font-size:12px;opacity:0.75">${c.product_count} products</div>
         </div>
       </div>`).join('');
+    // Inject collection links into nav
+    const navLinks = document.getElementById('navLinks');
+    if (navLinks) {
+      // Remove old collection links
+      navLinks.querySelectorAll('.nav-coll-link').forEach(el => el.remove());
+      colls.slice(0, 4).forEach(c => {
+        const a = document.createElement('a');
+        a.href = 'javascript:void(0)';
+        a.className = 'nav-link nav-coll-link';
+        a.textContent = c.name;
+        a.onclick = () => filterByCollection(c.id, c.name);
+        navLinks.appendChild(a);
+      });
+      // Add Blog link if not already there
+      if (!navLinks.querySelector('.nav-blog-link')) {
+        const blogA = document.createElement('a');
+        blogA.href = 'javascript:void(0)';
+        blogA.className = 'nav-link nav-blog-link';
+        blogA.textContent = 'Blog';
+        blogA.onclick = () => location.href = 'sivra-blog-storefront.html?store=' + _storeSlug;
+        navLinks.appendChild(blogA);
+      }
+    }
   } catch(e) {}
 }
 

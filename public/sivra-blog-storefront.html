@@ -2,6 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="description" id="metaDesc" content=""/>
+  <meta property="og:title" id="ogTitle" content=""/>
+  <meta property="og:description" id="ogDesc" content=""/>
+  <meta property="og:image" id="ogImage" content=""/>
+  <meta property="og:type" content="website"/>
+  <meta name="twitter:card" content="summary_large_image"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Blog — Store</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -165,6 +171,16 @@
     const date = new Date(post.published_at||post.created_at).toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'});
     document.getElementById('postMeta').innerHTML = `<span>${date}</span>${post.author?`<span>·</span><span>By ${post.author}</span>`:''}`;
     document.getElementById('postTitle').textContent = post.title;
+    // SEO
+    const bTitle = post.seo_title || post.title;
+    const bDesc = post.excerpt || '';
+    const bImg = post.image_url || '';
+    const bStoreName = _store?.name || 'Blog';
+    document.title = bTitle + ' — ' + bStoreName;
+    const ogT = document.getElementById('ogTitle'); if(ogT) ogT.content = bTitle;
+    const ogD = document.getElementById('ogDesc'); if(ogD) ogD.content = bDesc.slice(0,200);
+    const ogI = document.getElementById('ogImage'); if(ogI && bImg) ogI.content = bImg;
+    const mD = document.getElementById('metaDesc'); if(mD) mD.content = bDesc.slice(0,160);
     if (post.image_url) {
       document.getElementById('postImg').src = post.image_url;
       document.getElementById('postHero').style.display = '';
