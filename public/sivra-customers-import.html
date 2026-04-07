@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sivra — Import customers</title>
+  <link rel="stylesheet" href="admin-tokens.css"/>
+  <link rel="stylesheet" href="admin-layout.css"/>
+  <link rel="stylesheet" href="admin-components.css"/>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar"><div style="padding:20px;color:#6d7175;font-size:12px">Loading...</div></aside>
+  <div class="main">
+    <div class="topbar" id="sivraTopbar"></div>
+    <div class="page-scroll">
+      <div style="max-width:1280px;margin:0 auto">
+
+        <div class="breadcrumb">
+          <a href="sivra-customers.html" class="breadcrumb-link">← Customers</a>
+          <span class="breadcrumb-sep">/</span>
+          <span class="breadcrumb-current">Import customers</span>
+        </div>
+
+        <div class="page-header">
+          <h1 class="page-title">Import customers</h1>
+        </div>
+
+        <div class="page-body">
+          <div style="max-width:680px">
+            <div class="card">
+              <div class="card-header"><span class="card-title">Upload CSV file</span></div>
+              <div class="card-body section-stack">
+                <div class="alert alert-info">
+                  <span class="alert-icon">ℹ️</span>
+                  <div class="alert-body">
+                    CSV must have a <strong>email</strong> column. Optional columns: first_name, last_name, phone, city, country, tags, notes.
+                    <br/><a href="#" onclick="downloadTemplate()" style="color:var(--p-color-text-emphasis);font-weight:500">Download template CSV →</a>
+                  </div>
+                </div>
+
+                <div class="upload-zone" id="uploadZone"
+                  onclick="document.getElementById('csvInput').click()"
+                  ondragover="event.preventDefault();this.classList.add('drag')"
+                  ondragleave="this.classList.remove('drag')"
+                  ondrop="event.preventDefault();this.classList.remove('drag');handleFile(event.dataTransfer.files[0])">
+                  <div class="upload-icon">📋</div>
+                  <div class="upload-title">Drop your CSV here</div>
+                  <div class="upload-hint">or click to browse — .csv files only</div>
+                  <input type="file" id="csvInput" accept=".csv" style="display:none" onchange="handleFile(this.files[0])"/>
+                </div>
+              </div>
+            </div>
+
+            <!-- Preview -->
+            <div class="card" id="previewCard" style="display:none">
+              <div class="card-header">
+                <span class="card-title" id="previewTitle">Preview</span>
+                <button class="btn btn-primary" onclick="importCustomers()" id="importBtn">Import customers</button>
+              </div>
+              <div style="overflow-x:auto">
+                <table class="data-table" id="previewTable">
+                  <thead id="previewHead"></thead>
+                  <tbody id="previewBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Results -->
+            <div class="card" id="resultsCard" style="display:none">
+              <div class="card-header"><span class="card-title">Import results</span></div>
+              <div class="card-body">
+                <div id="resultsContent"></div>
+                <div style="margin-top:16px;display:flex;gap:8px">
+                  <a href="sivra-customers.html" class="btn btn-primary">View customers</a>
+                  <button class="btn btn-secondary" onclick="resetImport()">Import another file</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="sivra-toast"></div>
+<script src="admin.js"></script>
+<script>
+(async function() {
+  const session = await initAdmin('customers');
+  if (!session) return;
+  
+  let _parsedRows = [], _headers = [];
+
+  function downloadTemplate() {
+    const rows = [
+      ['email','first_name','last_name','phone','city','country','tags','notes'],
+      ['customer@example.com','John','Smith','+61400000000','Sydney','Australia','vip','Loyal customer'],
+      ['another@example.com','Jane','Doe','','Melbourne','Australia','',''],
+    ];
+    exportCSV(rows, 'customers-template.csv');
+    Toast.success('Template downloaded');
+  }
+
+  function handleFile(file) {
+    if (!file || !file.name.endsWith('.csv')) { Toast.error('Please select a .csv file'); return; }
+    const reader = new FileReader();
+    reader.onload = e => {
+      parseCSV(e.target.result);
+    };
+    reader.readAsText(file);
+    document.getElementById('uploadZone').innerHTML = `<div class="upload-icon">✅</div><div class="upload-title">${file.name}</div><div class="upload-hint">${(file.size/1024).toFixed(1)}KB · Click to change</div>`;
+  }
+
+  function parseCSV(text) {
+    const lines = text.trim().split(/\r?\n/);
+    if (lines.length < 2) { Toast.error('CSV appears empty or has no data rows'); return; }
+    _headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g,'').toLowerCase());
+    const emailIdx = _headers.indexOf('email');
+    if (emailIdx === -1) { Toast.error('CSV must have an "email" column'); return; }
+    _parsedRows = [];
+    for (let i = 1; i < lines.length; i++) {
+      if (!lines[i].trim()) continue;
+      const cols = lines[i].split(',').map(c => c.trim().replace(/^"|"$/g,''));
+      if (!cols[emailIdx]) continue;
+      const row = {};
+      _headers.forEach((h, idx) => row[h] = cols[idx] || '');
+      _parsedRows.push(row);
+    }
+    showPreview();
+  }
+
+  function showPreview() {
+    const card = document.getElementById('previewCard');
+    document.getElementById('previewTitle').textContent = `Preview — ${_parsedRows.length} customers`;
+    document.getElementById('importBtn').textContent = `Import ${_parsedRows.length} customers`;
+    card.style.display = '';
+
+    const displayCols = ['email','first_name','last_name','phone','city','country'].filter(h => _headers.includes(h));
+    document.getElementById('previewHead').innerHTML = `<tr>${displayCols.map(h=>`<th>${h.replace(/_/g,' ')}</th>`).join('')}</tr>`;
+    document.getElementById('previewBody').innerHTML = _parsedRows.slice(0,5).map(row =>
+      `<tr>${displayCols.map(h=>`<td class="${h==='email'?'cell-primary':'cell-muted'}">${row[h]||'—'}</td>`).join('')}</tr>`
+    ).join('') + (_parsedRows.length > 5 ? `<tr><td colspan="${displayCols.length}" style="text-align:center;padding:10px;color:#8c9196;font-size:12px">...and ${_parsedRows.length-5} more rows</td></tr>` : '');
+  }
+
+  async function importCustomers() {
+    const btn = document.getElementById('importBtn');
+    btn.disabled = true; btn.textContent = 'Importing...';
+    let success = 0, skipped = 0, failed = 0;
+    for (const row of _parsedRows) {
+      try {
+        await API.post('/api/customers', {
+          email: row.email,
+          first_name: row.first_name || null,
+          last_name: row.last_name || null,
+          phone: row.phone || null,
+          city: row.city || null,
+          country: row.country || null,
+          tags: row.tags || null,
+          notes: row.notes || null,
+        });
+        success++;
+      } catch(e) {
+        if (e.message?.includes('already') || e.message?.includes('duplicate') || e.message?.includes('UNIQUE')) {
+          skipped++;
+        } else {
+          failed++;
+        }
+      }
+    }
+    document.getElementById('previewCard').style.display = 'none';
+    const results = document.getElementById('resultsCard');
+    results.style.display = '';
+    document.getElementById('resultsContent').innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+        <div class="stat-card" style="cursor:default">
+          <div class="stat-label">Imported</div>
+          <div class="stat-value" style="color:var(--p-color-text-success)">${success}</div>
+        </div>
+        <div class="stat-card" style="cursor:default">
+          <div class="stat-label">Skipped (duplicate)</div>
+          <div class="stat-value" style="color:var(--p-color-text-caution)">${skipped}</div>
+        </div>
+        <div class="stat-card" style="cursor:default">
+          <div class="stat-label">Failed</div>
+          <div class="stat-value" style="color:var(--p-color-text-critical)">${failed}</div>
+        </div>
+      </div>
+      <div class="alert ${failed>0?'alert-warning':'alert-info'}">
+        <span class="alert-icon">${failed>0?'⚠️':'✅'}</span>
+        <div class="alert-body">${failed>0?`${failed} customers failed to import. They may have invalid data.`:`Import complete! ${success} customers added${skipped>0?`, ${skipped} already existed`:''}.`}</div>
+      </div>`;
+    Toast.success(`Import complete: ${success} added, ${skipped} skipped`);
+  }
+
+  function resetImport() {
+    _parsedRows = []; _headers = [];
+    document.getElementById('previewCard').style.display = 'none';
+    document.getElementById('resultsCard').style.display = 'none';
+    document.getElementById('csvInput').value = '';
+    document.getElementById('uploadZone').innerHTML = `<div class="upload-icon">📋</div><div class="upload-title">Drop your CSV here</div><div class="upload-hint">or click to browse — .csv files only</div><input type="file" id="csvInput" accept=".csv" style="display:none" onchange="handleFile(this.files[0])"/>`;
+  }
+
+})();
+</script>
+</body>
+</html>

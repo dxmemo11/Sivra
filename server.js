@@ -50,9 +50,55 @@ app.use('/api/blog',        require('./routes/blog'));
 app.get('/api/abandoned', (req, res) => res.json({ checkouts: [] }));
 app.get('/api/abandoned-checkouts', (req, res) => res.json({ checkouts: [] }));
 
+// ── EMAIL SEND TEST (admin only) ────────────────────────────────────────────
+app.get('/api/test-email', async (req, res) => {
+  try {
+    const email = require('./email');
+    const result = await email.sendEmail({
+      to: process.env.ADMIN_EMAIL || 'test@example.com',
+      subject: 'Sivra test email',
+      html: '<p>Email is working! 🎉</p>',
+    });
+    res.json({ result, provider: process.env.EMAIL_PROVIDER || 'none configured' });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 // Health check — useful for server monitoring
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', platform: 'Sivra', time: new Date().toISOString() });
+});
+
+// ── SITEMAP.XML ─────────────────────────────────────────────────────────────
+app.get('/sitemap.xml', async (req, res) => {
+  try {
+    const { getDB } = require('./db/database');
+    const db = getDB();
+    const baseUrl = process.env.STORE_URL || req.protocol + '://' + req.get('host');
+    const slug = process.env.STORE_SLUG || '';
+    const storeBase = `${baseUrl}/sivra-storefront.html?store=${slug}`;
+    const products = await db.execute({ sql: `SELECT id, title, updated_at FROM products WHERE status='active' LIMIT 1000`, args: [] });
+    const collections = await db.execute({ sql: `SELECT id, name FROM collections WHERE status='active' LIMIT 200`, args: [] });
+    const pages = await db.execute({ sql: `SELECT slug, updated_at FROM store_pages WHERE status='published'`, args: [] });
+    const urls = [
+      `  <url><loc>${storeBase}</loc><changefreq>daily</changefreq><priority>1.0</priority></url>`,
+      ...products.rows.map(p => `  <url><loc>${baseUrl}/sivra-product.html?id=${p.id}&store=${slug}</loc><lastmod>${(p.updated_at||'').split('T')[0]}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>`),
+      ...collections.rows.map(c => `  <url><loc>${baseUrl}/sivra-collection.html?store=${slug}&id=${c.id}</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>`),
+      ...pages.rows.map(p => `  <url><loc>${baseUrl}/sivra-policy.html?store=${slug}&page=${p.slug}</loc><lastmod>${(p.updated_at||'').split('T')[0]}</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>`),
+    ];
+    res.set('Content-Type', 'application/xml');
+    res.send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.join('
+')}
+</urlset>`);
+  } catch(e) { res.status(500).send('Failed to generate sitemap'); }
+});
+
+// ── ROBOTS.TXT ───────────────────────────────────────────────────────────────
+app.get('/robots.txt', (req, res) => {
+  const baseUrl = process.env.STORE_URL || req.protocol + '://' + req.get('host');
+  res.set('Content-Type', 'text/plain');
+  res.send(`User-agent: *\nAllow: /\nDisallow: /sivra-dashboard.html\nDisallow: /sivra-admin\nDisallow: /api/\nSitemap: ${baseUrl}/sitemap.xml`);
 });
 
 // Catch-all: send index.html for any unknown route (SPA routing)

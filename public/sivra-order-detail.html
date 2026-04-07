@@ -37,6 +37,7 @@
           </div>
           <div class="btn-group">
             <button class="btn btn-secondary" onclick="window.print()">Print</button>
+            <a id="invoiceBtn" href="#" target="_blank" class="btn btn-secondary">Invoice / Packing slip ↗</a>
             <div style="position:relative">
               <button class="btn btn-secondary" onclick="toggleActionMenu()" id="actionsBtn">More actions ▾</button>
               <div id="actionMenu" style="display:none;position:absolute;top:36px;right:0;background:white;border:1px solid #e3e3e3;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);min-width:180px;z-index:100;overflow:hidden">
@@ -318,6 +319,8 @@
     const o = _order;
     const num = '#' + (o.order_number || o.id?.slice(0,8).toUpperCase());
     document.getElementById('crumb').textContent = num;
+    const invoiceBtn = document.getElementById('invoiceBtn');
+    if (invoiceBtn) invoiceBtn.href = 'sivra-invoice.html?id=' + _id;
     document.getElementById('orderNum').textContent = num;
     document.getElementById('orderDate').textContent = Fmt.datetime(o.created_at);
 

@@ -4,6 +4,13 @@ const router = express.Router();
 const { v4: uuid } = require('uuid');
 const { getDB } = require('../db/database');
 const { requireAuth } = require('../middleware/auth');
+let emailModule = null;
+try { emailModule = require('../email'); } catch(e) {}
+
+async function tryEmail(fn) {
+  if (!emailModule) return;
+  try { await fn(); } catch(e) { console.error('Email send error:', e.message); }
+}
 
 router.use(requireAuth);
 
@@ -159,6 +166,23 @@ router.post('/:id/fulfill', async (req, res) => {
       ? `Order fulfilled with tracking: ${tracking_number} (${tracking_company||''})`
       : 'Order fulfilled';
     await addEvent(db, req.params.id, 'fulfillment_created', msg, { tracking_number, tracking_company, tracking_url });
+
+    // Send shipping confirmation email
+    const orderForEmail = await getOrderWithItems(db, req.params.id);
+    const storeInfo = await db.execute({ sql: 'SELECT name, slug FROM stores WHERE id=?', args: [req.storeId] });
+    const store = storeInfo.rows[0] || {};
+    if (orderForEmail?.customer_email && emailModule) {
+      await tryEmail(async () => {
+        const tmpl = emailModule.shippingConfirmationEmail({
+          order: orderForEmail,
+          storeName: store.name || 'Our Store',
+          trackingNumber: tracking_number,
+          trackingCompany: tracking_company,
+          trackingUrl: tracking_url,
+        });
+        await emailModule.sendEmail({ to: orderForEmail.customer_email, ...tmpl });
+      });
+    }
 
     res.json({ message: 'Order fulfilled.', fulfillment_id: fulfillId });
   } catch(err) {

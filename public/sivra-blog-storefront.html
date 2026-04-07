@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blog — Store</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',-apple-system,sans-serif;background:#f5f5f5;min-height:100vh;-webkit-font-smoothing:antialiased;color:#1a1a1a}
+    a{text-decoration:none;color:inherit}
+    .store-nav{background:white;border-bottom:1px solid #e3e3e3;position:sticky;top:0;z-index:100}
+    .nav-inner{max-width:1280px;margin:0 auto;padding:0 24px;height:60px;display:flex;align-items:center;gap:24px}
+    .nav-logo{font-size:18px;font-weight:700;cursor:pointer;white-space:nowrap}
+    .nav-spacer{flex:1}
+    .page-wrap{max-width:900px;margin:0 auto;padding:40px 24px 80px}
+    .page-title{font-size:32px;font-weight:700;margin-bottom:8px}
+    .page-subtitle{font-size:16px;color:#6d7175;margin-bottom:40px}
+    .blog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:28px}
+    .blog-card{background:white;border-radius:12px;border:1px solid #e3e3e3;overflow:hidden;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s}
+    .blog-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.1)}
+    .blog-img{aspect-ratio:16/9;background:#f6f6f7;overflow:hidden;position:relative}
+    .blog-img img{width:100%;height:100%;object-fit:cover;transition:transform 0.3s}
+    .blog-card:hover .blog-img img{transform:scale(1.04)}
+    .blog-img-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:36px;opacity:0.2}
+    .blog-body{padding:18px}
+    .blog-meta{font-size:12px;color:#8c9196;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+    .blog-tag{padding:2px 8px;background:#f0f0f0;border-radius:20px;font-size:11px;font-weight:500;color:#6d7175}
+    .blog-title{font-size:16px;font-weight:700;color:#1a1a1a;margin-bottom:8px;line-height:1.4}
+    .blog-excerpt{font-size:13px;color:#6d7175;line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+    .blog-read-more{font-size:13px;font-weight:600;color:#1a1a1a;margin-top:12px;display:flex;align-items:center;gap:4px}
+    .empty-state{text-align:center;padding:80px 24px;background:white;border-radius:12px;border:1px solid #e3e3e3}
+    .store-footer{background:#1a1a1a;color:rgba(255,255,255,0.5);text-align:center;padding:20px;font-size:12px;margin-top:auto}
+
+    /* Single post view */
+    .post-wrap{max-width:680px;margin:0 auto;padding:40px 24px 80px}
+    .post-back{display:flex;align-items:center;gap:6px;font-size:14px;color:#6d7175;cursor:pointer;margin-bottom:24px;transition:color 0.1s}
+    .post-back:hover{color:#1a1a1a}
+    .post-hero{border-radius:12px;overflow:hidden;margin-bottom:32px;aspect-ratio:16/7}
+    .post-hero img{width:100%;height:100%;object-fit:cover}
+    .post-meta{font-size:13px;color:#8c9196;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+    .post-title{font-size:30px;font-weight:800;color:#1a1a1a;margin-bottom:20px;line-height:1.25;letter-spacing:-0.3px}
+    .post-content{font-size:16px;line-height:1.85;color:#303030}
+    .post-content h2{font-size:22px;font-weight:700;margin:32px 0 12px;color:#1a1a1a}
+    .post-content h3{font-size:18px;font-weight:600;margin:24px 0 10px}
+    .post-content p{margin-bottom:16px}
+    .post-content ul,.post-content ol{padding-left:24px;margin-bottom:16px}
+    .post-content li{margin-bottom:6px}
+    .post-content img{width:100%;border-radius:8px;margin:16px 0}
+    .post-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:32px;padding-top:24px;border-top:1px solid #e3e3e3}
+  </style>
+</head>
+<body>
+
+<nav class="store-nav">
+  <div class="nav-inner">
+    <span class="nav-logo" id="navLogo" onclick="goHome()">Store</span>
+    <div class="nav-spacer"></div>
+    <a href="javascript:void(0)" onclick="goHome()" style="font-size:13px;color:#6d7175;transition:color 0.1s" onmouseover="this.style.color='#1a1a1a'" onmouseout="this.style.color='#6d7175'">← Back to store</a>
+  </div>
+</nav>
+
+<div id="listView">
+  <div class="page-wrap">
+    <h1 class="page-title" id="blogTitle">Blog</h1>
+    <p class="page-subtitle" id="blogSubtitle">News, tips and stories from our store</p>
+    <div id="blogGrid" class="blog-grid">
+      <div style="grid-column:1/-1;text-align:center;padding:60px;color:#8c9196">Loading posts...</div>
+    </div>
+  </div>
+</div>
+
+<div id="postView" style="display:none">
+  <div class="post-wrap">
+    <div class="post-back" onclick="showList()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 4L6 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      All posts
+    </div>
+    <div class="post-meta" id="postMeta"></div>
+    <h1 class="post-title" id="postTitle"></h1>
+    <div class="post-hero" id="postHero" style="display:none"><img id="postImg" src="" alt=""/></div>
+    <div class="post-content" id="postContent"></div>
+    <div class="post-tags" id="postTags"></div>
+  </div>
+</div>
+
+<footer class="store-footer"><span id="footerStore">Store</span> · Powered by Sivra</footer>
+
+<script>
+  let _posts = [], _storeSlug = '', _store = null;
+
+  function goHome() { location.href = 'sivra-storefront.html?store=' + _storeSlug; }
+
+  async function init() {
+    _storeSlug = new URLSearchParams(location.search).get('store') || localStorage.getItem('sivra_store_slug') || '';
+    localStorage.setItem('sivra_store_slug', _storeSlug);
+
+    // Check if viewing a specific post
+    const postSlug = new URLSearchParams(location.search).get('post');
+
+    try {
+      const res = await fetch('/api/storefront/' + _storeSlug);
+      _store = await res.json();
+      const name = _store.name || 'Store';
+      document.getElementById('navLogo').textContent = name;
+      document.getElementById('footerStore').textContent = name;
+      document.title = 'Blog — ' + name;
+      document.getElementById('blogTitle').textContent = name + ' Blog';
+    } catch(e) {}
+
+    await loadPosts();
+    if (postSlug) showPost(_posts.find(p => p.slug === postSlug));
+  }
+
+  async function loadPosts() {
+    try {
+      const token = localStorage.getItem('sivra_token');
+      const headers = token ? { Authorization: 'Bearer ' + token } : {};
+      const res = await fetch('/api/blog?status=published', { headers });
+      const data = await res.json();
+      _posts = data.posts || [];
+      renderList();
+    } catch(e) {
+      document.getElementById('blogGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:#8c9196">Failed to load posts</div>';
+    }
+  }
+
+  function renderList() {
+    const grid = document.getElementById('blogGrid');
+    if (!_posts.length) {
+      grid.innerHTML = `<div style="grid-column:1/-1">
+        <div class="empty-state">
+          <div style="font-size:40px;margin-bottom:12px;opacity:0.3">✍️</div>
+          <div style="font-size:18px;font-weight:600;margin-bottom:8px">No posts yet</div>
+          <div style="font-size:14px;color:#6d7175">Check back soon for news and updates</div>
+        </div>
+      </div>`;
+      return;
+    }
+    grid.innerHTML = _posts.map(p => {
+      const date = new Date(p.published_at||p.created_at).toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'});
+      const tags = (p.tags||'').split(',').map(t=>t.trim()).filter(Boolean);
+      return `<div class="blog-card" onclick="showPost(${JSON.stringify(p).replace(/"/g,'&quot;')})">
+        <div class="blog-img">
+          ${p.image_url ? `<img src="${p.image_url}" alt="${p.title}" loading="lazy"/>` : `<div class="blog-img-placeholder">✍️</div>`}
+        </div>
+        <div class="blog-body">
+          <div class="blog-meta">
+            <span>${date}</span>
+            ${p.author ? `<span>·</span><span>${p.author}</span>` : ''}
+          </div>
+          ${tags.length ? `<div style="margin-bottom:8px">${tags.slice(0,2).map(t=>`<span class="blog-tag">${t}</span>`).join(' ')}</div>` : ''}
+          <div class="blog-title">${p.title}</div>
+          ${p.excerpt ? `<div class="blog-excerpt">${p.excerpt}</div>` : ''}
+          <div class="blog-read-more">Read more <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function showPost(post) {
+    if (!post) return;
+    document.getElementById('listView').style.display = 'none';
+    document.getElementById('postView').style.display = '';
+    const date = new Date(post.published_at||post.created_at).toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'});
+    document.getElementById('postMeta').innerHTML = `<span>${date}</span>${post.author?`<span>·</span><span>By ${post.author}</span>`:''}`;
+    document.getElementById('postTitle').textContent = post.title;
+    if (post.image_url) {
+      document.getElementById('postImg').src = post.image_url;
+      document.getElementById('postHero').style.display = '';
+    }
+    document.getElementById('postContent').innerHTML = post.content || `<p>${post.excerpt || ''}</p>`;
+    const tags = (post.tags||'').split(',').map(t=>t.trim()).filter(Boolean);
+    document.getElementById('postTags').innerHTML = tags.map(t=>`<span class="blog-tag">${t}</span>`).join('');
+    document.title = post.title + ' — ' + (_store?.name || 'Blog');
+    window.history.pushState({}, '', `?store=${_storeSlug}&post=${post.slug}`);
+    window.scrollTo(0,0);
+  }
+
+  function showList() {
+    document.getElementById('listView').style.display = '';
+    document.getElementById('postView').style.display = 'none';
+    document.title = 'Blog — ' + (_store?.name || 'Store');
+    window.history.pushState({}, '', `?store=${_storeSlug}`);
+  }
+
+  init();
+</script>
+</body>
+</html>

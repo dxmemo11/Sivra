@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Order status</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',-apple-system,sans-serif;background:#f5f5f5;min-height:100vh;-webkit-font-smoothing:antialiased;color:#1a1a1a;padding:32px 16px}
+    .wrap{max-width:560px;margin:0 auto}
+    .store-name{font-size:18px;font-weight:700;text-align:center;margin-bottom:28px;cursor:pointer}
+    .card{background:white;border-radius:12px;border:1px solid #e3e3e3;overflow:hidden;margin-bottom:16px}
+    .card-hero{background:#1a1a1a;padding:24px;text-align:center;color:white}
+    .status-icon{font-size:40px;margin-bottom:10px}
+    .status-title{font-size:18px;font-weight:700;margin-bottom:4px}
+    .status-sub{font-size:13px;opacity:0.7}
+    .order-num{font-size:13px;opacity:0.5;margin-top:8px;font-family:monospace;letter-spacing:1px}
+    .section{padding:18px 20px;border-bottom:1px solid #f0f0f0}
+    .section:last-child{border-bottom:none}
+    .section-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:#6d7175;margin-bottom:10px}
+    .progress-bar{height:6px;background:#e3e3e3;border-radius:3px;overflow:hidden;margin-bottom:12px}
+    .progress-fill{height:100%;border-radius:3px;background:#1a1a1a;transition:width 0.5s}
+    .steps{display:flex;justify-content:space-between;font-size:11px;color:#8c9196}
+    .step.done{color:#1a1a1a;font-weight:600}
+    .item-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f6f6f7;font-size:13px}
+    .item-row:last-child{border-bottom:none}
+    .total-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;color:#6d7175}
+    .total-row.final{font-weight:700;font-size:15px;color:#1a1a1a;border-top:1px solid #e3e3e3;padding-top:8px;margin-top:4px}
+    .tracking-box{background:#f0faf0;border:1px solid #b7e2c4;border-radius:8px;padding:14px;text-align:center}
+    .tracking-num{font-size:18px;font-weight:700;font-family:monospace;letter-spacing:2px;color:#1a1a1a;margin:6px 0}
+    .btn{width:100%;height:44px;background:#1a1a1a;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.15s;text-decoration:none;display:flex;align-items:center;justify-content:center;margin-top:12px}
+    .btn:hover{background:#303030}
+    .btn-sec{background:white;color:#1a1a1a;border:1px solid #e3e3e3}
+    .btn-sec:hover{background:#f6f6f7}
+    .lookup-form{background:white;border-radius:12px;border:1px solid #e3e3e3;padding:28px}
+    .lookup-form h2{font-size:18px;font-weight:700;margin-bottom:6px}
+    .lookup-form p{font-size:14px;color:#6d7175;margin-bottom:20px}
+    label{display:block;font-size:13px;font-weight:500;margin-bottom:4px}
+    input{width:100%;height:40px;padding:0 12px;border:1px solid #d1d1d1;border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border-color 0.15s;margin-bottom:14px}
+    input:focus{border-color:#1a1a1a}
+    .error{color:#c0392b;font-size:13px;margin-bottom:12px;display:none}
+    footer{text-align:center;font-size:12px;color:#8c9196;margin-top:24px}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="store-name" id="storeName" onclick="goHome()">Store</div>
+
+  <!-- Lookup form (shown when no order ID) -->
+  <div class="lookup-form" id="lookupForm">
+    <h2>Track your order</h2>
+    <p>Enter your order number and email address to check your order status.</p>
+    <div class="error" id="lookupError"></div>
+    <label>Order number</label>
+    <input id="lookupNum" placeholder="e.g. 1001" type="number"/>
+    <label>Email address</label>
+    <input id="lookupEmail" placeholder="you@example.com" type="email" onkeydown="if(event.key==='Enter')lookupOrder()"/>
+    <button class="btn" onclick="lookupOrder()">Track order</button>
+  </div>
+
+  <!-- Order details (shown when order found) -->
+  <div id="orderDetails" style="display:none">
+    <div class="card">
+      <div class="card-hero">
+        <div class="status-icon" id="statusIcon">📦</div>
+        <div class="status-title" id="statusTitle">Order received</div>
+        <div class="status-sub" id="statusSub">We're processing your order</div>
+        <div class="order-num" id="orderNumDisplay"></div>
+      </div>
+
+      <!-- Progress -->
+      <div class="section">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill" style="width:25%"></div>
+        </div>
+        <div class="steps">
+          <span class="step done" id="step1">Order placed</span>
+          <span class="step" id="step2">Processing</span>
+          <span class="step" id="step3">Shipped</span>
+          <span class="step" id="step4">Delivered</span>
+        </div>
+      </div>
+
+      <!-- Tracking -->
+      <div class="section" id="trackingSection" style="display:none">
+        <div class="section-label">Tracking</div>
+        <div class="tracking-box">
+          <div style="font-size:13px;color:#6d7175" id="trackingCarrier"></div>
+          <div class="tracking-num" id="trackingNum"></div>
+          <a id="trackingLink" href="#" target="_blank" class="btn" style="text-decoration:none;width:auto;padding:0 20px;display:inline-flex;margin-top:8px;font-size:13px">Track package →</a>
+        </div>
+      </div>
+
+      <!-- Items -->
+      <div class="section">
+        <div class="section-label">Items ordered</div>
+        <div id="orderItems"></div>
+        <div style="margin-top:12px" id="orderTotals"></div>
+      </div>
+
+      <!-- Shipping address -->
+      <div class="section" id="addrSection">
+        <div class="section-label">Shipping to</div>
+        <div style="font-size:13px;color:#4a4a4a;line-height:1.8" id="shipAddr"></div>
+      </div>
+    </div>
+
+    <a href="javascript:void(0)" onclick="goHome()" class="btn btn-sec">Continue shopping</a>
+    <div style="text-align:center;margin-top:10px">
+      <a href="javascript:void(0)" onclick="showLookup()" style="font-size:13px;color:#6d7175;text-decoration:none">Track a different order</a>
+    </div>
+  </div>
+</div>
+
+<footer>Powered by Sivra</footer>
+
+<script>
+  let _storeSlug = new URLSearchParams(location.search).get('store') || localStorage.getItem('sivra_store_slug') || '';
+  const _orderId = new URLSearchParams(location.search).get('id');
+  const _orderNum = new URLSearchParams(location.search).get('num');
+
+  function goHome() { location.href = 'sivra-storefront.html?store=' + _storeSlug; }
+  function showLookup() {
+    document.getElementById('lookupForm').style.display = '';
+    document.getElementById('orderDetails').style.display = 'none';
+  }
+
+  async function init() {
+    localStorage.setItem('sivra_store_slug', _storeSlug);
+    try {
+      const res = await fetch('/api/storefront/' + _storeSlug);
+      const store = await res.json();
+      const name = store.name || 'Store';
+      document.getElementById('storeName').textContent = name;
+      document.title = 'Order status — ' + name;
+    } catch(e) {}
+
+    // If order ID passed directly (from confirmation page)
+    if (_orderId) {
+      await loadOrderById(_orderId);
+    } else {
+      document.getElementById('lookupForm').style.display = '';
+    }
+  }
+
+  async function lookupOrder() {
+    const num = document.getElementById('lookupNum').value.trim();
+    const email = document.getElementById('lookupEmail').value.trim().toLowerCase();
+    const errEl = document.getElementById('lookupError');
+    if (!num) { errEl.textContent='Enter your order number'; errEl.style.display=''; return; }
+    if (!email) { errEl.textContent='Enter your email address'; errEl.style.display=''; return; }
+    errEl.style.display = 'none';
+
+    try {
+      // Search orders via storefront endpoint
+      const res = await fetch(`/api/storefront/${_storeSlug}/order-status?num=${num}&email=${encodeURIComponent(email)}`);
+      const data = await res.json();
+      if (!res.ok || !data.order) {
+        errEl.textContent = data.error || 'Order not found. Check your order number and email.';
+        errEl.style.display = '';
+        return;
+      }
+      renderOrder(data.order, data.fulfillments || []);
+    } catch(e) {
+      errEl.textContent = 'Failed to look up order. Please try again.';
+      errEl.style.display = '';
+    }
+  }
+
+  async function loadOrderById(id) {
+    try {
+      const res = await fetch(`/api/storefront/${_storeSlug}/order-status?id=${id}`);
+      const data = await res.json();
+      if (res.ok && data.order) {
+        renderOrder(data.order, data.fulfillments || []);
+      } else {
+        document.getElementById('lookupForm').style.display = '';
+      }
+    } catch(e) {
+      document.getElementById('lookupForm').style.display = '';
+    }
+  }
+
+  function renderOrder(order, fulfillments) {
+    document.getElementById('lookupForm').style.display = 'none';
+    document.getElementById('orderDetails').style.display = '';
+    document.getElementById('orderNumDisplay').textContent = 'Order #' + order.order_number;
+
+    // Status
+    const isFulfilled = order.fulfillment_status === 'fulfilled';
+    const isCancelled = order.status === 'cancelled';
+    const isPaid = order.payment_status === 'paid';
+
+    let icon, title, sub, progress;
+    if (isCancelled) { icon='❌'; title='Order cancelled'; sub='This order has been cancelled'; progress=0; }
+    else if (isFulfilled) { icon='🚚'; title='Order shipped'; sub='Your order is on its way!'; progress=75; }
+    else if (isPaid) { icon='⚙️'; title='Processing your order'; sub="We're preparing your items"; progress=50; }
+    else { icon='📦'; title='Order received'; sub="We've received your order and it's being reviewed"; progress=25; }
+
+    document.getElementById('statusIcon').textContent = icon;
+    document.getElementById('statusTitle').textContent = title;
+    document.getElementById('statusSub').textContent = sub;
+    document.getElementById('progressFill').style.width = progress + '%';
+
+    // Steps
+    if (progress >= 25) document.getElementById('step1').className = 'step done';
+    if (progress >= 50) document.getElementById('step2').className = 'step done';
+    if (progress >= 75) document.getElementById('step3').className = 'step done';
+    if (progress >= 100) document.getElementById('step4').className = 'step done';
+
+    // Tracking
+    if (fulfillments.length && fulfillments[0].tracking_number) {
+      const f = fulfillments[0];
+      document.getElementById('trackingSection').style.display = '';
+      document.getElementById('trackingCarrier').textContent = f.tracking_company || 'Carrier';
+      document.getElementById('trackingNum').textContent = f.tracking_number;
+      if (f.tracking_url) document.getElementById('trackingLink').href = f.tracking_url;
+      else document.getElementById('trackingLink').style.display = 'none';
+    }
+
+    // Items
+    const items = order.items || [];
+    document.getElementById('orderItems').innerHTML = items.map(i => `
+      <div class="item-row">
+        <div>
+          <div style="font-weight:500">${i.title}</div>
+          ${i.variant_title ? `<div style="font-size:12px;color:#6d7175">${i.variant_title}</div>` : ''}
+        </div>
+        <div style="text-align:right">
+          <div style="font-weight:600">$${(parseFloat(i.price||0)*parseInt(i.quantity||1)).toFixed(2)}</div>
+          <div style="font-size:12px;color:#6d7175">Qty: ${i.quantity||1}</div>
+        </div>
+      </div>`).join('');
+
+    // Totals
+    let tot = '';
+    if (parseFloat(order.discount_amount||0)>0) tot += `<div class="total-row" style="color:#1a7f37"><span>Discount</span><span>-$${parseFloat(order.discount_amount).toFixed(2)}</span></div>`;
+    tot += `<div class="total-row"><span>Shipping</span><span>$${parseFloat(order.shipping||0).toFixed(2)}</span></div>`;
+    tot += `<div class="total-row"><span>Tax</span><span>$${parseFloat(order.tax||0).toFixed(2)}</span></div>`;
+    tot += `<div class="total-row final"><span>Total</span><span>$${parseFloat(order.total||0).toFixed(2)}</span></div>`;
+    document.getElementById('orderTotals').innerHTML = tot;
+
+    // Address
+    const addr = [order.shipping_name, order.shipping_addr, order.shipping_city, order.shipping_zip, order.shipping_country].filter(Boolean).join('<br/>');
+    document.getElementById('shipAddr').innerHTML = addr || '—';
+  }
+
+  init();
+</script>
+</body>
+</html>

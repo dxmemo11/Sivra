@@ -100,7 +100,8 @@
 
     <div class="section">
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <a href="javascript:void(0)" onclick="continueShopping()" class="btn btn-primary" style="flex:1;justify-content:center">Continue shopping</a>
+        <a href="javascript:void(0)" onclick="trackOrder()" class="btn btn-primary" style="flex:1;justify-content:center">Track order</a>
+        <a href="javascript:void(0)" onclick="continueShopping()" class="btn btn-secondary" style="flex:1;justify-content:center">Continue shopping</a>
         <a href="javascript:void(0)" onclick="window.print()" class="btn btn-secondary" style="flex:1;justify-content:center">Print receipt</a>
       </div>
     </div>
@@ -137,6 +138,9 @@
 
   function continueShopping() {
     location.href = 'sivra-storefront.html?store=' + storeSlug;
+  }
+  function trackOrder() {
+    location.href = `sivra-order-status.html?store=${storeSlug}&id=${orderId}&num=${orderNum}`;
   }
 </script>
 </body>

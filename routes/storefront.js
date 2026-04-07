@@ -3,6 +3,8 @@ const express = require('express');
 const router = express.Router();
 const { v4: uuid } = require('uuid');
 const { getDB } = require('../db/database');
+let emailModule = null;
+try { emailModule = require('../email'); } catch(e) {}
 
 // ── GET STORE INFO ─────────────────────────────────────────────────────────────
 router.get('/:slug', async (req, res) => {
@@ -298,6 +300,51 @@ router.post('/:slug/checkout', async (req, res) => {
       });
     } catch(e) { /* analytics tracking failure should not break order */ }
 
+    // Send order confirmation emails
+    if (emailModule) {
+      try {
+        const itemsForEmail = resolved.map(({product, variant, qty, itemPrice}) => ({
+          title: product.title,
+          variant_title: variant?.title || null,
+          price: itemPrice,
+          quantity: qty,
+        }));
+        const storeUrl = process.env.STORE_URL || `https://${store.slug}.sivra.app`;
+        const adminUrl = process.env.ADMIN_URL || storeUrl;
+        const orderForEmail = {
+          order_number: orderNumber,
+          total, subtotal, shipping, tax,
+          discount_amount: discountAmount,
+          customer_email: customerEmail,
+          shipping_name: shippingAddress.name || `${firstName||''} ${lastName||''}`.trim(),
+          shipping_addr: shippingAddress.address,
+          shipping_city: shippingAddress.city,
+          shipping_zip: shippingAddress.zip,
+          shipping_country: shippingAddress.country,
+        };
+        // Customer confirmation
+        const custTmpl = emailModule.orderConfirmationEmail({
+          order: orderForEmail,
+          storeName: store.name || 'Our Store',
+          storeUrl, items: itemsForEmail,
+        });
+        await emailModule.sendEmail({ to: customerEmail, ...custTmpl });
+        // Admin notification
+        const adminEmail = process.env.ADMIN_EMAIL;
+        if (adminEmail) {
+          const adminTmpl = emailModule.newOrderAdminEmail({
+            order: orderForEmail,
+            storeName: store.name || 'Our Store',
+            adminUrl: `${adminUrl}/sivra-order-detail.html?id=${orderId}`,
+            items: itemsForEmail,
+          });
+          await emailModule.sendEmail({ to: adminEmail, ...adminTmpl });
+        }
+      } catch(emailErr) {
+        console.error('Email error (non-fatal):', emailErr.message);
+      }
+    }
+
     res.status(201).json({
       message: 'Order placed successfully!',
       orderNumber, orderId, total, subtotal, shipping, tax, discountAmount,
@@ -359,6 +406,34 @@ router.get('/:slug/pages/:pageSlug', async (req, res) => {
     if (!result.rows.length) return res.status(404).json({ error: 'Page not found.' });
     res.json(result.rows[0]);
   } catch(err) { res.status(500).json({ error: 'Failed to fetch page.' }); }
+});
+
+
+// ── ORDER STATUS (public — customers track their own order) ──────────────────
+router.get('/:slug/order-status', async (req, res) => {
+  try {
+    const db = getDB();
+    const storeResult = await db.execute({ sql: `SELECT id FROM stores WHERE slug = ?`, args: [req.params.slug] });
+    if (!storeResult.rows.length) return res.status(404).json({ error: 'Store not found.' });
+    const storeId = storeResult.rows[0].id;
+    const { id, num, email } = req.query;
+    let orderResult;
+    if (id) {
+      orderResult = await db.execute({ sql: 'SELECT * FROM orders WHERE id=? AND store_id=?', args: [id, storeId] });
+    } else if (num && email) {
+      orderResult = await db.execute({
+        sql: 'SELECT * FROM orders WHERE order_number=? AND store_id=? AND LOWER(customer_email)=LOWER(?)',
+        args: [parseInt(num), storeId, email]
+      });
+    } else {
+      return res.status(400).json({ error: 'Provide id or num+email' });
+    }
+    if (!orderResult.rows.length) return res.status(404).json({ error: 'Order not found. Check your order number and email address.' });
+    const order = orderResult.rows[0];
+    const items = await db.execute({ sql: 'SELECT * FROM order_items WHERE order_id=?', args: [order.id] });
+    const fulfillments = await db.execute({ sql: 'SELECT * FROM fulfillments WHERE order_id=? ORDER BY created_at DESC', args: [order.id] });
+    res.json({ order: { ...order, items: items.rows }, fulfillments: fulfillments.rows });
+  } catch(err) { console.error(err); res.status(500).json({ error: 'Failed to fetch order.' }); }
 });
 
 module.exports = router;

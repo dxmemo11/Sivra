@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Invoice</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif;font-size:13px;color:#1a1a1a;background:white;padding:40px;max-width:720px;margin:0 auto}
+    .no-print{margin-bottom:20px;display:flex;gap:8px}
+    @media print{.no-print{display:none!important}body{padding:20px}}
+    h1{font-size:24px;font-weight:700}
+    .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:40px;padding-bottom:24px;border-bottom:2px solid #1a1a1a}
+    .store-name{font-size:20px;font-weight:700}
+    .invoice-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#6d7175;margin-bottom:4px}
+    .order-num{font-size:22px;font-weight:800}
+    .meta-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-bottom:32px}
+    .meta-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:#6d7175;margin-bottom:4px}
+    .meta-value{font-size:13px;color:#1a1a1a;line-height:1.6}
+    table{width:100%;border-collapse:collapse;margin-bottom:24px}
+    thead th{padding:8px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:#6d7175;text-align:left;border-bottom:1px solid #e3e3e3;background:#f9f9f9}
+    thead th:last-child{text-align:right}
+    tbody td{padding:12px;border-bottom:1px solid #f0f0f0;font-size:13px;vertical-align:top}
+    tbody td:last-child{text-align:right;font-weight:600}
+    .totals{margin-left:auto;width:260px}
+    .total-row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px;color:#6d7175}
+    .total-row.final{font-size:16px;font-weight:700;color:#1a1a1a;border-top:2px solid #1a1a1a;padding-top:10px;margin-top:4px}
+    .status-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;text-transform:capitalize}
+    .badge-paid{background:#d1fae5;color:#065f46}
+    .badge-pending{background:#fef3c7;color:#92400e}
+    .badge-refunded{background:#f3f4f6;color:#6b7280}
+    .footer{margin-top:48px;padding-top:20px;border-top:1px solid #e3e3e3;text-align:center;font-size:12px;color:#8c9196}
+    .btn{height:36px;padding:0 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;border:none;display:flex;align-items:center;gap:6px}
+    .btn-primary{background:#1a1a1a;color:white}
+    .btn-secondary{background:white;color:#1a1a1a;border:1px solid #e3e3e3}
+  </style>
+</head>
+<body>
+
+<div class="no-print">
+  <button class="btn btn-primary" onclick="window.print()">🖨️ Print / Save PDF</button>
+  <button class="btn btn-secondary" onclick="history.back()">← Back to order</button>
+</div>
+
+<div class="header">
+  <div>
+    <div class="store-name" id="storeName">Store</div>
+    <div style="font-size:13px;color:#6d7175;margin-top:4px" id="storeAddress"></div>
+  </div>
+  <div style="text-align:right">
+    <div class="invoice-label">Invoice / Packing slip</div>
+    <div class="order-num" id="orderNum">#—</div>
+    <div style="margin-top:4px" id="payStatusBadge"></div>
+  </div>
+</div>
+
+<div class="meta-grid">
+  <div>
+    <div class="meta-label">Date</div>
+    <div class="meta-value" id="orderDate">—</div>
+  </div>
+  <div>
+    <div class="meta-label">Bill to / Ship to</div>
+    <div class="meta-value" id="shipAddr">—</div>
+  </div>
+  <div>
+    <div class="meta-label">Contact</div>
+    <div class="meta-value" id="custContact">—</div>
+  </div>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:50%">Item</th>
+      <th>SKU</th>
+      <th style="text-align:center">Qty</th>
+      <th style="text-align:right">Unit price</th>
+      <th style="text-align:right">Total</th>
+    </tr>
+  </thead>
+  <tbody id="itemsBody">
+    <tr><td colspan="5" style="text-align:center;padding:24px;color:#8c9196">Loading...</td></tr>
+  </tbody>
+</table>
+
+<div class="totals" id="totalsSection"></div>
+
+<div id="notesSection" style="display:none;margin-top:24px;padding:14px;background:#f9f9f9;border-radius:8px">
+  <div class="meta-label" style="margin-bottom:4px">Order notes</div>
+  <div style="font-size:13px;color:#4a4a4a" id="orderNotes"></div>
+</div>
+
+<div class="footer">
+  <div id="footerStore">Store</div>
+  <div style="margin-top:4px">Thank you for your order!</div>
+</div>
+
+<script>
+  const params = new URLSearchParams(location.search);
+  const orderId = params.get('id');
+  const token = localStorage.getItem('sivra_token');
+
+  async function load() {
+    if (!orderId || !token) {
+      document.body.innerHTML = '<div style="padding:40px;text-align:center;color:#c0392b">Order ID required. <a href="sivra-orders.html">Back to orders</a></div>';
+      return;
+    }
+    try {
+      const [orderRes, storeRes] = await Promise.all([
+        fetch('/api/orders/' + orderId, { headers: { Authorization: 'Bearer ' + token } }),
+        fetch('/api/store/info', { headers: { Authorization: 'Bearer ' + token } }),
+      ]);
+      const order = await orderRes.json();
+      const store = await storeRes.json();
+
+      document.title = `Invoice #${order.order_number} — ${store.name}`;
+      document.getElementById('storeName').textContent = store.name || 'Store';
+      document.getElementById('footerStore').textContent = store.name || 'Store';
+
+      document.getElementById('orderNum').textContent = '#' + order.order_number;
+      document.getElementById('orderDate').textContent = new Date(order.created_at).toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'});
+
+      const payClass = order.payment_status==='paid'?'badge-paid':order.payment_status==='refunded'?'badge-refunded':'badge-pending';
+      document.getElementById('payStatusBadge').innerHTML = `<span class="status-badge ${payClass}">${order.payment_status||'pending'}</span>`;
+
+      const addr = [order.shipping_name, order.shipping_addr, order.shipping_city, order.shipping_zip, order.shipping_country].filter(Boolean).join('<br/>');
+      document.getElementById('shipAddr').innerHTML = addr || '—';
+      document.getElementById('custContact').innerHTML = [order.customer_email, order.shipping_phone].filter(Boolean).join('<br/>') || '—';
+
+      // Items
+      const items = order.items || [];
+      document.getElementById('itemsBody').innerHTML = items.map(item => `
+        <tr>
+          <td>
+            <div style="font-weight:500">${item.title}</div>
+            ${item.variant_title ? `<div style="font-size:12px;color:#6d7175">${item.variant_title}</div>` : ''}
+          </td>
+          <td style="color:#6d7175">${item.sku||'—'}</td>
+          <td style="text-align:center">${item.quantity||1}</td>
+          <td style="text-align:right">$${parseFloat(item.price||0).toFixed(2)}</td>
+          <td>$${(parseFloat(item.price||0)*parseInt(item.quantity||1)).toFixed(2)}</td>
+        </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;padding:16px;color:#8c9196">No items</td></tr>';
+
+      // Totals
+      let totalsHtml = '';
+      totalsHtml += `<div class="total-row"><span>Subtotal</span><span>$${parseFloat(order.subtotal||0).toFixed(2)}</span></div>`;
+      if (parseFloat(order.discount_amount||0) > 0) {
+        totalsHtml += `<div class="total-row" style="color:#1a7f37"><span>Discount${order.discount_code?` (${order.discount_code})`:''}</span><span>-$${parseFloat(order.discount_amount).toFixed(2)}</span></div>`;
+      }
+      totalsHtml += `<div class="total-row"><span>Shipping</span><span>$${parseFloat(order.shipping||0).toFixed(2)}</span></div>`;
+      totalsHtml += `<div class="total-row"><span>Tax</span><span>$${parseFloat(order.tax||0).toFixed(2)}</span></div>`;
+      totalsHtml += `<div class="total-row final"><span>Total</span><span>$${parseFloat(order.total||0).toFixed(2)}</span></div>`;
+      document.getElementById('totalsSection').innerHTML = totalsHtml;
+
+      if (order.notes) {
+        document.getElementById('notesSection').style.display = '';
+        document.getElementById('orderNotes').textContent = order.notes;
+      }
+    } catch(e) {
+      document.body.innerHTML = '<div style="padding:40px;text-align:center;color:#c0392b">Failed to load order. <a href="sivra-orders.html">Back to orders</a></div>';
+    }
+  }
+  load();
+</script>
+</body>
+</html>
