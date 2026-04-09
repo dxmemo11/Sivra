@@ -37,13 +37,6 @@
     .loading-shimmer{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px;height:20px}
     @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
     .section-error{text-align:center;padding:20px;color:#8c9196;font-size:13px}
-    .daily-row{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border-bottom:1px solid #f6f6f7;font-size:13px;cursor:pointer;transition:background 0.1s}
-    .daily-row:hover{background:#f9f9f9}
-    .daily-date{color:#303030;font-weight:500;min-width:110px}
-    .daily-orders{color:#6d7175;min-width:60px;text-align:center}
-    .daily-rev{font-weight:600;min-width:80px;text-align:right}
-    .daily-bar{flex:1;margin:0 12px;height:4px;background:#f0f0f0;border-radius:2px;overflow:hidden}
-    .daily-bar-fill{height:100%;background:#3b82f6;border-radius:2px;transition:width 0.3s}
     .country-row{display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid #f6f6f7;font-size:13px}
     .country-name{font-weight:500;min-width:100px}
     .country-bar{flex:1;height:4px;background:#f0f0f0;border-radius:2px;overflow:hidden}
@@ -63,18 +56,23 @@
       <!-- Header -->
       <div class="ana-header">
         <h1 style="font-size:18px;font-weight:700;margin-right:8px">Analytics</h1>
-        <select class="sort-select" id="daysSel" onchange="loadAll()" style="height:34px">
-          <option value="1">Today</option>
-          <option value="2">Yesterday</option>
-          <option value="7">Last 7 days</option>
-          <option value="14">Last 14 days</option>
-          <option value="30" selected>Last 30 days</option>
-          <option value="60">Last 60 days</option>
-          <option value="90">Last 90 days</option>
-          <option value="180">Last 6 months</option>
-          <option value="365">Last year</option>
-        </select>
-        <span style="font-size:12px;color:#8c9196" id="lastRefreshed"></span>
+        <!-- Quick presets -->
+        <div style="display:flex;gap:4px;flex-wrap:wrap" id="presetBtns">
+          <button class="btn btn-secondary btn-sm" onclick="setPeriod(1)" data-d="1" style="font-size:11px">Today</button>
+          <button class="btn btn-secondary btn-sm" onclick="setPeriod(2)" data-d="2" style="font-size:11px">Yesterday</button>
+          <button class="btn btn-secondary btn-sm" onclick="setPeriod(7)" data-d="7" style="font-size:11px">7d</button>
+          <button class="btn btn-secondary btn-sm" onclick="setPeriod(14)" data-d="14" style="font-size:11px">14d</button>
+          <button class="btn btn-secondary btn-sm" onclick="setPeriod(30)" data-d="30" style="font-size:11px;background:#1a1a1a;color:white;border-color:#1a1a1a">30d</button>
+          <button class="btn btn-secondary btn-sm" onclick="setPeriod(90)" data-d="90" style="font-size:11px">90d</button>
+          <button class="btn btn-secondary btn-sm" onclick="setPeriod(365)" data-d="365" style="font-size:11px">1yr</button>
+        </div>
+        <!-- Custom date range -->
+        <div style="display:flex;align-items:center;gap:6px;margin-left:8px">
+          <input type="date" id="dateFrom" style="height:34px;border:1px solid #d1d1d1;border-radius:6px;padding:0 8px;font-size:12px;font-family:inherit;color:#303030" onchange="setCustomRange()"/>
+          <span style="color:#8c9196;font-size:12px">to</span>
+          <input type="date" id="dateTo" style="height:34px;border:1px solid #d1d1d1;border-radius:6px;padding:0 8px;font-size:12px;font-family:inherit;color:#303030" onchange="setCustomRange()"/>
+        </div>
+        <span style="font-size:12px;color:#8c9196;margin-left:8px" id="lastRefreshed"></span>
         <button class="btn btn-secondary btn-sm" style="margin-left:auto" onclick="exportReport()">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5l3 3 3-3M1 10h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
           Export CSV
@@ -137,17 +135,6 @@
         </div>
       </div>
 
-      <!-- Daily sales calendar -->
-      <div class="ana-card" style="margin-bottom:16px">
-        <div style="padding:14px 18px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between">
-          <span style="font-size:13px;font-weight:600">Daily breakdown</span>
-          <span style="font-size:11px;color:#8c9196">Click any day for details</span>
-        </div>
-        <div id="dailyRows" style="max-height:400px;overflow-y:auto">
-          <div class="loading-shimmer" style="margin:16px;height:100px"></div>
-        </div>
-      </div>
-
       <!-- Countries + Traffic Sources -->
       <div class="ana-bottom-grid">
         <div class="ana-card">
@@ -193,6 +180,38 @@
 <script src="admin.js"></script>
 <script>
 let _mainChart = null, _chartMode = 'revenue', _salesData = [], _days = 30, _trafficData = null;
+let _customFrom = null, _customTo = null;
+
+function setPeriod(d) {
+  _days = d;
+  _customFrom = null;
+  _customTo = null;
+  document.getElementById('dateFrom').value = '';
+  document.getElementById('dateTo').value = '';
+  // Highlight active preset
+  document.querySelectorAll('#presetBtns button').forEach(function(btn) {
+    var isActive = parseInt(btn.dataset.d) === d;
+    btn.style.cssText = 'font-size:11px' + (isActive ? ';background:#1a1a1a;color:white;border-color:#1a1a1a' : '');
+  });
+  loadAll();
+}
+
+function setCustomRange() {
+  var from = document.getElementById('dateFrom').value;
+  var to = document.getElementById('dateTo').value;
+  if (from && to) {
+    _customFrom = from;
+    _customTo = to;
+    // Calculate days between
+    var diff = Math.ceil((new Date(to) - new Date(from)) / 86400000) + 1;
+    _days = Math.max(1, diff);
+    // Unhighlight presets
+    document.querySelectorAll('#presetBtns button').forEach(function(btn) {
+      btn.style.cssText = 'font-size:11px';
+    });
+    loadAll();
+  }
+}
 
 function getDelta(pct) {
   if (pct === undefined || pct === null) return '';
@@ -292,30 +311,6 @@ function renderBreakdown(finance) {
     </div>`).join('');
 }
 
-function renderDailyBreakdown(salesData) {
-  const el = document.getElementById('dailyRows');
-  if (!salesData || !salesData.length) {
-    el.innerHTML = '<div class="section-error">No daily data available</div>';
-    return;
-  }
-  // Show newest first
-  const sorted = [...salesData].reverse();
-  const maxRev = Math.max(...sorted.map(d => parseFloat(d.revenue || 0)), 1);
-  el.innerHTML = sorted.map(d => {
-    const dt = new Date(d.date + 'T12:00:00');
-    const dayName = dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-    const rev = parseFloat(d.revenue || 0);
-    const orders = parseInt(d.orders || 0);
-    const pct = Math.round(rev / maxRev * 100);
-    return `<div class="daily-row">
-      <span class="daily-date">${dayName}</span>
-      <span class="daily-orders">${orders} order${orders !== 1 ? 's' : ''}</span>
-      <div class="daily-bar"><div class="daily-bar-fill" style="width:${pct}%"></div></div>
-      <span class="daily-rev">${Fmt.money(rev)}</span>
-    </div>`;
-  }).join('');
-}
-
 function renderCountries(orders) {
   const el = document.getElementById('countryRows');
   // Aggregate by country from order shipping data
@@ -378,19 +373,21 @@ function renderTopProducts(products) {
 }
 
 async function loadAll() {
-  _days = parseInt(document.getElementById('daysSel').value);
   document.getElementById('lastRefreshed').textContent = 'Loading...';
+
+  var daysParam = _days;
+  var dateParams = _customFrom ? '&from=' + _customFrom + '&to=' + _customTo : '';
 
   const safe = async (fn) => { try { return await fn(); } catch(e) { console.error('Analytics error:', e.message); return null; } };
 
   const [overview, salesData, finance, topProds, topCusts, discounts, trafficData, allOrders] = await Promise.all([
-    safe(() => API.get('/api/analytics/overview?days=' + _days)),
-    safe(() => API.get('/api/analytics/sales-over-time?days=' + _days)),
-    safe(() => API.get('/api/analytics/finance?days=' + _days)),
-    safe(() => API.get('/api/analytics/top-products?days=' + _days + '&limit=8')),
-    safe(() => API.get('/api/analytics/top-customers?days=' + _days + '&limit=6')),
-    safe(() => API.get('/api/analytics/discounts?days=' + _days)),
-    safe(() => API.get('/api/track/traffic?days=' + _days)),
+    safe(() => API.get('/api/analytics/overview?days=' + daysParam + dateParams)),
+    safe(() => API.get('/api/analytics/sales-over-time?days=' + daysParam + dateParams)),
+    safe(() => API.get('/api/analytics/finance?days=' + daysParam + dateParams)),
+    safe(() => API.get('/api/analytics/top-products?days=' + daysParam + '&limit=8' + dateParams)),
+    safe(() => API.get('/api/analytics/top-customers?days=' + daysParam + '&limit=6' + dateParams)),
+    safe(() => API.get('/api/analytics/discounts?days=' + daysParam + dateParams)),
+    safe(() => API.get('/api/track/traffic?days=' + daysParam + dateParams)),
     safe(() => API.get('/api/orders?limit=500&sort=newest')),
   ]);
 
@@ -449,9 +446,6 @@ async function loadAll() {
   } else {
     document.getElementById('breakdownRows').innerHTML = '<div class="section-error">No data</div>';
   }
-
-  // ── DAILY BREAKDOWN ───────────────────────────────
-  renderDailyBreakdown(salesData?.data || []);
 
   // ── COUNTRIES ─────────────────────────────────────
   renderCountries(allOrders?.orders || []);
