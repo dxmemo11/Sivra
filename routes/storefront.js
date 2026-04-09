@@ -233,7 +233,7 @@ router.post('/:slug/checkout', async (req, res) => {
     if (custResult.rows.length) {
       customerId = custResult.rows[0].id;
       await db.execute({
-        sql: 'UPDATE customers SET orders_count = orders_count + 1, total_spent = total_spent + ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+        sql: 'UPDATE customers SET orders_count = orders_count + 1, total_spent = total_spent + ? WHERE id = ?',
         args: [total, customerId]
       });
     } else {
