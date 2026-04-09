@@ -247,7 +247,13 @@ function toast(msg,dur=2500){
 }
 function goHome(){location.href='sivra-storefront.html?store='+_storeSlug;}
 function goCart(){location.href='sivra-cart.html?store='+_storeSlug;}
-function goSearch(){location.href='sivra-storefront.html?store='+_storeSlug+'&search=open';}
+function goSearch(){
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    document.getElementById('products').scrollIntoView({behavior:'smooth'});
+    setTimeout(() => searchInput.focus(), 400);
+  }
+}
 function goPage(slug){location.href='sivra-policy.html?store='+_storeSlug+'&page='+slug;}
 function goBlog(){location.href='sivra-blog-storefront.html?store='+_storeSlug;}
 function goCollection(id){location.href='sivra-collection.html?store='+_storeSlug+'&id='+id;}

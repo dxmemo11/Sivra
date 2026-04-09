@@ -143,12 +143,17 @@
       const status = a.recovered_at
         ? '<span class="badge badge-success">Recovered</span>'
         : '<span class="badge badge-warning">Open</span>';
+      const cartItems = typeof a.cart === 'string' ? JSON.parse(a.cart || '[]') : (a.cart || []);
+      const cartItemsAlt = typeof a.cart_items === 'string' ? JSON.parse(a.cart_items || '[]') : (a.cart_items || []);
+      const items = cartItems.length ? cartItems : cartItemsAlt;
+      const totalVal = a.total_value || a.total || 0;
+      const custName = a.customer_name || a.customer_email || a.email || '';
       return `<tr>
         <td class="cell-muted">${Fmt.datetime(a.created_at)}</td>
-        <td>${a.first_name||''} ${a.last_name||''} ${!a.first_name&&!a.last_name?'<span class="text-muted">Guest</span>':''}</td>
-        <td class="cell-muted">${a.email||'—'}</td>
-        <td class="cell-number font-medium">${Fmt.money(a.total_price||0)}</td>
-        <td class="cell-muted">${a.line_items_count||'—'} items</td>
+        <td>${custName || '<span class="text-muted">Guest</span>'}</td>
+        <td class="cell-muted">${a.customer_email || a.email || '—'}</td>
+        <td class="cell-number font-medium">${Fmt.money(totalVal)}</td>
+        <td class="cell-muted">${items.length || '—'} items</td>
         <td>${status}</td>
       </tr>`;
     }).join('');
@@ -157,8 +162,8 @@
   function exportAbandoned() {
     const rows = [['Date','Customer','Email','Value','Status']];
     _all.forEach(a => rows.push([
-      Fmt.date(a.created_at), [a.first_name,a.last_name].filter(Boolean).join(' '),
-      a.email||'', a.total_price||0, a.recovered_at?'Recovered':'Open'
+      Fmt.date(a.created_at), a.customer_name || a.customer_email || a.email || '',
+      a.customer_email || a.email || '', a.total_value || a.total || 0, a.recovered_at?'Recovered':'Open'
     ]));
     exportCSV(rows, 'abandoned-checkouts.csv');
     Toast.success('Exported');

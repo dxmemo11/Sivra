@@ -264,6 +264,14 @@
   if (typeof setTab === "function") window.setTab = setTab;
   if (typeof closeDrawer === "function") window.closeDrawer = closeDrawer;
   if (typeof exportCustomers === "function") window.exportCustomers = exportCustomers;
+  if (typeof getExportRows === "function") window.getExportRows = getExportRows;
+  if (typeof sortCustomers === "function") window.sortCustomers = sortCustomers;
+  if (typeof toggleAllChecks === "function") window.toggleAllChecks = toggleAllChecks;
+  if (typeof render === "function") window.render = render;
+  // Fix pagination: expose _page to window so onclick can update it
+  window._page = _page;
+  const origRender = render;
+  window.render = function() { _page = window._page; origRender(); window._page = _page; };
 })();
 </script>
 </body>

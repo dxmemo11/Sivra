@@ -57,23 +57,26 @@
                     <div class="font-semibold" style="font-size:13px;margin-bottom:2px">Abandoned cart recovery</div>
                     <div class="text-muted text-sm">Email customers who left without checking out</div>
                   </div>
-                  <label class="toggle"><input type="checkbox"/><span class="toggle-slider"></span></label>
+                  <span class="badge badge-default" style="font-size:11px">Coming soon</span>
                 </div>
                 <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:#f9f9f9;border-radius:8px">
                   <div>
                     <div class="font-semibold" style="font-size:13px;margin-bottom:2px">Welcome email</div>
                     <div class="text-muted text-sm">Send new customers a welcome message</div>
                   </div>
-                  <label class="toggle"><input type="checkbox"/><span class="toggle-slider"></span></label>
+                  <span class="badge badge-default" style="font-size:11px">Coming soon</span>
                 </div>
                 <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:#f9f9f9;border-radius:8px">
                   <div>
                     <div class="font-semibold" style="font-size:13px;margin-bottom:2px">Win-back campaign</div>
                     <div class="text-muted text-sm">Re-engage customers who haven't ordered in 60 days</div>
                   </div>
-                  <label class="toggle"><input type="checkbox"/><span class="toggle-slider"></span></label>
+                  <span class="badge badge-default" style="font-size:11px">Coming soon</span>
                 </div>
-                <button class="btn btn-primary btn-full">Set up automations</button>
+                <div class="alert alert-info" style="margin-top:4px">
+                  <span class="alert-icon">ℹ️</span>
+                  <div class="alert-body">Email automations are coming soon. For now, use discount codes and UTM links to drive repeat purchases.</div>
+                </div>
               </div>
             </div>
 
@@ -129,9 +132,17 @@
     try {
       const [oData] = await Promise.all([API.get('/api/orders')]);
       const orders = oData.orders || [];
-      const rev = orders.reduce((s,o) => s+parseFloat(o.total||0), 0);
-      document.getElementById('mSessions').textContent = '—';
-      document.getElementById('mConv').textContent = orders.length > 0 ? (Math.random()*3+1).toFixed(1)+'%' : '0%';
+      const activeOrders = orders.filter(o => o.status !== 'cancelled');
+      const rev = activeOrders.reduce((s,o) => s+parseFloat(o.total||0), 0);
+      // Use real analytics data if available, otherwise show order-based stats
+      try {
+        const analytics = await API.get('/api/analytics/overview?days=30');
+        document.getElementById('mSessions').textContent = analytics.orders?.value || activeOrders.length || '0';
+      } catch(e) {
+        document.getElementById('mSessions').textContent = activeOrders.length || '0';
+      }
+      // Show orders as "conversions" rather than a fake percentage
+      document.getElementById('mConv').textContent = activeOrders.length + ' orders';
       document.getElementById('mRev').textContent = Fmt.money(rev);
     } catch(e) {}
   }

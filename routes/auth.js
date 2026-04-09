@@ -56,7 +56,7 @@ router.post('/signup', async (req, res) => {
 
     const token = jwt.sign(
       { merchantId, storeId },
-      process.env.JWT_SECRET || 'sivra_dev_secret',
+      process.env.JWT_SECRET,
       { expiresIn: '30d' }
     );
 
@@ -112,7 +112,7 @@ router.post('/login', async (req, res) => {
 
     const token = jwt.sign(
       { merchantId: merchant.id, storeId: store?.id },
-      process.env.JWT_SECRET || 'sivra_dev_secret',
+      process.env.JWT_SECRET,
       { expiresIn: '30d' }
     );
 

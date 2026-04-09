@@ -199,18 +199,22 @@
     <!-- Payment -->
     <div class="section">
       <div class="section-title">Payment</div>
-      <div class="payment-note">🔒 Your payment information is secure. Transactions are encrypted.</div>
-      <div class="payment-box">
+      <div class="payment-note">🔒 All transactions are encrypted and secure.</div>
+      <div class="payment-box" id="paymentBox">
         <div class="payment-icons">
           <span class="payment-icon">VISA</span>
           <span class="payment-icon">MC</span>
           <span class="payment-icon">AMEX</span>
-          <span class="payment-icon">PayPal</span>
         </div>
-        <div style="font-size:14px;color:#6d7175;margin-bottom:8px">
-          Payment processing will be available soon. Orders are placed as manual payments.
+        <!-- Stripe Elements mount here -->
+        <div id="stripe-payment-element" style="min-height:40px"></div>
+        <div id="stripe-errors" style="color:#c0392b;font-size:13px;margin-top:8px;display:none"></div>
+        <!-- Fallback for no Stripe -->
+        <div id="manual-payment-notice" style="display:none">
+          <div style="font-size:14px;color:#6d7175;margin-bottom:8px">
+            Manual payment — you'll receive payment instructions via email after placing your order.
+          </div>
         </div>
-        <div style="font-size:13px;color:#8c9196">You'll receive order confirmation and payment instructions via email.</div>
       </div>
     </div>
 
@@ -273,6 +277,7 @@
   </div>
 </div>
 
+<script src="https://js.stripe.com/v3/"></script>
 <script>
   // ── STATE ──────────────────────────────────────────
   let _cart = [];
@@ -282,6 +287,10 @@
   let _selectedShipping = null;
   let _discount = null;
   let _discountSavings = 0;
+  let _stripeConfigured = false;
+  let _stripe = null;
+  let _stripeElements = null;
+  let _paymentElement = null;
 
   // ── INIT ───────────────────────────────────────────
   function getCart() { try { return JSON.parse(localStorage.getItem('sivra_cart')||'[]'); } catch(e) { return []; } }
@@ -352,8 +361,29 @@
     } catch(e) {}
 
     renderSummaryItems();
-    loadShippingMethods();  // Load shipping after zones are populated
+    loadShippingMethods();
     calcTotals();
+
+    // ── Initialize Stripe if configured ──
+    try {
+      const configRes = await fetch('/api/checkout/config');
+      const config = await configRes.json();
+      if (config.configured && config.publishableKey) {
+        _stripeConfigured = true;
+        _stripe = Stripe(config.publishableKey);
+        document.getElementById('manual-payment-notice').style.display = 'none';
+        // Stripe Elements will be mounted after order is created (to get client_secret)
+        document.getElementById('stripe-payment-element').innerHTML = '<div style="font-size:13px;color:#6d7175;padding:8px 0">Card details will appear after clicking "Complete order"</div>';
+      } else {
+        _stripeConfigured = false;
+        document.getElementById('stripe-payment-element').style.display = 'none';
+        document.getElementById('manual-payment-notice').style.display = '';
+      }
+    } catch(e) {
+      _stripeConfigured = false;
+      document.getElementById('stripe-payment-element').style.display = 'none';
+      document.getElementById('manual-payment-notice').style.display = '';
+    }
   }
 
   function renderSummaryItems() {
@@ -487,7 +517,7 @@
   // ── PLACE ORDER ───────────────────────────────────
   async function placeOrder() {
     // Track email for abandoned checkout
-    const emailVal = document.getElementById('email')?.value || document.getElementById('checkEmail')?.value || '';
+    const emailVal = document.getElementById('email')?.value || '';
     if (emailVal) localStorage.setItem('sivra_last_email', emailVal);
     hideError();
     const email = document.getElementById('email').value.trim();
@@ -511,7 +541,7 @@
     if (errs.length) { showError(errs[0]); return; }
 
     const btn = document.getElementById('payBtn');
-    btn.disabled = true; btn.textContent = 'Placing order...';
+    btn.disabled = true; btn.textContent = 'Processing...';
 
     try {
       // Capture UTM params
@@ -543,6 +573,7 @@
         ...utm,
       };
 
+      // Step 1: Create the order in the backend
       const res = await fetch(`/api/storefront/${_storeSlug}/checkout`, {
         method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify(payload)
@@ -551,7 +582,73 @@
 
       if (!res.ok) { showError(data.error || 'Checkout failed. Please try again.'); btn.disabled=false; btn.textContent='Complete order'; return; }
 
-      // Clear cart and redirect
+      // Step 2: If Stripe is configured, create PaymentIntent and confirm
+      if (_stripeConfigured && _stripe) {
+        btn.textContent = 'Processing payment...';
+        try {
+          const totalCents = Math.round((data.total || 0) * 100);
+          if (totalCents >= 50) {
+            const currency = (_store?.currency || 'USD').toLowerCase();
+            const intentRes = await fetch('/api/checkout/create-intent', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                amount: totalCents,
+                currency,
+                orderId: data.orderId,
+                metadata: { order_number: String(data.orderNumber), email }
+              })
+            });
+            const intentData = await intentRes.json();
+
+            if (!intentRes.ok) {
+              showError(intentData.error || 'Payment setup failed.');
+              btn.disabled = false; btn.textContent = 'Complete order';
+              return;
+            }
+
+            // Mount Stripe Payment Element
+            const elements = _stripe.elements({
+              clientSecret: intentData.client_secret,
+              appearance: {
+                theme: 'stripe',
+                variables: { colorPrimary: '#1a1a1a', borderRadius: '6px', fontFamily: 'Inter, sans-serif' }
+              }
+            });
+            const paymentElement = elements.create('payment');
+            document.getElementById('stripe-payment-element').innerHTML = '';
+            paymentElement.mount('#stripe-payment-element');
+
+            // Wait for user to fill card details, then show confirm button
+            btn.textContent = 'Pay $' + data.total.toFixed(2);
+            btn.disabled = false;
+            btn.onclick = async function() {
+              btn.disabled = true;
+              btn.textContent = 'Confirming payment...';
+              const { error } = await _stripe.confirmPayment({
+                elements,
+                confirmParams: {
+                  return_url: window.location.origin + '/sivra-order-confirm.html?id=' + data.orderId + '&num=' + data.orderNumber,
+                  receipt_email: email,
+                },
+              });
+              if (error) {
+                document.getElementById('stripe-errors').textContent = error.message;
+                document.getElementById('stripe-errors').style.display = '';
+                btn.disabled = false;
+                btn.textContent = 'Pay $' + data.total.toFixed(2);
+              }
+            };
+            // Don't redirect yet — wait for Stripe confirmation redirect
+            return;
+          }
+        } catch(stripeErr) {
+          console.error('Stripe error:', stripeErr);
+          // Fall through to manual confirmation if Stripe fails
+        }
+      }
+
+      // Step 3: No Stripe or Stripe not configured — manual payment flow
       saveCart([]);
       const params2 = new URLSearchParams({ id: data.orderId||'', num: data.orderNumber||'' });
       location.href = 'sivra-order-confirm.html?' + params2.toString();

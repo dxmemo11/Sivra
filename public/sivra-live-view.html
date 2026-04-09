@@ -269,10 +269,10 @@
       const returningCount = todayOrders.customers?.returning || 0;
       const newCount = Math.max(0, totalCustomers - returningCount);
 
-      // Stats
-      document.getElementById('liveVisitors').textContent = Math.max(0, ordersToday * 8 + Math.floor(Math.random()*15));
+      // Stats — use real order data, label estimates honestly
+      document.getElementById('liveVisitors').textContent = '~' + Math.max(1, ordersToday * 8 + 3);
       document.getElementById('liveSales').textContent = Fmt.money(salesTotal);
-      document.getElementById('liveSessions').textContent = Math.max(0, ordersToday * 12 + Math.floor(Math.random()*20));
+      document.getElementById('liveSessions').textContent = '~' + Math.max(1, ordersToday * 12 + 5);
       document.getElementById('liveOrders').textContent = ordersToday;
 
       // Behavior funnel (simulated from real order data)

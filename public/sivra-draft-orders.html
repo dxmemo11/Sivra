@@ -283,9 +283,13 @@
       const pData = await API.get('/api/products');
       _allProducts = pData.products || [];
     } catch(e) {}
+    // Load existing draft orders (orders created with source=draft_order that are still pending)
+    try {
+      const oData = await API.get('/api/orders?limit=100');
+      _drafts = (oData.orders || []).filter(o => o.source === 'draft_order' && o.status !== 'cancelled' && o.payment_status === 'pending');
+    } catch(e) { _drafts = []; }
     render();
   })();
-
 
   // Expose to global scope for onclick handlers
   if (typeof convertToOrder === "function") window.convertToOrder = convertToOrder;
@@ -294,10 +298,11 @@
   if (typeof closeDraft === "function") window.closeDraft = closeDraft;
   if (typeof openCreateDraft === "function") window.openCreateDraft = openCreateDraft;
   if (typeof removeItem === "function") window.removeItem = removeItem;
-  if (typeof changeQty === "function") window.changeQty = changeQty;
-
-  // Additional window exposures
+  if (typeof searchProducts === "function") window.searchProducts = searchProducts;
   if (typeof addProduct === "function") window.addProduct = addProduct;
+  if (typeof renderDraftItems === "function") window.renderDraftItems = renderDraftItems;
+  // Expose _draftItems for inline onclick handlers
+  window._draftItems = _draftItems;
 })();
 </script>
 </body>

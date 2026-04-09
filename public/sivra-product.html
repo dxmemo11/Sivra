@@ -497,8 +497,7 @@ async function loadProduct() {
     _options = _product.options || [];
     _variants = _product.variants || [];
     _imgs = Array.isArray(_product.images)?_product.images:(typeof _product.images==='string'?JSON.parse(_product.images||'[]'):[]);
-    const storeName = _store.name || 'Store';
-    document.title = (_product.title||'Product') + ' — ' + storeName;
+    const storeName = _store?.name || 'Store';
     document.getElementById('bcTitle').textContent = _product.title||'Product';
     document.getElementById('prodTitle').textContent = _product.title||'Product';
     document.getElementById('prodVendor').textContent = _product.vendor||'';
@@ -507,7 +506,6 @@ async function loadProduct() {
     const seoTitle = _product.seo_title || _product.title || 'Product';
     const seoDesc = _product.seo_description || _product.description || '';
     const seoImg = _imgs[0] || '';
-    const storeName = _store?.name || 'Store';
     document.title = seoTitle + ' — ' + storeName;
     const metaDesc = document.getElementById('metaDesc');
     const ogTitle = document.getElementById('ogTitle');
@@ -534,7 +532,18 @@ async function loadProduct() {
     document.getElementById('prodTitle').textContent = 'Product not found';
   }
 }
-loadProduct();
+loadProduct().then(() => {
+  // Save to recently viewed after product loads
+  setTimeout(() => {
+    const imgs = Array.isArray(_imgs) ? _imgs : [];
+    saveRecentlyViewed(
+      new URLSearchParams(location.search).get('id') || '',
+      _product?.title || '',
+      imgs[0] || null
+    );
+    renderRecentlyViewed();
+  }, 500);
+}).catch(() => {});
 
 
 loadStoreShell();
@@ -546,7 +555,7 @@ function subscribeNotify() {
     alert('Please enter a valid email address');
     return;
   }
-  // Save to localStorage (no backend needed - shows intent)
+  // Save locally — in future this will trigger a server-side notification
   try {
     const key = 'sivra_notify_' + (new URLSearchParams(location.search).get('id') || '');
     const existing = JSON.parse(localStorage.getItem(key) || '[]');
@@ -558,8 +567,8 @@ function subscribeNotify() {
   document.getElementById('notifyMeSection').innerHTML = `
     <div style="background:#f0faf0;border:1px solid #b7e2c4;border-radius:10px;padding:16px;text-align:center">
       <div style="font-size:22px;margin-bottom:6px">✅</div>
-      <div style="font-size:14px;font-weight:600;color:#1a7f37">We'll notify you at ${email}</div>
-      <div style="font-size:13px;color:#6d7175;margin-top:4px">You'll get an email when this product is back in stock</div>
+      <div style="font-size:14px;font-weight:600;color:#1a7f37">Request saved!</div>
+      <div style="font-size:13px;color:#6d7175;margin-top:4px">Check back soon — we'll restock popular items as fast as we can.</div>
     </div>`;
 }
 
@@ -591,22 +600,6 @@ function renderRecentlyViewed() {
         <div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.title}</div>
       </a>`).join('');
   } catch(e) {}
-}
-
-// Call after product loads
-const _rvOrigLoadProduct = loadProduct;
-async function loadProductWithRV() {
-  await _rvOrigLoadProduct();
-  // Save to recently viewed after load
-  setTimeout(() => {
-    const imgs = Array.isArray(_imgs) ? _imgs : [];
-    saveRecentlyViewed(
-      new URLSearchParams(location.search).get('id') || '',
-      _product?.title || '',
-      imgs[0] || null
-    );
-    renderRecentlyViewed();
-  }, 500);
 }
 
 </script>

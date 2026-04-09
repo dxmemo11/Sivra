@@ -138,22 +138,22 @@
       const name = store.name || 'Store';
       document.getElementById('navLogo').textContent = name;
     // Apply theme settings
-    const ts2 = typeof _store.theme_settings === 'string' ? JSON.parse(_store.theme_settings||'{}') : (_store.theme_settings||{});
-    if (_store.primary_color) document.documentElement.style.setProperty('--primary', _store.primary_color);
-    if (_store.accent_color)  document.documentElement.style.setProperty('--accent', _store.accent_color);
+    const ts2 = typeof store.theme_settings === 'string' ? JSON.parse(store.theme_settings||'{}') : (store.theme_settings||{});
+    if (store.primary_color) document.documentElement.style.setProperty('--primary', store.primary_color);
+    if (store.accent_color)  document.documentElement.style.setProperty('--accent', store.accent_color);
     const annBarEl = document.getElementById('annBar');
     if (annBarEl) {
-      if (_store.announcement_bar && _store.announcement_bar_enabled) {
-        annBarEl.textContent = _store.announcement_bar;
+      if (store.announcement_bar && store.announcement_bar_enabled) {
+        annBarEl.textContent = store.announcement_bar;
         annBarEl.style.display = '';
-        if (_store.primary_color) annBarEl.style.background = _store.primary_color;
+        if (store.primary_color) annBarEl.style.background = store.primary_color;
       } else { annBarEl.style.display = 'none'; }
     }
     const fbEl = document.getElementById('footerCopy');
-    if (fbEl && !fbEl.textContent) fbEl.textContent = ts2.footerCopy || ('\u00a9 ' + new Date().getFullYear() + ' ' + (_store.name||'Store'));
+    if (fbEl && !fbEl.textContent) fbEl.textContent = ts2.footerCopy || ('\u00a9 ' + new Date().getFullYear() + ' ' + (store.name||'Store'));
     // Load nav from saved menus
     try {
-      const menuRes = await fetch('/api/storefront/' + _storeSlug + '/menus');
+      const menuRes = await fetch('/api/storefront/' + storeSlug + '/menus');
       const menuData = await menuRes.json();
       const navLinks = document.getElementById('navLinks');
       if (navLinks) {

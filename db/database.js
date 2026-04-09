@@ -371,7 +371,38 @@ async function initTables() {
     try { await db.execute(sql); } catch(e) { /* column already exists */ }
   }
 
-  console.log('✅ Database tables ready');
+  // ── INDEXES ──────────────────────────────────────────────────────────────
+  const indexes = [
+    `CREATE INDEX IF NOT EXISTS idx_products_store_status ON products(store_id, status)`,
+    `CREATE INDEX IF NOT EXISTS idx_products_store_created ON products(store_id, created_at)`,
+    `CREATE INDEX IF NOT EXISTS idx_variants_product ON product_variants(product_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_variants_store ON product_variants(store_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_orders_store ON orders(store_id, created_at)`,
+    `CREATE INDEX IF NOT EXISTS idx_orders_store_status ON orders(store_id, status)`,
+    `CREATE INDEX IF NOT EXISTS idx_orders_customer ON orders(customer_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_orders_number ON orders(store_id, order_number)`,
+    `CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items(order_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_customers_store ON customers(store_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_customers_email ON customers(store_id, email)`,
+    `CREATE INDEX IF NOT EXISTS idx_collections_store ON collections(store_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_product_collections_coll ON product_collections(collection_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_product_collections_prod ON product_collections(product_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_discounts_store ON discounts(store_id, code)`,
+    `CREATE INDEX IF NOT EXISTS idx_inventory_product ON inventory_movements(product_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_analytics_store ON analytics_events(store_id, created_at)`,
+    `CREATE INDEX IF NOT EXISTS idx_fulfillments_order ON fulfillments(order_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_refunds_order ON refunds(order_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_order_events_order ON order_events(order_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_stores_slug ON stores(slug)`,
+    `CREATE INDEX IF NOT EXISTS idx_blog_store ON blog_posts(store_id, status)`,
+    `CREATE INDEX IF NOT EXISTS idx_menus_store ON menus(store_id, handle)`,
+  ];
+
+  for (const sql of indexes) {
+    try { await db.execute(sql); } catch(e) { /* index may already exist */ }
+  }
+
+  console.log('✅ Database tables + indexes ready');
 }
 
 module.exports = { getDB };

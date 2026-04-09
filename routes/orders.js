@@ -293,8 +293,8 @@ router.post('/', async (req, res) => {
     const { customerId, customerEmail, items = [], subtotal = 0, shipping = 0, tax = 0, total = 0, notes, source = 'manual', shippingAddress = {} } = req.body;
     if (!items.length) return res.status(400).json({ error: 'Order must have at least one item.' });
 
-    const countResult = await db.execute({ sql: 'SELECT COUNT(*) as cnt FROM orders WHERE store_id = ?', args: [req.storeId] });
-    const orderNumber = (countResult.rows[0].cnt || 0) + 1001;
+    const countResult = await db.execute({ sql: 'SELECT COALESCE(MAX(order_number), 1000) as max_num FROM orders WHERE store_id = ?', args: [req.storeId] });
+    const orderNumber = (countResult.rows[0].max_num || 1000) + 1;
     const orderId = uuid();
 
     await db.execute({

@@ -245,8 +245,8 @@ router.post('/:slug/checkout', async (req, res) => {
       });
     }
 
-    const countResult = await db.execute({ sql: 'SELECT COUNT(*) as cnt FROM orders WHERE store_id = ?', args: [store.id] });
-    const orderNumber = (countResult.rows[0].cnt || 0) + 1001;
+    const countResult = await db.execute({ sql: 'SELECT COALESCE(MAX(order_number), 1000) as max_num FROM orders WHERE store_id = ?', args: [store.id] });
+    const orderNumber = (countResult.rows[0].max_num || 1000) + 1;
     const orderId = uuid();
 
     await db.execute({
