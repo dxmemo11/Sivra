@@ -257,10 +257,14 @@
     document.getElementById('liveTimestamp').textContent = 'Just now · ' + new Date().toLocaleTimeString('en-AU', {hour:'2-digit',minute:'2-digit'});
 
     try {
-      const [todayOrders, customers, products] = await Promise.all([
+      // Try real-time tracking data first, fall back to order-based estimates
+      let liveData = null;
+      try {
+        liveData = await API.get('/api/track/live');
+      } catch(e) { /* tracker not yet deployed — use fallback */ }
+
+      const [todayOrders] = await Promise.all([
         API.get('/api/analytics/overview?days=1'),
-        API.get('/api/customers?limit=1'),
-        API.get('/api/products?limit=1'),
       ]);
 
       const ordersToday = todayOrders.orders?.value || 0;
@@ -269,16 +273,21 @@
       const returningCount = todayOrders.customers?.returning || 0;
       const newCount = Math.max(0, totalCustomers - returningCount);
 
-      // Stats — use real order data, label estimates honestly
-      document.getElementById('liveVisitors').textContent = '~' + Math.max(1, ordersToday * 8 + 3);
+      // Real data from tracker, or order-based fallback
+      const activeVisitors = liveData ? liveData.activeVisitors : 0;
+      const todaySessions = liveData ? liveData.todaySessions : 0;
+      const todayPageViews = liveData ? liveData.todayPageViews : 0;
+      const inCart = liveData ? liveData.inCart : 0;
+
+      document.getElementById('liveVisitors').textContent = activeVisitors || '0';
       document.getElementById('liveSales').textContent = Fmt.money(salesTotal);
-      document.getElementById('liveSessions').textContent = '~' + Math.max(1, ordersToday * 12 + 5);
+      document.getElementById('liveSessions').textContent = todaySessions || '0';
       document.getElementById('liveOrders').textContent = ordersToday;
 
-      // Behavior funnel (simulated from real order data)
-      const viewing = Math.max(1, ordersToday * 8 + 3);
-      const cart = Math.max(0, Math.round(viewing * 0.3));
-      const checkout = Math.max(0, Math.round(viewing * 0.1));
+      // Behavior funnel — real data if tracker deployed
+      const viewing = activeVisitors || 0;
+      const cart = inCart || 0;
+      const checkout = liveData ? liveData.activeSessions.filter(s => s.page === 'checkout').length : 0;
       const purchased = ordersToday;
 
       document.getElementById('behaviorViewing').textContent = viewing;
@@ -287,42 +296,69 @@
 
       // Update funnel bars
       const maxH = 64;
+      const maxFunnel = Math.max(viewing, 1);
       document.getElementById('barViewed').style.height = maxH + 'px';
-      document.getElementById('barCart').style.height = Math.max(4, Math.round(cart/viewing*maxH)) + 'px';
-      document.getElementById('barCheckout').style.height = Math.max(4, Math.round(checkout/viewing*maxH)) + 'px';
-      document.getElementById('barPurchased').style.height = Math.max(4, Math.round(purchased/viewing*maxH)) + 'px';
+      document.getElementById('barCart').style.height = Math.max(4, Math.round(cart/maxFunnel*maxH)) + 'px';
+      document.getElementById('barCheckout').style.height = Math.max(4, Math.round(checkout/maxFunnel*maxH)) + 'px';
+      document.getElementById('barPurchased').style.height = Math.max(4, Math.round(purchased/maxFunnel*maxH)) + 'px';
 
       // New vs returning
-      const newPct = totalCustomers > 0 ? Math.round(newCount/totalCustomers*100) : 70;
+      const newPct = totalCustomers > 0 ? Math.round(newCount/totalCustomers*100) : 50;
       document.getElementById('newCustCount').textContent = newCount;
       document.getElementById('retCustCount').textContent = returningCount;
       document.getElementById('newCustBar').style.width = newPct + '%';
       document.getElementById('retCustBar').style.width = (100-newPct) + '%';
 
-      // Locations (derive from orders)
-      const ordData = await API.get('/api/orders?limit=50&sort=newest');
-      const orders = ordData.orders || [];
-      const locationCounts = {};
-      orders.forEach(o => {
-        const loc = [o.shipping_city, o.shipping_country].filter(Boolean).join(', ');
-        if (loc) locationCounts[loc] = (locationCounts[loc]||0) + 1;
-      });
-      const locations = Object.entries(locationCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
-      const maxLoc = locations[0]?.[1] || 1;
+      // Locations — real tracking data or fallback to order shipping addresses
+      if (liveData && liveData.locations.length) {
+        const locations = liveData.locations.slice(0, 5);
+        const maxLoc = locations[0]?.visitors || 1;
+        document.getElementById('locationRows').innerHTML = locations.map(l => `
+          <div class="live-location-row">
+            <span style="font-weight:500;min-width:140px;font-size:13px">${l.country}</span>
+            <div class="live-location-bar">
+              <div class="live-location-fill" style="width:${Math.round(l.visitors/maxLoc*100)}%"></div>
+            </div>
+            <span style="color:#6d7175;font-size:12px;min-width:24px;text-align:right">${l.visitors}</span>
+          </div>`).join('');
+      } else {
+        const ordData = await API.get('/api/orders?limit=50&sort=newest');
+        const orders = ordData.orders || [];
+        const locationCounts = {};
+        orders.forEach(o => {
+          const loc = [o.shipping_city, o.shipping_country].filter(Boolean).join(', ');
+          if (loc) locationCounts[loc] = (locationCounts[loc]||0) + 1;
+        });
+        const locations = Object.entries(locationCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+        const maxLoc = locations[0]?.[1] || 1;
+        document.getElementById('locationRows').innerHTML = locations.length ? locations.map(([loc, count]) => `
+          <div class="live-location-row">
+            <span style="font-weight:500;min-width:140px;font-size:13px">${loc}</span>
+            <div class="live-location-bar">
+              <div class="live-location-fill" style="width:${Math.round(count/maxLoc*100)}%"></div>
+            </div>
+            <span style="color:#6d7175;font-size:12px;min-width:24px;text-align:right">${count}</span>
+          </div>`).join('') :
+          '<div style="padding:16px;text-align:center;color:#8c9196;font-size:13px">No location data yet</div>';
+      }
 
-      document.getElementById('locationRows').innerHTML = locations.length ? locations.map(([loc, count]) => `
-        <div class="live-location-row">
-          <span style="font-weight:500;min-width:140px;font-size:13px">${loc}</span>
-          <div class="live-location-bar">
-            <div class="live-location-fill" style="width:${Math.round(count/maxLoc*100)}%"></div>
-          </div>
-          <span style="color:#6d7175;font-size:12px;min-width:24px;text-align:right">${count}</span>
-        </div>`) .join('') :
-        '<div style="padding:16px;text-align:center;color:#8c9196;font-size:13px">No location data yet</div>';
+      // Traffic sources from tracker
+      if (liveData && liveData.sources.length) {
+        // If there's a sources section on the page, populate it
+        const srcEl = document.getElementById('trafficSources');
+        if (srcEl) {
+          srcEl.innerHTML = liveData.sources.map(s => `
+            <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid #f0f0f0">
+              <span>${s.source}</span><span style="color:#6d7175">${s.visitors} visitors</span>
+            </div>`).join('');
+        }
+      }
 
       // Recent orders overlay
+      const ordData2 = await API.get('/api/orders?limit=5&sort=newest');
+      const allOrders = ordData2.orders || [];
       const todayStr = new Date().toISOString().split('T')[0];
-      const todayOrdList = orders.filter(o => o.created_at && o.created_at.startsWith(todayStr)).slice(0,3);
+      const todayOrdList = allOrders.filter(o => o.created_at && o.created_at.startsWith(todayStr)).slice(0,3);
       document.getElementById('liveRecentOrders').innerHTML = todayOrdList.length ? todayOrdList.map(o =>
         `<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;font-size:13px">
           <span><strong>#${o.order_number}</strong> · ${o.shipping_name||o.customer_email||'Guest'}</span>
