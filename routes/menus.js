@@ -44,16 +44,22 @@ router.patch('/:handle', async (req, res) => {
     const { items = [], title } = req.body;
     const itemsJson = JSON.stringify(items);
     const { v4: uuid } = require('uuid');
-    // Upsert
-    await db.execute({
-      sql: `INSERT INTO menus (id, store_id, handle, title, items)
-            VALUES (?, ?, ?, ?, ?)
-            ON CONFLICT(store_id, handle) DO UPDATE SET
-            items=excluded.items,
-            title=COALESCE(excluded.title, title),
-            updated_at=CURRENT_TIMESTAMP`,
-      args: [uuid(), req.storeId, req.params.handle, title || req.params.handle, itemsJson]
+    // Try update first, then insert
+    const existing = await db.execute({
+      sql: 'SELECT id FROM menus WHERE store_id=? AND handle=?',
+      args: [req.storeId, req.params.handle]
     });
+    if (existing.rows.length) {
+      await db.execute({
+        sql: 'UPDATE menus SET items=?, title=COALESCE(?,title), updated_at=CURRENT_TIMESTAMP WHERE store_id=? AND handle=?',
+        args: [itemsJson, title || null, req.storeId, req.params.handle]
+      });
+    } else {
+      await db.execute({
+        sql: 'INSERT INTO menus (id, store_id, handle, title, items) VALUES (?,?,?,?,?)',
+        args: [uuid(), req.storeId, req.params.handle, title || req.params.handle, itemsJson]
+      });
+    }
     res.json({ handle: req.params.handle, items });
   } catch(err) { console.error(err); res.status(500).json({ error: 'Failed to save menu.' }); }
 });
