@@ -548,4 +548,38 @@ async function testEmail() {
     const data = await res.json();
     if (res.ok) Toast.success('Test email sent! Provider: ' + (data.provider || 'unknown'));
     else        Toast.error('Email not configured — add EMAIL_PROVIDER to Railway env vars');
-  } catch(e)  { Toast.error('Email not configured — check Railway env vars'); 
+  } catch(e)  { Toast.error('Email not configured — check Railway env vars'); }
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+(async function() {
+  const session = await initAdmin('settings');
+  if (!session) return;
+
+  // Check hash for deep link
+  const hash = location.hash.replace('#', '');
+  if (hash && PANELS.includes(hash)) {
+    showPanel(hash);
+  }
+
+  // Load general on start
+  loadGeneral();
+})();
+
+// Expose to global scope for onclick handlers
+window.showPanel = showPanel;
+window.saveGeneral = saveGeneral;
+window.saveShipping = saveShipping;
+window.saveTax = saveTax;
+window.saveIntegrations = saveIntegrations;
+window.saveCheckoutSettings = saveCheckoutSettings;
+window.changePassword = changePassword;
+window.testEmail = testEmail;
+window.addZone = addZone;
+window.removeZone = removeZone;
+window.addRate = addRate;
+window.removeRate = removeRate;
+window.loadCheckoutSettings = loadCheckoutSettings;
+</script>
+</body>
+</html>

@@ -253,7 +253,7 @@ router.post('/:slug/checkout', async (req, res) => {
       sql: `INSERT INTO orders (id, store_id, customer_id, customer_email, order_number, status, payment_status, fulfillment_status,
             subtotal, shipping, tax, discount_amount, total, discount_code, source,
             shipping_name, shipping_addr, shipping_city, shipping_zip, shipping_country, shipping_phone, processed_at)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
       args: [orderId, store.id, customerId, customerEmail.toLowerCase(), orderNumber,
         'open', 'pending', 'unfulfilled',
         subtotal, shipping, tax, discountAmount, total,
