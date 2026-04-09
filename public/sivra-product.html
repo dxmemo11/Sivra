@@ -195,6 +195,11 @@ img{max-width:100%;display:block}
 
 
 <!-- Footer -->
+<div id="recentlyViewedSection" style="display:none;max-width:1100px;margin:0 auto;padding:0 24px 40px">
+  <h2 style="font-size:18px;font-weight:700;margin-bottom:16px;color:#1a1a1a">Recently viewed</h2>
+  <div id="recentlyViewedGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px"></div>
+</div>
+
 <footer class="store-footer">
   <div class="footer-inner">
     <div>
@@ -319,6 +324,39 @@ async function loadStoreShell(){
     } catch(e) {}
   }catch(e){}
   updateCartBadge();
+
+    // Inject tracking pixels if configured
+    try {
+      const ts = typeof _store.theme_settings === 'string'
+        ? JSON.parse(_store.theme_settings || '{}')
+        : (_store.theme_settings || {});
+
+      // Google Analytics
+      if (ts.ga_enabled && ts.ga_id) {
+        const s1 = document.createElement('script');
+        s1.async = true;
+        s1.src = 'https://www.googletagmanager.com/gtag/js?id=' + ts.ga_id;
+        document.head.appendChild(s1);
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', ts.ga_id);
+      }
+
+      // Meta Pixel
+      if (ts.meta_pixel_enabled && ts.meta_pixel_id) {
+        !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', ts.meta_pixel_id);
+        fbq('track', 'PageView');
+      }
+
+      // TikTok Pixel
+      if (ts.tiktok_pixel_id) {
+        !function(w,d,t){w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"];ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";ttq._i=ttq._i||{};ttq._i[e]=[];ttq._i[e]._u=i;ttq._t=ttq._t||{};ttq._t[e]=+new Date;ttq._o=ttq._o||{};ttq._o[e]=n||{};var o=document.createElement("script");o.type="text/javascript";o.async=!0;o.src=i+"?sdkid="+e+"&lib="+t;var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};
+        ttq.load(ts.tiktok_pixel_id);
+        ttq.page();
+      }
+    } catch(e) {}
 }
 
 
@@ -385,9 +423,14 @@ function updateStockInfo() {
     if (qty <= 0 && !cont) {
       el.innerHTML = '<span style="color:#c0392b;font-weight:500;font-size:14px">⚠️ Out of stock</span>';
       btn.disabled = true; btn.style.background = '#8c9196'; btn.textContent = 'Out of stock';
+      // Show notify me option
+      const notifyEl = document.getElementById('notifyMeSection');
+      if (notifyEl) notifyEl.style.display = '';
     } else if (qty <= 5) {
       el.innerHTML = `<span style="color:#7d5c00;font-weight:500;font-size:14px">⚡ Only ${qty} left</span>`;
       btn.disabled = false; btn.style.background = '#1a1a1a'; btn.textContent = 'Add to cart';
+      const notifyEl2 = document.getElementById('notifyMeSection');
+      if (notifyEl2) notifyEl2.style.display = 'none';
     } else {
       el.innerHTML = '<span style="color:#1a7f37;font-weight:500;font-size:14px">✓ In stock</span>';
       btn.disabled = false; btn.style.background = '#1a1a1a'; btn.textContent = 'Add to cart';
@@ -516,6 +559,77 @@ loadProduct();
 
 
 loadStoreShell();
+
+// ── NOTIFY WHEN BACK IN STOCK ───────────────────────────────────────────────
+function subscribeNotify() {
+  const email = document.getElementById('notifyEmail').value.trim();
+  if (!email || !email.includes('@')) {
+    alert('Please enter a valid email address');
+    return;
+  }
+  // Save to localStorage (no backend needed - shows intent)
+  try {
+    const key = 'sivra_notify_' + (new URLSearchParams(location.search).get('id') || '');
+    const existing = JSON.parse(localStorage.getItem(key) || '[]');
+    if (!existing.includes(email)) {
+      existing.push(email);
+      localStorage.setItem(key, JSON.stringify(existing));
+    }
+  } catch(e) {}
+  document.getElementById('notifyMeSection').innerHTML = `
+    <div style="background:#f0faf0;border:1px solid #b7e2c4;border-radius:10px;padding:16px;text-align:center">
+      <div style="font-size:22px;margin-bottom:6px">✅</div>
+      <div style="font-size:14px;font-weight:600;color:#1a7f37">We'll notify you at ${email}</div>
+      <div style="font-size:13px;color:#6d7175;margin-top:4px">You'll get an email when this product is back in stock</div>
+    </div>`;
+}
+
+// ── RECENTLY VIEWED ───────────────────────────────────────────────────────────
+function saveRecentlyViewed(id, title, image) {
+  try {
+    const key = 'sivra_rv_' + (_storeSlug || localStorage.getItem('sivra_store_slug') || '');
+    let viewed = JSON.parse(localStorage.getItem(key) || '[]');
+    viewed = viewed.filter(p => p.id !== id);
+    viewed.unshift({ id, title: title || '', image: image || null });
+    localStorage.setItem(key, JSON.stringify(viewed.slice(0, 8)));
+  } catch(e) {}
+}
+
+function renderRecentlyViewed() {
+  try {
+    const slug = _storeSlug || localStorage.getItem('sivra_store_slug') || '';
+    const id = new URLSearchParams(location.search).get('id') || '';
+    const key = 'sivra_rv_' + slug;
+    const viewed = JSON.parse(localStorage.getItem(key) || '[]').filter(p => p.id !== id).slice(0, 4);
+    const section = document.getElementById('recentlyViewedSection');
+    if (!section || !viewed.length) return;
+    section.style.display = '';
+    document.getElementById('recentlyViewedGrid').innerHTML = viewed.map(p => `
+      <a href="sivra-product.html?id=${p.id}&store=${slug}" style="display:block;text-decoration:none;color:#1a1a1a">
+        <div style="aspect-ratio:1;border-radius:10px;overflow:hidden;background:#f6f6f7;margin-bottom:8px;border:1px solid #e3e3e3">
+          ${p.image ? `<img src="${p.image}" alt="${p.title}" style="width:100%;height:100%;object-fit:cover"/>` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;opacity:0.15;font-size:32px">📦</div>'}
+        </div>
+        <div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.title}</div>
+      </a>`).join('');
+  } catch(e) {}
+}
+
+// Call after product loads
+const _rvOrigLoadProduct = loadProduct;
+async function loadProductWithRV() {
+  await _rvOrigLoadProduct();
+  // Save to recently viewed after load
+  setTimeout(() => {
+    const imgs = Array.isArray(_imgs) ? _imgs : [];
+    saveRecentlyViewed(
+      new URLSearchParams(location.search).get('id') || '',
+      _product?.title || '',
+      imgs[0] || null
+    );
+    renderRecentlyViewed();
+  }, 500);
+}
+
 </script>
 </body>
 </html>

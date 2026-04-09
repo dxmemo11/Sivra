@@ -29,6 +29,7 @@
             <div class="sb-item"        id="nav-checkout"      onclick="showPanel('checkout')"      style="font-size:13px;margin-bottom:2px;cursor:pointer">🛒 Checkout</div>
             <div class="sb-item"        id="nav-payments"      onclick="showPanel('payments')"      style="font-size:13px;margin-bottom:2px;cursor:pointer">💳 Payments</div>
             <div class="sb-item"        id="nav-notifications" onclick="showPanel('notifications')" style="font-size:13px;margin-bottom:2px;cursor:pointer">🔔 Notifications</div>
+            <div class="sb-item"        id="nav-integrations"  onclick="showPanel('integrations')"  style="font-size:13px;margin-bottom:2px;cursor:pointer">🔌 Integrations</div>
             <div class="sb-item"        id="nav-account"       onclick="showPanel('account')"       style="font-size:13px;cursor:pointer">👤 Account</div>
           </div>
 
@@ -168,7 +169,7 @@
                     <span class="alert-icon">📧</span>
                     <div class="alert-body">
                       Add these to Railway environment variables to enable emails:
-                      <code style="display:block;margin-top:8px;font-size:11px;background:rgba(0,0,0,0.06);padding:8px;border-radius:4px;line-height:1.8">EMAIL_PROVIDER=resend<br>RESEND_API_KEY=re_xxxxxxxxxxxx<br>EMAIL_FROM=orders@yourdomain.com<br>ADMIN_EMAIL=you@gmail.com<br>STORE_URL=https://sivra-production.up.railway.app</code>
+                      <code style="display:block;margin-top:8px;font-size:11px;background:rgba(0,0,0,0.06);padding:8px;border-radius:4px;line-height:1.8">EMAIL_PROVIDER=resend<br>RESEND_API_KEY=re_xxxxxxxxxxxx<br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b3f6fef2faffecf5e1fcfe8edcc1d7d6c1c0f3cadcc6c1d7dcded2dadd9dd0dcde">[email&#160;protected]</a><br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="befffaf3f7f0e1fbf3fff7f283c7d1cbfed9d3dfd7d290ddd1d3">[email&#160;protected]</a><br>STORE_URL=https://sivra-production.up.railway.app</code>
                     </div>
                   </div>
                   <div style="display:flex;flex-direction:column">
@@ -187,6 +188,50 @@
                   </div>
                   <div><button class="btn btn-secondary" onclick="testEmail()">Send test email</button></div>
                 </div>
+              </div>
+            </div>
+
+            <!-- INTEGRATIONS -->
+            <div id="panel-integrations" style="display:none">
+              <div class="card">
+                <div class="card-header"><span class="card-title">Google Analytics</span></div>
+                <div class="card-body section-stack">
+                  <div class="form-group">
+                    <label class="form-label">Measurement ID</label>
+                    <input class="input" id="gaId" placeholder="G-XXXXXXXXXX"/>
+                    <div class="form-hint">Find this in Google Analytics → Admin → Data Streams</div>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0">
+                    <div><div class="font-medium" style="font-size:13px">Enable Google Analytics</div><div class="text-muted text-sm">Track page views and events on your storefront</div></div>
+                    <label class="toggle"><input type="checkbox" id="gaEnabled"/><span class="toggle-slider"></span></label>
+                  </div>
+                </div>
+                <div class="card-footer"><button class="btn btn-primary" onclick="saveIntegrations()">Save</button></div>
+              </div>
+              <div class="card" style="margin-top:16px">
+                <div class="card-header"><span class="card-title">Meta Pixel (Facebook)</span></div>
+                <div class="card-body section-stack">
+                  <div class="form-group">
+                    <label class="form-label">Pixel ID</label>
+                    <input class="input" id="metaPixelId" placeholder="123456789012345"/>
+                    <div class="form-hint">Find this in Meta Events Manager → Data Sources</div>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0">
+                    <div><div class="font-medium" style="font-size:13px">Enable Meta Pixel</div><div class="text-muted text-sm">Track conversions and build audiences for ads</div></div>
+                    <label class="toggle"><input type="checkbox" id="metaPixelEnabled"/><span class="toggle-slider"></span></label>
+                  </div>
+                </div>
+                <div class="card-footer"><button class="btn btn-primary" onclick="saveIntegrations()">Save</button></div>
+              </div>
+              <div class="card" style="margin-top:16px">
+                <div class="card-header"><span class="card-title">TikTok Pixel</span></div>
+                <div class="card-body section-stack">
+                  <div class="form-group">
+                    <label class="form-label">TikTok Pixel ID</label>
+                    <input class="input" id="tiktokPixelId" placeholder="CXXXXXXXXXXXXXXXXXXXXXXXX"/>
+                  </div>
+                </div>
+                <div class="card-footer"><button class="btn btn-primary" onclick="saveIntegrations()">Save</button></div>
               </div>
             </div>
 
@@ -223,11 +268,11 @@
 </div>
 </div>
 <div class="toast" id="sivra-toast"></div>
-<script src="admin.js"></script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="admin.js"></script>
 <script>
 // ── ALL FUNCTIONS IN GLOBAL SCOPE (not inside IIFE) so onclick handlers work ──
 
-const PANELS = ['general','shipping','taxes','checkout','payments','notifications','account'];
+const PANELS = ['general','shipping','taxes','checkout','payments','notifications','integrations','account'];
 let _zones = [];
 
 function showPanel(id) {
@@ -365,6 +410,35 @@ async function loadAccount() {
   } catch(e) {}
 }
 
+async function loadIntegrations() {
+  try {
+    const s = await API.get('/api/store/info');
+    const ts = typeof s.theme_settings === 'string' ? JSON.parse(s.theme_settings||'{}') : (s.theme_settings||{});
+    if (ts.ga_id) document.getElementById('gaId').value = ts.ga_id;
+    if (ts.ga_enabled) document.getElementById('gaEnabled').checked = true;
+    if (ts.meta_pixel_id) document.getElementById('metaPixelId').value = ts.meta_pixel_id;
+    if (ts.meta_pixel_enabled) document.getElementById('metaPixelEnabled').checked = true;
+    if (ts.tiktok_pixel_id) document.getElementById('tiktokPixelId').value = ts.tiktok_pixel_id;
+  } catch(e) {}
+}
+
+async function saveIntegrations() {
+  try {
+    const s = await API.get('/api/store/info');
+    const ts = typeof s.theme_settings === 'string' ? JSON.parse(s.theme_settings||'{}') : (s.theme_settings||{});
+    const updated = {
+      ...ts,
+      ga_id: document.getElementById('gaId').value.trim(),
+      ga_enabled: document.getElementById('gaEnabled').checked,
+      meta_pixel_id: document.getElementById('metaPixelId').value.trim(),
+      meta_pixel_enabled: document.getElementById('metaPixelEnabled').checked,
+      tiktok_pixel_id: document.getElementById('tiktokPixelId').value.trim(),
+    };
+    await API.patch('/api/store/info', { theme_settings: JSON.stringify(updated) });
+    Toast.success('Integrations saved — reload your storefront to activate');
+  } catch(e) { Toast.error(e.message || 'Failed to save'); }
+}
+
 async function changePassword() {
   const current = document.getElementById('pwCurrent').value;
   const newPw = document.getElementById('pwNew').value;
@@ -388,15 +462,4 @@ async function testEmail() {
     const data = await res.json();
     if (res.ok) Toast.success('Test email sent! Provider: ' + (data.provider || 'unknown'));
     else Toast.error('Email not configured — add EMAIL_PROVIDER to Railway env vars');
-  } catch(e) { Toast.error('Failed — check your email env vars'); }
-}
-
-// ── INIT ─────────────────────────────────────────────────────────────────────
-(async function() {
-  const session = await initAdmin('settings');
-  if (!session) return;
-  loadGeneral();
-})();
-</script>
-</body>
-</html>
+  } catch(e) { Toast.error('Failed — check your email env vars

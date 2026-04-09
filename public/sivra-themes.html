@@ -51,8 +51,9 @@
                       <label class="form-label">Logo image URL</label>
                       <div class="form-hint">Enter a URL to your logo image. Recommended: PNG with transparent background, max 200px height.</div>
                       <div style="display:flex;gap:8px;align-items:center">
-                        <input class="input" id="logoUrl" placeholder="https://example.com/logo.png" style="flex:1"/>
-                        <button class="btn btn-secondary btn-sm" onclick="previewLogo()">Preview</button>
+                        <input class="input" id="logoUrl" placeholder="https://example.com/logo.png" style="flex:1" oninput="previewLogo()"/>
+                        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('logoFileInput').click()">Upload file</button>
+                        <input type="file" id="logoFileInput" accept="image/*" style="display:none" onchange="uploadLogoFile(this)"/>
                       </div>
                       <div id="logoPreview" style="margin-top:8px;display:none">
                         <img id="logoPreviewImg" style="max-height:60px;max-width:200px;border:1px solid #e3e3e3;border-radius:6px;padding:8px;background:white"/>
@@ -355,6 +356,29 @@
 
 
   // Expose to global scope for onclick handlers
+  async function uploadLogoFile(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 400;
+        const scale = img.width > MAX ? MAX/img.width : 1;
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width*scale);
+        canvas.height = Math.round(img.height*scale);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/png');
+        document.getElementById('logoUrl').value = dataUrl;
+        previewLogo();
+        Toast.show('Logo uploaded — click Save to apply');
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+  if (typeof uploadLogoFile === "function") window.uploadLogoFile = uploadLogoFile;
   if (typeof previewLogo === "function") window.previewLogo = previewLogo;
   if (typeof saveTheme === "function") window.saveTheme = saveTheme;
   if (typeof showSection === "function") window.showSection = showSection;
