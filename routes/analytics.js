@@ -20,10 +20,11 @@ router.get('/overview', async (req, res) => {
     const prevSince = new Date(since); prevSince.setDate(prevSince.getDate() - d);
     const prevStr = prevSince.toISOString();
 
-    // Current period
+    // Each query wrapped individually — if refunds or discounts table is missing, others still work
+    const safeQuery = async (sql, args) => { try { return await db.execute({ sql, args }); } catch(e) { console.error('Analytics query error:', e.message); return { rows: [{}] }; } };
+
     const [curr, prev, customers, products, refunds, discounts] = await Promise.all([
-      db.execute({
-        sql: `SELECT
+      safeQuery(`SELECT
           COUNT(*) as orders,
           COALESCE(SUM(total),0) as revenue,
           COALESCE(SUM(subtotal),0) as gross_sales,
@@ -31,18 +32,13 @@ router.get('/overview', async (req, res) => {
           COALESCE(SUM(shipping),0) as shipping_revenue,
           COALESCE(SUM(tax),0) as tax_collected,
           COALESCE(AVG(total),0) as aov
-          FROM orders WHERE store_id=? AND status!='cancelled' AND created_at>=?`,
-        args: [sid, sinceStr]
-      }),
-      db.execute({
-        sql: `SELECT COUNT(*) as orders, COALESCE(SUM(total),0) as revenue, COALESCE(AVG(total),0) as aov
-          FROM orders WHERE store_id=? AND status!='cancelled' AND created_at>=? AND created_at<?`,
-        args: [sid, prevStr, sinceStr]
-      }),
-      db.execute({ sql: `SELECT COUNT(*) as total, COUNT(CASE WHEN orders_count>1 THEN 1 END) as returning FROM customers WHERE store_id=?`, args: [sid] }),
-      db.execute({ sql: `SELECT COUNT(*) as active, COUNT(CASE WHEN quantity<=5 AND quantity>0 AND track_qty=1 THEN 1 END) as low_stock, COUNT(CASE WHEN quantity<=0 AND track_qty=1 THEN 1 END) as out_of_stock FROM products WHERE store_id=? AND status='active'`, args: [sid] }),
-      db.execute({ sql: `SELECT COALESCE(SUM(amount),0) as total_refunded FROM refunds WHERE store_id=? AND created_at>=?`, args: [sid, sinceStr] }),
-      db.execute({ sql: `SELECT COUNT(*) as total_codes, COALESCE(SUM(usage_count),0) as total_uses FROM discounts WHERE store_id=?`, args: [sid] }),
+          FROM orders WHERE store_id=? AND status!='cancelled' AND created_at>=?`, [sid, sinceStr]),
+      safeQuery(`SELECT COUNT(*) as orders, COALESCE(SUM(total),0) as revenue, COALESCE(AVG(total),0) as aov
+          FROM orders WHERE store_id=? AND status!='cancelled' AND created_at>=? AND created_at<?`, [sid, prevStr, sinceStr]),
+      safeQuery(`SELECT COUNT(*) as total, COUNT(CASE WHEN orders_count>1 THEN 1 END) as returning FROM customers WHERE store_id=?`, [sid]),
+      safeQuery(`SELECT COUNT(*) as active, COUNT(CASE WHEN quantity<=5 AND quantity>0 THEN 1 END) as low_stock, COUNT(CASE WHEN quantity<=0 THEN 1 END) as out_of_stock FROM products WHERE store_id=? AND status='active'`, [sid]),
+      safeQuery(`SELECT COALESCE(SUM(amount),0) as total_refunded FROM refunds WHERE store_id=? AND created_at>=?`, [sid, sinceStr]),
+      safeQuery(`SELECT COUNT(*) as total_codes, COALESCE(SUM(usage_count),0) as total_uses FROM discounts WHERE store_id=?`, [sid]),
     ]);
 
     const c = curr.rows[0];
@@ -210,8 +206,8 @@ router.get('/inventory', async (req, res) => {
     const db = getDB();
     const result = await db.execute({
       sql: `SELECT id, title, sku, quantity, price,
-        CASE WHEN quantity<=0 AND track_qty=1 THEN 'out_of_stock'
-             WHEN quantity<=5 AND track_qty=1 THEN 'low_stock'
+        CASE WHEN quantity<=0 THEN 'out_of_stock'
+             WHEN quantity<=5 THEN 'low_stock'
              ELSE 'in_stock' END as stock_status
         FROM products WHERE store_id=? AND status='active' ORDER BY quantity ASC`,
       args: [req.storeId]
@@ -227,9 +223,10 @@ router.get('/finance', async (req, res) => {
     const { days = 30 } = req.query;
     const since = new Date(); since.setDate(since.getDate() - parseInt(days));
 
+    const safeQ = async (sql, args) => { try { return await db.execute({ sql, args }); } catch(e) { return { rows: [{ total: 0, gross_sales: 0, discounts: 0, shipping: 0, taxes: 0, total_sales: 0, order_count: 0 }] }; } };
+
     const [sales, refunds, bySource] = await Promise.all([
-      db.execute({
-        sql: `SELECT
+      safeQ(`SELECT
           COALESCE(SUM(subtotal),0) as gross_sales,
           COALESCE(SUM(discount_amount),0) as discounts,
           COALESCE(SUM(shipping),0) as shipping,
@@ -237,18 +234,13 @@ router.get('/finance', async (req, res) => {
           COALESCE(SUM(total),0) as total_sales,
           COUNT(*) as order_count
           FROM orders WHERE store_id=? AND status!='cancelled' AND created_at>=?`,
-        args: [req.storeId, since.toISOString()]
-      }),
-      db.execute({
-        sql: `SELECT COALESCE(SUM(amount),0) as total FROM refunds WHERE store_id=? AND created_at>=?`,
-        args: [req.storeId, since.toISOString()]
-      }),
-      db.execute({
-        sql: `SELECT source, COUNT(*) as orders, COALESCE(SUM(total),0) as revenue
+        [req.storeId, since.toISOString()]),
+      safeQ(`SELECT COALESCE(SUM(amount),0) as total FROM refunds WHERE store_id=? AND created_at>=?`,
+        [req.storeId, since.toISOString()]),
+      safeQ(`SELECT source, COUNT(*) as orders, COALESCE(SUM(total),0) as revenue
           FROM orders WHERE store_id=? AND status!='cancelled' AND created_at>=?
           GROUP BY source ORDER BY revenue DESC`,
-        args: [req.storeId, since.toISOString()]
-      }),
+        [req.storeId, since.toISOString()]),
     ]);
 
     const s = sales.rows[0];
