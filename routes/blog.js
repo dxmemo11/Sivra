@@ -104,8 +104,7 @@ router.patch('/:id', async (req, res) => {
         content=COALESCE(?,content), excerpt=COALESCE(?,excerpt), image_url=COALESCE(?,image_url),
         tags=COALESCE(?,tags), seo_title=COALESCE(?,seo_title), seo_description=COALESCE(?,seo_description),
         status=COALESCE(?,status),
-        published_at=CASE WHEN ?='published' AND published_at IS NULL THEN CURRENT_TIMESTAMP ELSE published_at END,
-        updated_at=CURRENT_TIMESTAMP WHERE id=? AND store_id=?`,
+        published_at=CASE WHEN ?='published' AND published_at IS NULL THEN CURRENT_TIMESTAMP ELSE published_at END WHERE id=? AND store_id=?`,
       args: [title||null,slug||null,author||null,content||null,excerpt||null,image_url||null,tags||null,seo_title||null,seo_description||null,status||null,status||null,req.params.id,req.storeId]
     });
     const updated = await db.execute({ sql:'SELECT * FROM blog_posts WHERE id=?', args:[req.params.id] });

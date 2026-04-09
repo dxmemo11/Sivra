@@ -273,10 +273,10 @@ router.post('/:slug/checkout', async (req, res) => {
       });
       // Decrement stock
       if (variant) {
-        await db.execute({ sql: 'UPDATE product_variants SET quantity = MAX(0, quantity - ?), updated_at = CURRENT_TIMESTAMP WHERE id = ?', args: [qty, variant.id] });
+        await db.execute({ sql: 'UPDATE product_variants SET quantity = MAX(0, quantity - ?) WHERE id = ?', args: [qty, variant.id] });
       }
       if (product.track_qty) {
-        await db.execute({ sql: 'UPDATE products SET quantity = MAX(0, quantity - ?), updated_at = CURRENT_TIMESTAMP WHERE id = ?', args: [qty, product.id] });
+        await db.execute({ sql: 'UPDATE products SET quantity = MAX(0, quantity - ?) WHERE id = ?', args: [qty, product.id] });
         await db.execute({
           sql: 'INSERT INTO inventory_movements (id, product_id, store_id, adjustment, quantity_after, reason) VALUES (?,?,?,?,quantity,?)',
           args: [uuid(), product.id, store.id, -qty, 'order_placed']

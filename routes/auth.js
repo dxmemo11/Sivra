@@ -190,7 +190,7 @@ router.post('/change-password', requireAuth, async (req, res) => {
 
     const hashed = await bcrypt.hash(newPassword, 12);
     await db.execute({
-      sql: 'UPDATE merchants SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      sql: 'UPDATE merchants SET password = ? WHERE id = ?',
       args: [hashed, req.merchantId]
     });
 

@@ -57,7 +57,7 @@ router.patch('/:id', async (req, res) => {
     await db.execute({
       sql: `UPDATE store_pages SET title=COALESCE(?,title), slug=COALESCE(?,slug), content=COALESCE(?,content),
             seo_title=COALESCE(?,seo_title), seo_description=COALESCE(?,seo_description),
-            status=COALESCE(?,status), updated_at=CURRENT_TIMESTAMP WHERE id=? AND store_id=?`,
+            status=COALESCE(?,status) WHERE id=? AND store_id=?`,
       args: [title||null, slug||null, content||null, seo_title||null, seo_description||null, status||null, req.params.id, req.storeId]
     });
     const updated = await db.execute({ sql: 'SELECT * FROM store_pages WHERE id=?', args: [req.params.id] });

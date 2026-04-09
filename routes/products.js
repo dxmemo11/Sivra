@@ -196,8 +196,7 @@ router.patch('/:id', async (req, res) => {
         seo_handle=COALESCE(?,seo_handle),
         taxable=COALESCE(?,taxable),
         images=COALESCE(?,images),
-        published_at=CASE WHEN ? = 'active' AND published_at IS NULL THEN CURRENT_TIMESTAMP ELSE published_at END,
-        updated_at=CURRENT_TIMESTAMP
+        published_at=CASE WHEN ? = 'active' AND published_at IS NULL THEN CURRENT_TIMESTAMP ELSE published_at END
         WHERE id=? AND store_id=?`,
       args: [
         title||null, description||null, body_html||null,
@@ -288,7 +287,7 @@ router.patch('/bulk/status', async (req, res) => {
     if (!ids?.length || !status) return res.status(400).json({ error: 'ids and status required.' });
     for (const id of ids) {
       await db.execute({
-        sql: 'UPDATE products SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND store_id = ?',
+        sql: 'UPDATE products SET status = ? WHERE id = ? AND store_id = ?',
         args: [status, id, req.storeId]
       });
     }
@@ -338,8 +337,7 @@ router.patch('/:id/variants/:variantId', async (req, res) => {
             price=COALESCE(?,price), compare_price=COALESCE(?,compare_price),
             sku=COALESCE(?,sku), barcode=COALESCE(?,barcode),
             quantity=COALESCE(?,quantity), weight=COALESCE(?,weight), position=COALESCE(?,position),
-            taxable=COALESCE(?,taxable), requires_shipping=COALESCE(?,requires_shipping),
-            updated_at=CURRENT_TIMESTAMP
+            taxable=COALESCE(?,taxable), requires_shipping=COALESCE(?,requires_shipping)
             WHERE id=? AND product_id=?`,
       args: [title||null, option1||null, option2||null, option3||null,
         price!==undefined?parseFloat(price):null, compare_price!==undefined?parseFloat(compare_price)||null:null,

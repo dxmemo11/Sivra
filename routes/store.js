@@ -72,8 +72,7 @@ router.patch('/info', async (req, res) => {
         tax_rate=COALESCE(?,tax_rate), tax_included=COALESCE(?,tax_included),
         tax_enabled=COALESCE(?,tax_enabled),
         shipping_zones=COALESCE(?,shipping_zones),
-        theme_settings=COALESCE(?,theme_settings),
-        updated_at=CURRENT_TIMESTAMP WHERE id=?`,
+        theme_settings=COALESCE(?,theme_settings) WHERE id=?`,
       args:[
         name||null, description||null, category||null, currency||null,
         logo_url!==undefined?logo_url||null:null,
@@ -118,7 +117,7 @@ router.patch('/shipping', async (req, res) => {
     const { zones } = req.body;
     if (!zones) return res.status(400).json({ error:'zones required' });
     await db.execute({
-      sql:'UPDATE stores SET shipping_zones=?, updated_at=CURRENT_TIMESTAMP WHERE id=?',
+      sql:'UPDATE stores SET shipping_zones=? WHERE id=?',
       args:[JSON.stringify(zones), req.storeId]
     });
     res.json({ zones, message:'Shipping updated.' });
@@ -139,7 +138,7 @@ router.patch('/tax', async (req, res) => {
     const db = getDB();
     const { tax_rate, tax_included, tax_enabled } = req.body;
     await db.execute({
-      sql:'UPDATE stores SET tax_rate=COALESCE(?,tax_rate), tax_included=COALESCE(?,tax_included), tax_enabled=COALESCE(?,tax_enabled), updated_at=CURRENT_TIMESTAMP WHERE id=?',
+      sql:'UPDATE stores SET tax_rate=COALESCE(?,tax_rate), tax_included=COALESCE(?,tax_included), tax_enabled=COALESCE(?,tax_enabled) WHERE id=?',
       args:[tax_rate!==undefined?parseFloat(tax_rate)||0:null, tax_included!==undefined?(tax_included?1:0):null, tax_enabled!==undefined?(tax_enabled?1:0):null, req.storeId]
     });
     res.json({ message:'Tax settings updated.' });
@@ -167,8 +166,7 @@ router.patch('/theme', async (req, res) => {
         logo_url=COALESCE(?,logo_url), favicon_url=COALESCE(?,favicon_url),
         announcement_bar=COALESCE(?,announcement_bar),
         announcement_bar_enabled=COALESCE(?,announcement_bar_enabled),
-        theme_settings=COALESCE(?,theme_settings),
-        updated_at=CURRENT_TIMESTAMP WHERE id=?`,
+        theme_settings=COALESCE(?,theme_settings) WHERE id=?`,
       args:[primary_color||null, accent_color||null,
         logo_url!==undefined?logo_url||null:null,
         favicon_url!==undefined?favicon_url||null:null,
@@ -196,7 +194,7 @@ router.patch('/settings', async (req, res) => {
     const db = getDB();
     const { name, description, category, currency, storeName } = req.body;
     await db.execute({
-      sql:'UPDATE stores SET name=COALESCE(?,name), description=COALESCE(?,description), category=COALESCE(?,category), currency=COALESCE(?,currency), updated_at=CURRENT_TIMESTAMP WHERE id=?',
+      sql:'UPDATE stores SET name=COALESCE(?,name), description=COALESCE(?,description), category=COALESCE(?,category), currency=COALESCE(?,currency) WHERE id=?',
       args:[name||storeName||null, description||null, category||null, currency||null, req.storeId]
     });
     const updated = await db.execute({ sql:'SELECT * FROM stores WHERE id=?', args:[req.storeId] });

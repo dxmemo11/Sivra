@@ -40,12 +40,12 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const db = getDB();
-    const { code, type = 'percent', value = 0, method = 'code', min_order, usage_limit, once_per_customer, starts_at, ends_at } = req.body;
+    const { code, type = 'percentage', value = 0, method = 'code', min_order, usage_limit, once_per_customer, starts_at, ends_at } = req.body;
     if (!code) return res.status(400).json({ error: 'Discount code is required.' });
     const id = uuid();
     await db.execute({
-      sql: `INSERT INTO discounts (id, store_id, code, type, value, method, min_order, usage_limit, once_per_customer, starts_at, ends_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      sql: `INSERT INTO discounts (id, store_id, code, type, value, method, min_order_amount, usage_limit, once_per_customer, starts_at, ends_at, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')`,
       args: [id, req.storeId, code.toUpperCase(), type, parseFloat(value)||0, method, min_order||null, usage_limit||null, once_per_customer?1:0, starts_at||null, ends_at||null]
     });
     const created = await db.execute({ sql: 'SELECT * FROM discounts WHERE id = ?', args: [id] });
@@ -71,10 +71,10 @@ router.post('/validate', async (req, res) => {
     const now = new Date();
     if (disc.starts_at && new Date(disc.starts_at) > now) return res.status(400).json({ error: 'Discount has not started yet.' });
     if (disc.ends_at && new Date(disc.ends_at) < now) return res.status(400).json({ error: 'Discount has expired.' });
-    if (disc.usage_limit && disc.used_count >= disc.usage_limit) return res.status(400).json({ error: 'Discount usage limit reached.' });
-    if (disc.min_order && parseFloat(subtotal) < disc.min_order) return res.status(400).json({ error: `Minimum order of $${disc.min_order.toFixed(2)} required.` });
+    if (disc.usage_limit && disc.usage_count >= disc.usage_limit) return res.status(400).json({ error: 'Discount usage limit reached.' });
+    if (disc.min_order_amount && parseFloat(subtotal) < disc.min_order_amount) return res.status(400).json({ error: `Minimum order of $${disc.min_order_amount.toFixed(2)} required.` });
     let savings = 0;
-    if (disc.type === 'percent') savings = parseFloat(subtotal) * (disc.value / 100);
+    if (disc.type === 'percentage') savings = parseFloat(subtotal) * (disc.value / 100);
     if (disc.type === 'fixed') savings = Math.min(disc.value, parseFloat(subtotal));
     if (disc.type === 'free_shipping') savings = 0; // handled at checkout
     res.json({ valid: true, discount: disc, savings: parseFloat(savings.toFixed(2)) });
@@ -106,7 +106,7 @@ router.patch('/:id', async (req, res) => {
         value=COALESCE(?,value), min_order_amount=COALESCE(?,min_order_amount),
         usage_limit=COALESCE(?,usage_limit), once_per_customer=COALESCE(?,once_per_customer),
         starts_at=COALESCE(?,starts_at), ends_at=COALESCE(?,ends_at),
-        status=COALESCE(?,status), updated_at=CURRENT_TIMESTAMP
+        status=COALESCE(?,status)
         WHERE id=? AND store_id=?`,
       args: [code||null, title||null, type||null,
         value!==undefined?parseFloat(value)||0:null,

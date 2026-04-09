@@ -101,8 +101,7 @@ router.patch('/:id', async (req, res) => {
             status=COALESCE(?,status), payment_status=COALESCE(?,payment_status),
             fulfillment_status=COALESCE(?,fulfillment_status),
             financial_status=COALESCE(?,financial_status),
-            notes=COALESCE(?,notes), tags=COALESCE(?,tags),
-            updated_at=CURRENT_TIMESTAMP WHERE id=? AND store_id=?`,
+            notes=COALESCE(?,notes), tags=COALESCE(?,tags) WHERE id=? AND store_id=?`,
       args: [status||null, payment_status||null, fulfillment_status||null,
         financial_status||null, notes!==undefined?notes||null:null,
         tags!==undefined?tags||null:null, req.params.id, req.storeId]
@@ -133,7 +132,7 @@ router.post('/:id/notes', async (req, res) => {
     await addEvent(db, req.params.id, 'note', message.trim());
     // Update notes field too
     await db.execute({
-      sql: 'UPDATE orders SET notes = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND store_id = ?',
+      sql: 'UPDATE orders SET notes = ? WHERE id = ? AND store_id = ?',
       args: [message, req.params.id, req.storeId]
     });
     res.json({ message: 'Note added.' });
@@ -158,7 +157,7 @@ router.post('/:id/fulfill', async (req, res) => {
     });
 
     await db.execute({
-      sql: `UPDATE orders SET fulfillment_status='fulfilled', updated_at=CURRENT_TIMESTAMP WHERE id=? AND store_id=?`,
+      sql: `UPDATE orders SET fulfillment_status='fulfilled' WHERE id=? AND store_id=?`,
       args: [req.params.id, req.storeId]
     });
 
@@ -213,7 +212,7 @@ router.post('/:id/refund', async (req, res) => {
       for (const item of items) {
         if (item.product_id && item.quantity) {
           await db.execute({
-            sql: 'UPDATE products SET quantity = quantity + ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+            sql: 'UPDATE products SET quantity = quantity + ? WHERE id = ?',
             args: [parseInt(item.quantity), item.product_id]
           });
           await db.execute({
@@ -225,7 +224,7 @@ router.post('/:id/refund', async (req, res) => {
     }
 
     await db.execute({
-      sql: `UPDATE orders SET payment_status='refunded', updated_at=CURRENT_TIMESTAMP WHERE id=? AND store_id=?`,
+      sql: `UPDATE orders SET payment_status='refunded' WHERE id=? AND store_id=?`,
       args: [req.params.id, req.storeId]
     });
 
@@ -248,7 +247,7 @@ router.post('/:id/cancel', async (req, res) => {
     if (order.rows[0].status === 'cancelled') return res.status(400).json({ error: 'Order is already cancelled.' });
 
     await db.execute({
-      sql: `UPDATE orders SET status='cancelled', cancel_reason=?, cancelled_at=CURRENT_TIMESTAMP, updated_at=CURRENT_TIMESTAMP WHERE id=? AND store_id=?`,
+      sql: `UPDATE orders SET status='cancelled', cancel_reason=?, cancelled_at=CURRENT_TIMESTAMP WHERE id=? AND store_id=?`,
       args: [reason, req.params.id, req.storeId]
     });
 
@@ -258,7 +257,7 @@ router.post('/:id/cancel', async (req, res) => {
       for (const item of items.rows) {
         if (item.product_id) {
           await db.execute({
-            sql: 'UPDATE products SET quantity = quantity + ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+            sql: 'UPDATE products SET quantity = quantity + ? WHERE id = ?',
             args: [item.quantity || 1, item.product_id]
           });
           await db.execute({
@@ -327,7 +326,7 @@ router.post('/', async (req, res) => {
         if (cf.rows.length) custId = cf.rows[0].id;
       }
       if (custId) {
-        await db.execute({ sql: 'UPDATE customers SET orders_count=COALESCE(orders_count,0)+1, total_spent=COALESCE(total_spent,0)+?, updated_at=CURRENT_TIMESTAMP WHERE id=? AND store_id=?', args: [parseFloat(total)||0, custId, req.storeId] });
+        await db.execute({ sql: 'UPDATE customers SET orders_count=COALESCE(orders_count,0)+1, total_spent=COALESCE(total_spent,0)+? WHERE id=? AND store_id=?', args: [parseFloat(total)||0, custId, req.storeId] });
       }
     } catch(e) {}
     const created = await getOrderWithItems(db, orderId);

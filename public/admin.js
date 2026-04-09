@@ -274,15 +274,19 @@ function buildSidebar(activeId) {
           <span>Sales channels</span>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 3v8M3 7h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
         </div>
-        ${NAV.channels.map(ch => `
-          <div class="sb-item${activeId===ch.id?' active':''}" onclick="sivraNav(this,'#',true)" data-id="${ch.id}">
+        ${NAV.channels.map(ch => {
+          const isChildActive = (ch.children||[]).some(c => window.location.pathname.endsWith(c.href));
+          const shouldOpen = activeId===ch.id || isChildActive;
+          return `
+          <div class="sb-item${activeId===ch.id?' active':''}${shouldOpen?' open':''}" onclick="sivraNav(this,'#',true)" data-id="${ch.id}">
             <span class="sb-icon">${ch.icon||''}</span>
             <span class="sb-label">${ch.label}</span>
             <svg class="sb-caret" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 4l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
           </div>
-          <div class="sb-children" id="kids-${ch.id}">
-            ${(ch.children||[]).map(c=>`<div class="sb-child${window.location.pathname.endsWith(c.href)?' active':''}" onclick="location.href='${c.href}'">${c.label}</div>`).join('')}
-          </div>`).join('')}
+          <div class="sb-children${shouldOpen?' open':''}" id="kids-${ch.id}">
+            ${(ch.children||[]).map(c=>`<div class="sb-child${(c.href && c.href !== '#' && window.location.pathname.endsWith(c.href)) ? ' active' : ''}" onclick="location.href='${c.href}'">${c.label}</div>`).join('')}
+          </div>`;
+        }).join('')}
       </div>
     </div>
 
@@ -334,6 +338,10 @@ function sivraNav(el, href, hasKids) {
     const id = el.dataset.id;
     const kids = document.getElementById('kids-' + id);
     if (kids) kids.classList.toggle('open');
+    // Also navigate to the parent page if it has a real href
+    if (href && href !== '#') {
+      location.href = href;
+    }
   } else if (href && href !== '#') {
     location.href = href;
   }
