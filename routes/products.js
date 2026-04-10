@@ -32,10 +32,68 @@ function safeJson(v, fallback) {
 router.post('/upload-image', upload.single('image'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No image provided.' });
+
+    // Try Cloudinary first
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    const apiKey = process.env.CLOUDINARY_API_KEY;
+    const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+    if (cloudName && apiKey && apiSecret) {
+      try {
+        const base64Data = req.file.buffer.toString('base64');
+        const mimeType = req.file.mimetype || 'image/jpeg';
+        const dataUri = `data:${mimeType};base64,${base64Data}`;
+
+        // Generate signature for Cloudinary upload
+        const timestamp = Math.floor(Date.now() / 1000);
+        const folder = 'sivra-products';
+        const paramsToSign = `folder=${folder}&timestamp=${timestamp}`;
+
+        // Create SHA1 signature
+        const crypto = require('crypto');
+        const signature = crypto
+          .createHash('sha1')
+          .update(paramsToSign + apiSecret)
+          .digest('hex');
+
+        // Upload to Cloudinary via REST API
+        const FormData = require('form-data') || null;
+        const formBody = new URLSearchParams();
+        formBody.append('file', dataUri);
+        formBody.append('api_key', apiKey);
+        formBody.append('timestamp', timestamp.toString());
+        formBody.append('signature', signature);
+        formBody.append('folder', folder);
+
+        const cloudRes = await fetch(
+          `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+          {
+            method: 'POST',
+            body: formBody,
+          }
+        );
+
+        const cloudData = await cloudRes.json();
+
+        if (cloudData.secure_url) {
+          console.log('Image uploaded to Cloudinary:', cloudData.secure_url);
+          return res.json({ url: cloudData.secure_url });
+        } else {
+          console.error('Cloudinary upload failed:', cloudData);
+          // Fall through to base64 fallback
+        }
+      } catch(cloudErr) {
+        console.error('Cloudinary error:', cloudErr.message);
+        // Fall through to base64 fallback
+      }
+    }
+
+    // Fallback: base64 (works but bloats database)
     const base64 = req.file.buffer.toString('base64');
     const mimeType = req.file.mimetype || 'image/jpeg';
     res.json({ url: `data:${mimeType};base64,${base64}` });
   } catch(err) {
+    console.error('Image upload error:', err);
     res.status(500).json({ error: 'Image upload failed.' });
   }
 });
