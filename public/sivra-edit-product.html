@@ -147,13 +147,15 @@
               <div class="card">
                 <div class="card-header">
                   <span class="card-title">Variants</span>
-                  <span class="text-muted text-sm" id="variantCount"></span>
+                  <span class="text-muted text-sm">Add options like size or color</span>
                 </div>
                 <div class="card-body">
-                  <div id="variantsList">
-                    <div style="text-align:center;padding:24px;color:#8c9196;font-size:13px">No variants — this product has a single option (the default)</div>
+                  <div id="optionsList" style="display:flex;flex-direction:column;gap:10px;margin-bottom:10px"></div>
+                  <button class="btn btn-secondary btn-sm" id="addOptionBtn" onclick="addOption()">+ Add option</button>
+                  <div id="variantPreview" style="display:none;margin-top:16px;border-top:1px solid #e3e3e3;padding-top:14px">
+                    <div style="font-size:13px;font-weight:600;margin-bottom:8px">Variant pricing & inventory</div>
+                    <div id="variantRows"></div>
                   </div>
-                  <button class="btn btn-secondary btn-sm" onclick="openVariantModal()" style="margin-top:8px">+ Add variant</button>
                 </div>
               </div>
 
@@ -311,49 +313,6 @@
           </div>
         </div>
 
-        <!-- Add variant modal -->
-        <div class="modal-overlay" id="variantModal">
-          <div class="modal" style="max-width:480px">
-            <div class="modal-header">
-              <span class="modal-title" id="varModalTitle">Add variant</span>
-              <button class="modal-close" onclick="document.getElementById('variantModal').classList.remove('open')">×</button>
-            </div>
-            <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
-              <div class="form-group"><label class="form-label">Variant title</label><input class="input" id="vTitle" placeholder="e.g. Small / Red"/></div>
-              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-                <div class="form-group"><label class="form-label">Option 1</label><input class="input" id="vOpt1" placeholder="e.g. S"/></div>
-                <div class="form-group"><label class="form-label">Option 2</label><input class="input" id="vOpt2" placeholder="e.g. Red"/></div>
-                <div class="form-group"><label class="form-label">Option 3</label><input class="input" id="vOpt3" placeholder=""/></div>
-              </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-                <div class="form-group">
-                  <label class="form-label">Price</label>
-                  <div class="input-prefix"><span class="input-prefix-text">$</span>
-                    <input type="number" id="vPrice" min="0" step="0.01"
-                      style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"/>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Compare-at</label>
-                  <div class="input-prefix"><span class="input-prefix-text">$</span>
-                    <input type="number" id="vCompare" min="0" step="0.01"
-                      style="flex:1;height:36px;padding:0 12px;border:none;outline:none;font-size:13px;font-family:inherit;background:none;color:#303030"/>
-                  </div>
-                </div>
-              </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-                <div class="form-group"><label class="form-label">SKU</label><input class="input" id="vSku"/></div>
-                <div class="form-group"><label class="form-label">Barcode</label><input class="input" id="vBarcode"/></div>
-                <div class="form-group"><label class="form-label">Quantity</label><input class="input" type="number" id="vQty" min="0" value="0"/></div>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button class="btn btn-secondary" onclick="document.getElementById('variantModal').classList.remove('open')">Cancel</button>
-              <button class="btn btn-primary" onclick="saveVariant()">Save variant</button>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
   </div>
@@ -366,7 +325,8 @@
   if (!session) return;
   
   const _id = new URLSearchParams(location.search).get('id');
-  let _product = null, _variants = [], _imgs = [], _tags = [], _collections = [], _allCollections = [], _editingVariantId = null;
+  let _product = null, _variants = [], _imgs = [], _tags = [], _collections = [], _allCollections = [];
+  let _options = [], _generatedVariants = [], _draggedIdx = null;
 
   // ── MARGIN ───────────────────────────────────────
   function calcMargin() {
@@ -380,34 +340,40 @@
   }
 
   // ── MEDIA ────────────────────────────────────────
-  function addFiles(files) {
-    Array.from(files).forEach(file => {
-      if (!file.type.startsWith('image/')) return;
-      const reader = new FileReader();
-      reader.onload = e => {
-        const img = new Image();
-        img.onload = () => {
-          const MAX = 900, scale = img.width > MAX ? MAX/img.width : 1;
-          const canvas = document.createElement('canvas');
-          canvas.width = Math.round(img.width*scale); canvas.height = Math.round(img.height*scale);
-          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-          _imgs.push(canvas.toDataURL('image/jpeg', 0.82));
-          renderMedia();
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    });
+  async function addFiles(files) {
+    const arr = Array.from(files).filter(f => f.type.startsWith('image/'));
+    if (!arr.length) return;
+    Toast.success('Uploading ' + arr.length + ' image' + (arr.length>1?'s':'') + '...');
+    for (const file of arr) {
+      try {
+        const fd = new FormData();
+        fd.append('image', file);
+        const res = await fetch('/api/products/upload-image', { method:'POST', headers:{Authorization:'Bearer '+Auth.getToken()}, body: fd });
+        const data = await res.json();
+        if (data.url) { _imgs.push(data.url); renderMedia(); }
+        else Toast.error('Upload failed: ' + (data.error||'unknown'));
+      } catch(e) { Toast.error('Upload failed: '+e.message); }
+    }
+    const inp = document.getElementById('mediaInput');
+    if (inp) inp.value = '';
+  }
+  function removeImg(i) { _imgs.splice(i,1); renderMedia(); }
+  function dragStart(i) { _draggedIdx = i; }
+  function dragOver(e) { e.preventDefault(); }
+  function dropImg(t) {
+    if (_draggedIdx===null||_draggedIdx===t) return;
+    const m = _imgs.splice(_draggedIdx,1)[0];
+    _imgs.splice(t,0,m); _draggedIdx=null; renderMedia();
   }
   function renderMedia() {
     const grid = document.getElementById('mediaGrid');
-    const zone = document.getElementById('uploadZone');
-    zone.style.display = '';
+    document.getElementById('uploadZone').style.display = '';
     grid.innerHTML = _imgs.map((src, i) => `
-      <div style="position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid ${i===0?'#1a1a1a':'#e3e3e3'};background:#f6f6f7">
-        <img src="${src}" style="width:100%;height:100%;object-fit:cover"/>
-        ${i===0?'<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.55);color:white;font-size:10px;font-weight:600;text-align:center;padding:3px">Main</div>':''}
-        <button onclick="_imgs.splice(${i},1);renderMedia()" style="position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.55);border:none;color:white;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center">×</button>
+      <div draggable="true" ondragstart="dragStart(${i})" ondragover="dragOver(event)" ondrop="dropImg(${i})"
+        style="position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid ${i===0?'#1a1a1a':'#e3e3e3'};background:#f6f6f7;cursor:move">
+        <img src="${src}" style="width:100%;height:100%;object-fit:cover" draggable="false"/>
+        ${i===0?'<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.55);color:white;font-size:10px;font-weight:600;text-align:center;padding:3px;pointer-events:none">Main</div>':''}
+        <button onclick="removeImg(${i})" style="position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,0.7);border:none;color:white;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;z-index:2">×</button>
       </div>`).join('') +
       `<div onclick="document.getElementById('mediaInput').click()" style="aspect-ratio:1;border:2px dashed #e3e3e3;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#8c9196;font-size:24px" onmouseover="this.style.borderColor='#1a1a1a'" onmouseout="this.style.borderColor='#e3e3e3'">+</div>`;
   }
@@ -459,83 +425,82 @@
     }).join('');
   }
 
-  // ── VARIANTS ─────────────────────────────────────
-  function renderVariants() {
-    const el = document.getElementById('variantsList');
-    const count = document.getElementById('variantCount');
-    count.textContent = _variants.length ? `${_variants.length} variant${_variants.length!==1?'s':''}` : '';
-    if (!_variants.length) {
-      el.innerHTML = '<div style="text-align:center;padding:20px;color:#8c9196;font-size:13px">No variants — single product</div>';
-      return;
-    }
-    el.innerHTML = `<div style="border:1px solid #e3e3e3;border-radius:8px;overflow:hidden">
-      <div style="display:grid;grid-template-columns:1fr 90px 90px 70px 60px;gap:8px;padding:8px 12px;background:#f9f9f9;border-bottom:1px solid #e3e3e3;font-size:12px;font-weight:600;color:#6d7175">
-        <span>Variant</span><span>Price</span><span>SKU</span><span>Stock</span><span></span>
-      </div>` +
-      _variants.map(v => `
-      <div style="display:grid;grid-template-columns:1fr 90px 90px 70px 60px;gap:8px;padding:10px 12px;border-bottom:1px solid #f0f0f0;align-items:center">
-        <span style="font-size:13px;font-weight:500">${v.title||v.option1||'Default'}</span>
-        <span style="font-size:13px">$${parseFloat(v.price||0).toFixed(2)}</span>
-        <span style="font-size:13px;color:#6d7175">${v.sku||'—'}</span>
-        <span style="font-size:13px;${!v.quantity?'color:var(--p-color-text-critical)':v.quantity<=5?'color:var(--p-color-text-caution)':''}">${v.quantity||0}</span>
-        <div style="display:flex;gap:4px">
-          <button onclick="editVariant('${v.id}')" class="btn btn-secondary btn-sm" style="padding:0 6px">Edit</button>
+  // ── OPTIONS & VARIANTS (inline builder) ──────────
+  function addOption() {
+    if (_options.length >= 3) { Toast.error('Max 3 options'); return; }
+    const defaults = ['Size','Color','Material'];
+    _options.push({ name: defaults[_options.length] || 'Option', values: [] });
+    renderOptions();
+  }
+  function removeOption(i) { _options.splice(i,1); renderOptions(); generateVariants(); }
+  function updateOptionName(i, name) { _options[i].name = name; generateVariants(); }
+  function addOptionValue(i, val) {
+    val = val.trim();
+    if (!val || _options[i].values.includes(val)) return;
+    _options[i].values.push(val); renderOptions(); generateVariants();
+  }
+  function removeOptionValue(oi, vi) { _options[oi].values.splice(vi,1); renderOptions(); generateVariants(); }
+  function renderOptions() {
+    const list = document.getElementById('optionsList');
+    const addBtn = document.getElementById('addOptionBtn');
+    if (!_options.length) { list.innerHTML=''; addBtn.style.display=''; return; }
+    addBtn.style.display = _options.length >= 3 ? 'none' : '';
+    list.innerHTML = _options.map((opt, i) => `
+      <div style="border:1px solid #e3e3e3;border-radius:8px;overflow:hidden">
+        <div style="padding:10px 12px;background:#f9f9f9;border-bottom:1px solid #e3e3e3;display:flex;align-items:center;gap:8px">
+          <div class="form-label" style="margin:0;width:80px">Option name</div>
+          <input class="input" value="${opt.name}" onchange="updateOptionName(${i},this.value)" style="flex:1;font-weight:600"/>
+          <button onclick="removeOption(${i})" class="btn btn-secondary btn-sm" style="color:#c0392b">Remove</button>
         </div>
-      </div>`).join('') + '</div>';
+        <div style="padding:12px">
+          <div class="form-label" style="margin-bottom:6px">Option values</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">${opt.values.map((v,vi)=>`
+            <span style="display:flex;align-items:center;gap:4px;padding:4px 10px;background:#e3e3e3;border-radius:20px;font-size:12px;font-weight:500">
+              ${v}<button onclick="removeOptionValue(${i},${vi})" style="background:none;border:none;cursor:pointer;color:#5c5f62;font-size:14px;padding:0 0 0 2px">×</button>
+            </span>`).join('')}</div>
+          <div style="display:flex;gap:6px">
+            <input class="input" id="optInput-${i}" placeholder="Add value (e.g. S, M, L)"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();addOptionValue(${i},this.value);this.value=''}" style="flex:1"/>
+            <button class="btn btn-secondary btn-sm" onclick="addOptionValue(${i},document.getElementById('optInput-${i}').value);document.getElementById('optInput-${i}').value=''">Add</button>
+          </div>
+        </div>
+      </div>`).join('');
   }
-
-  function openVariantModal() {
-    _editingVariantId = null;
-    document.getElementById('varModalTitle').textContent = 'Add variant';
-    ['vTitle','vOpt1','vOpt2','vOpt3','vSku','vBarcode'].forEach(id => document.getElementById(id).value='');
-    document.getElementById('vPrice').value = _product?.price || '';
-    document.getElementById('vQty').value = '0';
-    document.getElementById('variantModal').classList.add('open');
+  function cartesian(arrs) { return arrs.reduce((acc,arr)=>acc.flatMap(a=>arr.map(b=>[...a,b])),[[]]); }
+  function generateVariants() {
+    const filled = _options.filter(o => o.values.length > 0);
+    if (!filled.length) { _generatedVariants=[]; document.getElementById('variantPreview').style.display='none'; return; }
+    const combos = cartesian(filled.map(o=>o.values));
+    const basePrice = parseFloat(document.getElementById('pPrice').value)||0;
+    _generatedVariants = combos.map(combo => {
+      const title = combo.join(' / ');
+      const existing = _generatedVariants.find(v => v._title === title) || _variants.find(v => v.title === title) || {};
+      return {
+        _title: title, id: existing.id || null,
+        option1: combo[0]||null, option2: combo[1]||null, option3: combo[2]||null,
+        title, price: existing.price !== undefined ? existing.price : basePrice,
+        sku: existing.sku || '', quantity: existing.quantity !== undefined ? existing.quantity : 0,
+      };
+    });
+    renderVariantPreview();
   }
-
-  function editVariant(id) {
-    const v = _variants.find(x=>x.id===id);
-    if (!v) return;
-    _editingVariantId = id;
-    document.getElementById('varModalTitle').textContent = 'Edit variant';
-    document.getElementById('vTitle').value = v.title||'';
-    document.getElementById('vOpt1').value = v.option1||'';
-    document.getElementById('vOpt2').value = v.option2||'';
-    document.getElementById('vOpt3').value = v.option3||'';
-    document.getElementById('vPrice').value = v.price||'';
-    document.getElementById('vCompare').value = v.compare_price||'';
-    document.getElementById('vSku').value = v.sku||'';
-    document.getElementById('vBarcode').value = v.barcode||'';
-    document.getElementById('vQty').value = v.quantity||0;
-    document.getElementById('variantModal').classList.add('open');
-  }
-
-  async function saveVariant() {
-    const data = {
-      title: document.getElementById('vTitle').value || [document.getElementById('vOpt1').value,document.getElementById('vOpt2').value,document.getElementById('vOpt3').value].filter(Boolean).join(' / ') || 'Default',
-      option1: document.getElementById('vOpt1').value||null,
-      option2: document.getElementById('vOpt2').value||null,
-      option3: document.getElementById('vOpt3').value||null,
-      price: parseFloat(document.getElementById('vPrice').value)||0,
-      compare_price: parseFloat(document.getElementById('vCompare').value)||null,
-      sku: document.getElementById('vSku').value||null,
-      barcode: document.getElementById('vBarcode').value||null,
-      quantity: parseInt(document.getElementById('vQty').value)||0,
-    };
-    try {
-      if (_editingVariantId) {
-        await API.patch(`/api/products/${_id}/variants/${_editingVariantId}`, data);
-        const idx = _variants.findIndex(v=>v.id===_editingVariantId);
-        if (idx>-1) _variants[idx] = {..._variants[idx],...data};
-        Toast.success('Variant updated');
-      } else {
-        const v = await API.post(`/api/products/${_id}/variants`, data);
-        _variants.push(v);
-        Toast.success('Variant added');
-      }
-      renderVariants();
-      document.getElementById('variantModal').classList.remove('open');
-    } catch(e) { Toast.error(e.message); }
+  function renderVariantPreview() {
+    const p = document.getElementById('variantPreview');
+    if (!_generatedVariants.length) { p.style.display='none'; return; }
+    p.style.display = '';
+    document.getElementById('variantRows').innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 100px 100px 80px;gap:8px;padding:6px 0;font-size:12px;font-weight:600;color:#6d7175;border-bottom:1px solid #e3e3e3">
+        <span>Variant</span><span>Price</span><span>SKU</span><span>Qty</span>
+      </div>` +
+      _generatedVariants.map((v,i) => `
+      <div style="display:grid;grid-template-columns:1fr 100px 100px 80px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid #f0f0f0">
+        <span style="font-size:13px;font-weight:500">${v._title}</span>
+        <div class="input-prefix" style="height:30px"><span class="input-prefix-text" style="padding:0 6px;height:30px">$</span>
+          <input type="number" value="${v.price}" step="0.01" min="0" style="flex:1;height:30px;padding:0 8px;border:none;outline:none;font-size:12px;background:none" onchange="_generatedVariants[${i}].price=parseFloat(this.value)||0"/>
+        </div>
+        <input class="input" value="${v.sku}" placeholder="SKU" style="height:30px;padding:0 8px;font-size:12px" onchange="_generatedVariants[${i}].sku=this.value"/>
+        <input class="input" type="number" value="${v.quantity}" min="0" style="height:30px;padding:0 8px;font-size:12px" onchange="_generatedVariants[${i}].quantity=parseInt(this.value)||0"/>
+      </div>`).join('');
   }
 
   // ── INVENTORY ADJUST ─────────────────────────────
@@ -635,6 +600,26 @@
       };
       if (!data.title) { Toast.error('Title is required'); btn.disabled=false; btn.textContent='Save'; return; }
       await API.patch('/api/products/' + _id, data);
+
+      // Sync variants if option builder is in use
+      if (_generatedVariants.length) {
+        // Delete variants no longer in generated list
+        for (const oldV of _variants) {
+          const stillExists = _generatedVariants.find(g => g.title === oldV.title);
+          if (!stillExists) {
+            try { await API.del(`/api/products/${_id}/variants/${oldV.id}`); } catch(e) {}
+          }
+        }
+        // Add or update each generated variant
+        for (const v of _generatedVariants) {
+          const payload = { title: v.title, option1: v.option1, option2: v.option2, option3: v.option3, price: v.price, sku: v.sku, quantity: v.quantity };
+          const existing = _variants.find(o => o.title === v.title);
+          try {
+            if (existing && existing.id) await API.patch(`/api/products/${_id}/variants/${existing.id}`, payload);
+            else await API.post(`/api/products/${_id}/variants`, payload);
+          } catch(e) {}
+        }
+      }
       // Update collection memberships
       const currentColls = _product?.collections?.map(c=>c.id) || [];
       for (const id of _collections) {
@@ -661,6 +646,8 @@
       } catch(e) { Toast.error(e.message); }
     }, { danger: true });
   }
+
+  function duplicateProduct() { Toast.error('Coming soon — for now, copy and create new'); }
 
   // ── LOAD ─────────────────────────────────────────
   async function load() {
@@ -696,7 +683,18 @@
       renderMedia();
       if (p.tags) { p.tags.split(',').map(t=>t.trim()).filter(Boolean).forEach(t=>_tags.push(t)); renderTags(); }
       _variants = p.variants||[];
-      renderVariants();
+      // Reconstruct _options from existing variants
+      if (_variants.length && _variants.some(v => v.option1)) {
+        const opt1Vals = [...new Set(_variants.map(v=>v.option1).filter(Boolean))];
+        const opt2Vals = [...new Set(_variants.map(v=>v.option2).filter(Boolean))];
+        const opt3Vals = [...new Set(_variants.map(v=>v.option3).filter(Boolean))];
+        const optNames = p.option_names ? (typeof p.option_names==='string'?JSON.parse(p.option_names):p.option_names) : ['Size','Color','Material'];
+        if (opt1Vals.length) _options.push({ name: optNames[0]||'Size', values: opt1Vals });
+        if (opt2Vals.length) _options.push({ name: optNames[1]||'Color', values: opt2Vals });
+        if (opt3Vals.length) _options.push({ name: optNames[2]||'Material', values: opt3Vals });
+        renderOptions();
+        generateVariants();
+      }
       // Collections
       _collections = (p.collections||[]).map(c=>c.id);
       await loadCollections();
@@ -722,20 +720,33 @@
 
 
   // Expose to global scope for onclick handlers
-  if (typeof applyAdjustment === "function") window.applyAdjustment = applyAdjustment;
-  if (typeof toggleSeoEdit === "function") window.toggleSeoEdit = toggleSeoEdit;
-  if (typeof deleteProduct === "function") window.deleteProduct = deleteProduct;
-  if (typeof openAdjustModal === "function") window.openAdjustModal = openAdjustModal;
-  if (typeof saveProduct === "function") window.saveProduct = saveProduct;
-  if (typeof openVariantModal === "function") window.openVariantModal = openVariantModal;
-  if (typeof saveVariant === "function") window.saveVariant = saveVariant;
-  if (typeof closeVariantModal === "function") window.closeVariantModal = closeVariantModal;
-  if (typeof deleteVariant === "function") window.deleteVariant = deleteVariant;
-
-  // Additional window exposures
-  if (typeof removeTag === "function") window.removeTag = removeTag;
-  if (typeof toggleCollection === "function") window.toggleCollection = toggleCollection;
-  if (typeof editVariant === "function") window.editVariant = editVariant;
+  window.applyAdjustment = applyAdjustment;
+  window.toggleSeoEdit = toggleSeoEdit;
+  window.deleteProduct = deleteProduct;
+  window.openAdjustModal = openAdjustModal;
+  window.saveProduct = saveProduct;
+  window.removeTag = removeTag;
+  window.toggleCollection = toggleCollection;
+  window.addTag = addTag;
+  window.calcMargin = calcMargin;
+  window.updateSeoPreview = updateSeoPreview;
+  window.duplicateProduct = duplicateProduct;
+  // Media
+  window.addFiles = addFiles;
+  window.removeImg = removeImg;
+  window.dragStart = dragStart;
+  window.dragOver = dragOver;
+  window.dropImg = dropImg;
+  window.renderMedia = renderMedia;
+  // Inline option/variant builder
+  window.addOption = addOption;
+  window.removeOption = removeOption;
+  window.updateOptionName = updateOptionName;
+  window.addOptionValue = addOptionValue;
+  window.removeOptionValue = removeOptionValue;
+  window.generateVariants = generateVariants;
+  window._imgs = _imgs;
+  window._generatedVariants = _generatedVariants;
 })();
 </script>
 </body>
