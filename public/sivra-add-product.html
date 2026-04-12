@@ -678,6 +678,16 @@
 
   // Additional window exposures
   if (typeof removeTag === "function") window.removeTag = removeTag;
+
+  if (typeof addFiles === "function") window.addFiles = addFiles;
+  if (typeof removeImage === "function") window.removeImage = removeImage;
+  if (typeof reorderImages === "function") window.reorderImages = reorderImages;
+  if (typeof handleDrop === "function") window.handleDrop = handleDrop;
+  if (typeof handleDragOver === "function") window.handleDragOver = handleDragOver;
+  if (typeof addTag === "function") window.addTag = addTag;
+  if (typeof updateVariant === "function") window.updateVariant = updateVariant;
+  if (typeof removeVariant === "function") window.removeVariant = removeVariant;
+  
 })();
 </script>
 </body>
