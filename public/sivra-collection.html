@@ -1,398 +1,199 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="description" id="metaDesc" content=""/>
-  <meta property="og:title" id="ogTitle" content=""/>
-  <meta property="og:description" id="ogDesc" content=""/>
-  <meta property="og:image" id="ogImage" content=""/>
-  <meta property="og:type" content="website"/>
-  <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title id="pageTitle">Collection — Store</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;color:#1a1a1a;background:white}
-a{text-decoration:none;color:inherit}
-button{font-family:inherit;cursor:pointer}
-img{max-width:100%;display:block}
+<html lang="en"><head><meta charset="UTF-8"/><meta name="description" id="metaDesc" content=""/><meta property="og:title" id="ogTitle" content=""/><meta property="og:description" id="ogDesc" content=""/><meta property="og:image" id="ogImage" content=""/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title id="pageTitle">Collection</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Archivo+Black&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="storefront.css"/>
+<style>
+.coll-hero{position:relative;min-height:340px;display:flex;align-items:center;overflow:hidden;background:#0a0a0a;margin-bottom:40px}
+.coll-hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0.5;filter:contrast(1.05)}
+.coll-hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,10,0.3) 0%,rgba(10,10,10,0.85) 100%)}
+.coll-hero-content{position:relative;max-width:1440px;margin:0 auto;padding:60px 32px;width:100%;z-index:2;color:#fff}
+.coll-eyebrow{font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#ff5555;margin-bottom:12px}
+.coll-title{font-size:clamp(40px,6vw,88px);font-weight:900;letter-spacing:-0.03em;text-transform:uppercase;line-height:1;margin-bottom:14px}
+.coll-desc{font-size:16px;color:rgba(255,255,255,0.75);max-width:560px;line-height:1.5}
+.coll-count{font-size:12px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-top:20px}
+.coll-page{max-width:1440px;margin:0 auto;padding:0 32px 80px}
+.controls-row{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:32px;flex-wrap:wrap}
+.sort-dropdown{padding:10px 18px;background:#fff;border:1.5px solid #ddd;border-radius:100px;font-size:12px;font-weight:700;color:#0a0a0a;cursor:pointer;text-transform:uppercase;letter-spacing:0.5px;font-family:inherit;outline:none;transition:border-color 0.15s}
+.sort-dropdown:hover,.sort-dropdown:focus{border-color:#0a0a0a}
+.results-count{font-size:13px;color:#666;font-weight:600}
+@media (max-width:768px){
+.coll-hero{min-height:260px;margin-bottom:24px}
+.coll-hero-content{padding:40px 16px}
+.coll-page{padding:0 16px 60px}
+}
+</style></head><body>
 
-/* Announcement bar */
-.ann-bar{background:var(--primary,#1a1a1a);color:white;text-align:center;padding:8px 16px;font-size:13px;font-weight:500}
+<div class="ann-bar"><div class="ann-slide"><span>UP TO 70% OFF RETAIL</span><span>★</span><span>FREE SHIPPING OVER $75</span><span>★</span><span>AUTHENTIC QUALITY</span></div></div>
 
-/* Navigation */
-.store-nav{position:sticky;top:0;z-index:100;background:white;border-bottom:1px solid #e3e3e3}
-.nav-inner{max-width:1280px;margin:0 auto;padding:0 24px;height:60px;display:flex;align-items:center;gap:24px}
-.nav-logo{font-size:18px;font-weight:700;color:#1a1a1a;text-decoration:none;white-space:nowrap}
-.nav-links{display:flex;gap:20px;flex:1;overflow-x:auto;scrollbar-width:none}
-.nav-links::-webkit-scrollbar{display:none}
-.nav-link{font-size:14px;color:#6d7175;white-space:nowrap;transition:color 0.1s;padding:4px 0}
-.nav-link:hover{color:#1a1a1a}
-.nav-link.active{color:#1a1a1a;font-weight:500;border-bottom:2px solid #1a1a1a}
-.nav-right{display:flex;align-items:center;gap:6px;margin-left:auto}
-.nav-icon{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#6d7175;cursor:pointer;border:none;background:none;transition:all 0.1s;position:relative}
-.nav-icon:hover{background:#f6f6f7;color:#1a1a1a}
-.cart-count{position:absolute;top:4px;right:4px;width:17px;height:17px;border-radius:50%;background:#1a1a1a;color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
+<nav class="store-nav"><div class="nav-inner">
+<a class="nav-logo" id="navLogo" onclick="goHome()">STORE</a>
+<div class="nav-links" id="navLinks"></div>
+<div class="nav-right">
+<button class="nav-icon" onclick="goHome()"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M12 12l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+<button class="nav-icon" onclick="goCart()"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 5h11l-1 9H5L4 5zM4 5L3.5 3H1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="cart-count" id="cartCount" style="display:none">0</span></button>
+</div></div></nav>
 
-/* Page max width */
-.page-container{max-width:1280px;margin:0 auto;padding:0 24px}
+<div class="crumb"><a onclick="goHome()">Home</a><span class="crumb-sep">/</span><a onclick="goHome()">Collections</a><span class="crumb-sep">/</span><span id="bcName">Collection</span></div>
 
-/* Product grid */
-.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:24px}
-.product-card{text-decoration:none;color:inherit;display:block;cursor:pointer}
-.product-img-wrap{aspect-ratio:1;background:#f6f6f7;border-radius:10px;overflow:hidden;margin-bottom:12px;position:relative;transition:transform 0.2s}
-.product-card:hover .product-img-wrap{transform:translateY(-2px)}
-.product-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform 0.3s}
-.product-card:hover .product-img-wrap img{transform:scale(1.03)}
-.product-badge{position:absolute;top:10px;left:10px;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700}
-.badge-sale{background:#c0392b;color:white}
-.badge-new{background:#1a1a1a;color:white}
-.badge-oos{background:#6d7175;color:white}
-.product-vendor{font-size:11px;color:#8c9196;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:3px}
-.product-title{font-size:14px;font-weight:500;color:#1a1a1a;margin-bottom:6px;line-height:1.4}
-.product-price{display:flex;align-items:baseline;gap:8px}
-.price-current{font-size:15px;font-weight:600;color:#1a1a1a}
-.price-compare{font-size:13px;color:#8c9196;text-decoration:line-through}
-.price-savings{font-size:12px;color:#c0392b;font-weight:500}
+<section class="coll-hero">
+<div class="coll-hero-bg" id="heroBg"></div>
+<div class="coll-hero-overlay"></div>
+<div class="coll-hero-content">
+<div class="coll-eyebrow">Collection</div>
+<h1 class="coll-title" id="collTitle">Loading...</h1>
+<p class="coll-desc" id="collDesc"></p>
+<div class="coll-count" id="collCount"></div>
+</div>
+</section>
 
-/* Filter/Sort bar */
-.filter-bar{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid #e3e3e3;margin-bottom:24px;flex-wrap:wrap;gap:10px}
-.filter-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.filter-count{font-size:14px;color:#6d7175}
-.filter-chip{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:1px solid #e3e3e3;border-radius:20px;font-size:13px;cursor:pointer;background:white;transition:all 0.1s;white-space:nowrap}
-.filter-chip:hover{border-color:#1a1a1a}
-.filter-chip.active{background:#1a1a1a;color:white;border-color:#1a1a1a}
-.search-bar{display:flex;align-items:center;gap:8px;background:#f6f6f7;border:1px solid #e3e3e3;border-radius:8px;height:36px;padding:0 12px;transition:all 0.15s}
-.search-bar:focus-within{background:white;border-color:#1a1a1a;box-shadow:0 0 0 3px rgba(26,26,26,0.08)}
-.search-bar input{border:none;outline:none;background:none;font-size:14px;font-family:inherit;color:#1a1a1a;width:180px}
-.search-bar input::placeholder{color:#8c9196}
-.sort-select{height:36px;padding:0 28px 0 12px;border:1px solid #e3e3e3;border-radius:8px;font-size:13px;font-family:inherit;color:#303030;background:white url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 4.5l3 3 3-3' stroke='%236d7175' stroke-width='1.3' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 10px center;-webkit-appearance:none;cursor:pointer;outline:none}
-
-/* Empty state */
-.empty-state{text-align:center;padding:80px 24px}
-.empty-icon{font-size:48px;margin-bottom:16px;opacity:0.3}
-.empty-title{font-size:20px;font-weight:600;margin-bottom:8px}
-.empty-desc{font-size:15px;color:#6d7175;max-width:360px;margin:0 auto 24px}
-
-/* Breadcrumb */
-.breadcrumb{display:flex;align-items:center;gap:6px;font-size:13px;color:#6d7175;padding:16px 0}
-.breadcrumb a{color:#6d7175;transition:color 0.1s}
-.breadcrumb a:hover{color:#1a1a1a}
-.breadcrumb-sep{color:#c9cccf}
-
-/* Toast */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);background:#1a1a1a;color:white;padding:10px 20px;border-radius:8px;font-size:14px;box-shadow:0 4px 16px rgba(0,0,0,0.2);opacity:0;transition:all 0.2s;pointer-events:none;z-index:9999;white-space:nowrap}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-/* Footer */
-.store-footer{background:#1a1a1a;color:rgba(255,255,255,0.6);margin-top:80px}
-.footer-inner{max-width:1280px;margin:0 auto;padding:48px 24px 32px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px}
-.footer-brand{font-size:16px;font-weight:700;color:white;margin-bottom:10px}
-.footer-desc{font-size:13px;line-height:1.7}
-.footer-heading{font-size:13px;font-weight:600;color:white;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.5px}
-.footer-link{display:block;font-size:13px;margin-bottom:8px;cursor:pointer;transition:color 0.1s}
-.footer-link:hover{color:white}
-.footer-bottom{border-top:1px solid rgba(255,255,255,0.1);padding:20px 24px;text-align:center;font-size:12px}
-@media(max-width:768px){.footer-inner{grid-template-columns:1fr 1fr}.product-grid{grid-template-columns:repeat(2,1fr)}}
-</style>
-  
-</head>
-<body>
-<!-- Announcement bar -->
-<div class="ann-bar" id="annBar" style="display:none"></div>
-
-<!-- Navigation -->
-<nav class="store-nav">
-  <div class="nav-inner">
-    <a href="javascript:void(0)" class="nav-logo" id="navLogo" onclick="goHome()">Store</a>
-    <div class="nav-links" id="navLinks">
-      <a href="javascript:void(0)" class="nav-link" onclick="goHome()">Home</a>
-      <a href="javascript:void(0)" class="nav-link" id="navAllProducts" onclick="goHome()">All products</a>
-    </div>
-    <div class="nav-right">
-      <button class="nav-icon" onclick="goSearch()" title="Search">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M12 12l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-      </button>
-      <button class="nav-icon" onclick="goCart()" title="Cart">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 2h2l2.5 9h8l1.5-6H5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="14.5" r="1.5" fill="currentColor"/><circle cx="12" cy="14.5" r="1.5" fill="currentColor"/></svg>
-        <span class="cart-count" id="cartCount" style="display:none">0</span>
-      </button>
-    </div>
-  </div>
-</nav>
-
-
-<div class="page-container" style="padding-top:24px;padding-bottom:64px">
-
-  <!-- Breadcrumb -->
-  <div class="breadcrumb">
-    <a href="javascript:void(0)" onclick="goHome()">Home</a>
-    <span class="breadcrumb-sep">›</span>
-    <a href="javascript:void(0)" onclick="goHome()">Collections</a>
-    <span class="breadcrumb-sep">›</span>
-    <span id="bcTitle">Collection</span>
-  </div>
-
-  <!-- Collection header -->
-  <div id="collHeader" style="margin-bottom:32px">
-    <div id="collImg" style="display:none;border-radius:12px;overflow:hidden;max-height:280px;margin-bottom:24px">
-      <img id="collImgEl" style="width:100%;object-fit:cover;max-height:280px"/>
-    </div>
-    <h1 style="font-size:28px;font-weight:700;margin-bottom:8px" id="collTitle">Collection</h1>
-    <p style="font-size:15px;color:#6d7175;max-width:640px;line-height:1.6" id="collDesc"></p>
-  </div>
-
-  <!-- Filter + Sort -->
-  <div class="filter-bar">
-    <div class="filter-left">
-      <div class="search-bar">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="#8c9196" stroke-width="1.4"/><path d="M10.5 10.5L14 14" stroke="#8c9196" stroke-width="1.4" stroke-linecap="round"/></svg>
-        <input type="text" id="searchInput" placeholder="Filter products..." oninput="filterProducts(this.value)"/>
-      </div>
-      <div class="filter-count" id="productCount"></div>
-    </div>
-    <select class="sort-select" onchange="sortProducts(this.value)">
-      <option value="newest">Newest</option>
-      <option value="price-asc">Price: Low to High</option>
-      <option value="price-desc">Price: High to Low</option>
-      <option value="title-asc">A – Z</option>
-    </select>
-  </div>
-
-  <div id="productsGrid" class="product-grid"></div>
+<div class="coll-page">
+<div class="controls-row">
+<div class="results-count" id="resultsCount"></div>
+<select class="sort-dropdown" id="sortSel" onchange="applySort()">
+<option value="manual">Featured</option>
+<option value="price-asc">Price: Low to High</option>
+<option value="price-desc">Price: High to Low</option>
+<option value="title-asc">Name: A–Z</option>
+<option value="newest">Newest first</option>
+</select>
 </div>
 
+<div class="prod-grid" id="productsGrid"><div style="grid-column:1/-1;text-align:center;padding:60px;color:#999">Loading products...</div></div>
+<div id="pagination" style="margin-top:48px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap"></div>
+</div>
 
-<!-- Footer -->
-<footer class="store-footer">
-  <div class="footer-inner">
-    <div>
-      <div class="footer-brand" id="footerBrand">Store</div>
-      <div class="footer-desc" id="footerDesc">Quality products, fast delivery.</div>
-    </div>
-    <div>
-      <div class="footer-heading">Shop</div>
-      <a class="footer-link" onclick="goHome()">All products</a>
-      <span class="footer-link" id="footerCollLinks"></span>
-    </div>
-    <div>
-      <div class="footer-heading">Help</div>
-      <a class="footer-link" href="javascript:void(0)" onclick="goPage('contact')">Contact</a>
-      <a class="footer-link" href="javascript:void(0)" onclick="location.href='sivra-order-status.html?store='+_storeSlug">Track order</a>
-      <a class="footer-link" href="javascript:void(0)" onclick="goPage('faq')">FAQ</a>
-      <a class="footer-link" href="javascript:void(0)" onclick="goPage('shipping-policy')">Shipping policy</a>
-      <a class="footer-link" href="javascript:void(0)" onclick="goPage('returns')">Returns</a>
-    </div>
-    <div>
-      <div class="footer-heading">Legal</div>
-      <a class="footer-link" href="javascript:void(0)" onclick="goPage('privacy-policy')">Privacy policy</a>
-      <a class="footer-link" href="javascript:void(0)" onclick="goPage('refund-policy')">Refund policy</a>
-      <a class="footer-link" href="javascript:void(0)" onclick="goPage('terms-of-service')">Terms of service</a>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <span id="footerCopy">© 2026 Store</span> · Powered by <a href="#" style="color:rgba(255,255,255,0.4)">Sivra</a>
-  </div>
-</footer>
+<footer class="store-footer"><div class="footer-grid">
+<div><div class="footer-brand" id="footerBrand">STORE</div><div class="footer-desc">Authentic jerseys and kits at a fraction of retail. Built for the fans, families, and kids who live for the game.</div><div class="footer-mission">★ Quality for every family</div></div>
+<div><div class="footer-heading">Shop</div><a class="footer-link" onclick="goHome()">All products</a><span id="footerCollLinks"></span></div>
+<div><div class="footer-heading">Help</div><a class="footer-link" onclick="goPage('contact')">Contact</a><a class="footer-link" onclick="goPage('faq')">FAQ</a><a class="footer-link" onclick="goPage('shipping-policy')">Shipping</a><a class="footer-link" onclick="goPage('returns')">Returns</a></div>
+<div><div class="footer-heading">Legal</div><a class="footer-link" onclick="goPage('privacy-policy')">Privacy</a><a class="footer-link" onclick="goPage('refund-policy')">Refund Policy</a><a class="footer-link" onclick="goPage('terms-of-service')">Terms</a></div>
+</div><div class="footer-bottom"><span id="footerCopy">© 2026</span><span>Powered by Sivra</span></div></footer>
 
 <div class="toast" id="sivraToast"></div>
 
 <script>
-// ── SHARED UTILS ──────────────────────────────────────────────────────────────
-let _storeSlug = localStorage.getItem('sivra_store_slug') || '';
-let _store = null;
+let _storeSlug=localStorage.getItem('sivra_store_slug')||'';
+let _store=null,_collection=null,_products=[],_sorted=[],_currentPage=1;
+const PER_PAGE=24;
+const _id=new URLSearchParams(location.search).get('id');
 
-function getCart(){ try{return JSON.parse(localStorage.getItem('sivra_cart')||'[]');}catch(e){return[];} }
-function saveCart(c){localStorage.setItem('sivra_cart',JSON.stringify(c));updateCartBadge();}
-function updateCartBadge(){
-  const n=getCart().reduce((s,i)=>s+i.qty,0);
-  const el=document.getElementById('cartCount');
-  if(el){el.textContent=n;el.style.display=n>0?'flex':'none';}
-}
-function toast(msg,dur=2500){
-  const el=document.getElementById('sivraToast');
-  if(!el)return;el.textContent=msg;
-  el.classList.add('show');clearTimeout(el._t);
-  el._t=setTimeout(()=>el.classList.remove('show'),dur);
-}
+function getCart(){try{return JSON.parse(localStorage.getItem('sivra_cart')||'[]');}catch(e){return[];}}
+function updateCartBadge(){const n=getCart().reduce((s,i)=>s+(i.qty||0),0);const el=document.getElementById('cartCount');if(el){el.textContent=n;el.style.display=n>0?'flex':'none';}}
 function goHome(){location.href='sivra-storefront.html?store='+_storeSlug;}
 function goCart(){location.href='sivra-cart.html?store='+_storeSlug;}
-function goSearch(){location.href='sivra-storefront.html?store='+_storeSlug+'&search=open';}
 function goPage(slug){location.href='sivra-policy.html?store='+_storeSlug+'&page='+slug;}
-function goBlog(){location.href='sivra-blog-storefront.html?store='+_storeSlug;}
 function goCollection(id){location.href='sivra-collection.html?store='+_storeSlug+'&id='+id;}
 function goProduct(id){location.href='sivra-product.html?id='+id+'&store='+_storeSlug;}
 function fmtMoney(v){return '$'+parseFloat(v||0).toFixed(2);}
 
-async function loadStoreShell(){
-  _storeSlug = new URLSearchParams(location.search).get('store') || localStorage.getItem('sivra_store_slug') || '';
-  localStorage.setItem('sivra_store_slug', _storeSlug);
-  try {
-    const res = await fetch('/api/storefront/' + _storeSlug);
-    _store = await res.json();
-    const name = _store.name || 'Store';
-    document.title = document.title.replace('Store', name);
-    const ts = typeof _store.theme_settings === 'string' ? JSON.parse(_store.theme_settings || '{}') : (_store.theme_settings || {});
-
-    // Logo in nav
-    const navLogo = document.getElementById('navLogo');
-    if (navLogo) {
-      if (_store.logo_url && _store.logo_url.startsWith('http')) {
-        navLogo.innerHTML = '<img src="' + _store.logo_url + '" alt="' + name + '" style="height:36px;max-width:160px;object-fit:contain;vertical-align:middle"/>';
-      } else {
-        navLogo.textContent = name;
-      }
-    }
-
-    // Colors
-    if (_store.primary_color) document.documentElement.style.setProperty('--primary', _store.primary_color);
-    if (_store.accent_color)  document.documentElement.style.setProperty('--accent',  _store.accent_color);
-
-    // Announcement bar
-    const ab = document.getElementById('annBar');
-    if (ab) {
-      if (_store.announcement_bar && _store.announcement_bar_enabled) {
-        ab.textContent = _store.announcement_bar;
-        ab.style.display = '';
-        if (_store.primary_color) ab.style.background = _store.primary_color;
-      } else {
-        ab.style.display = 'none';
-      }
-    }
-
-    // Footer
-    const footerBrand = document.getElementById('footerBrand');
-    if (footerBrand) footerBrand.textContent = name;
-    const footerCopy = document.getElementById('footerCopy');
-    if (footerCopy) footerCopy.textContent = ts.footerCopy || ('\u00a9 ' + new Date().getFullYear() + ' ' + name);
-    if (ts.footerDesc) { const fd = document.getElementById('footerDesc'); if (fd) fd.textContent = ts.footerDesc; }
-
-    // Nav from menus DB
-    try {
-      const menuRes = await fetch('/api/storefront/' + _storeSlug + '/menus');
-      const menuData = await menuRes.json();
-      const navLinks = document.getElementById('navLinks');
-      if (navLinks) {
-        navLinks.querySelectorAll('.nav-dynamic').forEach(function(el){ el.remove(); });
-        const items = menuData.items || [];
-        if (items.length) {
-          items.forEach(function(item) {
-            const a = document.createElement('a');
-            a.href = 'javascript:void(0)';
-            a.className = 'nav-link nav-dynamic';
-            a.textContent = item.name;
-            const url = item.url || '#';
-            a.onclick = function(){ if (url && url !== '#') location.href = url; };
-            navLinks.appendChild(a);
-          });
-        } else {
-          const cr = await fetch('/api/storefront/' + _storeSlug + '/collections');
-          const cd = await cr.json();
-          (cd.collections || []).filter(function(c){ return c.product_count > 0; }).slice(0,5).forEach(function(c){
-            const a = document.createElement('a');
-            a.href = 'javascript:void(0)';
-            a.className = 'nav-link nav-dynamic';
-            a.textContent = c.name;
-            a.onclick = function(){ location.href = 'sivra-collection.html?store=' + _storeSlug + '&id=' + c.id; };
-            navLinks.appendChild(a);
-          });
-        }
-      }
-    } catch(me) {}
-  } catch(e) { console.error('loadStoreShell error:', e); }
+function applySort(){
+const s=document.getElementById('sortSel').value;
+_sorted=[..._products];
+switch(s){
+case 'price-asc':_sorted.sort((a,b)=>parseFloat(a.price||0)-parseFloat(b.price||0));break;
+case 'price-desc':_sorted.sort((a,b)=>parseFloat(b.price||0)-parseFloat(a.price||0));break;
+case 'title-asc':_sorted.sort((a,b)=>(a.title||'').localeCompare(b.title||''));break;
+case 'newest':_sorted.sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));break;
+}
+_currentPage=1;renderProducts();
 }
 
-
-let _allProducts = [], _sort = 'newest', _search = '';
-let _collId = new URLSearchParams(location.search).get('id');
-
-function filterProducts(q) { _search = q.toLowerCase(); renderGrid(); }
-function sortProducts(v) { _sort = v; renderGrid(); }
-
-function renderGrid() {
-  let list = [..._allProducts];
-  if (_search) list = list.filter(p => (p.title||'').toLowerCase().includes(_search));
-  switch(_sort) {
-    case 'price-asc': list.sort((a,b)=>parseFloat(a.price||0)-parseFloat(b.price||0)); break;
-    case 'price-desc': list.sort((a,b)=>parseFloat(b.price||0)-parseFloat(a.price||0)); break;
-    case 'newest': list.sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0)); break;
-    case 'oldest': list.sort((a,b)=>new Date(a.created_at||0)-new Date(b.created_at||0)); break;
-    case 'title-asc': list.sort((a,b)=>(a.title||'').localeCompare(b.title||'')); break;
-    default: list.sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
-  }
-  const PER_PAGE = 24;
-  if (typeof _page === 'undefined') window._page = 1;
-  const totalProds = list.length;
-  const totalPages = Math.ceil(totalProds / PER_PAGE);
-  const paged = list.slice((_page-1)*PER_PAGE, _page*PER_PAGE);
-  document.getElementById('productCount').textContent = totalProds + ' product' + (totalProds!==1?'s':'');
-  list = paged;
-  const grid = document.getElementById('productsGrid');
-  if (!list.length) {
-    grid.innerHTML = `<div style="grid-column:1/-1"><div class="empty-state">
-      <div class="empty-icon">🔍</div>
-      <div class="empty-title">No products found</div>
-      <div class="empty-desc">Try clearing your search or check back later</div>
-    </div></div>`;
-    return;
-  }
-  grid.innerHTML = paged.map(p => {
-    const imgs = Array.isArray(p.images)?p.images:(typeof p.images==='string'?JSON.parse(p.images||'[]'):[]);
-    const img = imgs[0]?`<img src="${imgs[0]}" alt="${p.title}" loading="lazy"/>`:`<div style="display:flex;align-items:center;justify-content:center;height:100%;opacity:0.15"><svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="4" y="4" width="40" height="40" rx="4" stroke="#303030" stroke-width="2.5"/><path d="M4 32l10-10 8 8 10-14 16 16" stroke="#303030" stroke-width="2.5" stroke-linecap="round"/></svg></div>`;
-    const isSale = p.compare_price&&p.compare_price>p.price;
-    return `<a onclick="goProduct('${p.id}')" class="product-card" href="javascript:void(0)">
-      <div class="product-img-wrap">${img}${isSale?'<span class="product-badge badge-sale">Sale</span>':''}</div>
-      ${p.vendor?`<div class="product-vendor">${p.vendor}</div>`:''}
-      <div class="product-title">${p.title}</div>
-      <div class="product-price">
-        <span class="price-current">${fmtMoney(p.price)}</span>
-        ${isSale?`<span class="price-compare">${fmtMoney(p.compare_price)}</span>`:''}
-      </div>
-    </a>`;
-  }).join('');
+function renderProductCard(p){
+const imgs=Array.isArray(p.images)?p.images:(typeof p.images==='string'?JSON.parse(p.images||'[]'):[]);
+const img=imgs[0];const price=parseFloat(p.price||0);const compare=parseFloat(p.compare_price||0);
+const isSale=compare>price;const savings=isSale?Math.round((1-price/compare)*100):0;
+const isNew=p.created_at&&(new Date()-new Date(p.created_at))<14*86400000;
+const isKids=/kids|youth|junior|child/i.test((p.title||'')+(p.tags||''));
+let badge='';
+if(isKids)badge='<div class="prod-badge kids">Kids</div>';
+else if(isSale)badge='<div class="prod-badge sale">-'+savings+'%</div>';
+else if(isNew)badge='<div class="prod-badge new">NEW</div>';
+return '<a class="prod-card" onclick="goProduct(\''+p.id+'\')"><div class="prod-img">'+badge+
+(img?'<img src="'+img+'" alt="'+p.title+'" loading="lazy"/>':'<div class="prod-placeholder">👕</div>')+
+'</div><div class="prod-info"><div class="prod-title">'+p.title+'</div>'+
+(p.vendor?'<div class="prod-meta">'+p.vendor+'</div>':'')+
+'<div class="prod-price-row"><span class="prod-price">'+fmtMoney(price)+'</span>'+
+(isSale?'<span class="prod-compare">'+fmtMoney(compare)+'</span><span class="prod-save">Save '+savings+'%</span>':'')+
+'</div></div></a>';
 }
 
-async function loadCollection() {
-  if (!_collId) { goHome(); return; }
-  await loadStoreShell();
-  try {
-    const res = await fetch(`/api/storefront/${_storeSlug}/products?collection=${_collId}&limit=200`);
-    const data = await res.json();
-    _allProducts = data.products || [];
-    // Try get collection details
-    try {
-      const cr = await fetch(`/api/collections/${_collId}`, { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('sivra_token')||'') } });
-      if (cr.ok) {
-        const coll = await cr.json();
-        document.getElementById('bcTitle').textContent = coll.name||'Collection';
-        document.getElementById('collTitle').textContent = coll.name||'Collection';
-        const collTitle = (coll.seo_title || coll.name || 'Collection') + ' — ' + (_store?.name||'Store');
-        document.title = collTitle;
-        const ogT = document.getElementById('ogTitle'); if(ogT) ogT.content = collTitle;
-        const ogD = document.getElementById('ogDesc'); if(ogD) ogD.content = coll.seo_description || coll.description || '';
-        const ogI = document.getElementById('ogImage'); if(ogI && coll.image) ogI.content = coll.image;
-        const mD = document.getElementById('metaDesc'); if(mD) mD.content = (coll.seo_description || coll.description || '').slice(0,160);
-        if (coll.description) document.getElementById('collDesc').textContent = coll.description;
-        if (coll.image) {
-          document.getElementById('collImgEl').src = coll.image;
-          document.getElementById('collImg').style.display = '';
-        }
-      }
-    } catch(e) {}
-    renderGrid();
-  } catch(e) {
-    document.getElementById('productsGrid').innerHTML = `<div style="grid-column:1/-1" class="empty-state">
-      <div class="empty-icon">⚠️</div>
-      <div class="empty-title">Failed to load collection</div>
-    </div>`;
-  }
+function renderProducts(){
+const list=_sorted.length?_sorted:_products;
+const grid=document.getElementById('productsGrid');
+document.getElementById('resultsCount').textContent=list.length+' product'+(list.length!==1?'s':'');
+if(!list.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:60px;color:#999;font-size:14px">No products in this collection yet</div>';document.getElementById('pagination').innerHTML='';return;}
+const start=(_currentPage-1)*PER_PAGE;
+grid.innerHTML=list.slice(start,start+PER_PAGE).map(renderProductCard).join('');
+const totalPages=Math.ceil(list.length/PER_PAGE);
+const pgEl=document.getElementById('pagination');
+if(totalPages<=1){pgEl.innerHTML='';return;}
+let btns='';
+for(let i=1;i<=totalPages;i++){
+const active=i===_currentPage?'background:#0a0a0a;color:#fff;border-color:#0a0a0a':'';
+btns+='<button onclick="_currentPage='+i+';renderProducts();window.scrollTo({top:0,behavior:\'smooth\'})" style="padding:10px 16px;background:#fff;border:1.5px solid #e5e5e5;border-radius:8px;color:#555;font-size:13px;font-weight:700;cursor:pointer;'+active+'">'+i+'</button>';
 }
-loadCollection();
+pgEl.innerHTML=btns;
+}
 
+async function load(){
+if(!_id){goHome();return;}
+_storeSlug=new URLSearchParams(location.search).get('store')||_storeSlug;
+localStorage.setItem('sivra_store_slug',_storeSlug);
+try{
+const storeRes=await fetch('/api/storefront/'+_storeSlug);
+_store=await storeRes.json();
+const name=_store.name||'Store';
+document.getElementById('navLogo').textContent=name.toUpperCase();
+document.getElementById('footerBrand').textContent=name.toUpperCase();
+document.getElementById('footerCopy').textContent='© '+new Date().getFullYear()+' '+name;
+if(_store.logo_url&&_store.logo_url.startsWith('http')){document.getElementById('navLogo').innerHTML='<img src="'+_store.logo_url+'" alt="'+name+'" style="height:32px;max-width:140px;object-fit:contain"/>';}
 
-loadStoreShell();
+const menuRes=await fetch('/api/storefront/'+_storeSlug+'/menus');
+const menuData=await menuRes.json();
+const menus=menuData.menus||[];
+const nav=menus.find(m=>m.location==='main'||m.handle==='main-menu')||menus[0];
+if(nav&&nav.items){
+const items=typeof nav.items==='string'?JSON.parse(nav.items):nav.items;
+document.getElementById('navLinks').innerHTML=items.map(i=>{
+const click=i.url?"location.href='"+i.url+"'":i.collection_id?"goCollection('"+i.collection_id+"')":i.page_slug?"goPage('"+i.page_slug+"')":"goHome()";
+return '<a class="nav-link" onclick="'+click+'">'+(i.title||i.name||'')+'</a>';
+}).join('');
+}
+
+const collRes=await fetch('/api/storefront/'+_storeSlug+'/collections/'+_id);
+_collection=await collRes.json();
+if(!_collection||_collection.error){document.getElementById('collTitle').textContent='Collection not found';return;}
+
+document.title=_collection.name+' — '+name;
+document.getElementById('pageTitle').textContent=_collection.name;
+document.getElementById('bcName').textContent=_collection.name;
+document.getElementById('collTitle').textContent=_collection.name;
+if(_collection.description){document.getElementById('collDesc').textContent=_collection.description;}
+if(_collection.image){document.getElementById('heroBg').style.backgroundImage="url('"+_collection.image+"')";}
+
+document.getElementById('metaDesc').content=(_collection.seo_description||_collection.description||'').slice(0,160);
+document.getElementById('ogTitle').content=_collection.name+' — '+name;
+document.getElementById('ogDesc').content=(_collection.seo_description||_collection.description||'').slice(0,160);
+if(_collection.image)document.getElementById('ogImage').content=_collection.image;
+
+const prodsRes=await fetch('/api/storefront/'+_storeSlug+'/products?collection='+_id+'&limit=500');
+const prodsData=await prodsRes.json();
+_products=prodsData.products||[];
+document.getElementById('collCount').textContent=_products.length+' Item'+(_products.length!==1?'s':'');
+_sorted=[..._products];
+
+if(_collection.sort_order&&_collection.sort_order!=='manual'){
+document.getElementById('sortSel').value=_collection.sort_order;applySort();
+}else{renderProducts();}
+
+const allCollRes=await fetch('/api/storefront/'+_storeSlug+'/collections');
+const allColls=(await allCollRes.json()).collections||[];
+document.getElementById('footerCollLinks').innerHTML=allColls.filter(c=>(c.product_count||0)>0).slice(0,5).map(c=>'<a class="footer-link" onclick="goCollection(\''+c.id+'\')">'+c.name+'</a>').join('');
+
+updateCartBadge();
+}catch(e){console.error(e);document.getElementById('collTitle').textContent='Collection not found';}
+}
+load();
 </script>
 <script src="storefront-tracker.js"></script>
-</body>
-</html>
+</body></html>

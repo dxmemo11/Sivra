@@ -1,311 +1,199 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="description" id="metaDesc" content=""/>
-  <meta property="og:title" id="ogTitle" content=""/>
-  <meta property="og:description" id="ogDesc" content=""/>
-  <meta property="og:image" id="ogImage" content=""/>
-  <meta property="og:type" content="website"/>
-  <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cart — Store</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Inter',-apple-system,sans-serif;background:#f5f5f5;min-height:100vh;-webkit-font-smoothing:antialiased;color:#1a1a1a}
-    a{text-decoration:none;color:inherit}
-    button{font-family:inherit;cursor:pointer}
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Your Cart</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Archivo+Black&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="storefront.css"/>
+<style>
+.cart-page{max-width:1280px;margin:0 auto;padding:40px 32px 80px}
+.cart-header{margin-bottom:40px}
+.cart-h1{font-size:clamp(40px,5vw,64px);font-weight:900;letter-spacing:-0.03em;text-transform:uppercase;color:#0a0a0a;line-height:1}
+.cart-count-sub{font-size:14px;color:#666;margin-top:8px;font-weight:600}
+.cart-layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:40px;align-items:start}
+.cart-items{display:flex;flex-direction:column;gap:16px}
+.cart-item{display:grid;grid-template-columns:100px 1fr auto;gap:20px;padding:20px;background:#fff;border:1px solid #eee;border-radius:16px;align-items:center;transition:border-color 0.15s}
+.cart-item:hover{border-color:#ccc}
+.item-img{width:100px;height:100px;border-radius:12px;overflow:hidden;background:#f5f5f5;flex-shrink:0}
+.item-img img{width:100%;height:100%;object-fit:cover}
+.item-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:40px;opacity:0.2}
+.item-info{display:flex;flex-direction:column;gap:4px;min-width:0}
+.item-title{font-size:16px;font-weight:800;color:#0a0a0a;line-height:1.3;margin-bottom:2px;cursor:pointer}
+.item-title:hover{color:#ff3838}
+.item-variant{font-size:12px;color:#666;text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.item-price{font-size:18px;font-weight:900;color:#0a0a0a;margin-top:6px}
+.item-controls{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.qty-control{display:flex;align-items:center;border:1.5px solid #ddd;border-radius:100px;overflow:hidden}
+.qty-btn{width:36px;height:40px;background:none;color:#0a0a0a;font-size:18px;font-weight:700;cursor:pointer;transition:background 0.15s}
+.qty-btn:hover{background:#f5f5f5}
+.qty-val{min-width:32px;text-align:center;font-weight:800;font-size:14px;color:#0a0a0a}
+.item-remove{background:none;border:none;color:#999;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color 0.15s;padding:4px 8px}
+.item-remove:hover{color:#ff3838}
+.summary-card{background:#fff;border:1.5px solid #0a0a0a;border-radius:16px;padding:28px;position:sticky;top:90px}
+.summary-h2{font-size:20px;font-weight:900;text-transform:uppercase;letter-spacing:-0.02em;color:#0a0a0a;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #eee}
+.summary-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;font-size:14px;color:#555}
+.summary-row.discount{color:#1a7f37;font-weight:700}
+.summary-total{display:flex;justify-content:space-between;align-items:baseline;padding:16px 0;border-top:1px solid #eee;margin-top:10px;font-size:18px;font-weight:900;text-transform:uppercase;color:#0a0a0a}
+.summary-total-amount{font-size:28px;letter-spacing:-0.02em}
+.discount-row{display:flex;gap:6px;margin:16px 0}
+.discount-input{flex:1;height:44px;padding:0 16px;background:#f5f5f5;border:1.5px solid #e5e5e5;border-radius:100px;font-size:13px;outline:none;font-family:inherit;color:#0a0a0a}
+.discount-input:focus{border-color:#0a0a0a;background:#fff}
+.discount-btn{padding:0 20px;background:#0a0a0a;color:#fff;border:none;border-radius:100px;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:background 0.15s}
+.discount-btn:hover{background:#ff3838}
+.discount-applied{background:#e7f7ed;color:#1a7f37;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.discount-remove{background:none;border:none;color:#1a7f37;font-size:18px;cursor:pointer;font-weight:700;padding:0 4px}
+.trust-row{display:flex;justify-content:center;gap:20px;margin-top:20px;padding-top:20px;border-top:1px solid #eee;flex-wrap:wrap}
+.trust-chip{font-size:11px;color:#666;font-weight:700;letter-spacing:0.5px;text-transform:uppercase}
+.empty-cart{text-align:center;padding:80px 24px;background:#fff;border:1px solid #eee;border-radius:16px}
+.empty-cart-icon{font-size:80px;margin-bottom:20px;opacity:0.3}
+.empty-cart h2{font-size:32px;font-weight:900;text-transform:uppercase;letter-spacing:-0.02em;color:#0a0a0a;margin-bottom:10px}
+.empty-cart p{color:#666;font-size:15px;margin-bottom:28px;max-width:400px;margin-left:auto;margin-right:auto}
+@media (max-width:768px){
+.cart-page{padding:24px 16px 60px}
+.cart-layout{grid-template-columns:1fr;gap:24px}
+.cart-item{grid-template-columns:80px 1fr;padding:14px;gap:12px}
+.item-img{width:80px;height:80px}
+.item-controls{grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center;margin-top:8px;padding-top:12px;border-top:1px solid #f0f0f0}
+.summary-card{position:static;padding:20px}
+}
+</style></head><body>
 
-    /* Nav */
-    .store-nav{background:white;border-bottom:1px solid #e3e3e3;position:sticky;top:0;z-index:100}
-    .nav-inner{max-width:1280px;margin:0 auto;padding:0 24px;height:60px;display:flex;align-items:center;gap:16px}
-    .nav-logo{font-size:18px;font-weight:700;color:#1a1a1a;cursor:pointer;white-space:nowrap}
-    .nav-spacer{flex:1}
-    .nav-btn{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#6d7175;cursor:pointer;border:none;background:none;transition:all 0.1s;position:relative}
-    .nav-btn:hover{background:#f6f6f7;color:#1a1a1a}
+<div class="ann-bar"><div class="ann-slide"><span>FREE SHIPPING OVER $75</span><span>★</span><span>AUTHENTIC QUALITY GUARANTEED</span><span>★</span><span>30-DAY RETURNS</span></div></div>
 
-    /* Page */
-    .page-wrap{max-width:1100px;margin:0 auto;padding:32px 24px 80px;display:grid;grid-template-columns:1fr 360px;gap:32px;align-items:start}
-    @media(max-width:768px){.page-wrap{grid-template-columns:1fr;padding:20px 16px}}
+<nav class="store-nav"><div class="nav-inner">
+<a class="nav-logo" id="navLogo" onclick="goHome()">STORE</a>
+<div class="nav-links" id="navLinks"></div>
+<div class="nav-right">
+<button class="nav-icon" onclick="goHome()"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M12 12l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+<button class="nav-icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 5h11l-1 9H5L4 5zM4 5L3.5 3H1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="cart-count" id="cartCount" style="display:none">0</span></button>
+</div></div></nav>
 
-    /* Cart items */
-    .cart-title{font-size:24px;font-weight:700;margin-bottom:20px}
-    .cart-empty{text-align:center;padding:80px 24px;background:white;border-radius:12px;border:1px solid #e3e3e3}
-    .cart-empty .icon{font-size:48px;margin-bottom:16px;opacity:0.3}
-    .cart-empty h2{font-size:20px;font-weight:600;margin-bottom:8px}
-    .cart-empty p{font-size:14px;color:#6d7175;margin-bottom:24px}
+<div class="crumb"><a onclick="goHome()">Home</a><span class="crumb-sep">/</span><span>Cart</span></div>
 
-    .cart-item{display:flex;gap:14px;padding:16px;background:white;border-radius:10px;border:1px solid #e3e3e3;margin-bottom:8px;align-items:flex-start}
-    .item-img{width:76px;height:76px;border-radius:8px;object-fit:cover;border:1px solid #e3e3e3;flex-shrink:0;background:#f6f6f7;display:flex;align-items:center;justify-content:center;color:#c9cccf;overflow:hidden}
-    .item-img img{width:100%;height:100%;object-fit:cover}
-    .item-body{flex:1;min-width:0}
-    .item-title{font-size:14px;font-weight:500;color:#1a1a1a;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .item-variant{font-size:12px;color:#6d7175;margin-bottom:8px}
-    .item-price{font-size:14px;font-weight:600}
-    .item-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0}
-    .qty-ctrl{display:flex;align-items:center;border:1px solid #e3e3e3;border-radius:8px;overflow:hidden}
-    .qty-btn{width:32px;height:32px;border:none;background:none;font-size:18px;cursor:pointer;color:#303030;display:flex;align-items:center;justify-content:center;transition:background 0.1s}
-    .qty-btn:hover{background:#f6f6f7}
-    .qty-num{width:36px;text-align:center;font-size:14px;font-weight:500}
-    .item-remove{background:none;border:none;color:#8c9196;font-size:12px;cursor:pointer;padding:2px;transition:color 0.1s}
-    .item-remove:hover{color:#c0392b}
-    .item-total{font-size:14px;font-weight:700}
-
-    /* Summary card */
-    .summary-card{background:white;border-radius:12px;border:1px solid #e3e3e3;padding:20px;position:sticky;top:76px}
-    .summary-title{font-size:16px;font-weight:700;margin-bottom:16px}
-    .summary-row{display:flex;justify-content:space-between;font-size:14px;margin-bottom:10px;color:#6d7175}
-    .summary-row.total{font-weight:700;font-size:17px;color:#1a1a1a;border-top:1px solid #e3e3e3;padding-top:12px;margin-top:4px}
-    .summary-row.discount{color:var(--accent,#008060);font-weight:500}
-
-    /* Discount input */
-    .discount-row{display:flex;gap:8px;margin-bottom:16px}
-    .discount-row input{flex:1;height:40px;padding:0 12px;border:1px solid #d1d1d1;border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border-color 0.15s}
-    .discount-row input:focus{border-color:#1a1a1a}
-    .discount-applied{display:flex;align-items:center;gap:8px;padding:9px 12px;background:#f0faf0;border:1px solid #b7e2c4;border-radius:8px;font-size:13px;color:#1a7f37;margin-bottom:16px}
-    .discount-applied button{background:none;border:none;cursor:pointer;color:#6d7175;margin-left:auto;font-size:18px;line-height:1}
-
-    /* Buttons */
-    .btn-checkout{width:100%;height:50px;background:#1a1a1a;color:white;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.15s;margin-bottom:10px}
-    .btn-checkout:hover{background:#303030}
-    .btn-continue{width:100%;height:44px;background:none;border:1px solid #e3e3e3;color:#6d7175;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:all 0.15s}
-    .btn-continue:hover{border-color:#1a1a1a;color:#1a1a1a}
-
-    .trust-row{display:flex;justify-content:center;gap:16px;margin-top:12px;flex-wrap:wrap}
-    .trust-item{font-size:12px;color:#8c9196;display:flex;align-items:center;gap:4px}
-
-    /* Footer */
-    .store-footer{background:#1a1a1a;color:rgba(255,255,255,0.5);text-align:center;padding:20px;font-size:12px;margin-top:auto}
-  </style>
-</head>
-<body>
-
-<!-- Nav -->
-<div id="annBar" style="display:none;text-align:center;padding:8px 16px;font-size:13px;font-weight:500;color:white;background:#1a1a1a"></div>
-<nav class="store-nav">
-  <div class="nav-inner">
-    <span class="nav-logo" id="navLogo" onclick="goHome()">Store</span>
-    <div class="nav-spacer"></div>
-    <button class="nav-btn" onclick="goHome()" title="Continue shopping">
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 7l7-5 7 5v9H2V7z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-    </button>
-  </div>
-</nav>
-
-<div class="page-wrap">
-
-  <!-- Left: Cart items -->
-  <div>
-    <h1 class="cart-title">Your cart <span id="cartQtyLabel" style="font-size:16px;font-weight:400;color:#6d7175"></span></h1>
-    <div id="cartItems"></div>
-  </div>
-
-  <!-- Right: Summary -->
-  <div class="summary-card" id="summaryCard" style="display:none">
-    <div class="summary-title">Order summary</div>
-
-    <!-- Discount code -->
-    <div id="discountSection">
-      <div id="discountForm" class="discount-row">
-        <input id="discountInput" placeholder="Discount code or gift card" onkeydown="if(event.key==='Enter')applyDiscount()"/>
-        <button onclick="applyDiscount()" style="height:40px;padding:0 14px;background:none;border:1px solid #d1d1d1;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all 0.1s;font-family:inherit" onmouseover="this.style.borderColor='#1a1a1a'" onmouseout="this.style.borderColor='#d1d1d1'">Apply</button>
-      </div>
-      <div id="discountApplied" class="discount-applied" style="display:none">
-        <span>🏷️</span>
-        <span id="discountLabel">Discount applied</span>
-        <button onclick="removeDiscount()">×</button>
-      </div>
-    </div>
-
-    <div class="summary-row"><span>Subtotal</span><span id="subtotalDisplay">—</span></div>
-    <div class="summary-row discount" id="discountRow" style="display:none"><span>Discount</span><span id="discountDisplay">—</span></div>
-    <div class="summary-row"><span>Shipping</span><span style="color:#8c9196">Calculated at checkout</span></div>
-    <div class="summary-row total"><span>Estimated total</span><span id="totalDisplay">—</span></div>
-
-    <button class="btn-checkout" onclick="goCheckout()">Proceed to checkout →</button>
-    <button class="btn-continue" onclick="goHome()">Continue shopping</button>
-
-    <div class="trust-row">
-      <span class="trust-item">🔒 Secure checkout</span>
-      <span class="trust-item">↩️ Easy returns</span>
-      <span class="trust-item">🚚 Fast delivery</span>
-    </div>
-  </div>
+<div class="cart-page">
+<div class="cart-header">
+<h1 class="cart-h1">Your Cart</h1>
+<div class="cart-count-sub" id="cartSub"></div>
+</div>
+<div id="cartBody"></div>
 </div>
 
-<footer class="store-footer">
-  <span id="footerStore">Store</span> · Powered by Sivra
-</footer>
+<footer class="store-footer"><div class="footer-grid">
+<div><div class="footer-brand" id="footerBrand">STORE</div><div class="footer-desc">Authentic jerseys and kits at a fraction of retail. Built for the fans, families, and kids who live for the game.</div><div class="footer-mission">★ Quality for every family</div></div>
+<div><div class="footer-heading">Shop</div><a class="footer-link" onclick="goHome()">All products</a></div>
+<div><div class="footer-heading">Help</div><a class="footer-link" onclick="goPage('contact')">Contact</a><a class="footer-link" onclick="goPage('faq')">FAQ</a><a class="footer-link" onclick="goPage('shipping-policy')">Shipping</a><a class="footer-link" onclick="goPage('returns')">Returns</a></div>
+<div><div class="footer-heading">Legal</div><a class="footer-link" onclick="goPage('privacy-policy')">Privacy</a><a class="footer-link" onclick="goPage('refund-policy')">Refund Policy</a><a class="footer-link" onclick="goPage('terms-of-service')">Terms</a></div>
+</div><div class="footer-bottom"><span id="footerCopy">© 2026</span><span>Powered by Sivra</span></div></footer>
+
+<div class="toast" id="sivraToast"></div>
 
 <script>
-  let _cart = [];
-  let _discount = null;
-  let _discountSavings = 0;
-  let _storeSlug = '';
+let _storeSlug=localStorage.getItem('sivra_store_slug')||'';
+let _cart=[],_store=null,_discount=null;
 
-  function getCart() { try { return JSON.parse(localStorage.getItem('sivra_cart') || '[]'); } catch(e) { return []; } }
-  function saveCart(c) { localStorage.setItem('sivra_cart', JSON.stringify(c)); }
+function getCart(){try{return JSON.parse(localStorage.getItem('sivra_cart')||'[]');}catch(e){return[];}}
+function saveCart(c){localStorage.setItem('sivra_cart',JSON.stringify(c));updateCartBadge();}
+function updateCartBadge(){const n=getCart().reduce((s,i)=>s+(i.qty||0),0);const el=document.getElementById('cartCount');if(el){el.textContent=n;el.style.display=n>0?'flex':'none';}}
+function toast(msg){const el=document.getElementById('sivraToast');if(!el)return;el.textContent=msg;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2500);}
+function goHome(){location.href='sivra-storefront.html?store='+_storeSlug;}
+function goCheckout(){if(!_cart.length){toast('Your cart is empty');return;}if(_discount)localStorage.setItem('sivra_discount',JSON.stringify(_discount));location.href='sivra-checkout.html?store='+_storeSlug;}
+function goPage(slug){location.href='sivra-policy.html?store='+_storeSlug+'&page='+slug;}
+function goProduct(id){location.href='sivra-product.html?id='+id+'&store='+_storeSlug;}
+function fmtMoney(v){return '$'+parseFloat(v||0).toFixed(2);}
 
-  function fmtMoney(v) { return '$' + parseFloat(v || 0).toFixed(2); }
+function updateQty(i,d){_cart[i].qty=Math.max(1,_cart[i].qty+d);saveCart(_cart);renderCart();}
+function removeItem(i){const t=_cart[i].title;_cart.splice(i,1);saveCart(_cart);renderCart();toast(t+' removed from cart');}
 
-  function goHome() { location.href = 'sivra-storefront.html?store=' + _storeSlug; }
-  function goCheckout() { location.href = 'sivra-checkout.html?store=' + _storeSlug; }
+async function applyDiscount(){
+const code=document.getElementById('discInput').value.trim();if(!code)return;
+try{
+const res=await fetch('/api/storefront/'+_storeSlug+'/discounts/validate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,subtotal:calcSubtotal()})});
+const data=await res.json();
+if(data.error){toast(data.error);return;}
+_discount=data.discount;toast('Discount applied!');renderCart();
+}catch(e){toast('Invalid discount code');}
+}
+function removeDiscount(){_discount=null;localStorage.removeItem('sivra_discount');renderCart();}
 
-  async function init() {
-    _storeSlug = new URLSearchParams(location.search).get('store') || localStorage.getItem('sivra_store_slug') || '';
-    localStorage.setItem('sivra_store_slug', _storeSlug);
-    _cart = getCart();
+function calcSubtotal(){return _cart.reduce((s,i)=>s+parseFloat(i.price||0)*(i.qty||1),0);}
+function calcDiscountAmount(sub){
+if(!_discount)return 0;
+if(_discount.type==='percentage')return sub*(parseFloat(_discount.value)/100);
+if(_discount.type==='fixed')return Math.min(sub,parseFloat(_discount.value));
+return 0;
+}
 
-    // Load store branding
-    try {
-      const res = await fetch('/api/storefront/' + _storeSlug);
-      const store = await res.json();
-      const name = store.name || 'Store';
-      document.getElementById('navLogo').textContent = name;
-    // Load nav from saved menus
-    try {
-      const menuRes = await fetch('/api/storefront/' + _storeSlug + '/menus');
-      const menuData = await menuRes.json();
-      const navLinks = document.getElementById('navLinks');
-      if (navLinks) {
-        navLinks.querySelectorAll('.nav-dynamic').forEach(el => el.remove());
-        const items = menuData.items || [];
-        if (items.length) {
-          items.forEach(item => {
-            const a = document.createElement('a');
-            a.href = 'javascript:void(0)';
-            a.className = 'nav-link nav-dynamic';
-            a.textContent = item.name;
-            a.onclick = () => { if (item.url && item.url !== '#') location.href = item.url; };
-            navLinks.appendChild(a);
-          });
-        }
-      }
-    } catch(e) {}
-      document.getElementById('footerStore').textContent = name;
-      document.title = 'Cart — ' + name;
-      if (store.primary_color) document.documentElement.style.setProperty('--primary', store.primary_color);
-      if (store.accent_color) document.documentElement.style.setProperty('--accent', store.accent_color);
-    } catch(e) {}
+function renderCart(){
+_cart=getCart();
+const body=document.getElementById('cartBody');
+const countEl=document.getElementById('cartSub');
+if(!_cart.length){
+countEl.textContent='0 items';
+body.innerHTML='<div class="empty-cart"><div class="empty-cart-icon">🛒</div><h2>Your cart is empty</h2><p>Looks like you haven\'t added anything yet. Browse our collection and find your next kit.</p><button class="btn-primary" onclick="goHome()">Start shopping</button></div>';
+return;
+}
+const count=_cart.reduce((s,i)=>s+(i.qty||0),0);
+countEl.textContent=count+' item'+(count!==1?'s':'');
 
-    render();
-  }
+const itemsHtml=_cart.map((item,i)=>'<div class="cart-item">'+
+'<div class="item-img" onclick="goProduct(\''+item.id+'\')" style="cursor:pointer">'+
+(item.image?'<img src="'+item.image+'" alt="'+item.title+'"/>':'<div class="item-placeholder">👕</div>')+
+'</div><div class="item-info">'+
+'<div class="item-title" onclick="goProduct(\''+item.id+'\')">'+item.title+'</div>'+
+(item.variantTitle?'<div class="item-variant">'+item.variantTitle+'</div>':'')+
+'<div class="item-price">'+fmtMoney(item.price)+'</div>'+
+'</div><div class="item-controls">'+
+'<div class="qty-control">'+
+'<button class="qty-btn" onclick="updateQty('+i+',-1)">−</button>'+
+'<span class="qty-val">'+item.qty+'</span>'+
+'<button class="qty-btn" onclick="updateQty('+i+',1)">+</button>'+
+'</div><button class="item-remove" onclick="removeItem('+i+')">Remove</button>'+
+'</div></div>').join('');
 
-  function render() {
-    const subtotal = _cart.reduce((s, i) => s + parseFloat(i.price || 0) * i.qty, 0);
-    const total = Math.max(0, subtotal - _discountSavings);
-    const totalQty = _cart.reduce((s, i) => s + i.qty, 0);
+const sub=calcSubtotal();
+const discAmt=calcDiscountAmount(sub);
+const total=sub-discAmt;
+const freeShip=sub>=75;
 
-    document.getElementById('cartQtyLabel').textContent = totalQty > 0 ? `(${totalQty} item${totalQty !== 1 ? 's' : ''})` : '';
+const summary='<div class="summary-card">'+
+'<h2 class="summary-h2">Order Summary</h2>'+
+'<div class="summary-row"><span>Subtotal ('+count+' item'+(count!==1?'s':'')+')</span><span>'+fmtMoney(sub)+'</span></div>'+
+(_discount?'<div class="summary-row discount"><span>Discount ('+_discount.code+')</span><span>-'+fmtMoney(discAmt)+'</span></div>':'')+
+'<div class="summary-row"><span>Shipping</span><span style="'+(freeShip?'color:#1a7f37;font-weight:700':'color:#888')+'">'+(freeShip?'FREE':'Calculated at checkout')+'</span></div>'+
+'<div class="summary-total"><span>Total</span><span class="summary-total-amount">'+fmtMoney(total)+'</span></div>'+
+(_discount?'<div class="discount-applied"><span>✓ '+_discount.code+' applied</span><button class="discount-remove" onclick="removeDiscount()">×</button></div>':
+'<div class="discount-row"><input type="text" class="discount-input" id="discInput" placeholder="Discount code" onkeydown="if(event.key===\'Enter\')applyDiscount()"/><button class="discount-btn" onclick="applyDiscount()">Apply</button></div>')+
+'<button class="btn-primary" style="width:100%;margin-top:12px" onclick="goCheckout()">Checkout · '+fmtMoney(total)+'</button>'+
+'<div class="trust-row"><span class="trust-chip">🔒 Secure</span><span class="trust-chip">🚀 Fast ship</span><span class="trust-chip">↺ 30-day returns</span></div>'+
+'</div>';
 
-    const summaryCard = document.getElementById('summaryCard');
-    const cartItemsEl = document.getElementById('cartItems');
+body.innerHTML='<div class="cart-layout"><div class="cart-items">'+itemsHtml+'</div>'+summary+'</div>';
+}
 
-    if (!_cart.length) {
-      summaryCard.style.display = 'none';
-      cartItemsEl.innerHTML = `<div class="cart-empty">
-        <div class="icon">🛒</div>
-        <h2>Your cart is empty</h2>
-        <p>Add some products to get started</p>
-        <button onclick="goHome()" style="height:44px;padding:0 24px;background:#1a1a1a;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Browse products</button>
-      </div>`;
-      return;
-    }
-
-    summaryCard.style.display = '';
-
-    cartItemsEl.innerHTML = _cart.map((item, i) => {
-      const lineTotal = parseFloat(item.price || 0) * item.qty;
-      const imgHtml = item.image
-        ? `<img src="${item.image}" alt="${item.title}"/>`
-        : `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" opacity="0.2"><rect x="2" y="2" width="20" height="20" rx="3" stroke="#303030" stroke-width="2"/><path d="M2 16l5-5 4 4 5-7 6 8" stroke="#303030" stroke-width="2" stroke-linecap="round"/></svg>`;
-      return `<div class="cart-item">
-        <div class="item-img">${imgHtml}</div>
-        <div class="item-body">
-          <div class="item-title">${item.title}</div>
-          ${item.variantTitle ? `<div class="item-variant">${item.variantTitle}</div>` : ''}
-          <div class="item-price">${fmtMoney(item.price)} each</div>
-        </div>
-        <div class="item-right">
-          <div class="item-total">${fmtMoney(lineTotal)}</div>
-          <div class="qty-ctrl">
-            <button class="qty-btn" onclick="changeQty(${i},-1)">−</button>
-            <span class="qty-num">${item.qty}</span>
-            <button class="qty-btn" onclick="changeQty(${i},1)">+</button>
-          </div>
-          <button class="item-remove" onclick="removeItem(${i})">Remove</button>
-        </div>
-      </div>`;
-    }).join('');
-
-    // Update totals
-    document.getElementById('subtotalDisplay').textContent = fmtMoney(subtotal);
-    document.getElementById('totalDisplay').textContent = fmtMoney(total);
-    if (_discountSavings > 0) {
-      document.getElementById('discountRow').style.display = '';
-      document.getElementById('discountDisplay').textContent = '−' + fmtMoney(_discountSavings);
-    } else {
-      document.getElementById('discountRow').style.display = 'none';
-    }
-  }
-
-  function changeQty(idx, delta) {
-    _cart[idx].qty = Math.max(1, _cart[idx].qty + delta);
-    saveCart(_cart);
-    render();
-  }
-
-  function removeItem(idx) {
-    _cart.splice(idx, 1);
-    saveCart(_cart);
-    _discountSavings = 0;
-    _discount = null;
-    document.getElementById('discountApplied').style.display = 'none';
-    document.getElementById('discountForm').style.display = '';
-    render();
-  }
-
-  async function applyDiscount() {
-    const code = document.getElementById('discountInput').value.trim();
-    if (!code) return;
-    const subtotal = _cart.reduce((s, i) => s + parseFloat(i.price || 0) * i.qty, 0);
-    try {
-      const res = await fetch(`/api/storefront/${_storeSlug}/discount/validate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, subtotal })
-      });
-      const data = await res.json();
-      if (!res.ok) { showToast(data.error || 'Invalid code'); return; }
-      _discount = data.discount;
-      _discountSavings = data.savings || 0;
-      document.getElementById('discountForm').style.display = 'none';
-      document.getElementById('discountApplied').style.display = '';
-      document.getElementById('discountLabel').textContent = `${code} — ${_discount.type === 'free_shipping' ? 'Free shipping' : _discount.type === 'percentage' ? _discount.value + '% off' : '$' + parseFloat(_discount.value).toFixed(2) + ' off'}`;
-      render();
-    } catch(e) { showToast('Failed to validate code'); }
-  }
-
-  function removeDiscount() {
-    _discount = null; _discountSavings = 0;
-    document.getElementById('discountApplied').style.display = 'none';
-    document.getElementById('discountForm').style.display = '';
-    document.getElementById('discountInput').value = '';
-    render();
-  }
-
-  function showToast(msg) {
-    let el = document.getElementById('cartToast');
-    if (!el) { el = document.createElement('div'); el.id = 'cartToast'; el.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);background:#1a1a1a;color:white;padding:10px 20px;border-radius:8px;font-size:14px;box-shadow:0 4px 16px rgba(0,0,0,0.2);opacity:0;transition:all 0.2s;pointer-events:none;z-index:9999;font-family:Inter,sans-serif'; document.body.appendChild(el); }
-    el.textContent = msg;
-    el.style.opacity = '1'; el.style.transform = 'translateX(-50%) translateY(0)';
-    clearTimeout(el._t);
-    el._t = setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(-50%) translateY(10px)'; }, 2500);
-  }
-
-  init();
+async function load(){
+_storeSlug=new URLSearchParams(location.search).get('store')||_storeSlug;
+localStorage.setItem('sivra_store_slug',_storeSlug);
+try{const saved=localStorage.getItem('sivra_discount');if(saved)_discount=JSON.parse(saved);}catch(e){}
+try{
+const r=await fetch('/api/storefront/'+_storeSlug);_store=await r.json();
+const name=_store.name||'Store';
+document.title='Cart — '+name;
+document.getElementById('navLogo').textContent=name.toUpperCase();
+document.getElementById('footerBrand').textContent=name.toUpperCase();
+document.getElementById('footerCopy').textContent='© '+new Date().getFullYear()+' '+name;
+if(_store.logo_url&&_store.logo_url.startsWith('http')){document.getElementById('navLogo').innerHTML='<img src="'+_store.logo_url+'" alt="'+name+'" style="height:32px;max-width:140px;object-fit:contain"/>';}
+const menuRes=await fetch('/api/storefront/'+_storeSlug+'/menus');
+const menuData=await menuRes.json();
+const menus=menuData.menus||[];
+const nav=menus.find(m=>m.location==='main'||m.handle==='main-menu')||menus[0];
+if(nav&&nav.items){
+const items=typeof nav.items==='string'?JSON.parse(nav.items):nav.items;
+document.getElementById('navLinks').innerHTML=items.map(i=>{
+const click=i.url?"location.href='"+i.url+"'":"goHome()";
+return '<a class="nav-link" onclick="'+click+'">'+(i.title||i.name||'')+'</a>';
+}).join('');
+}
+}catch(e){}
+updateCartBadge();renderCart();
+}
+load();
 </script>
 <script src="storefront-tracker.js"></script>
-</body>
-</html>
+</body></html>
