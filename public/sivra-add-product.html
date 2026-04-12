@@ -666,27 +666,27 @@
 
 
   // Expose to global scope for onclick handlers
-  if (typeof addOption === "function") window.addOption = addOption;
-  if (typeof saveProduct === "function") window.saveProduct = saveProduct;
-  if (typeof toggleSeo === "function") window.toggleSeo = toggleSeo;
-  if (typeof removeOption === "function") window.removeOption = removeOption;
-  if (typeof addOptionValue === "function") window.addOptionValue = addOptionValue;
-  if (typeof removeOptionValue === "function") window.removeOptionValue = removeOptionValue;
-  if (typeof generateVariants === "function") window.generateVariants = generateVariants;
-  if (typeof addToCollection === "function") window.addToCollection = addToCollection;
-  if (typeof removeFromCollection === "function") window.removeFromCollection = removeFromCollection;
-
-  // Additional window exposures
-  if (typeof removeTag === "function") window.removeTag = removeTag;
-
-  if (typeof addFiles === "function") window.addFiles = addFiles;
-  if (typeof removeImage === "function") window.removeImage = removeImage;
-  if (typeof reorderImages === "function") window.reorderImages = reorderImages;
-  if (typeof handleDrop === "function") window.handleDrop = handleDrop;
-  if (typeof handleDragOver === "function") window.handleDragOver = handleDragOver;
-  if (typeof addTag === "function") window.addTag = addTag;
-  if (typeof updateVariant === "function") window.updateVariant = updateVariant;
-  if (typeof removeVariant === "function") window.removeVariant = removeVariant;
+  window.addOption = addOption;
+  window.saveProduct = saveProduct;
+  window.toggleSeo = toggleSeo;
+  window.removeOption = removeOption;
+  window.addOptionValue = addOptionValue;
+  window.removeOptionValue = removeOptionValue;
+  window.generateVariants = generateVariants;
+  window.addToCollection = addToCollection;
+  window.removeFromCollection = removeFromCollection;
+  window.removeTag = removeTag;
+  window.addFiles = addFiles;
+  window.addTag = addTag;
+  window.updateOptionName = updateOptionName;
+  window.calcMargin = calcMargin;
+  window.toggleQtySection = toggleQtySection;
+  window.updateSeoHandle = updateSeoHandle;
+  window.updateSeoPreview = updateSeoPreview;
+  // Critical — expose state arrays so inline onclick handlers can access them
+  window._imgs = _imgs;
+  window._generatedVariants = _generatedVariants;
+  window.renderMedia = renderMedia;
   
 })();
 </script>
