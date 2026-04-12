@@ -1,608 +1,347 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="description" id="metaDesc" content=""/>
-  <meta property="og:title" id="ogTitle" content=""/>
-  <meta property="og:description" id="ogDesc" content=""/>
-  <meta property="og:image" id="ogImage" content=""/>
-  <meta property="og:type" content="website"/>
-  <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title id="pageTitle">Product — Store</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;color:#1a1a1a;background:white}
-a{text-decoration:none;color:inherit}
-button{font-family:inherit;cursor:pointer}
-img{max-width:100%;display:block}
+<html lang="en"><head><meta charset="UTF-8"/><meta name="description" id="metaDesc" content=""/><meta property="og:title" id="ogTitle" content=""/><meta property="og:description" id="ogDesc" content=""/><meta property="og:image" id="ogImage" content=""/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary_large_image"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title id="pageTitle">Product</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Archivo+Black&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="storefront.css"/>
+<style>
+.product-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:60px;max-width:1440px;margin:0 auto;padding:40px 32px 80px;align-items:start}
+.gallery{display:flex;flex-direction:column;gap:12px;position:sticky;top:90px}
+.gallery-main{aspect-ratio:1;background:#f5f5f5;border-radius:16px;overflow:hidden;position:relative}
+.gallery-main img{width:100%;height:100%;object-fit:cover}
+.gallery-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:120px;opacity:0.3}
+.gallery-thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.gallery-thumb{aspect-ratio:1;background:#f5f5f5;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all 0.15s}
+.gallery-thumb img{width:100%;height:100%;object-fit:cover}
+.gallery-thumb:hover{border-color:#ccc}
+.gallery-thumb.active{border-color:#0a0a0a}
+.sale-ribbon{position:absolute;top:20px;left:20px;background:#ff3838;color:#fff;padding:8px 16px;font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;border-radius:6px;z-index:2}
+.new-ribbon{position:absolute;top:20px;left:20px;background:#0a0a0a;color:#fff;padding:8px 16px;font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;border-radius:6px;z-index:2}
+.info-col{display:flex;flex-direction:column;gap:24px}
+.prod-vendor{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#ff3838}
+.prod-h1{font-size:clamp(32px,3.5vw,48px);font-weight:900;letter-spacing:-0.02em;line-height:1;text-transform:uppercase;color:#0a0a0a}
+.prod-price-display{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;padding:16px 0;border-top:1px solid #eee;border-bottom:1px solid #eee}
+.price-main{font-size:38px;font-weight:900;color:#0a0a0a;letter-spacing:-0.02em}
+.price-compare-lg{font-size:20px;color:#888;text-decoration:line-through;font-weight:500}
+.price-save{background:#ff3838;color:#fff;padding:4px 10px;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;border-radius:4px}
+.stock-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:100px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+.stock-badge.in{background:#e7f7ed;color:#1a7f37}
+.stock-badge.low{background:#fff4e5;color:#b35900}
+.stock-badge.out{background:#ffe8e8;color:#c41e1e}
+.stock-dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+.option-group{margin-bottom:4px}
+.option-label{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
+.option-name{font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#0a0a0a}
+.option-selected{font-size:12px;color:#666;font-weight:500}
+.option-values{display:flex;flex-wrap:wrap;gap:8px}
+.option-pill{padding:12px 20px;background:#fff;border:1.5px solid #ddd;border-radius:100px;font-size:13px;font-weight:700;color:#0a0a0a;cursor:pointer;transition:all 0.15s;min-width:56px;text-align:center}
+.option-pill:hover{border-color:#0a0a0a}
+.option-pill.active{background:#0a0a0a;color:#fff;border-color:#0a0a0a}
+.qty-row{display:flex;align-items:center;gap:16px}
+.qty-control{display:flex;align-items:center;border:1.5px solid #ddd;border-radius:100px;overflow:hidden;background:#fff}
+.qty-btn{width:44px;height:48px;background:none;color:#0a0a0a;font-size:20px;font-weight:700;cursor:pointer;transition:background 0.15s}
+.qty-btn:hover{background:#f5f5f5}
+.qty-val{min-width:40px;text-align:center;font-weight:800;font-size:16px;color:#0a0a0a}
+.add-btns{display:flex;gap:10px}
+.add-btns .btn-primary{flex:1}
+.guarantees{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:20px;background:#f5f5f5;border-radius:12px;margin-top:8px}
+.guarantee{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px}
+.guarantee-icon{font-size:22px}
+.guarantee-text{font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#444;line-height:1.3}
+.accordion{border-top:1px solid #eee;margin-top:16px}
+.acc-item{border-bottom:1px solid #eee}
+.acc-header{display:flex;align-items:center;justify-content:space-between;padding:18px 0;cursor:pointer;font-size:14px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;color:#0a0a0a;user-select:none}
+.acc-body{padding:0 0 18px;font-size:14px;color:#555;line-height:1.7;display:none}
+.acc-body.open{display:block}
+.acc-icon{width:20px;height:20px;transition:transform 0.2s}
+.acc-item.open .acc-icon{transform:rotate(45deg)}
+.related-section{max-width:1440px;margin:0 auto;padding:60px 32px}
+@media (max-width:900px){
+.product-layout{grid-template-columns:1fr;gap:32px;padding:24px 16px 60px}
+.gallery{position:static}
+.prod-h1{font-size:28px}
+.price-main{font-size:30px}
+.guarantees{grid-template-columns:1fr;gap:16px}
+}
+</style></head><body>
 
-/* Announcement bar */
-.ann-bar{background:var(--primary,#1a1a1a);color:white;text-align:center;padding:8px 16px;font-size:13px;font-weight:500}
+<div class="ann-bar"><div class="ann-slide"><span>UP TO 70% OFF RETAIL</span><span>★</span><span>FREE SHIPPING OVER $75</span><span>★</span><span>AUTHENTIC QUALITY</span></div></div>
 
-/* Navigation */
-.store-nav{position:sticky;top:0;z-index:100;background:white;border-bottom:1px solid #e3e3e3}
-.nav-inner{max-width:1280px;margin:0 auto;padding:0 24px;height:60px;display:flex;align-items:center;gap:24px}
-.nav-logo{font-size:18px;font-weight:700;color:#1a1a1a;text-decoration:none;white-space:nowrap}
-.nav-links{display:flex;gap:20px;flex:1;overflow-x:auto;scrollbar-width:none}
-.nav-links::-webkit-scrollbar{display:none}
-.nav-link{font-size:14px;color:#6d7175;white-space:nowrap;transition:color 0.1s;padding:4px 0}
-.nav-link:hover{color:#1a1a1a}
-.nav-link.active{color:#1a1a1a;font-weight:500;border-bottom:2px solid #1a1a1a}
-.nav-right{display:flex;align-items:center;gap:6px;margin-left:auto}
-.nav-icon{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#6d7175;cursor:pointer;border:none;background:none;transition:all 0.1s;position:relative}
-.nav-icon:hover{background:#f6f6f7;color:#1a1a1a}
-.cart-count{position:absolute;top:4px;right:4px;width:17px;height:17px;border-radius:50%;background:#1a1a1a;color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
+<nav class="store-nav"><div class="nav-inner">
+<a class="nav-logo" id="navLogo" onclick="goHome()">STORE</a>
+<div class="nav-links" id="navLinks"></div>
+<div class="nav-right">
+<button class="nav-icon" onclick="goHome()"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M12 12l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+<button class="nav-icon" onclick="goCart()"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 5h11l-1 9H5L4 5zM4 5L3.5 3H1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="cart-count" id="cartCount" style="display:none">0</span></button>
+</div></div></nav>
 
-/* Page max width */
-.page-container{max-width:1280px;margin:0 auto;padding:0 24px}
+<div class="crumb"><a onclick="goHome()">Home</a><span class="crumb-sep">/</span><a onclick="goHome()">Products</a><span class="crumb-sep">/</span><span id="bcTitle">Product</span></div>
 
-/* Product grid */
-.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:24px}
-.product-card{text-decoration:none;color:inherit;display:block;cursor:pointer}
-.product-img-wrap{aspect-ratio:1;background:#f6f6f7;border-radius:10px;overflow:hidden;margin-bottom:12px;position:relative;transition:transform 0.2s}
-.product-card:hover .product-img-wrap{transform:translateY(-2px)}
-.product-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform 0.3s}
-.product-card:hover .product-img-wrap img{transform:scale(1.03)}
-.product-badge{position:absolute;top:10px;left:10px;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700}
-.badge-sale{background:#c0392b;color:white}
-.badge-new{background:#1a1a1a;color:white}
-.badge-oos{background:#6d7175;color:white}
-.product-vendor{font-size:11px;color:#8c9196;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:3px}
-.product-title{font-size:14px;font-weight:500;color:#1a1a1a;margin-bottom:6px;line-height:1.4}
-.product-price{display:flex;align-items:baseline;gap:8px}
-.price-current{font-size:15px;font-weight:600;color:#1a1a1a}
-.price-compare{font-size:13px;color:#8c9196;text-decoration:line-through}
-.price-savings{font-size:12px;color:#c0392b;font-weight:500}
-
-/* Filter/Sort bar */
-.filter-bar{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid #e3e3e3;margin-bottom:24px;flex-wrap:wrap;gap:10px}
-.filter-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.filter-count{font-size:14px;color:#6d7175}
-.filter-chip{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:1px solid #e3e3e3;border-radius:20px;font-size:13px;cursor:pointer;background:white;transition:all 0.1s;white-space:nowrap}
-.filter-chip:hover{border-color:#1a1a1a}
-.filter-chip.active{background:#1a1a1a;color:white;border-color:#1a1a1a}
-.search-bar{display:flex;align-items:center;gap:8px;background:#f6f6f7;border:1px solid #e3e3e3;border-radius:8px;height:36px;padding:0 12px;transition:all 0.15s}
-.search-bar:focus-within{background:white;border-color:#1a1a1a;box-shadow:0 0 0 3px rgba(26,26,26,0.08)}
-.search-bar input{border:none;outline:none;background:none;font-size:14px;font-family:inherit;color:#1a1a1a;width:180px}
-.search-bar input::placeholder{color:#8c9196}
-.sort-select{height:36px;padding:0 28px 0 12px;border:1px solid #e3e3e3;border-radius:8px;font-size:13px;font-family:inherit;color:#303030;background:white url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 4.5l3 3 3-3' stroke='%236d7175' stroke-width='1.3' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 10px center;-webkit-appearance:none;cursor:pointer;outline:none}
-
-/* Empty state */
-.empty-state{text-align:center;padding:80px 24px}
-.empty-icon{font-size:48px;margin-bottom:16px;opacity:0.3}
-.empty-title{font-size:20px;font-weight:600;margin-bottom:8px}
-.empty-desc{font-size:15px;color:#6d7175;max-width:360px;margin:0 auto 24px}
-
-/* Breadcrumb */
-.breadcrumb{display:flex;align-items:center;gap:6px;font-size:13px;color:#6d7175;padding:16px 0}
-.breadcrumb a{color:#6d7175;transition:color 0.1s}
-.breadcrumb a:hover{color:#1a1a1a}
-.breadcrumb-sep{color:#c9cccf}
-
-/* Toast */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);background:#1a1a1a;color:white;padding:10px 20px;border-radius:8px;font-size:14px;box-shadow:0 4px 16px rgba(0,0,0,0.2);opacity:0;transition:all 0.2s;pointer-events:none;z-index:9999;white-space:nowrap}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-/* Footer */
-.store-footer{background:#1a1a1a;color:rgba(255,255,255,0.6);margin-top:80px}
-.footer-inner{max-width:1280px;margin:0 auto;padding:48px 24px 32px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px}
-.footer-brand{font-size:16px;font-weight:700;color:white;margin-bottom:10px}
-.footer-desc{font-size:13px;line-height:1.7}
-.footer-heading{font-size:13px;font-weight:600;color:white;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.5px}
-.footer-link{display:block;font-size:13px;margin-bottom:8px;cursor:pointer;transition:color 0.1s}
-.footer-link:hover{color:white}
-.footer-bottom{border-top:1px solid rgba(255,255,255,0.1);padding:20px 24px;text-align:center;font-size:12px}
-@media(max-width:768px){.footer-inner{grid-template-columns:1fr 1fr}.product-grid{grid-template-columns:repeat(2,1fr)}}
-</style>
-  
-</head>
-<body>
-<!-- Announcement bar -->
-<div class="ann-bar" id="annBar" style="display:none"></div>
-
-<!-- Navigation -->
-<nav class="store-nav">
-  <div class="nav-inner">
-    <a href="javascript:void(0)" class="nav-logo" id="navLogo" onclick="goHome()">Store</a>
-    <div class="nav-links" id="navLinks">
-      <a href="javascript:void(0)" class="nav-link" onclick="goHome()">Home</a>
-      <a href="javascript:void(0)" class="nav-link" id="navAllProducts" onclick="goHome()">All products</a>
-    </div>
-    <div class="nav-right">
-      <button class="nav-icon" onclick="goSearch()" title="Search">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M12 12l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-      </button>
-      <button class="nav-icon" onclick="goCart()" title="Cart">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 2h2l2.5 9h8l1.5-6H5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="14.5" r="1.5" fill="currentColor"/><circle cx="12" cy="14.5" r="1.5" fill="currentColor"/></svg>
-        <span class="cart-count" id="cartCount" style="display:none">0</span>
-      </button>
-    </div>
-  </div>
-</nav>
-
-
-<div class="page-container" style="padding-top:24px;padding-bottom:80px">
-
-  <div class="breadcrumb">
-    <a href="javascript:void(0)" onclick="goHome()">Home</a>
-    <span class="breadcrumb-sep">›</span>
-    <a href="javascript:void(0)" onclick="goHome()">Products</a>
-    <span class="breadcrumb-sep">›</span>
-    <span id="bcTitle">Product</span>
-  </div>
-
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start" id="productLayout">
-
-    <!-- Images -->
-    <div>
-      <div id="mainImg" style="aspect-ratio:1;background:#f6f6f7;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:10px;position:relative">
-        <div style="font-size:64px;opacity:0.1">⏳</div>
-        <div id="saleRibbon" style="display:none;position:absolute;top:14px;left:14px;background:#c0392b;color:white;font-size:13px;font-weight:700;padding:4px 12px;border-radius:20px">SALE</div>
-      </div>
-      <div id="thumbs" style="display:flex;gap:8px;flex-wrap:wrap"></div>
-    </div>
-
-    <!-- Product info -->
-    <div id="productInfo">
-      <div style="font-size:12px;color:#8c9196;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px" id="prodVendor"></div>
-      <h1 style="font-size:28px;font-weight:700;color:#1a1a1a;margin-bottom:10px;line-height:1.2;letter-spacing:-0.3px" id="prodTitle">Loading...</h1>
-
-      <!-- Price -->
-      <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:16px">
-        <span style="font-size:26px;font-weight:700;color:#1a1a1a" id="prodPrice">—</span>
-        <span style="font-size:18px;color:#8c9196;text-decoration:line-through" id="prodCompare" style="display:none"></span>
-        <span style="font-size:14px;font-weight:600;color:#c0392b" id="prodSavings" style="display:none"></span>
-      </div>
-
-      <!-- Stock indicator -->
-      <div id="stockInfo" style="margin-bottom:16px"></div>
-
-      <!-- Variants / Options -->
-      <div id="optionsSection" style="margin-bottom:20px"></div>
-
-      <!-- Quantity + CTA -->
-      <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px">
-        <div style="display:flex;align-items:center;border:1px solid #e3e3e3;border-radius:8px;overflow:hidden;height:48px">
-          <button onclick="changeQty(-1)" style="width:44px;height:100%;border:none;background:none;font-size:22px;cursor:pointer;color:#303030;display:flex;align-items:center;justify-content:center;transition:background 0.1s" onmouseover="this.style.background='#f6f6f7'" onmouseout="this.style.background=''">−</button>
-          <span id="qtyDisplay" style="width:48px;text-align:center;font-size:16px;font-weight:500">1</span>
-          <button onclick="changeQty(1)" style="width:44px;height:100%;border:none;background:none;font-size:22px;cursor:pointer;color:#303030;display:flex;align-items:center;justify-content:center;transition:background 0.1s" onmouseover="this.style.background='#f6f6f7'" onmouseout="this.style.background=''">+</button>
-        </div>
-        <button id="addCartBtn" onclick="addToCart()" style="flex:1;height:48px;background:#1a1a1a;color:white;border:none;border-radius:8px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;transition:background 0.1s" onmouseover="this.style.background='#303030'" onmouseout="this.style.background='#1a1a1a'">Add to cart</button>
-      </div>
-      <button onclick="buyNow()" style="width:100%;height:48px;background:#008060;color:white;border:none;border-radius:8px;font-size:15px;font-weight:500;font-family:inherit;cursor:pointer;margin-bottom:20px;transition:background 0.1s" onmouseover="this.style.background='#006b50'" onmouseout="this.style.background='#008060'">Buy it now</button>
-
-      <!-- Description -->
-      <div style="font-size:15px;color:#6d7175;line-height:1.8;margin-bottom:20px" id="prodDesc"></div>
-
-      <!-- Trust badges -->
-      <div style="border-top:1px solid #e3e3e3;padding-top:16px;display:flex;gap:20px;flex-wrap:wrap">
-        <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:#6d7175"><span>🚚</span>Fast delivery</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:#6d7175"><span>↩️</span>Easy returns</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:#6d7175"><span>🔒</span>Secure checkout</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:#6d7175"><span>✅</span>Quality guaranteed</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Related products -->
-  <div id="relatedSection" style="margin-top:64px;display:none">
-    <h2 style="font-size:20px;font-weight:700;margin-bottom:20px">You may also like</h2>
-    <div id="relatedGrid" class="product-grid"></div>
-  </div>
+<div class="product-layout">
+<div class="gallery">
+<div class="gallery-main" id="mainImg"><div class="gallery-placeholder">👕</div></div>
+<div class="gallery-thumbs" id="thumbs"></div>
 </div>
 
-
-<!-- Footer -->
-<div id="recentlyViewedSection" style="display:none;max-width:1100px;margin:0 auto;padding:0 24px 40px">
-  <h2 style="font-size:18px;font-weight:700;margin-bottom:16px;color:#1a1a1a">Recently viewed</h2>
-  <div id="recentlyViewedGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px"></div>
+<div class="info-col">
+<div>
+<div class="prod-vendor" id="prodVendor"></div>
+<h1 class="prod-h1" id="prodTitle">Loading...</h1>
+</div>
+<div id="stockBadge"></div>
+<div class="prod-price-display" id="priceDisplay"><span class="price-main" id="priceMain">—</span></div>
+<div id="optionsSection"></div>
+<div class="qty-row">
+<div class="qty-control">
+<button class="qty-btn" onclick="changeQty(-1)">−</button>
+<span class="qty-val" id="qtyVal">1</span>
+<button class="qty-btn" onclick="changeQty(1)">+</button>
+</div>
+<span style="font-size:12px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:1px" id="qtyHint"></span>
+</div>
+<div class="add-btns">
+<button class="btn-primary" id="addCartBtn" onclick="addToCart()">Add to cart</button>
+<button class="btn-secondary" onclick="buyNow()">Buy now</button>
+</div>
+<div class="guarantees">
+<div class="guarantee"><div class="guarantee-icon">🚀</div><div class="guarantee-text">Fast shipping</div></div>
+<div class="guarantee"><div class="guarantee-icon">↺</div><div class="guarantee-text">30-day returns</div></div>
+<div class="guarantee"><div class="guarantee-icon">💎</div><div class="guarantee-text">Authentic quality</div></div>
+</div>
+<div class="accordion">
+<div class="acc-item open" id="descAcc">
+<div class="acc-header" onclick="toggleAcc('descAcc')"><span>Description</span><svg class="acc-icon" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+<div class="acc-body open" id="prodDesc"></div>
+</div>
+<div class="acc-item" id="shipAcc">
+<div class="acc-header" onclick="toggleAcc('shipAcc')"><span>Shipping & Returns</span><svg class="acc-icon" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+<div class="acc-body"><p><strong>Fast & free shipping:</strong> Orders over $75 ship free. Express worldwide delivery available.</p><p style="margin-top:10px"><strong>Easy returns:</strong> 30-day returns on unworn items. If it doesn't fit or you don't love it, send it back for a full refund.</p></div>
+</div>
+<div class="acc-item" id="sizeAcc">
+<div class="acc-header" onclick="toggleAcc('sizeAcc')"><span>Size & Fit</span><svg class="acc-icon" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+<div class="acc-body"><p>Our jerseys run true to standard sizing. For a relaxed fit, size up. Kids sizes available for most teams — check the variant selector above.</p></div>
+</div>
+</div>
+</div>
 </div>
 
-<footer class="store-footer">
-  <div class="footer-inner">
-    <div>
-      <div class="footer-brand" id="footerBrand">Store</div>
-      <div class="footer-desc" id="footerDesc">Quality products, fast delivery.</div>
-    </div>
-    <div>
-      <div class="footer-heading">Shop</div>
-      <a class="footer-link" onclick="goHome()">All products</a>
-      <span class="footer-link" id="footerCollLinks"></span>
-    </div>
-    <div>
-      <div class="footer-heading">Help</div>
-      <a class="footer-link" href="javascript:void(0)" onclick="goPage('contact')">Contact</a>
-      <a class="footer-link" href="javascript:void(0)" onclick="location.href='sivra-order-status.html?store='+_storeSlug">Track order</a>
-      <a class="footer-link" href="javascript:void(0)" onclick="goPage('faq')">FAQ</a>
-      <a class="footer-link" href="javascript:void(0)" onclick="goPage('shipping-policy')">Shipping policy</a>
-      <a class="footer-link" href="javascript:void(0)" onclick="goPage('returns')">Returns</a>
-    </div>
-    <div>
-      <div class="footer-heading">Legal</div>
-      <a class="footer-link" href="javascript:void(0)" onclick="goPage('privacy-policy')">Privacy policy</a>
-      <a class="footer-link" href="javascript:void(0)" onclick="goPage('refund-policy')">Refund policy</a>
-      <a class="footer-link" href="javascript:void(0)" onclick="goPage('terms-of-service')">Terms of service</a>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <span id="footerCopy">© 2026 Store</span> · Powered by <a href="#" style="color:rgba(255,255,255,0.4)">Sivra</a>
-  </div>
-</footer>
+<section class="related-section" id="relatedSection" style="display:none">
+<div class="section-header"><div><div class="section-eyebrow">More Like This</div><h2 class="section-title">You May<br/>Also Like</h2></div></div>
+<div class="prod-grid" id="relatedGrid"></div>
+</section>
+
+<footer class="store-footer"><div class="footer-grid">
+<div><div class="footer-brand" id="footerBrand">STORE</div><div class="footer-desc">Authentic jerseys and kits at a fraction of retail. Built for the fans, families, and kids who live for the game.</div><div class="footer-mission">★ Quality for every family</div></div>
+<div><div class="footer-heading">Shop</div><a class="footer-link" onclick="goHome()">All products</a><span id="footerCollLinks"></span></div>
+<div><div class="footer-heading">Help</div><a class="footer-link" onclick="goPage('contact')">Contact</a><a class="footer-link" onclick="goPage('faq')">FAQ</a><a class="footer-link" onclick="goPage('shipping-policy')">Shipping</a><a class="footer-link" onclick="goPage('returns')">Returns</a><a class="footer-link" onclick="location.href='sivra-order-status.html?store='+_storeSlug">Track order</a></div>
+<div><div class="footer-heading">Legal</div><a class="footer-link" onclick="goPage('privacy-policy')">Privacy</a><a class="footer-link" onclick="goPage('refund-policy')">Refund Policy</a><a class="footer-link" onclick="goPage('terms-of-service')">Terms</a></div>
+</div><div class="footer-bottom"><span id="footerCopy">© 2026</span><span>Powered by Sivra</span></div></footer>
 
 <div class="toast" id="sivraToast"></div>
 
 <script>
-// ── SHARED UTILS ──────────────────────────────────────────────────────────────
-let _storeSlug = localStorage.getItem('sivra_store_slug') || '';
-let _store = null;
+let _storeSlug=localStorage.getItem('sivra_store_slug')||'';
+let _store=null,_product=null,_qty=1,_imgs=[],_options=[],_variants=[],_selectedVariant=null,_selectedOpts={};
+const _id=new URLSearchParams(location.search).get('id');
 
-function getCart(){ try{return JSON.parse(localStorage.getItem('sivra_cart')||'[]');}catch(e){return[];} }
-function saveCart(c){localStorage.setItem('sivra_cart',JSON.stringify(c));updateCartBadge();}
-function updateCartBadge(){
-  const n=getCart().reduce((s,i)=>s+i.qty,0);
-  const el=document.getElementById('cartCount');
-  if(el){el.textContent=n;el.style.display=n>0?'flex':'none';}
-}
-function toast(msg,dur=2500){
-  const el=document.getElementById('sivraToast');
-  if(!el)return;el.textContent=msg;
-  el.classList.add('show');clearTimeout(el._t);
-  el._t=setTimeout(()=>el.classList.remove('show'),dur);
-}
+function getCart(){try{return JSON.parse(localStorage.getItem('sivra_cart')||'[]');}catch(e){return[];}}
+function updateCartBadge(){const n=getCart().reduce((s,i)=>s+(i.qty||0),0);const el=document.getElementById('cartCount');if(el){el.textContent=n;el.style.display=n>0?'flex':'none';}}
+function toast(msg){const el=document.getElementById('sivraToast');if(!el)return;el.textContent=msg;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2500);}
 function goHome(){location.href='sivra-storefront.html?store='+_storeSlug;}
 function goCart(){location.href='sivra-cart.html?store='+_storeSlug;}
-function goSearch(){location.href='sivra-storefront.html?store='+_storeSlug+'&search=open';}
 function goPage(slug){location.href='sivra-policy.html?store='+_storeSlug+'&page='+slug;}
-function goBlog(){location.href='sivra-blog-storefront.html?store='+_storeSlug;}
 function goCollection(id){location.href='sivra-collection.html?store='+_storeSlug+'&id='+id;}
 function goProduct(id){location.href='sivra-product.html?id='+id+'&store='+_storeSlug;}
 function fmtMoney(v){return '$'+parseFloat(v||0).toFixed(2);}
 
-async function loadStoreShell(){
-  _storeSlug = new URLSearchParams(location.search).get('store') || localStorage.getItem('sivra_store_slug') || '';
-  localStorage.setItem('sivra_store_slug', _storeSlug);
-  try {
-    const res = await fetch('/api/storefront/' + _storeSlug);
-    _store = await res.json();
-    const name = _store.name || 'Store';
-    document.title = document.title.replace('Store', name);
-    const ts = typeof _store.theme_settings === 'string' ? JSON.parse(_store.theme_settings || '{}') : (_store.theme_settings || {});
+function toggleAcc(id){const el=document.getElementById(id);const body=el.querySelector('.acc-body');el.classList.toggle('open');body.classList.toggle('open');}
 
-    // Logo in nav
-    const navLogo = document.getElementById('navLogo');
-    if (navLogo) {
-      if (_store.logo_url && _store.logo_url.startsWith('http')) {
-        navLogo.innerHTML = '<img src="' + _store.logo_url + '" alt="' + name + '" style="height:36px;max-width:160px;object-fit:contain;vertical-align:middle"/>';
-      } else {
-        navLogo.textContent = name;
-      }
-    }
-
-    // Colors
-    if (_store.primary_color) document.documentElement.style.setProperty('--primary', _store.primary_color);
-    if (_store.accent_color)  document.documentElement.style.setProperty('--accent',  _store.accent_color);
-
-    // Announcement bar
-    const ab = document.getElementById('annBar');
-    if (ab) {
-      if (_store.announcement_bar && _store.announcement_bar_enabled) {
-        ab.textContent = _store.announcement_bar;
-        ab.style.display = '';
-        if (_store.primary_color) ab.style.background = _store.primary_color;
-      } else {
-        ab.style.display = 'none';
-      }
-    }
-
-    // Footer
-    const footerBrand = document.getElementById('footerBrand');
-    if (footerBrand) footerBrand.textContent = name;
-    const footerCopy = document.getElementById('footerCopy');
-    if (footerCopy) footerCopy.textContent = ts.footerCopy || ('\u00a9 ' + new Date().getFullYear() + ' ' + name);
-    if (ts.footerDesc) { const fd = document.getElementById('footerDesc'); if (fd) fd.textContent = ts.footerDesc; }
-
-    // Nav from menus DB
-    try {
-      const menuRes = await fetch('/api/storefront/' + _storeSlug + '/menus');
-      const menuData = await menuRes.json();
-      const navLinks = document.getElementById('navLinks');
-      if (navLinks) {
-        navLinks.querySelectorAll('.nav-dynamic').forEach(function(el){ el.remove(); });
-        const items = menuData.items || [];
-        if (items.length) {
-          items.forEach(function(item) {
-            const a = document.createElement('a');
-            a.href = 'javascript:void(0)';
-            a.className = 'nav-link nav-dynamic';
-            a.textContent = item.name;
-            const url = item.url || '#';
-            a.onclick = function(){ if (url && url !== '#') location.href = url; };
-            navLinks.appendChild(a);
-          });
-        } else {
-          const cr = await fetch('/api/storefront/' + _storeSlug + '/collections');
-          const cd = await cr.json();
-          (cd.collections || []).filter(function(c){ return c.product_count > 0; }).slice(0,5).forEach(function(c){
-            const a = document.createElement('a');
-            a.href = 'javascript:void(0)';
-            a.className = 'nav-link nav-dynamic';
-            a.textContent = c.name;
-            a.onclick = function(){ location.href = 'sivra-collection.html?store=' + _storeSlug + '&id=' + c.id; };
-            navLinks.appendChild(a);
-          });
-        }
-      }
-    } catch(me) {}
-  } catch(e) { console.error('loadStoreShell error:', e); }
+function changeQty(d){
+const qty=_selectedVariant?(_selectedVariant.quantity||0):(_product?.quantity||0);
+const trackQty=_selectedVariant?_selectedVariant.track_qty:_product?.track_qty;
+const cont=_selectedVariant?_selectedVariant.continue_selling:_product?.continue_selling;
+const max=(trackQty&&!cont)?qty:99;
+_qty=Math.max(1,Math.min(max||1,_qty+d));
+document.getElementById('qtyVal').textContent=_qty;
 }
 
-
-const _id = new URLSearchParams(location.search).get('id');
-let _product = null, _qty = 1, _imgs = [], _options = [], _variants = [], _selectedVariant = null, _selectedOpts = {};
-
-function changeQty(d) {
-  const max = _selectedVariant ? (_selectedVariant.quantity||0) : (_product?.quantity||0);
-  const trackQty = _selectedVariant ? _selectedVariant.track_qty : _product?.track_qty;
-  const cont = _selectedVariant ? _selectedVariant.continue_selling : _product?.continue_selling;
-  _qty = Math.max(1, _qty+d);
-  if (trackQty && !cont && _qty > max) _qty = max;
-  document.getElementById('qtyDisplay').textContent = _qty;
+function selectOption(optName,value){
+_selectedOpts[optName]=value;
+if(_variants.length){
+const match=_variants.find(v=>Object.entries(_selectedOpts).every(([name,val])=>{const idx=_options.findIndex(o=>o.name===name);return v['option'+(idx+1)]===val;}));
+_selectedVariant=match||null;
+}
+renderOptions();renderPrice();renderStock();
 }
 
-function selectOption(optIdx, val) {
-  _selectedOpts[optIdx] = val;
-  // Update selected UI
-  document.querySelectorAll(`.opt-val-${optIdx}`).forEach(el => {
-    el.style.background = el.dataset.val === val ? '#1a1a1a' : 'white';
-    el.style.color = el.dataset.val === val ? 'white' : '#1a1a1a';
-    el.style.borderColor = el.dataset.val === val ? '#1a1a1a' : '#e3e3e3';
-  });
-  matchVariant();
+function setMainImg(idx){
+const main=document.getElementById('mainImg');
+const src=_imgs[idx];
+main.innerHTML=src?'<img src="'+src+'" alt=""/>':'<div class="gallery-placeholder">👕</div>';
+const price=_selectedVariant?_selectedVariant.price:_product?.price;
+const compare=_selectedVariant?_selectedVariant.compare_price:_product?.compare_price;
+const isSale=compare&&parseFloat(compare)>parseFloat(price);
+const isNew=_product?.created_at&&(new Date()-new Date(_product.created_at))<14*86400000;
+if(isSale){const s=Math.round((1-price/compare)*100);main.insertAdjacentHTML('afterbegin','<div class="sale-ribbon">Save '+s+'%</div>');}
+else if(isNew){main.insertAdjacentHTML('afterbegin','<div class="new-ribbon">New</div>');}
+document.querySelectorAll('.gallery-thumb').forEach((t,i)=>t.classList.toggle('active',i===idx));
 }
 
-function matchVariant() {
-  if (!_variants.length) return;
-  const keys = Object.values(_selectedOpts);
-  const match = _variants.find(v => {
-    const vVals = [v.option1, v.option2, v.option3].filter(Boolean);
-    return keys.every(k => vVals.includes(k));
-  });
-  _selectedVariant = match || null;
-  updatePriceDisplay();
-  updateStockInfo();
+function renderThumbs(){
+document.getElementById('thumbs').innerHTML=_imgs.map((src,i)=>'<div class="gallery-thumb'+(i===0?' active':'')+'" onclick="setMainImg('+i+')"><img src="'+src+'"/></div>').join('');
 }
 
-function updatePriceDisplay() {
-  const price = _selectedVariant ? _selectedVariant.price : _product?.price;
-  const compare = _selectedVariant ? _selectedVariant.compare_price : _product?.compare_price;
-  document.getElementById('prodPrice').textContent = fmtMoney(price);
-  if (compare && compare > price) {
-    document.getElementById('prodCompare').textContent = fmtMoney(compare);
-    document.getElementById('prodCompare').style.display = '';
-    const savings = Math.round((1-price/compare)*100);
-    document.getElementById('prodSavings').textContent = `Save ${savings}%`;
-    document.getElementById('prodSavings').style.display = '';
-    document.getElementById('saleRibbon').style.display = '';
-  } else {
-    document.getElementById('prodCompare').style.display = 'none';
-    document.getElementById('prodSavings').style.display = 'none';
-    document.getElementById('saleRibbon').style.display = 'none';
-  }
+function renderPrice(){
+const price=_selectedVariant?_selectedVariant.price:_product?.price;
+const compare=_selectedVariant?_selectedVariant.compare_price:_product?.compare_price;
+const isSale=compare&&parseFloat(compare)>parseFloat(price);
+const el=document.getElementById('priceDisplay');
+let html='<span class="price-main">'+fmtMoney(price||0)+'</span>';
+if(isSale){const savings=Math.round((1-price/compare)*100);html+='<span class="price-compare-lg">'+fmtMoney(compare)+'</span><span class="price-save">Save '+savings+'%</span>';}
+el.innerHTML=html;
 }
 
-function updateStockInfo() {
-  const el = document.getElementById('stockInfo');
-  const btn = document.getElementById('addCartBtn');
-  const qty = _selectedVariant ? (_selectedVariant.quantity||0) : (_product?.quantity||0);
-  const trackQty = _selectedVariant ? _selectedVariant.track_qty : _product?.track_qty;
-  const cont = _selectedVariant ? _selectedVariant.continue_selling : _product?.continue_selling;
-  if (trackQty) {
-    if (qty <= 0 && !cont) {
-      el.innerHTML = '<span style="color:#c0392b;font-weight:500;font-size:14px">⚠️ Out of stock</span>';
-      btn.disabled = true; btn.style.background = '#8c9196'; btn.textContent = 'Out of stock';
-      // Show notify me option
-      const notifyEl = document.getElementById('notifyMeSection');
-      if (notifyEl) notifyEl.style.display = '';
-    } else if (qty <= 5) {
-      el.innerHTML = `<span style="color:#7d5c00;font-weight:500;font-size:14px">⚡ Only ${qty} left</span>`;
-      btn.disabled = false; btn.style.background = '#1a1a1a'; btn.textContent = 'Add to cart';
-      const notifyEl2 = document.getElementById('notifyMeSection');
-      if (notifyEl2) notifyEl2.style.display = 'none';
-    } else {
-      el.innerHTML = '<span style="color:#1a7f37;font-weight:500;font-size:14px">✓ In stock</span>';
-      btn.disabled = false; btn.style.background = '#1a1a1a'; btn.textContent = 'Add to cart';
-    }
-  } else {
-    el.innerHTML = '';
-    btn.disabled = false; btn.style.background = '#1a1a1a'; btn.textContent = 'Add to cart';
-  }
+function renderStock(){
+const qty=_selectedVariant?(_selectedVariant.quantity||0):(_product?.quantity||0);
+const trackQty=_selectedVariant?_selectedVariant.track_qty:_product?.track_qty;
+const cont=_selectedVariant?_selectedVariant.continue_selling:_product?.continue_selling;
+const el=document.getElementById('stockBadge');
+const hint=document.getElementById('qtyHint');
+const btn=document.getElementById('addCartBtn');
+if(!trackQty||cont){el.innerHTML='<div class="stock-badge in"><div class="stock-dot"></div>In Stock</div>';hint.textContent='';btn.disabled=false;btn.textContent='Add to cart';}
+else if(qty<=0){el.innerHTML='<div class="stock-badge out"><div class="stock-dot"></div>Sold out</div>';hint.textContent='';btn.disabled=true;btn.textContent='Sold out';}
+else if(qty<=5){el.innerHTML='<div class="stock-badge low"><div class="stock-dot"></div>Only '+qty+' left</div>';hint.textContent=qty+' in stock';btn.disabled=false;btn.textContent='Add to cart';}
+else{el.innerHTML='<div class="stock-badge in"><div class="stock-dot"></div>In Stock</div>';hint.textContent='';btn.disabled=false;btn.textContent='Add to cart';}
 }
 
-function renderOptions() {
-  if (!_options.length) return;
-  document.getElementById('optionsSection').innerHTML = _options.map((opt, i) => {
-    _selectedOpts[i] = opt.values[0];
-    return `<div style="margin-bottom:14px">
-      <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:#303030">
-        ${opt.name}: <span style="font-weight:500;color:#6d7175" id="optLabel-${i}">${opt.values[0]}</span>
-      </div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px">
-        ${opt.values.map((v,vi) => `<button class="opt-val-${i}" data-val="${v}"
-          onclick="selectOption(${i},'${v}');document.getElementById('optLabel-${i}').textContent='${v}'"
-          style="padding:6px 14px;border-radius:6px;border:1px solid ${vi===0?'#1a1a1a':'#e3e3e3'};background:${vi===0?'#1a1a1a':'white'};color:${vi===0?'white':'#1a1a1a'};font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:all 0.1s">${v}</button>`).join('')}
-      </div>
-    </div>`;
-  }).join('');
-  matchVariant();
+function renderOptions(){
+if(!_options.length){document.getElementById('optionsSection').innerHTML='';return;}
+document.getElementById('optionsSection').innerHTML=_options.map((opt,i)=>{
+const vals=opt.values||[];const selected=_selectedOpts[opt.name];
+return '<div class="option-group"><div class="option-label"><span class="option-name">'+opt.name+'</span>'+(selected?'<span class="option-selected">'+selected+'</span>':'')+'</div><div class="option-values">'+
+vals.map(v=>{const isActive=selected===v;return '<button class="option-pill'+(isActive?' active':'')+'" onclick="selectOption(\''+opt.name+'\',\''+v.replace(/'/g,"\\'")+'\')">'+v+'</button>';}).join('')+
+'</div></div>';
+}).join('');
 }
 
-function setMainImg(src) {
-  document.getElementById('mainImg').innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover"/>` + (document.getElementById('saleRibbon')?.outerHTML||'');
+function addToCart(){
+if(!_product)return;
+if(_options.length&&_options.some(o=>!_selectedOpts[o.name])){toast('Please select all options');return;}
+const variantId=_selectedVariant?_selectedVariant.id:null;
+const variantTitle=_selectedVariant?_selectedVariant.title:null;
+const key=_product.id+(variantId?'_'+variantId:'');
+const c=getCart();
+const existing=c.find(i=>i.key===key);
+const price=_selectedVariant?_selectedVariant.price:_product.price;
+const image=_imgs[0]||null;
+if(existing){existing.qty+=_qty;}else{c.push({key,id:_product.id,variantId,title:_product.title,variantTitle,price,image,qty:_qty});}
+localStorage.setItem('sivra_cart',JSON.stringify(c));
+updateCartBadge();
+toast(_product.title+(variantTitle?' ('+variantTitle+')':'')+' added to cart');
 }
 
-function addToCart() {
-  if (!_product) return;
-  const c = getCart();
-  const variantId = _selectedVariant?.id || null;
-  const key = _product.id + (variantId?'_'+variantId:'');
-  const ex = c.find(i => i.key === key);
-  const variantTitle = _selectedVariant ? Object.values(_selectedOpts).join(' / ') : null;
-  const price = _selectedVariant ? _selectedVariant.price : _product.price;
-  const image = _imgs[0] || '';
-  if (ex) { ex.qty += _qty; } else {
-    c.push({ key, id: _product.id, variantId, title: _product.title, variantTitle, price, image, qty: _qty });
-  }
-  saveCart(c);
-  toast(`${_product.title}${variantTitle?' ('+variantTitle+')':''} added to cart`);
-  // Flash button
-  const btn = document.getElementById('addCartBtn');
-  const orig = btn.textContent;
-  btn.textContent = '✓ Added'; btn.style.background = '#008060';
-  setTimeout(() => { btn.textContent = orig; btn.style.background='#1a1a1a'; }, 1500);
+function buyNow(){addToCart();setTimeout(()=>location.href='sivra-checkout.html?store='+_storeSlug,400);}
+
+async function loadProduct(){
+if(!_id){goHome();return;}
+_storeSlug=new URLSearchParams(location.search).get('store')||_storeSlug;
+localStorage.setItem('sivra_store_slug',_storeSlug);
+try{
+const storeRes=await fetch('/api/storefront/'+_storeSlug);
+_store=await storeRes.json();
+const name=_store.name||'Store';
+document.getElementById('navLogo').textContent=name.toUpperCase();
+document.getElementById('footerBrand').textContent=name.toUpperCase();
+document.getElementById('footerCopy').textContent='© '+new Date().getFullYear()+' '+name;
+if(_store.logo_url&&_store.logo_url.startsWith('http')){document.getElementById('navLogo').innerHTML='<img src="'+_store.logo_url+'" alt="'+name+'" style="height:32px;max-width:140px;object-fit:contain"/>';}
+await loadNav();
+
+const prodRes=await fetch('/api/storefront/'+_storeSlug+'/products/'+_id);
+_product=await prodRes.json();
+if(!_product||_product.error){document.getElementById('prodTitle').textContent='Product not found';return;}
+_options=_product.options||[];
+_variants=_product.variants||[];
+_imgs=Array.isArray(_product.images)?_product.images:(typeof _product.images==='string'?JSON.parse(_product.images||'[]'):[]);
+
+document.title=_product.title;
+document.getElementById('pageTitle').textContent=_product.title;
+document.getElementById('bcTitle').textContent=_product.title;
+document.getElementById('prodTitle').textContent=_product.title;
+document.getElementById('prodVendor').textContent=_product.vendor||'';
+document.getElementById('prodDesc').innerHTML=_product.description?_product.description.replace(/\n/g,'<br>'):'<p style="color:#888">No description available.</p>';
+
+const seoTitle=(_product.seo_title||_product.title)+' — '+name;
+const seoDesc=_product.seo_description||_product.description||'';
+document.getElementById('metaDesc').content=seoDesc.slice(0,160);
+document.getElementById('ogTitle').content=seoTitle;
+document.getElementById('ogDesc').content=seoDesc.slice(0,160);
+if(_imgs[0]&&!_imgs[0].startsWith('data:')){document.getElementById('ogImage').content=_imgs[0];}
+
+renderThumbs();setMainImg(0);
+
+if(_options.length){
+_options.forEach(o=>{if((o.values||[]).length===1){_selectedOpts[o.name]=o.values[0];}});
+if(Object.keys(_selectedOpts).length===_options.length){
+const match=_variants.find(v=>Object.entries(_selectedOpts).every(([n,val])=>{const idx=_options.findIndex(o=>o.name===n);return v['option'+(idx+1)]===val;}));
+_selectedVariant=match||null;
+}
+}
+renderOptions();renderPrice();renderStock();updateCartBadge();
+loadRelated();
+}catch(e){console.error(e);document.getElementById('prodTitle').textContent='Product not found';}
 }
 
-function buyNow() { addToCart(); location.href = 'sivra-checkout.html?store=' + _storeSlug; }
-
-async function loadRelated() {
-  try {
-    const res = await fetch(`/api/storefront/${_storeSlug}/products?limit=5`);
-    const data = await res.json();
-    const related = (data.products||[]).filter(p => p.id !== _id).slice(0,4);
-    if (!related.length) return;
-    document.getElementById('relatedSection').style.display = '';
-    document.getElementById('relatedGrid').innerHTML = related.map(p => {
-      const imgs = Array.isArray(p.images)?p.images:(typeof p.images==='string'?JSON.parse(p.images||'[]'):[]);
-      const img = imgs[0]?`<img src="${imgs[0]}" alt="${p.title}" loading="lazy"/>`:`<div style="display:flex;align-items:center;justify-content:center;height:100%;opacity:0.15;font-size:40px">📦</div>`;
-      return `<a onclick="goProduct('${p.id}')" class="product-card" href="javascript:void(0)">
-        <div class="product-img-wrap">${img}</div>
-        <div class="product-title">${p.title}</div>
-        <div class="product-price"><span class="price-current">${fmtMoney(p.price)}</span></div>
-      </a>`;
-    }).join('');
-  } catch(e) {}
+async function loadNav(){
+try{
+const res=await fetch('/api/storefront/'+_storeSlug+'/menus');
+const data=await res.json();
+const menus=data.menus||[];
+const nav=menus.find(m=>m.location==='main'||m.handle==='main-menu')||menus[0];
+if(nav&&nav.items){
+const items=typeof nav.items==='string'?JSON.parse(nav.items):nav.items;
+document.getElementById('navLinks').innerHTML=items.map(i=>{
+const click=i.url?"location.href='"+i.url+"'":i.collection_id?"goCollection('"+i.collection_id+"')":i.page_slug?"goPage('"+i.page_slug+"')":"goHome()";
+return '<a class="nav-link" onclick="'+click+'">'+(i.title||i.name||'')+'</a>';
+}).join('');
+}
+const collRes=await fetch('/api/storefront/'+_storeSlug+'/collections');
+const collData=await collRes.json();
+const colls=(collData.collections||[]).filter(c=>(c.product_count||0)>0).slice(0,5);
+document.getElementById('footerCollLinks').innerHTML=colls.map(c=>'<a class="footer-link" onclick="goCollection(\''+c.id+'\')">'+c.name+'</a>').join('');
+}catch(e){}
 }
 
-async function loadProduct() {
-  if (!_id) { goHome(); return; }
-  await loadStoreShell();
-  try {
-    const [prodRes, storeRes] = await Promise.all([
-      fetch(`/api/storefront/${_storeSlug}/products/${_id}`),
-      fetch(`/api/storefront/${_storeSlug}`)
-    ]);
-    _product = await prodRes.json();
-    _store = await storeRes.json();
-    _options = _product.options || [];
-    _variants = _product.variants || [];
-    _imgs = Array.isArray(_product.images)?_product.images:(typeof _product.images==='string'?JSON.parse(_product.images||'[]'):[]);
-    const storeName = _store?.name || 'Store';
-    document.getElementById('bcTitle').textContent = _product.title||'Product';
-    document.getElementById('prodTitle').textContent = _product.title||'Product';
-    document.getElementById('prodVendor').textContent = _product.vendor||'';
-    document.getElementById('prodDesc').textContent = _product.description||'';
-    // SEO meta tags
-    const seoTitle = _product.seo_title || _product.title || 'Product';
-    const seoDesc = _product.seo_description || _product.description || '';
-    const seoImg = _imgs[0] || '';
-    document.title = seoTitle + ' — ' + storeName;
-    const metaDesc = document.getElementById('metaDesc');
-    const ogTitle = document.getElementById('ogTitle');
-    const ogDesc = document.getElementById('ogDesc');
-    const ogImg = document.getElementById('ogImage');
-    if (metaDesc) metaDesc.content = seoDesc.slice(0, 160);
-    if (ogTitle) ogTitle.content = seoTitle + ' — ' + storeName;
-    if (ogDesc) ogDesc.content = seoDesc.slice(0, 200);
-    // Only set og:image if it's a real URL (not base64)
-    if (ogImg && seoImg && !seoImg.startsWith('data:')) ogImg.content = seoImg;
-    if (_imgs.length) {
-      setMainImg(_imgs[0]);
-      if (_imgs.length > 1) {
-        document.getElementById('thumbs').innerHTML = _imgs.map((src,i) =>
-          `<div onclick="setMainImg('${src}')" style="width:72px;height:72px;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid ${i===0?'#1a1a1a':'#e3e3e3'};transition:border-color 0.1s;flex-shrink:0">
-            <img src="${src}" style="width:100%;height:100%;object-fit:cover"/></div>`).join('');
-      }
-    }
-    updatePriceDisplay();
-    updateStockInfo();
-    if (_options.length) renderOptions();
-    loadRelated();
-  } catch(e) {
-    document.getElementById('prodTitle').textContent = 'Product not found';
-  }
+async function loadRelated(){
+try{
+let items=[];
+if(_product.collections&&_product.collections[0]){
+const r=await fetch('/api/storefront/'+_storeSlug+'/products?collection='+_product.collections[0].id+'&limit=5');
+const d=await r.json();
+items=(d.products||[]).filter(p=>p.id!==_id).slice(0,4);
 }
-loadProduct().then(() => {
-  // Save to recently viewed after product loads
-  setTimeout(() => {
-    const imgs = Array.isArray(_imgs) ? _imgs : [];
-    saveRecentlyViewed(
-      new URLSearchParams(location.search).get('id') || '',
-      _product?.title || '',
-      imgs[0] || null
-    );
-    renderRecentlyViewed();
-  }, 500);
-}).catch(() => {});
-
-
-loadStoreShell();
-
-// ── NOTIFY WHEN BACK IN STOCK ───────────────────────────────────────────────
-function subscribeNotify() {
-  const email = document.getElementById('notifyEmail').value.trim();
-  if (!email || !email.includes('@')) {
-    alert('Please enter a valid email address');
-    return;
-  }
-  // Save locally — in future this will trigger a server-side notification
-  try {
-    const key = 'sivra_notify_' + (new URLSearchParams(location.search).get('id') || '');
-    const existing = JSON.parse(localStorage.getItem(key) || '[]');
-    if (!existing.includes(email)) {
-      existing.push(email);
-      localStorage.setItem(key, JSON.stringify(existing));
-    }
-  } catch(e) {}
-  document.getElementById('notifyMeSection').innerHTML = `
-    <div style="background:#f0faf0;border:1px solid #b7e2c4;border-radius:10px;padding:16px;text-align:center">
-      <div style="font-size:22px;margin-bottom:6px">✅</div>
-      <div style="font-size:14px;font-weight:600;color:#1a7f37">Request saved!</div>
-      <div style="font-size:13px;color:#6d7175;margin-top:4px">Check back soon — we'll restock popular items as fast as we can.</div>
-    </div>`;
+if(items.length<4){
+const r=await fetch('/api/storefront/'+_storeSlug+'/products?limit=8');
+const d=await r.json();
+const more=(d.products||[]).filter(p=>p.id!==_id&&!items.find(i=>i.id===p.id)).slice(0,4-items.length);
+items=items.concat(more);
+}
+if(!items.length)return;
+document.getElementById('relatedSection').style.display='';
+document.getElementById('relatedGrid').innerHTML=items.map(p=>{
+const imgs=Array.isArray(p.images)?p.images:(typeof p.images==='string'?JSON.parse(p.images||'[]'):[]);
+const img=imgs[0];const price=parseFloat(p.price||0);const compare=parseFloat(p.compare_price||0);
+const isSale=compare>price;const savings=isSale?Math.round((1-price/compare)*100):0;
+return '<a class="prod-card" onclick="goProduct(\''+p.id+'\')"><div class="prod-img">'+
+(isSale?'<div class="prod-badge sale">-'+savings+'%</div>':'')+
+(img?'<img src="'+img+'" alt="'+p.title+'" loading="lazy"/>':'<div class="prod-placeholder">👕</div>')+
+'</div><div class="prod-info"><div class="prod-title">'+p.title+'</div>'+
+(p.vendor?'<div class="prod-meta">'+p.vendor+'</div>':'')+
+'<div class="prod-price-row"><span class="prod-price">'+fmtMoney(price)+'</span>'+
+(isSale?'<span class="prod-compare">'+fmtMoney(compare)+'</span>':'')+
+'</div></div></a>';
+}).join('');
+}catch(e){}
 }
 
-// ── RECENTLY VIEWED ───────────────────────────────────────────────────────────
-function saveRecentlyViewed(id, title, image) {
-  try {
-    const key = 'sivra_rv_' + (_storeSlug || localStorage.getItem('sivra_store_slug') || '');
-    let viewed = JSON.parse(localStorage.getItem(key) || '[]');
-    viewed = viewed.filter(p => p.id !== id);
-    viewed.unshift({ id, title: title || '', image: image || null });
-    localStorage.setItem(key, JSON.stringify(viewed.slice(0, 8)));
-  } catch(e) {}
-}
-
-function renderRecentlyViewed() {
-  try {
-    const slug = _storeSlug || localStorage.getItem('sivra_store_slug') || '';
-    const id = new URLSearchParams(location.search).get('id') || '';
-    const key = 'sivra_rv_' + slug;
-    const viewed = JSON.parse(localStorage.getItem(key) || '[]').filter(p => p.id !== id).slice(0, 4);
-    const section = document.getElementById('recentlyViewedSection');
-    if (!section || !viewed.length) return;
-    section.style.display = '';
-    document.getElementById('recentlyViewedGrid').innerHTML = viewed.map(p => `
-      <a href="sivra-product.html?id=${p.id}&store=${slug}" style="display:block;text-decoration:none;color:#1a1a1a">
-        <div style="aspect-ratio:1;border-radius:10px;overflow:hidden;background:#f6f6f7;margin-bottom:8px;border:1px solid #e3e3e3">
-          ${p.image ? `<img src="${p.image}" alt="${p.title}" style="width:100%;height:100%;object-fit:cover"/>` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;opacity:0.15;font-size:32px">📦</div>'}
-        </div>
-        <div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.title}</div>
-      </a>`).join('');
-  } catch(e) {}
-}
-
+loadProduct();
 </script>
 <script src="storefront-tracker.js"></script>
-</body>
-</html>
+</body></html>
