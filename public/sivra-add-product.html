@@ -350,26 +350,52 @@
   }
 
   // ── MEDIA ─────────────────────────────────────────
-  function addFiles(files) {
-    Array.from(files).forEach(file => {
-      if (!file.type.startsWith('image/')) return;
-      const reader = new FileReader();
-      reader.onload = e => {
-        const img = new Image();
-        img.onload = () => {
-          const MAX = 900;
-          const scale = img.width > MAX ? MAX / img.width : 1;
-          const canvas = document.createElement('canvas');
-          canvas.width = Math.round(img.width * scale);
-          canvas.height = Math.round(img.height * scale);
-          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-          _imgs.push(canvas.toDataURL('image/jpeg', 0.82));
+  let _draggedIdx = null;
+  
+  async function addFiles(files) {
+    const arr = Array.from(files).filter(f => f.type.startsWith('image/'));
+    if (!arr.length) return;
+    
+    Toast.success('Uploading ' + arr.length + ' image' + (arr.length > 1 ? 's' : '') + '...');
+    
+    for (const file of arr) {
+      try {
+        const formData = new FormData();
+        formData.append('image', file);
+        const res = await fetch('/api/products/upload-image', {
+          method: 'POST',
+          headers: { Authorization: 'Bearer ' + Auth.getToken() },
+          body: formData
+        });
+        const data = await res.json();
+        if (data.url) {
+          _imgs.push(data.url);
           renderMedia();
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    });
+        } else {
+          Toast.error('Upload failed: ' + (data.error || 'unknown error'));
+        }
+      } catch(e) {
+        Toast.error('Upload failed: ' + e.message);
+      }
+    }
+    // Reset file input so same file can be selected again
+    const input = document.getElementById('mediaInput');
+    if (input) input.value = '';
+  }
+
+  function removeImg(i) {
+    _imgs.splice(i, 1);
+    renderMedia();
+  }
+
+  function dragStart(i) { _draggedIdx = i; }
+  function dragOver(e) { e.preventDefault(); }
+  function dropImg(targetIdx) {
+    if (_draggedIdx === null || _draggedIdx === targetIdx) return;
+    const moved = _imgs.splice(_draggedIdx, 1)[0];
+    _imgs.splice(targetIdx, 0, moved);
+    _draggedIdx = null;
+    renderMedia();
   }
 
   function renderMedia() {
@@ -377,14 +403,17 @@
     const zone = document.getElementById('uploadZone');
     zone.style.display = _imgs.length === 0 ? '' : 'none';
     grid.innerHTML = _imgs.map((src, i) => `
-      <div style="position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid ${i===0?'#1a1a1a':'#e3e3e3'};background:#f6f6f7">
-        <img src="${src}" style="width:100%;height:100%;object-fit:cover"/>
-        ${i===0?'<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.55);color:white;font-size:10px;font-weight:600;text-align:center;padding:3px">Main</div>':''}
-        <button onclick="_imgs.splice(${i},1);renderMedia()" style="position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.55);border:none;color:white;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center">×</button>
+      <div draggable="true" 
+        ondragstart="dragStart(${i})" 
+        ondragover="dragOver(event)" 
+        ondrop="dropImg(${i})"
+        style="position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid ${i===0?'#1a1a1a':'#e3e3e3'};background:#f6f6f7;cursor:move">
+        <img src="${src}" style="width:100%;height:100%;object-fit:cover" draggable="false"/>
+        ${i===0?'<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.55);color:white;font-size:10px;font-weight:600;text-align:center;padding:3px;pointer-events:none">Main</div>':''}
+        <button onclick="removeImg(${i})" style="position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,0.7);border:none;color:white;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;z-index:2">×</button>
       </div>`).join('') +
       (_imgs.length > 0 ? `<div onclick="document.getElementById('mediaInput').click()" style="aspect-ratio:1;border:2px dashed #e3e3e3;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#8c9196;font-size:24px;transition:all 0.1s" onmouseover="this.style.borderColor='#1a1a1a'" onmouseout="this.style.borderColor='#e3e3e3'">+</div>` : '');
   }
-
   // ── TAGS ──────────────────────────────────────────
   function addTag(val) {
     const tags = val.split(',').map(t => t.trim()).filter(t => t && !_tags.includes(t));
@@ -683,6 +712,10 @@
   window.toggleQtySection = toggleQtySection;
   window.updateSeoHandle = updateSeoHandle;
   window.updateSeoPreview = updateSeoPreview;
+  window.removeImg = removeImg;
+  window.dragStart = dragStart;
+  window.dragOver = dragOver;
+  window.dropImg = dropImg;
   // Critical — expose state arrays so inline onclick handlers can access them
   window._imgs = _imgs;
   window._generatedVariants = _generatedVariants;
