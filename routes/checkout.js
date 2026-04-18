@@ -1,109 +1,155 @@
-// routes/checkout.js — Stripe payment integration
 const express = require('express');
 const router = express.Router();
+const { getDB } = require('../db/database');
 
-// Gracefully handle missing Stripe key
+// ── STRIPE SETUP ─────────────────────────────────────────────────────────────
 let stripe = null;
-if (process.env.STRIPE_SECRET_KEY) {
-  stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY;
+const STRIPE_PK = process.env.STRIPE_PUBLISHABLE_KEY;
+const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || null;
+
+if (STRIPE_SECRET) {
+  try {
+    stripe = require('stripe')(STRIPE_SECRET);
+    console.log('✅ Stripe initialized');
+  } catch (e) {
+    console.warn('⚠️  Stripe package not installed. Run: npm install stripe');
+  }
 }
 
-// POST /api/checkout/create-intent
-// Called by the storefront checkout page to create a Stripe PaymentIntent
-router.post('/create-intent', async (req, res) => {
-  try {
-    if (!stripe) {
-      return res.status(503).json({ error: 'Payments not configured. Set STRIPE_SECRET_KEY in environment.' });
-    }
-
-    const { amount, currency = 'usd', metadata = {}, orderId } = req.body;
-    if (!amount || amount < 50) return res.status(400).json({ error: 'Amount must be at least $0.50' });
-
-    const intent = await stripe.paymentIntents.create({
-      amount: Math.round(amount),   // amount in cents
-      currency: currency.toLowerCase(),
-      automatic_payment_methods: { enabled: true },
-      metadata: {
-        ...metadata,
-        order_id: orderId || '',
-        platform: 'sivra',
-      }
-    });
-
-    res.json({
-      client_secret: intent.client_secret,
-      payment_intent_id: intent.id,
-    });
-  } catch (err) {
-    console.error('Stripe create-intent error:', err.message);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// GET /api/checkout/config
-// Returns the publishable key so the frontend can initialize Stripe.js
+// ── CONFIG ENDPOINT ──────────────────────────────────────────────────────────
 router.get('/config', (req, res) => {
-  const pk = process.env.STRIPE_PUBLISHABLE_KEY;
-  if (!pk) {
-    return res.json({ configured: false });
-  }
   res.json({
-    configured: true,
-    publishableKey: pk,
+    configured: !!(stripe && STRIPE_PK),
+    publishableKey: STRIPE_PK || null,
   });
 });
 
-// POST /api/checkout/webhook — Stripe webhook (raw body parsed in server.js)
-router.post('/webhook', async (req, res) => {
-  if (!stripe) return res.status(503).json({ error: 'Stripe not configured' });
+// ── CREATE PAYMENT INTENT ────────────────────────────────────────────────────
+router.post('/create-intent', async (req, res) => {
+  if (!stripe) return res.status(500).json({ error: 'Stripe not configured' });
 
-  const sig = req.headers['stripe-signature'];
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  try {
+    const { amount, currency = 'usd', orderId, metadata = {} } = req.body;
 
-  if (!webhookSecret) {
-    console.warn('STRIPE_WEBHOOK_SECRET not set — webhook verification skipped');
-    return res.json({ received: true });
+    if (!amount || amount < 50) {
+      return res.status(400).json({ error: 'Minimum charge is $0.50' });
+    }
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount),
+      currency: currency.toLowerCase(),
+      automatic_payment_methods: { enabled: true },
+      metadata: {
+        order_id: orderId || '',
+        order_number: metadata.order_number || '',
+        email: metadata.email || '',
+      },
+    });
+
+    res.json({
+      client_secret: paymentIntent.client_secret,
+      payment_intent_id: paymentIntent.id,
+    });
+  } catch (e) {
+    console.error('Stripe create-intent error:', e.message);
+    res.status(500).json({ error: e.message });
   }
+});
+
+// ── WEBHOOK ──────────────────────────────────────────────────────────────────
+// Stripe Dashboard → Developers → Webhooks
+// URL: https://sivra-production.up.railway.app/api/checkout/webhook
+// Events: payment_intent.succeeded, payment_intent.payment_failed
+router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  if (!stripe) return res.status(500).send('Stripe not configured');
 
   let event;
-  try {
-    event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
-  } catch (err) {
-    console.error('Webhook signature verification failed:', err.message);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
 
-  // Handle payment success
-  if (event.type === 'payment_intent.succeeded') {
-    const pi = event.data.object;
-    const orderId = pi.metadata?.order_id;
-    console.log('✅ PaymentIntent succeeded:', pi.id, 'Order:', orderId);
-
-    if (orderId) {
-      try {
-        const { getDB } = require('../db/database');
-        const db = getDB();
-        await db.execute({
-          sql: `UPDATE orders SET payment_status='paid', financial_status='paid', updated_at=CURRENT_TIMESTAMP WHERE id=?`,
-          args: [orderId]
-        });
-        // Log event
-        const { v4: uuid } = require('uuid');
-        await db.execute({
-          sql: `INSERT INTO order_events (id, order_id, event_type, message, data) VALUES (?,?,?,?,?)`,
-          args: [uuid(), orderId, 'payment_received',
-            `Payment of $${(pi.amount / 100).toFixed(2)} received via Stripe`,
-            JSON.stringify({ payment_intent: pi.id, amount: pi.amount })]
-        });
-      } catch(dbErr) {
-        console.error('Failed to update order after payment:', dbErr.message);
-      }
+  if (WEBHOOK_SECRET) {
+    const sig = req.headers['stripe-signature'];
+    try {
+      event = stripe.webhooks.constructEvent(req.body, sig, WEBHOOK_SECRET);
+    } catch (e) {
+      console.error('⚠️  Webhook signature failed:', e.message);
+      return res.status(400).send(`Webhook Error: ${e.message}`);
+    }
+  } else {
+    try {
+      event = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    } catch (e) {
+      return res.status(400).send('Invalid payload');
     }
   }
 
-  if (event.type === 'payment_intent.payment_failed') {
-    const pi = event.data.object;
-    console.warn('❌ Payment failed:', pi.id, pi.last_payment_error?.message);
+  try {
+    const db = getDB();
+
+    switch (event.type) {
+      case 'payment_intent.succeeded': {
+        const pi = event.data.object;
+        const orderId = pi.metadata?.order_id;
+        const orderNumber = pi.metadata?.order_number;
+        console.log(`✅ Payment succeeded for order ${orderNumber || orderId} — $${(pi.amount / 100).toFixed(2)}`);
+
+        if (orderId) {
+          try {
+            await db.execute({
+              sql: `UPDATE orders SET payment_status = 'paid', financial_status = 'paid', status = 'confirmed' WHERE id = ?`,
+              args: [orderId],
+            });
+            console.log(`  → Order ${orderId} marked as paid`);
+
+            // Send confirmation email
+            try {
+              const email = require('../email');
+              const orderRes = await db.execute({ sql: 'SELECT * FROM orders WHERE id = ?', args: [orderId] });
+              if (orderRes.rows[0]) {
+                const order = orderRes.rows[0];
+                const customerEmail = order.customer_email || pi.metadata?.email;
+                if (customerEmail) {
+                  await email.sendOrderConfirmation({
+                    to: customerEmail,
+                    orderNumber: order.order_number || orderNumber,
+                    total: (pi.amount / 100).toFixed(2),
+                    items: JSON.parse(order.items || '[]'),
+                  });
+                  console.log(`  → Confirmation email sent to ${customerEmail}`);
+                }
+              }
+            } catch (emailErr) {
+              console.warn('  → Email send failed:', emailErr.message);
+            }
+          } catch (dbErr) {
+            console.error('  → DB update failed:', dbErr.message);
+          }
+        }
+        break;
+      }
+
+      case 'payment_intent.payment_failed': {
+        const pi = event.data.object;
+        const orderId = pi.metadata?.order_id;
+        console.log(`❌ Payment failed for order ${pi.metadata?.order_number || orderId}: ${pi.last_payment_error?.message || 'unknown'}`);
+
+        if (orderId) {
+          try {
+            await db.execute({
+              sql: `UPDATE orders SET payment_status = 'failed', financial_status = 'failed' WHERE id = ?`,
+              args: [orderId],
+            });
+          } catch (e) {
+            console.error('  → DB update failed:', e.message);
+          }
+        }
+        break;
+      }
+
+      default:
+        break;
+    }
+  } catch (e) {
+    console.error('Webhook handler error:', e.message);
   }
 
   res.json({ received: true });
