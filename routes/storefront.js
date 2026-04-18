@@ -21,6 +21,8 @@ router.get('/:slug', async (req, res) => {
     const store = result.rows[0];
     store.shipping_zones = safeJson(store.shipping_zones, []);
     store.theme_settings = safeJson(store.theme_settings, {});
+    // Pass Stripe publishable key to frontend (safe to expose)
+    store.stripe_publishable_key = process.env.STRIPE_PUBLISHABLE_KEY || null;
     res.json(store);
   } catch(err) { res.status(500).json({ error: 'Failed to fetch store.' }); }
 });
