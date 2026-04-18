@@ -229,13 +229,17 @@ if(_store.logo_url&&_store.logo_url.startsWith('http')){document.getElementById(
 _shippingZones=Array.isArray(_store.shipping_zones)?_store.shipping_zones:(typeof _store.shipping_zones==='string'?JSON.parse(_store.shipping_zones||'[]'):[]);
 
 // Stripe setup
+// Stripe setup — try store key first, fallback to config endpoint
 if(_store.stripe_publishable_key){
 try{_stripe=Stripe(_store.stripe_publishable_key);_stripeConfigured=true;document.getElementById('manualPayNote').style.display='none';}
 catch(e){_stripeConfigured=false;document.getElementById('manualPayNote').style.display='';document.getElementById('paymentDesc').style.display='none';}
 }else{
-_stripeConfigured=false;
-document.getElementById('manualPayNote').style.display='';
-document.getElementById('paymentDesc').style.display='none';
+try{
+const cfgRes=await fetch('/api/checkout/config');const cfg=await cfgRes.json();
+if(cfg.configured&&cfg.publishableKey){
+_stripe=Stripe(cfg.publishableKey);_stripeConfigured=true;document.getElementById('manualPayNote').style.display='none';
+}else{_stripeConfigured=false;document.getElementById('manualPayNote').style.display='';document.getElementById('paymentDesc').style.display='none';}
+}catch(e){_stripeConfigured=false;document.getElementById('manualPayNote').style.display='';document.getElementById('paymentDesc').style.display='none';}
 }
 
 // Load saved discount
