@@ -293,16 +293,26 @@ router.patch('/:id', async (req, res) => {
     // Cascade track_qty / continue_selling changes to all variants of this product
     if (trackQty !== undefined || track_qty !== undefined) {
       const tq = trackQty !== undefined ? (trackQty ? 1 : 0) : (track_qty ? 1 : 0);
-      await db.execute({
-        sql: 'UPDATE product_variants SET track_qty = ? WHERE product_id = ?',
-        args: [tq, req.params.id]
-      });
+      try {
+        const result = await db.execute({
+          sql: 'UPDATE product_variants SET track_qty = ? WHERE product_id = ?',
+          args: [tq, req.params.id]
+        });
+        console.log(`[CASCADE] track_qty=${tq} updated on ${result.rowsAffected || 0} variants for product ${req.params.id}`);
+      } catch(cascadeErr) {
+        console.error('[CASCADE] track_qty update failed:', cascadeErr.message);
+      }
     }
     if (continue_selling !== undefined) {
-      await db.execute({
-        sql: 'UPDATE product_variants SET continue_selling = ? WHERE product_id = ?',
-        args: [continue_selling ? 1 : 0, req.params.id]
-      });
+      try {
+        const result = await db.execute({
+          sql: 'UPDATE product_variants SET continue_selling = ? WHERE product_id = ?',
+          args: [continue_selling ? 1 : 0, req.params.id]
+        });
+        console.log(`[CASCADE] continue_selling=${continue_selling?1:0} updated on ${result.rowsAffected || 0} variants for product ${req.params.id}`);
+      } catch(cascadeErr) {
+        console.error('[CASCADE] continue_selling update failed (column may not exist):', cascadeErr.message);
+      }
     }
 
     const updated = await db.execute({ sql: 'SELECT * FROM products WHERE id = ?', args: [req.params.id] });
