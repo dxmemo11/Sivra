@@ -50,13 +50,13 @@ router.post('/signup', async (req, res) => {
 
     const storeId = uuid();
     await db.execute({
-      sql: 'INSERT INTO stores (id, merchant_id, name, slug) VALUES (?, ?, ?, ?)',
-      args: [storeId, merchantId, storeName, slug]
+      sql: 'INSERT INTO stores (id, merchant_id, name, slug, status) VALUES (?, ?, ?, ?, ?)',
+      args: [storeId, merchantId, storeName, slug, 'active']
     });
 
     const token = jwt.sign(
       { merchantId, storeId },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || 'sivra_dev_secret',
       { expiresIn: '30d' }
     );
 
@@ -112,7 +112,7 @@ router.post('/login', async (req, res) => {
 
     const token = jwt.sign(
       { merchantId: merchant.id, storeId: store?.id },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || 'sivra_dev_secret',
       { expiresIn: '30d' }
     );
 
@@ -190,7 +190,7 @@ router.post('/change-password', requireAuth, async (req, res) => {
 
     const hashed = await bcrypt.hash(newPassword, 12);
     await db.execute({
-      sql: 'UPDATE merchants SET password = ? WHERE id = ?',
+      sql: 'UPDATE merchants SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
       args: [hashed, req.merchantId]
     });
 
