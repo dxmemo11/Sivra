@@ -666,9 +666,9 @@
       document.getElementById('pSku').value = p.sku||'';
       document.getElementById('pBarcode').value = p.barcode||'';
       document.getElementById('pQty').value = p.quantity||0;
-      document.getElementById('pTrackQty').checked = p.track_qty !== 0;
+      document.getElementById('pTrackQty').checked = !!p.track_qty;
       document.getElementById('pContinue').checked = !!p.continue_selling;
-      document.getElementById('pTaxable').checked = p.taxable !== 0;
+      document.getElementById('pTaxable').checked = !!p.taxable;
       document.getElementById('pStatus').value = p.status||'active';
       document.getElementById('pCategory').value = p.category||'';
       document.getElementById('pType').value = p.product_type||'';
