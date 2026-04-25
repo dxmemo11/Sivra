@@ -154,7 +154,7 @@
                     <label class="toggle"><input type="checkbox" id="chkDiscounts" checked/><span class="toggle-slider"></span></label>
                   </div>
                 </div>
-                <div class="card-footer"><button class="btn btn-primary" onclick="Toast.success('Checkout settings saved')">Save</button></div>
+                <div class="card-footer"><button class="btn btn-primary" onclick="saveCheckoutSettings()">Save</button></div>
               </div>
             </div>
 
@@ -190,7 +190,7 @@
                     <span class="alert-icon">📧</span>
                     <div class="alert-body">
                       Add these environment variables in Railway to enable emails:
-                      <code style="display:block;margin-top:8px;font-size:11px;background:rgba(0,0,0,0.06);padding:8px;border-radius:4px;line-height:1.8">EMAIL_PROVIDER=resend<br>RESEND_API_KEY=re_xxxxxxxxxxxx<br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e2a7afa3abaebda4b0adafdf8d9086879091a29b8d9790868d8f838b8ccc818d8f">[email&#160;protected]</a><br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8dccc9c0c4c3d2c8c0ccc4c1b0f4e2f8cdeae0ece4e1a3eee2e0">[email&#160;protected]</a><br>STORE_URL=https://yourdomain.com</code>
+                      <code style="display:block;margin-top:8px;font-size:11px;background:rgba(0,0,0,0.06);padding:8px;border-radius:4px;line-height:1.8">EMAIL_PROVIDER=resend<br>RESEND_API_KEY=re_xxxxxxxxxxxx<br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c1848c80888d9e87938e8cfcaeb3a5a4b3b281b8aeb4b3a5aeaca0a8afefa2aeac">[email&#160;protected]</a><br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="bcfdf8f1f5f2e3f9f1fdf5f081c5d3c9fcdbd1ddd5d092dfd3d1">[email&#160;protected]</a><br>STORE_URL=https://yourdomain.com</code>
                     </div>
                   </div>
                   <div style="display:flex;flex-direction:column">
@@ -384,8 +384,7 @@ function renderZones() {
               placeholder="Rate name" style="height:30px;font-size:12px"/>
             <div style="display:flex;align-items:center;height:30px;border:1px solid #d1d1d1;border-radius:6px;overflow:hidden">
               <span style="padding:0 6px;background:#f9f9f9;border-right:1px solid #d1d1d1;font-size:11px;color:#6d7175;height:100%;display:flex;align-items:center">$</span>
-              <input type="number" value="${r.rate || ''}" step="0.01" min="0" placeholder="0.00"
-                oninput="_zones[${i}].rates[${ri}].rate=parseFloat(this.value)||0"
+              <input type="number" value="${r.rate || 0}" step="0.01" min="0"
                 onchange="_zones[${i}].rates[${ri}].rate=parseFloat(this.value)||0"
                 style="flex:1;border:none;outline:none;padding:0 6px;font-size:12px;height:100%"/>
             </div>
@@ -426,12 +425,7 @@ function removeRate(zi, ri) {
 }
 
 async function saveShipping() {
-  // Read current DOM values directly before saving (catches any missed onchange events)
-  document.querySelectorAll('#zonesContainer input[type=number]').forEach(input => {
-    try { input.dispatchEvent(new Event('change')); } catch(e) {}
-  });
   try {
-    if (!_zones.length) { Toast.error('Add at least one zone before saving'); return; }
     await API.patch('/api/store/shipping', { zones: _zones });
     Toast.success('Shipping saved — rates now visible at checkout');
   } catch(e) { Toast.error(e.message || 'Failed to save shipping'); }
@@ -456,6 +450,34 @@ async function saveTax() {
     });
     Toast.success('Tax settings saved — applied at checkout immediately');
   } catch(e) { Toast.error(e.message || 'Failed to save tax settings'); }
+}
+
+// ── CHECKOUT SETTINGS ─────────────────────────────────────────────────────────
+async function saveCheckoutSettings() {
+  try {
+    const s  = await API.get('/api/store/info');
+    const ts = typeof s.theme_settings === 'string'
+      ? JSON.parse(s.theme_settings || '{}')
+      : (s.theme_settings || {});
+    const updated = {
+      ...ts,
+      checkout_order_notes: document.getElementById('chkOrderNotes').checked,
+      checkout_discounts: document.getElementById('chkDiscounts').checked,
+    };
+    await API.patch('/api/store/info', { theme_settings: JSON.stringify(updated) });
+    Toast.success('Checkout settings saved');
+  } catch(e) { Toast.error(e.message || 'Failed to save checkout settings'); }
+}
+
+async function loadCheckoutSettings() {
+  try {
+    const s  = await API.get('/api/store/info');
+    const ts = typeof s.theme_settings === 'string'
+      ? JSON.parse(s.theme_settings || '{}')
+      : (s.theme_settings || {});
+    if (ts.checkout_order_notes !== undefined) document.getElementById('chkOrderNotes').checked = ts.checkout_order_notes;
+    if (ts.checkout_discounts !== undefined) document.getElementById('chkDiscounts').checked = ts.checkout_discounts;
+  } catch(e) {}
 }
 
 // ── INTEGRATIONS ──────────────────────────────────────────────────────────────
@@ -526,4 +548,38 @@ async function testEmail() {
     const data = await res.json();
     if (res.ok) Toast.success('Test email sent! Provider: ' + (data.provider || 'unknown'));
     else        Toast.error('Email not configured — add EMAIL_PROVIDER to Railway env vars');
-  } catch(e)  { Toast.error('Email not configured — check Railway env vars'); 
+  } catch(e)  { Toast.error('Email not configured — check Railway env vars'); }
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+(async function() {
+  const session = await initAdmin('settings');
+  if (!session) return;
+
+  // Check hash for deep link
+  const hash = location.hash.replace('#', '');
+  if (hash && PANELS.includes(hash)) {
+    showPanel(hash);
+  }
+
+  // Load general on start
+  loadGeneral();
+})();
+
+// Expose to global scope for onclick handlers
+window.showPanel = showPanel;
+window.saveGeneral = saveGeneral;
+window.saveShipping = saveShipping;
+window.saveTax = saveTax;
+window.saveIntegrations = saveIntegrations;
+window.saveCheckoutSettings = saveCheckoutSettings;
+window.changePassword = changePassword;
+window.testEmail = testEmail;
+window.addZone = addZone;
+window.removeZone = removeZone;
+window.addRate = addRate;
+window.removeRate = removeRate;
+window.loadCheckoutSettings = loadCheckoutSettings;
+</script>
+</body>
+</html>

@@ -1,597 +1,433 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="description" id="metaDesc" content=""/>
-  <meta property="og:title" id="ogTitle" content=""/>
-  <meta property="og:description" id="ogDesc" content=""/>
-  <meta property="og:image" id="ogImage" content=""/>
-  <meta property="og:type" content="website"/>
-  <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Checkout</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Inter',-apple-system,sans-serif;background:#f5f5f5;min-height:100vh;-webkit-font-smoothing:antialiased;color:#1a1a1a}
-    a{text-decoration:none;color:inherit}
-    button{font-family:inherit;cursor:pointer}
-    input,select,textarea{font-family:inherit}
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Checkout</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Archivo+Black&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="storefront.css"/>
+<script src="https://js.stripe.com/v3/"></script>
+<style>
+.check-page{max-width:1280px;margin:0 auto;padding:32px 32px 80px}
+.check-header{text-align:center;margin-bottom:36px}
+.check-h1{font-size:clamp(32px,4vw,56px);font-weight:900;letter-spacing:-0.03em;text-transform:uppercase;color:#0a0a0a;line-height:1}
+.check-sub{font-size:13px;color:#666;margin-top:8px;text-transform:uppercase;letter-spacing:1.5px;font-weight:600}
+.check-layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:40px;align-items:start}
+.check-section{background:#fff;border:1px solid #eee;border-radius:16px;padding:28px;margin-bottom:16px}
+.check-section-title{font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#ff3838;margin-bottom:20px}
+.check-section h2{font-size:20px;font-weight:900;letter-spacing:-0.02em;text-transform:uppercase;color:#0a0a0a;margin-bottom:6px}
+.check-section-desc{font-size:13px;color:#666;margin-bottom:20px}
+.ship-option{border:1.5px solid #ddd;border-radius:12px;padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;margin-bottom:10px;transition:all 0.15s;background:#fff}
+.ship-option:hover{border-color:#0a0a0a}
+.ship-option.selected{border-color:#0a0a0a;border-width:2px;padding:15px;background:#fafafa}
+.ship-option input[type=radio]{accent-color:#0a0a0a;flex-shrink:0;width:18px;height:18px}
+.ship-name{font-size:14px;font-weight:700;flex:1;color:#0a0a0a}
+.ship-meta{font-size:12px;color:#666;font-weight:500}
+.ship-price{font-size:15px;font-weight:800;flex-shrink:0;color:#0a0a0a}
+.err-banner{display:none;background:#ffe8e8;color:#c41e1e;padding:14px 18px;border-radius:12px;font-size:14px;margin-bottom:20px;border:1px solid #ffcccc;font-weight:600}
+.err-banner.show{display:block}
+.payment-note{background:#f5f5f5;padding:16px;border-radius:10px;font-size:13px;color:#555;border:1px dashed #ccc;line-height:1.5}
+#stripe-payment-element{margin-top:12px;padding:12px;background:#fff;border-radius:10px}
+#stripe-errors{background:#ffe8e8;color:#c41e1e;padding:12px;border-radius:8px;font-size:13px;margin-top:12px;display:none;font-weight:600}
+.check-summary{background:#fff;border:1.5px solid #0a0a0a;border-radius:16px;padding:24px;position:sticky;top:90px}
+.summary-title{font-size:18px;font-weight:900;text-transform:uppercase;letter-spacing:-0.02em;color:#0a0a0a;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #eee}
+.sum-items{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;max-height:280px;overflow-y:auto}
+.sum-item{display:grid;grid-template-columns:56px 1fr auto;gap:10px;align-items:center;font-size:13px}
+.sum-img{width:56px;height:56px;border-radius:8px;background:#f5f5f5;overflow:hidden;position:relative}
+.sum-img img{width:100%;height:100%;object-fit:cover}
+.sum-qty{position:absolute;top:-6px;right:-6px;background:#0a0a0a;color:#fff;border-radius:100px;min-width:20px;height:20px;padding:0 5px;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
+.sum-item-info{min-width:0}
+.sum-item-title{font-weight:700;color:#0a0a0a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sum-item-variant{color:#888;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+.sum-item-price{font-weight:800;color:#0a0a0a}
+.sum-disc-input{display:flex;gap:6px;padding-top:16px;border-top:1px solid #eee;margin-top:8px}
+.sum-disc-input input{flex:1;height:40px;padding:0 14px;background:#f5f5f5;border:1.5px solid #e5e5e5;border-radius:100px;font-size:12px;outline:none;font-family:inherit;font-weight:600}
+.sum-disc-input input:focus{border-color:#0a0a0a;background:#fff}
+.sum-disc-input button{padding:0 18px;background:#0a0a0a;color:#fff;border:none;border-radius:100px;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.sum-disc-applied{padding-top:16px;border-top:1px solid #eee;margin-top:8px}
+.sum-disc-chip{background:#e7f7ed;color:#1a7f37;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.sum-disc-chip button{background:none;border:none;color:#1a7f37;cursor:pointer;font-size:16px;font-weight:700;padding:0 4px}
+.sum-totals{padding-top:16px;border-top:1px solid #eee;margin-top:16px}
+.sum-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;color:#555}
+.sum-row.discount{color:#1a7f37;font-weight:700}
+.sum-total{display:flex;justify-content:space-between;align-items:baseline;padding-top:12px;margin-top:8px;border-top:1px solid #eee;font-size:14px;font-weight:900;text-transform:uppercase;color:#0a0a0a}
+.sum-total-amt{font-size:28px;letter-spacing:-0.02em}
+.trust{display:flex;justify-content:center;gap:14px;margin-top:18px;padding-top:16px;border-top:1px solid #eee;flex-wrap:wrap}
+.trust span{font-size:10px;color:#666;font-weight:700;letter-spacing:0.5px;text-transform:uppercase}
+@media (max-width:900px){
+.check-layout{grid-template-columns:1fr;gap:24px}
+.check-page{padding:20px 16px 60px}
+.check-section{padding:20px}
+.check-summary{position:static}
+}
+</style></head><body>
 
-    /* Layout */
-    .checkout-wrap{display:grid;grid-template-columns:1fr 420px;min-height:100vh}
-    .checkout-left{background:white;padding:40px 48px 80px;border-right:1px solid #e3e3e3}
-    .checkout-right{background:#f9f9f9;padding:32px 40px;border-left:1px solid #e3e3e3}
-    @media(max-width:768px){.checkout-wrap{grid-template-columns:1fr}.checkout-right{border-left:none;border-top:1px solid #e3e3e3}.checkout-left{padding:24px 20px}}
+<div class="ann-bar"><div class="ann-slide"><span>🔒 SECURE CHECKOUT</span><span>★</span><span>30-DAY RETURNS</span><span>★</span><span>AUTHENTIC QUALITY</span></div></div>
 
-    /* Header */
-    .checkout-header{margin-bottom:32px}
-    .store-logo{font-size:20px;font-weight:700;color:#1a1a1a;margin-bottom:16px;display:block}
-    .checkout-steps{display:flex;align-items:center;gap:8px;font-size:13px;color:#8c9196}
-    .step{color:#8c9196}.step.active{color:#1a1a1a;font-weight:500}.step-sep{color:#c9cccf}
+<nav class="store-nav"><div class="nav-inner">
+<a class="nav-logo" id="navLogo" onclick="goHome()">STORE</a>
+<div style="flex:1"></div>
+<div class="nav-right">
+<button class="nav-icon" onclick="location.href='sivra-cart.html?store='+_storeSlug"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 5h11l-1 9H5L4 5zM4 5L3.5 3H1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="cart-count" id="cartCount" style="display:none">0</span></button>
+</div></div></nav>
 
-    /* Section titles */
-    .section-title{font-size:16px;font-weight:600;color:#1a1a1a;margin-bottom:14px}
-
-    /* Form */
-    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .form-group{margin-bottom:12px}
-    label.form-label{display:block;font-size:12px;font-weight:500;color:#6d7175;margin-bottom:4px}
-    .input{width:100%;height:40px;padding:0 12px;border:1px solid #d1d1d1;border-radius:6px;font-size:14px;color:#1a1a1a;background:white;outline:none;transition:border-color 0.15s}
-    .input:focus{border-color:#1a1a1a;box-shadow:0 0 0 3px rgba(26,26,26,0.08)}
-    .input.error{border-color:#c0392b}
-    select.input{-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 4.5l3 3 3-3' stroke='%236d7175' stroke-width='1.3' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;cursor:pointer}
-
-    /* Checkbox */
-    .checkbox-row{display:flex;align-items:center;gap:8px;font-size:13px;color:#6d7175;margin-bottom:12px}
-    .checkbox-row input[type=checkbox]{width:16px;height:16px;accent-color:#1a1a1a;flex-shrink:0}
-
-    /* Shipping methods */
-    .shipping-option{border:1px solid #e3e3e3;border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;margin-bottom:8px;transition:border-color 0.1s}
-    .shipping-option:hover{border-color:#1a1a1a}
-    .shipping-option.selected{border-color:#1a1a1a;border-width:2px}
-    .shipping-option input[type=radio]{accent-color:#1a1a1a;flex-shrink:0}
-    .shipping-name{font-size:14px;font-weight:500;flex:1}
-    .shipping-meta{font-size:12px;color:#6d7175}
-    .shipping-price{font-size:14px;font-weight:600;flex-shrink:0}
-
-    /* Discount */
-    .discount-row{display:flex;gap:8px;margin-bottom:20px}
-    .discount-row .input{flex:1}
-    .discount-applied{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#f0faf0;border:1px solid #b7e2c4;border-radius:6px;font-size:13px;color:#1a7f37;margin-bottom:20px}
-    .discount-applied .remove{background:none;border:none;color:#6d7175;cursor:pointer;font-size:16px;margin-left:auto}
-
-    /* Payment placeholder */
-    .payment-box{border:1px solid #e3e3e3;border-radius:8px;padding:20px}
-    .payment-note{background:#f9f9f9;border-radius:6px;padding:12px 14px;font-size:13px;color:#6d7175;text-align:center;margin-bottom:16px}
-    .payment-icons{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
-    .payment-icon{height:24px;padding:0 8px;background:#f6f6f7;border:1px solid #e3e3e3;border-radius:4px;font-size:11px;font-weight:700;display:flex;align-items:center;color:#303030}
-
-    /* Summary */
-    .summary-item{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
-    .item-img{width:60px;height:60px;border-radius:6px;border:1px solid #e3e3e3;object-fit:cover;flex-shrink:0;background:#f6f6f7;display:flex;align-items:center;justify-content:center;color:#c9cccf;position:relative}
-    .item-qty-badge{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:#6d7175;color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
-    .item-details{flex:1}
-    .item-name{font-size:13px;font-weight:500;color:#1a1a1a;margin-bottom:2px}
-    .item-variant{font-size:12px;color:#6d7175}
-    .item-price{font-size:14px;font-weight:600;flex-shrink:0}
-
-    /* Discount input in summary */
-    .summary-divider{height:1px;background:#e3e3e3;margin:16px 0}
-    .summary-row{display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px}
-    .summary-row.total{font-weight:700;font-size:16px;margin-top:8px;border-top:1px solid #e3e3e3;padding-top:12px}
-    .summary-row.discount{color:#1a7f37}
-
-    /* CTA */
-    .btn-pay{width:100%;height:52px;background:#1a1a1a;color:white;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;transition:background 0.15s;margin-top:16px}
-    .btn-pay:hover{background:#303030}
-    .btn-pay:disabled{background:#8c9196;cursor:not-allowed}
-    .btn-link{background:none;border:none;color:#6d7175;font-size:13px;cursor:pointer;padding:8px 0;display:flex;align-items:center;gap:4px}
-    .btn-link:hover{color:#1a1a1a}
-
-    /* Error */
-    .error-msg{background:#fde8e8;border:1px solid #f5c6c6;border-radius:6px;padding:12px 14px;font-size:13px;color:#c0392b;margin-bottom:16px;display:none}
-
-    /* Section */
-    .section{margin-bottom:28px}
-    .section-divider{height:1px;background:#e3e3e3;margin:24px 0}
-  </style>
-</head>
-<body>
-
-<div class="checkout-wrap">
-  <!-- LEFT: Form -->
-  <div class="checkout-left">
-    <div class="checkout-header">
-      <a href="javascript:void(0)" class="store-logo" id="storeLogo">Store</a>
-      <div class="checkout-steps">
-        <span class="step">Cart</span>
-        <span class="step-sep">›</span>
-        <span class="step active">Information</span>
-        <span class="step-sep">›</span>
-        <span class="step">Shipping</span>
-        <span class="step-sep">›</span>
-        <span class="step">Payment</span>
-      </div>
-    </div>
-
-    <div class="error-msg" id="errorMsg"></div>
-
-    <!-- Contact -->
-    <div class="section">
-      <div class="section-title">Contact</div>
-      <div class="form-group">
-        <label class="form-label">Email</label>
-        <input class="input" type="email" id="email" placeholder="you@example.com" autocomplete="email"/>
-      </div>
-      <div class="checkbox-row">
-        <input type="checkbox" id="marketing"/>
-        <span>Email me with news and offers</span>
-      </div>
-    </div>
-
-    <div class="section-divider"></div>
-
-    <!-- Shipping address -->
-    <div class="section">
-      <div class="section-title">Shipping address</div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">First name</label>
-          <input class="input" id="firstName" autocomplete="given-name"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Last name</label>
-          <input class="input" id="lastName" autocomplete="family-name"/>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Address</label>
-        <input class="input" id="address" autocomplete="street-address"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Apartment, suite, etc. (optional)</label>
-        <input class="input" id="apt" autocomplete="address-line2"/>
-      </div>
-      <div class="form-row" style="grid-template-columns:1fr 1fr 1fr">
-        <div class="form-group">
-          <label class="form-label">City</label>
-          <input class="input" id="city" autocomplete="address-level2"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Country</label>
-          <select class="input" id="country" onchange="loadShippingMethods()">
-            <option value="AU">Australia</option>
-            <option value="US">United States</option>
-            <option value="GB">United Kingdom</option>
-            <option value="CA">Canada</option>
-            <option value="NZ">New Zealand</option>
-            <option value="SG">Singapore</option>
-            <option value="AE">UAE</option>
-            <option value="IQ">Iraq</option>
-            <option value="SA">Saudi Arabia</option>
-            <option value="">Other</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Postcode</label>
-          <input class="input" id="postcode" autocomplete="postal-code"/>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Phone (optional)</label>
-        <input class="input" type="tel" id="phone" autocomplete="tel"/>
-      </div>
-    </div>
-
-    <div class="section-divider"></div>
-
-    <!-- Shipping method -->
-    <div class="section">
-      <div class="section-title">Shipping method</div>
-      <div id="shippingMethods">
-        <div style="text-align:center;padding:20px;color:#8c9196;font-size:14px">Enter your address to see shipping options</div>
-      </div>
-    </div>
-
-    <div class="section-divider"></div>
-
-    <!-- Payment -->
-    <div class="section">
-      <div class="section-title">Payment</div>
-      <div class="payment-note">🔒 Your payment information is secure. Transactions are encrypted.</div>
-      <div class="payment-box">
-        <div class="payment-icons">
-          <span class="payment-icon">VISA</span>
-          <span class="payment-icon">MC</span>
-          <span class="payment-icon">AMEX</span>
-          <span class="payment-icon">PayPal</span>
-        </div>
-        <div style="font-size:14px;color:#6d7175;margin-bottom:8px">
-          Payment processing will be available soon. Orders are placed as manual payments.
-        </div>
-        <div style="font-size:13px;color:#8c9196">You'll receive order confirmation and payment instructions via email.</div>
-      </div>
-    </div>
-
-    <button class="btn-pay" id="payBtn" onclick="placeOrder()">Complete order</button>
-
-    <div style="display:flex;justify-content:center;margin-top:16px">
-      <a href="javascript:void(0)" onclick="goBack()" class="btn-link">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-        Return to cart
-      </a>
-    </div>
-  </div>
-
-  <!-- RIGHT: Order summary -->
-  <div class="checkout-right">
-    <!-- Mobile toggle -->
-    <div id="summaryToggle" onclick="toggleSummary()" style="display:none;background:white;border:1px solid #e3e3e3;border-radius:8px;padding:12px 14px;margin-bottom:16px;cursor:pointer;font-size:14px;font-weight:500">
-      Order summary ▾
-    </div>
-
-    <div id="summaryContent">
-      <!-- Cart items -->
-      <div id="summaryItems" style="margin-bottom:16px"></div>
-
-      <!-- Discount code -->
-      <div class="summary-divider"></div>
-      <div id="discountApplied" style="display:none" class="discount-applied">
-        <span>🏷️</span>
-        <span id="discountLabel">Discount applied</span>
-        <button class="remove" onclick="removeDiscount()">×</button>
-      </div>
-      <div id="discountForm" class="discount-row">
-        <input class="input" id="discountCode" placeholder="Discount code or gift card" style="height:40px"/>
-        <button onclick="applyDiscount()" style="height:40px;padding:0 16px;background:none;border:1px solid #d1d1d1;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all 0.1s" onmouseover="this.style.background='#f6f6f7'" onmouseout="this.style.background='none'">Apply</button>
-      </div>
-
-      <!-- Totals -->
-      <div class="summary-divider"></div>
-      <div class="summary-row">
-        <span style="color:#6d7175">Subtotal</span>
-        <span id="summarySubtotal">—</span>
-      </div>
-      <div class="summary-row discount" id="summaryDiscountRow" style="display:none">
-        <span>Discount</span>
-        <span id="summaryDiscount">—</span>
-      </div>
-      <div class="summary-row">
-        <span style="color:#6d7175">Shipping</span>
-        <span id="summaryShipping">—</span>
-      </div>
-      <div class="summary-row">
-        <span style="color:#6d7175">Taxes</span>
-        <span id="summaryTax">—</span>
-      </div>
-      <div class="summary-row total">
-        <span>Total</span>
-        <span id="summaryTotal">—</span>
-      </div>
-    </div>
-  </div>
+<div class="check-page">
+<div class="check-header">
+<h1 class="check-h1">Checkout</h1>
+<div class="check-sub">🔒 Secure · Your info is encrypted</div>
 </div>
 
+<div class="err-banner" id="errBanner"></div>
+
+<div class="check-layout">
+<div>
+<!-- Contact -->
+<div class="check-section">
+<div class="check-section-title">Step 1</div>
+<h2>Contact</h2>
+<div class="check-section-desc">We'll send your order confirmation here.</div>
+<div class="form-group">
+<label class="form-label">Email</label>
+<input class="form-input" type="email" id="email" placeholder="you@example.com" autocomplete="email"/>
+</div>
+</div>
+
+<!-- Shipping -->
+<div class="check-section">
+<div class="check-section-title">Step 2</div>
+<h2>Shipping Address</h2>
+<div class="form-row">
+<div class="form-group">
+<label class="form-label">First name</label>
+<input class="form-input" id="firstName" autocomplete="given-name"/>
+</div>
+<div class="form-group">
+<label class="form-label">Last name</label>
+<input class="form-input" id="lastName" autocomplete="family-name"/>
+</div>
+</div>
+<div class="form-group">
+<label class="form-label">Address</label>
+<input class="form-input" id="address" placeholder="Street address" autocomplete="street-address"/>
+</div>
+<div class="form-group">
+<label class="form-label">Apartment, suite, etc. <span style="font-weight:500;text-transform:none;letter-spacing:0;color:#888">(optional)</span></label>
+<input class="form-input" id="apt" autocomplete="address-line2"/>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label class="form-label">City</label>
+<input class="form-input" id="city" autocomplete="address-level2"/>
+</div>
+<div class="form-group">
+<label class="form-label">Country</label>
+<select class="form-select" id="country" onchange="loadShippingMethods()">
+<option value="">Select country</option>
+<option value="US">United States</option><option value="CA">Canada</option><option value="GB">United Kingdom</option><option value="AU">Australia</option><option value="DE">Germany</option><option value="FR">France</option><option value="ES">Spain</option><option value="IT">Italy</option><option value="NL">Netherlands</option><option value="BE">Belgium</option><option value="SE">Sweden</option><option value="NO">Norway</option><option value="DK">Denmark</option><option value="FI">Finland</option><option value="IE">Ireland</option><option value="PT">Portugal</option><option value="AT">Austria</option><option value="CH">Switzerland</option><option value="JP">Japan</option><option value="MX">Mexico</option><option value="BR">Brazil</option><option value="AR">Argentina</option><option value="OTHER">Other</option>
+</select>
+</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label class="form-label">Postal code</label>
+<input class="form-input" id="postcode" autocomplete="postal-code"/>
+</div>
+<div class="form-group">
+<label class="form-label">Phone <span style="font-weight:500;text-transform:none;letter-spacing:0;color:#888">(optional)</span></label>
+<input class="form-input" type="tel" id="phone" autocomplete="tel"/>
+</div>
+</div>
+</div>
+
+<!-- Shipping method -->
+<div class="check-section">
+<div class="check-section-title">Step 3</div>
+<h2>Shipping Method</h2>
+<div id="shippingMethods">
+<div style="text-align:center;padding:20px;color:#888;font-size:13px">Enter your address to see shipping options</div>
+</div>
+</div>
+
+<!-- Payment -->
+<div class="check-section">
+<div class="check-section-title">Step 4</div>
+<h2>Payment</h2>
+<div class="check-section-desc" id="paymentDesc">🔒 All transactions are secure and encrypted.</div>
+<div id="stripe-payment-element"></div>
+<div id="stripe-errors"></div>
+<div class="payment-note" id="manualPayNote" style="display:none">Manual payment — you'll receive payment instructions via email after placing your order.</div>
+</div>
+
+<button class="btn-primary" id="payBtn" onclick="placeOrder()" style="width:100%;padding:20px;font-size:14px">Complete Order</button>
+
+<div style="text-align:center;margin-top:20px;font-size:12px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:1px">🔒 Secure Checkout · Powered by Stripe</div>
+</div>
+
+<!-- Order summary -->
+<div class="check-summary">
+<div class="summary-title">Order Summary</div>
+<div class="sum-items" id="sumItems"></div>
+
+<div id="discountArea"></div>
+
+<div class="sum-totals">
+<div class="sum-row"><span>Subtotal</span><span id="sumSubtotal">$0.00</span></div>
+<div class="sum-row" id="sumDiscountRow" style="display:none"><span id="sumDiscountLbl">Discount</span><span id="sumDiscountAmt">-$0.00</span></div>
+<div class="sum-row"><span>Shipping</span><span id="sumShipping">—</span></div>
+<div class="sum-row" id="sumTaxRow" style="display:none"><span>Tax</span><span id="sumTax">$0.00</span></div>
+<div class="sum-total"><span>Total</span><span class="sum-total-amt" id="sumTotal">$0.00</span></div>
+</div>
+
+<div class="trust">
+<span>🔒 Secure</span>
+<span>🚀 Fast ship</span>
+<span>↺ Easy returns</span>
+</div>
+</div>
+</div>
+</div>
+
+<div class="toast" id="sivraToast"></div>
+
 <script>
-  // ── STATE ──────────────────────────────────────────
-  let _cart = [];
-  let _store = null;
-  let _storeSlug = '';
-  let _shippingZones = [];
-  let _taxRate = 0, _taxEnabled = false, _taxIncluded = false;
-  let _selectedShipping = null;
-  let _discount = null;
-  let _discountSavings = 0;
+let _storeSlug=localStorage.getItem('sivra_store_slug')||'';
+let _cart=[],_store=null,_discount=null,_selectedShipping=null,_selectedShippingName='',_shippingZones=[];
+let _stripe=null,_stripeConfigured=false;
 
-  // ── INIT ───────────────────────────────────────────
-  function getCart() { try { return JSON.parse(localStorage.getItem('sivra_cart')||'[]'); } catch(e) { return []; } }
-  function saveCart(c) { localStorage.setItem('sivra_cart', JSON.stringify(c)); }
+function getCart(){try{return JSON.parse(localStorage.getItem('sivra_cart')||'[]');}catch(e){return[];}}
+function saveCart(c){localStorage.setItem('sivra_cart',JSON.stringify(c));}
+function updateCartBadge(){const n=getCart().reduce((s,i)=>s+(i.qty||0),0);const el=document.getElementById('cartCount');if(el){el.textContent=n;el.style.display=n>0?'flex':'none';}}
+function toast(msg){const el=document.getElementById('sivraToast');if(!el)return;el.textContent=msg;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2500);}
+function goHome(){location.href='sivra-storefront.html?store='+_storeSlug;}
+function fmtMoney(v){return '$'+parseFloat(v||0).toFixed(2);}
+function showError(msg){const el=document.getElementById('errBanner');el.textContent=msg;el.classList.add('show');window.scrollTo({top:0,behavior:'smooth'});}
+function hideError(){document.getElementById('errBanner').classList.remove('show');}
 
-  async function init() {
-    _storeSlug = localStorage.getItem('sivra_store_slug') || '';
-    _cart = getCart();
-    if (!_cart.length) { location.href = 'sivra-cart.html'; return; }
+async function load(){
+_storeSlug=new URLSearchParams(location.search).get('store')||_storeSlug;
+localStorage.setItem('sivra_store_slug',_storeSlug);
+_cart=getCart();
 
-    // Save as abandoned checkout
-    try {
-      const email = localStorage.getItem('sivra_last_email') || '';
-      const total = _cart.reduce((s,i) => s + parseFloat(i.price||0)*(i.qty||1), 0);
-      fetch('/api/storefront/'+_storeSlug+'/checkout-started', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({email, cart:_cart, total})
-      }).catch(()=>{});
-    } catch(e) {}
+if(!_cart.length){location.href='sivra-cart.html?store='+_storeSlug;return;}
 
-    // Load store info — MUST complete before loadShippingMethods
-    try {
-      const res = await fetch('/api/storefront/'+_storeSlug);
-      if (!res.ok) throw new Error('Store not found');
-      _store = await res.json();
+// Save cart to abandoned checkouts endpoint
+try{
+const subtotal=_cart.reduce((s,i)=>s+parseFloat(i.price||0)*(i.qty||1),0);
+const email=localStorage.getItem('sivra_last_email')||'';
+if(email){
+fetch('/api/storefront/'+_storeSlug+'/checkout-started',{
+method:'POST',headers:{'Content-Type':'application/json'},
+body:JSON.stringify({email,cart:_cart,total:subtotal})
+}).catch(()=>{});
+}
+}catch(e){}
 
-      const name = _store.name || 'Store';
-      document.title = 'Checkout — ' + name;
-      const logoEl = document.getElementById('storeLogo');
-      if (logoEl) logoEl.textContent = name;
+try{
+const res=await fetch('/api/storefront/'+_storeSlug);_store=await res.json();
+const name=_store.name||'Store';
+document.title='Checkout — '+name;
+document.getElementById('navLogo').textContent=name.toUpperCase();
+if(_store.logo_url&&_store.logo_url.startsWith('http')){document.getElementById('navLogo').innerHTML='<img src="'+_store.logo_url+'" alt="'+name+'" style="height:32px;max-width:140px;object-fit:contain"/>';}
 
-      // Colors & announcement bar
-      if (_store.primary_color) document.documentElement.style.setProperty('--primary', _store.primary_color);
-      if (_store.accent_color)  document.documentElement.style.setProperty('--accent', _store.accent_color);
-      const ab = document.getElementById('annBar');
-      if (ab) {
-        if (_store.announcement_bar && _store.announcement_bar_enabled) {
-          ab.textContent = _store.announcement_bar;
-          ab.style.display = '';
-          if (_store.primary_color) ab.style.background = _store.primary_color;
-        } else { ab.style.display = 'none'; }
-      }
+// Parse shipping zones
+_shippingZones=Array.isArray(_store.shipping_zones)?_store.shipping_zones:(typeof _store.shipping_zones==='string'?JSON.parse(_store.shipping_zones||'[]'):[]);
 
-      // Parse shipping zones
-      if (Array.isArray(_store.shipping_zones)) {
-        _shippingZones = _store.shipping_zones;
-      } else if (typeof _store.shipping_zones === 'string' && _store.shipping_zones) {
-        try { _shippingZones = JSON.parse(_store.shipping_zones); } catch(e) { _shippingZones = []; }
-      } else {
-        _shippingZones = [];
-      }
+// Stripe setup
+// Stripe setup — try store key first, fallback to config endpoint
+if(_store.stripe_publishable_key){
+try{_stripe=Stripe(_store.stripe_publishable_key);_stripeConfigured=true;document.getElementById('manualPayNote').style.display='none';}
+catch(e){_stripeConfigured=false;document.getElementById('manualPayNote').style.display='';document.getElementById('paymentDesc').style.display='none';}
+}else{
+try{
+const cfgRes=await fetch('/api/checkout/config');const cfg=await cfgRes.json();
+if(cfg.configured&&cfg.publishableKey){
+_stripe=Stripe(cfg.publishableKey);_stripeConfigured=true;document.getElementById('manualPayNote').style.display='none';
+}else{_stripeConfigured=false;document.getElementById('manualPayNote').style.display='';document.getElementById('paymentDesc').style.display='none';}
+}catch(e){_stripeConfigured=false;document.getElementById('manualPayNote').style.display='';document.getElementById('paymentDesc').style.display='none';}
+}
 
-      // Parse tax
-      _taxRate    = parseFloat(_store.tax_rate) || 0;
-      _taxEnabled = !!_store.tax_enabled;
-      _taxIncluded = !!_store.tax_included;
+// Load saved discount
+try{const saved=localStorage.getItem('sivra_discount');if(saved)_discount=JSON.parse(saved);}catch(e){}
 
-    } catch(e) {
-      console.error('Failed to load store:', e);
-      _shippingZones = [];
-    }
+// Pre-fill email if saved
+const savedEmail=localStorage.getItem('sivra_last_email');
+if(savedEmail)document.getElementById('email').value=savedEmail;
 
-    // Nav menus
-    try {
-      const menuRes = await fetch('/api/storefront/'+_storeSlug+'/menus');
-      const menuData = await menuRes.json();
-      const navLinks = document.getElementById('navLinks');
-      if (navLinks && menuData.items && menuData.items.length) {
-        navLinks.querySelectorAll('.nav-dynamic').forEach(el=>el.remove());
-        menuData.items.forEach(item => {
-          const a = document.createElement('a');
-          a.href='javascript:void(0)'; a.className='nav-link nav-dynamic';
-          a.textContent=item.name;
-          const url=item.url||'#';
-          a.onclick=()=>{ if(url&&url!=='#') location.href=url; };
-          navLinks.appendChild(a);
-        });
-      }
-    } catch(e) {}
+}catch(e){console.error(e);}
 
-    renderSummaryItems();
-    loadShippingMethods();
-    calcTotals();
-  }
+updateCartBadge();
+renderSummary();
+}
 
-  function renderSummaryItems() {
-    const el = document.getElementById('summaryItems');
-    el.innerHTML = _cart.map(item => {
-      const img = item.image
-        ? `<img src="${item.image}" style="width:100%;height:100%;object-fit:cover;border-radius:6px"/>`
-        : `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" opacity="0.2"><rect x="2" y="2" width="20" height="20" rx="3" stroke="#303030" stroke-width="2"/></svg>`;
-      return `<div class="summary-item">
-        <div class="item-img">${img}<span class="item-qty-badge">${item.qty}</span></div>
-        <div class="item-details">
-          <div class="item-name">${item.title}</div>
-          ${item.variantTitle ? `<div class="item-variant">${item.variantTitle}</div>` : ''}
-        </div>
-        <div class="item-price">$${(parseFloat(item.price||0)*item.qty).toFixed(2)}</div>
-      </div>`;
-    }).join('');
-  }
+function renderSummary(){
+const itemsEl=document.getElementById('sumItems');
+itemsEl.innerHTML=_cart.map(i=>
+'<div class="sum-item">'+
+'<div class="sum-img">'+(i.image?'<img src="'+i.image+'" alt=""/>':'')+'<span class="sum-qty">'+i.qty+'</span></div>'+
+'<div class="sum-item-info"><div class="sum-item-title">'+i.title+'</div>'+(i.variantTitle?'<div class="sum-item-variant">'+i.variantTitle+'</div>':'')+'</div>'+
+'<div class="sum-item-price">'+fmtMoney(parseFloat(i.price)*i.qty)+'</div>'+
+'</div>'
+).join('');
 
-  function calcTotals() {
-    const subtotal = _cart.reduce((s,i) => s + parseFloat(i.price||0)*i.qty, 0);
-    const discountAmt = _discountSavings || 0;
-    const shippingAmt = _selectedShipping !== null ? _selectedShipping : null;
-    const taxRate = (_store?.tax_enabled && _store?.tax_rate) ? parseFloat(_store.tax_rate) : 0;
-    const taxable = subtotal - discountAmt;
-    const tax = taxRate > 0 ? taxable * taxRate / 100 : 0;
-    const total = subtotal - discountAmt + (shippingAmt || 0) + tax;
+// Discount area
+const discEl=document.getElementById('discountArea');
+if(_discount){
+discEl.innerHTML='<div class="sum-disc-applied"><div class="sum-disc-chip"><span>✓ '+_discount.code+' applied</span><button onclick="removeDiscount()">×</button></div></div>';
+}else{
+discEl.innerHTML='<div class="sum-disc-input"><input type="text" id="discountCode" placeholder="Discount code" onkeydown="if(event.key===\'Enter\')applyDiscount()"/><button onclick="applyDiscount()">Apply</button></div>';
+}
 
-    document.getElementById('summarySubtotal').textContent = '$' + subtotal.toFixed(2);
-    document.getElementById('summaryShipping').textContent = shippingAmt === null ? 'Calculated at next step' : shippingAmt === 0 ? 'Free' : '$' + shippingAmt.toFixed(2);
-    document.getElementById('summaryTax').textContent = tax > 0 ? '$' + tax.toFixed(2) : (taxRate > 0 ? 'Calculated at next step' : 'N/A');
-    document.getElementById('summaryTotal').textContent = '$' + total.toFixed(2);
+const subtotal=_cart.reduce((s,i)=>s+parseFloat(i.price||0)*(i.qty||1),0);
+const discountAmt=_discount?(_discount.type==='percentage'?subtotal*(parseFloat(_discount.value)/100):(_discount.type==='fixed'?Math.min(subtotal,parseFloat(_discount.value)):0)):0;
+const shippingAmt=_selectedShipping;
+const taxRate=_store?._tax_rate||0;
+const tax=taxRate?(subtotal-discountAmt)*taxRate:0;
+const total=subtotal-discountAmt+(shippingAmt||0)+tax;
 
-    if (discountAmt > 0) {
-      document.getElementById('summaryDiscountRow').style.display = '';
-      document.getElementById('summaryDiscount').textContent = '-$' + discountAmt.toFixed(2);
-    } else {
-      document.getElementById('summaryDiscountRow').style.display = 'none';
-    }
-  }
+document.getElementById('sumSubtotal').textContent=fmtMoney(subtotal);
+if(_discount){
+document.getElementById('sumDiscountRow').style.display='';
+document.getElementById('sumDiscountLbl').textContent='Discount ('+_discount.code+')';
+document.getElementById('sumDiscountAmt').textContent='-'+fmtMoney(discountAmt);
+}else{document.getElementById('sumDiscountRow').style.display='none';}
+document.getElementById('sumShipping').textContent=shippingAmt===null?'Calculated next':shippingAmt===0?'FREE':fmtMoney(shippingAmt);
+if(shippingAmt===0)document.getElementById('sumShipping').style.color='#1a7f37';
+document.getElementById('sumTotal').textContent=fmtMoney(total);
+}
 
-  // ── SHIPPING METHODS ──────────────────────────────
-  function loadShippingMethods() {
-    const subtotal = _cart.reduce((s,i) => s + parseFloat(i.price||0)*i.qty, 0);
-    const el = document.getElementById('shippingMethods');
+function loadShippingMethods(){
+const country=document.getElementById('country').value;
+const el=document.getElementById('shippingMethods');
+if(!country){el.innerHTML='<div style="text-align:center;padding:20px;color:#888;font-size:13px">Select a country to see shipping options</div>';return;}
+if(!_shippingZones.length){
+el.innerHTML=buildShippingOption('free','Standard shipping','5–7 business days',0,true);
+_selectedShipping=0;_selectedShippingName='Standard shipping';
+renderSummary();return;
+}
+const options=[];
+_shippingZones.forEach(zone=>{
+const countries=zone.countries||[];
+if(countries.length&&!countries.includes(country)&&!countries.includes('*'))return;
+(zone.rates||[zone]).forEach(rate=>{
+const price=parseFloat(rate.price||rate.rate||0);
+options.push({id:rate.id||zone.id||'r1',name:rate.name||zone.name||'Standard shipping',eta:rate.eta||'5–7 business days',price});
+});
+});
+if(!options.length){
+el.innerHTML=buildShippingOption('free','Standard shipping','5–7 business days',0,true);
+_selectedShipping=0;_selectedShippingName='Standard shipping';
+}else{
+el.innerHTML=options.map((o,i)=>buildShippingOption(o.id,o.name,o.eta,o.price,i===0)).join('');
+_selectedShipping=options[0].price;_selectedShippingName=options[0].name;
+}
+renderSummary();
+}
 
-    if (!_shippingZones.length) {
-      // Default free shipping
-      el.innerHTML = buildShippingOption('free', 'Standard shipping', '5–7 business days', 0, true);
-      _selectedShipping = 0;
-      calcTotals();
-      return;
-    }
+function buildShippingOption(id,name,eta,price,selected){
+return '<div class="ship-option'+(selected?' selected':'')+'" onclick="selectShipping(this,\''+id+'\','+price+',\''+name.replace(/'/g,"\\'")+'\')">'+
+'<input type="radio" name="shipping" value="'+id+'" '+(selected?'checked':'')+'/>'+
+'<div style="flex:1"><div class="ship-name">'+name+'</div><div class="ship-meta">'+eta+'</div></div>'+
+'<div class="ship-price">'+(price===0?'<span style="color:#1a7f37">FREE</span>':fmtMoney(price))+'</div>'+
+'</div>';
+}
 
-    // Build all rate options from zones
-    const options = [];
-    _shippingZones.forEach(zone => {
-      const rates = zone.rates || [{ id: zone.id||'r1', name: zone.name||'Standard', rate: zone.rate||0, free_over: zone.free_over||null }];
-      rates.forEach(rate => {
-        const isFree = rate.free_over !== null && rate.free_over !== undefined && subtotal >= parseFloat(rate.free_over);
-        const price = isFree ? 0 : parseFloat(rate.rate) || 0;
-        options.push({ id: rate.id||zone.id||'r1', name: rate.name||zone.name||'Standard shipping', eta: rate.eta||'5–7 business days', price });
-      });
-    });
+function selectShipping(el,id,price,name){
+document.querySelectorAll('.ship-option').forEach(o=>o.classList.remove('selected'));
+el.classList.add('selected');
+el.querySelector('input[type=radio]').checked=true;
+_selectedShipping=price;_selectedShippingName=name||'Shipping';
+renderSummary();
+}
 
-    if (!options.length) {
-      el.innerHTML = buildShippingOption('free', 'Standard shipping', '5–7 business days', 0, true);
-      _selectedShipping = 0;
-      calcTotals();
-      return;
-    }
+async function applyDiscount(){
+const code=document.getElementById('discountCode').value.trim();if(!code)return;
+const subtotal=_cart.reduce((s,i)=>s+parseFloat(i.price||0)*(i.qty||1),0);
+try{
+const res=await fetch('/api/storefront/'+_storeSlug+'/discount/validate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,subtotal})});
+const data=await res.json();
+if(data.error){toast(data.error);return;}
+_discount=data.discount;
+localStorage.setItem('sivra_discount',JSON.stringify(_discount));
+toast('Discount applied!');renderSummary();
+}catch(e){toast('Invalid discount code');}
+}
 
-    // Sort by price
-    options.sort((a,b) => a.price - b.price);
-    el.innerHTML = options.map((opt, i) => buildShippingOption(opt.id, opt.name, opt.eta, opt.price, i===0)).join('');
-    _selectedShipping = options[0].price;
-    calcTotals();
-  }
+function removeDiscount(){_discount=null;localStorage.removeItem('sivra_discount');renderSummary();}
 
-  function buildShippingOption(id, name, eta, price, selected) {
-    return `<div class="shipping-option${selected?' selected':''}" onclick="selectShipping(this,'${id}',${price})">
-      <input type="radio" name="shipping" value="${id}" ${selected?'checked':''} onchange="selectShipping(this.closest('.shipping-option'),'${id}',${price})"/>
-      <div>
-        <div class="shipping-name">${name}</div>
-        <div class="shipping-meta">${eta}</div>
-      </div>
-      <div class="shipping-price">${price === 0 ? '<span style="color:#1a7f37;font-weight:600">Free</span>' : '$'+price.toFixed(2)}</div>
-    </div>`;
-  }
+async function placeOrder(){
+const emailVal=document.getElementById('email')?.value||'';
+if(emailVal)localStorage.setItem('sivra_last_email',emailVal);
+hideError();
+const email=document.getElementById('email').value.trim();
+const firstName=document.getElementById('firstName').value.trim();
+const lastName=document.getElementById('lastName').value.trim();
+const address=document.getElementById('address').value.trim();
+const city=document.getElementById('city').value.trim();
+const country=document.getElementById('country').value;
+const postcode=document.getElementById('postcode').value.trim();
+const phone=document.getElementById('phone').value.trim();
+const apt=document.getElementById('apt').value.trim();
 
-  function selectShipping(el, id, price) {
-    document.querySelectorAll('.shipping-option').forEach(o => o.classList.remove('selected'));
-    el.classList.add('selected');
-    el.querySelector('input[type=radio]').checked = true;
-    _selectedShipping = price;
-    calcTotals();
-  }
+const errs=[];
+if(!email||!email.includes('@'))errs.push('Valid email is required');
+if(!firstName)errs.push('First name is required');
+if(!lastName)errs.push('Last name is required');
+if(!address)errs.push('Address is required');
+if(!city)errs.push('City is required');
+if(!country)errs.push('Country is required');
+if(errs.length){showError(errs[0]);return;}
 
-  // ── DISCOUNT ──────────────────────────────────────
-  async function applyDiscount() {
-    const code = document.getElementById('discountCode').value.trim();
-    if (!code) { showError('Enter a discount code'); return; }
-    const subtotal = _cart.reduce((s,i) => s + parseFloat(i.price||0)*i.qty, 0);
-    try {
-      const res = await fetch(`/api/storefront/${_storeSlug}/discount/validate`, {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ code, subtotal })
-      });
-      const data = await res.json();
-      if (!res.ok) { showError(data.error || 'Invalid discount code'); return; }
-      _discount = data.discount;
-      _discountSavings = data.savings || 0;
-      // Handle free shipping discount
-      if (_discount.type === 'free_shipping') { _selectedShipping = 0; _discountSavings = 0; }
-      document.getElementById('discountApplied').style.display = '';
-      document.getElementById('discountLabel').textContent = `${code} — ${_discount.type === 'free_shipping' ? 'Free shipping' : _discount.type === 'percentage' ? _discount.value+'% off' : '$'+parseFloat(_discount.value).toFixed(2)+' off'}`;
-      document.getElementById('discountForm').style.display = 'none';
-      calcTotals();
-    } catch(e) { showError('Failed to validate code'); }
-  }
+const btn=document.getElementById('payBtn');
+btn.disabled=true;btn.textContent='Processing...';
 
-  function removeDiscount() {
-    _discount = null; _discountSavings = 0;
-    document.getElementById('discountApplied').style.display = 'none';
-    document.getElementById('discountForm').style.display = '';
-    document.getElementById('discountCode').value = '';
-    loadShippingMethods();
-    calcTotals();
-  }
+try{
+const params=new URLSearchParams(location.search);
+const utm={utmSource:params.get('utm_source')||null,utmMedium:params.get('utm_medium')||null,utmCampaign:params.get('utm_campaign')||null,referrer:document.referrer||null};
+const payload={
+customerEmail:email,firstName,lastName,phone:phone||null,
+items:_cart.map(i=>({productId:i.id,variantId:i.variantId||null,quantity:i.qty,title:i.title,variantTitle:i.variantTitle||null,price:i.price})),
+shippingAddress:{name:firstName+' '+lastName,address:[address,apt].filter(Boolean).join(', '),city,zip:postcode,country,phone:phone||null},
+discountCode:_discount?_discount.code:null,
+shippingMethod:_selectedShippingName||'Standard',
+shippingAmount:_selectedShipping||0,
+...utm
+};
 
-  // ── PLACE ORDER ───────────────────────────────────
-  async function placeOrder() {
-    // Track email for abandoned checkout
-    const emailVal = document.getElementById('email')?.value || document.getElementById('checkEmail')?.value || '';
-    if (emailVal) localStorage.setItem('sivra_last_email', emailVal);
-    hideError();
-    const email = document.getElementById('email').value.trim();
-    const firstName = document.getElementById('firstName').value.trim();
-    const lastName = document.getElementById('lastName').value.trim();
-    const address = document.getElementById('address').value.trim();
-    const city = document.getElementById('city').value.trim();
-    const country = document.getElementById('country').value;
-    const postcode = document.getElementById('postcode').value.trim();
-    const phone = document.getElementById('phone').value.trim();
-    const apt = document.getElementById('apt').value.trim();
+const res=await fetch('/api/storefront/'+_storeSlug+'/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+const data=await res.json();
+if(!res.ok){showError(data.error||'Checkout failed. Please try again.');btn.disabled=false;btn.textContent='Complete Order';return;}
 
-    // Validate
-    const errs = [];
-    if (!email || !email.includes('@')) errs.push('Valid email is required');
-    if (!firstName) errs.push('First name is required');
-    if (!lastName) errs.push('Last name is required');
-    if (!address) errs.push('Address is required');
-    if (!city) errs.push('City is required');
-    if (!country) errs.push('Country is required');
-    if (errs.length) { showError(errs[0]); return; }
+// Stripe flow
+if(_stripeConfigured&&_stripe){
+btn.textContent='Processing payment...';
+try{
+const totalCents=Math.round((data.total||0)*100);
+if(totalCents>=50){
+const currency=(_store?.currency||'USD').toLowerCase();
+const intentRes=await fetch('/api/checkout/create-intent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:totalCents,currency,orderId:data.orderId,metadata:{order_number:String(data.orderNumber),email}})});
+const intentData=await intentRes.json();
+if(!intentRes.ok){showError(intentData.error||'Payment setup failed.');btn.disabled=false;btn.textContent='Complete Order';return;}
+const elements=_stripe.elements({clientSecret:intentData.client_secret,appearance:{theme:'stripe',variables:{colorPrimary:'#0a0a0a',borderRadius:'10px',fontFamily:'Inter, sans-serif'}}});
+const paymentElement=elements.create('payment');
+document.getElementById('stripe-payment-element').innerHTML='';
+paymentElement.mount('#stripe-payment-element');
+btn.textContent='Pay '+fmtMoney(data.total);
+btn.disabled=false;
+btn.onclick=async function(){
+btn.disabled=true;btn.textContent='Confirming payment...';
+const{error}=await _stripe.confirmPayment({elements,confirmParams:{return_url:window.location.origin+'/sivra-order-confirm.html?id='+data.orderId+'&num='+data.orderNumber,receipt_email:email}});
+if(error){document.getElementById('stripe-errors').textContent=error.message;document.getElementById('stripe-errors').style.display='';btn.disabled=false;btn.textContent='Pay '+fmtMoney(data.total);}
+};
+return;
+}
+}catch(stripeErr){console.error('Stripe error:',stripeErr);}
+}
 
-    const btn = document.getElementById('payBtn');
-    btn.disabled = true; btn.textContent = 'Placing order...';
+// Manual/no-stripe flow
+saveCart([]);
+localStorage.removeItem('sivra_discount');
+const params2=new URLSearchParams({id:data.orderId||'',num:data.orderNumber||''});
+location.href='sivra-order-confirm.html?'+params2.toString();
+}catch(e){showError('Something went wrong. Please try again.');btn.disabled=false;btn.textContent='Complete Order';}
+}
 
-    try {
-      // Capture UTM params
-      const params = new URLSearchParams(location.search);
-      const utm = {
-        utmSource: params.get('utm_source') || null,
-        utmMedium: params.get('utm_medium') || null,
-        utmCampaign: params.get('utm_campaign') || null,
-        referrer: document.referrer || null,
-      };
-
-      const payload = {
-        customerEmail: email,
-        firstName, lastName, phone: phone || null,
-        items: _cart.map(i => ({
-          productId: i.id,
-          variantId: i.variantId || null,
-          quantity: i.qty,
-          title: i.title,
-          variantTitle: i.variantTitle || null,
-          price: i.price,
-        })),
-        shippingAddress: {
-          name: `${firstName} ${lastName}`,
-          address: [address, apt].filter(Boolean).join(', '),
-          city, zip: postcode, country, phone: phone||null,
-        },
-        discountCode: _discount ? document.getElementById('discountCode').value.trim() || document.getElementById('discountLabel').textContent.split(' — ')[0] : null,
-        ...utm,
-      };
-
-      const res = await fetch(`/api/storefront/${_storeSlug}/checkout`, {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-
-      if (!res.ok) { showError(data.error || 'Checkout failed. Please try again.'); btn.disabled=false; btn.textContent='Complete order'; return; }
-
-      // Clear cart and redirect
-      saveCart([]);
-      const params2 = new URLSearchParams({ id: data.orderId||'', num: data.orderNumber||'' });
-      location.href = 'sivra-order-confirm.html?' + params2.toString();
-    } catch(e) {
-      showError('Network error. Please check your connection and try again.');
-      btn.disabled = false; btn.textContent = 'Complete order';
-    }
-  }
-
-  function goBack() {
-    const slug = localStorage.getItem('sivra_store_slug') || '';
-    location.href = 'sivra-cart.html' + (slug ? '?store=' + slug : '');
-  }
-
-  function showError(msg) {
-    const el = document.getElementById('errorMsg');
-    el.textContent = msg; el.style.display = '';
-    el.scrollIntoView({ behavior:'smooth', block:'nearest' });
-  }
-  function hideError() { document.getElementById('errorMsg').style.display = 'none'; }
-
-  function toggleSummary() {
-    const c = document.getElementById('summaryContent');
-    c.style.display = c.style.display === 'none' ? '' : 'none';
-  }
-
-  init();
-  // loadShippingMethods is called inside init() after store loads
+load();
 </script>
-</body>
-</html>
+<script src="storefront-tracker.js"></script>
+</body></html>

@@ -51,13 +51,13 @@ router.patch('/:handle', async (req, res) => {
     });
     if (existing.rows.length) {
       await db.execute({
-        sql: 'UPDATE menus SET items=?, title=COALESCE(?,title), updated_at=CURRENT_TIMESTAMP WHERE store_id=? AND handle=?',
-        args: [itemsJson, title || null, req.storeId, req.params.handle]
+        sql: 'UPDATE menus SET items=? WHERE store_id=? AND handle=?',
+        args: [itemsJson, req.storeId, req.params.handle]
       });
     } else {
       await db.execute({
-        sql: 'INSERT INTO menus (id, store_id, handle, title, items) VALUES (?,?,?,?,?)',
-        args: [uuid(), req.storeId, req.params.handle, title || req.params.handle, itemsJson]
+        sql: 'INSERT INTO menus (id, store_id, name, handle, items) VALUES (?,?,?,?,?)',
+        args: [uuid(), req.storeId, title || req.params.handle, req.params.handle, itemsJson]
       });
     }
     res.json({ handle: req.params.handle, items });

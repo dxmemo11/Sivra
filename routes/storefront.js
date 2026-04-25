@@ -14,13 +14,15 @@ router.get('/:slug', async (req, res) => {
       sql: `SELECT id, name, slug, description, category, currency, logo_url, favicon_url,
             announcement_bar, announcement_bar_enabled, primary_color, accent_color,
             theme_settings, shipping_zones, tax_rate, tax_included, tax_enabled
-            FROM stores WHERE slug = ? AND (status = 'active' OR status IS NULL)`,
+            FROM stores WHERE slug = ? AND status = 'active'`,
       args: [req.params.slug]
     });
     if (!result.rows.length) return res.status(404).json({ error: 'Store not found.' });
     const store = result.rows[0];
     store.shipping_zones = safeJson(store.shipping_zones, []);
     store.theme_settings = safeJson(store.theme_settings, {});
+    // Pass Stripe publishable key to frontend (safe to expose)
+    store.stripe_publishable_key = process.env.STRIPE_PUBLISHABLE_KEY || null;
     res.json(store);
   } catch(err) { res.status(500).json({ error: 'Failed to fetch store.' }); }
 });
@@ -29,7 +31,7 @@ router.get('/:slug', async (req, res) => {
 router.get('/:slug/products', async (req, res) => {
   try {
     const db = getDB();
-    const storeResult = await db.execute({ sql: `SELECT id FROM stores WHERE slug = ? AND (status = 'active' OR status IS NULL)`, args: [req.params.slug] });
+    const storeResult = await db.execute({ sql: `SELECT id FROM stores WHERE slug = ? AND status = 'active'`, args: [req.params.slug] });
     if (!storeResult.rows.length) return res.status(404).json({ error: 'Store not found.' });
     const store = storeResult.rows[0];
     const { collection, search, sort = 'newest', page = 1, limit = 24 } = req.query;
@@ -83,7 +85,7 @@ router.get('/:slug/products/:productId', async (req, res) => {
 router.get('/:slug/collections', async (req, res) => {
   try {
     const db = getDB();
-    const storeResult = await db.execute({ sql: `SELECT id FROM stores WHERE slug = ? AND (status = 'active' OR status IS NULL)`, args: [req.params.slug] });
+    const storeResult = await db.execute({ sql: `SELECT id FROM stores WHERE slug = ? AND status = 'active'`, args: [req.params.slug] });
     if (!storeResult.rows.length) return res.status(404).json({ error: 'Store not found.' });
     const result = await db.execute({
       sql: `SELECT c.*, COUNT(pc.product_id) as product_count FROM collections c
@@ -129,7 +131,7 @@ router.post('/:slug/discount/validate', async (req, res) => {
 router.post('/:slug/checkout', async (req, res) => {
   try {
     const db = getDB();
-    const storeResult = await db.execute({ sql: `SELECT * FROM stores WHERE slug = ? AND (status = 'active' OR status IS NULL)`, args: [req.params.slug] });
+    const storeResult = await db.execute({ sql: `SELECT * FROM stores WHERE slug = ? AND status = 'active'`, args: [req.params.slug] });
     if (!storeResult.rows.length) return res.status(404).json({ error: 'Store not found.' });
     const store = storeResult.rows[0];
     const {
@@ -233,7 +235,7 @@ router.post('/:slug/checkout', async (req, res) => {
     if (custResult.rows.length) {
       customerId = custResult.rows[0].id;
       await db.execute({
-        sql: 'UPDATE customers SET orders_count = orders_count + 1, total_spent = total_spent + ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+        sql: 'UPDATE customers SET orders_count = orders_count + 1, total_spent = total_spent + ? WHERE id = ?',
         args: [total, customerId]
       });
     } else {
@@ -245,15 +247,15 @@ router.post('/:slug/checkout', async (req, res) => {
       });
     }
 
-    const countResult = await db.execute({ sql: 'SELECT COUNT(*) as cnt FROM orders WHERE store_id = ?', args: [store.id] });
-    const orderNumber = (countResult.rows[0].cnt || 0) + 1001;
+    const countResult = await db.execute({ sql: 'SELECT COALESCE(MAX(order_number), 1000) as max_num FROM orders WHERE store_id = ?', args: [store.id] });
+    const orderNumber = (countResult.rows[0].max_num || 1000) + 1;
     const orderId = uuid();
 
     await db.execute({
       sql: `INSERT INTO orders (id, store_id, customer_id, customer_email, order_number, status, payment_status, fulfillment_status,
             subtotal, shipping, tax, discount_amount, total, discount_code, source,
             shipping_name, shipping_addr, shipping_city, shipping_zip, shipping_country, shipping_phone, processed_at)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
       args: [orderId, store.id, customerId, customerEmail.toLowerCase(), orderNumber,
         'open', 'pending', 'unfulfilled',
         subtotal, shipping, tax, discountAmount, total,
@@ -273,10 +275,10 @@ router.post('/:slug/checkout', async (req, res) => {
       });
       // Decrement stock
       if (variant) {
-        await db.execute({ sql: 'UPDATE product_variants SET quantity = MAX(0, quantity - ?), updated_at = CURRENT_TIMESTAMP WHERE id = ?', args: [qty, variant.id] });
+        await db.execute({ sql: 'UPDATE product_variants SET quantity = MAX(0, quantity - ?) WHERE id = ?', args: [qty, variant.id] });
       }
       if (product.track_qty) {
-        await db.execute({ sql: 'UPDATE products SET quantity = MAX(0, quantity - ?), updated_at = CURRENT_TIMESTAMP WHERE id = ?', args: [qty, product.id] });
+        await db.execute({ sql: 'UPDATE products SET quantity = MAX(0, quantity - ?) WHERE id = ?', args: [qty, product.id] });
         await db.execute({
           sql: 'INSERT INTO inventory_movements (id, product_id, store_id, adjustment, quantity_after, reason) VALUES (?,?,?,?,quantity,?)',
           args: [uuid(), product.id, store.id, -qty, 'order_placed']
