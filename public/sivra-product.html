@@ -349,7 +349,7 @@ if(!_options.length){document.getElementById('optionsSection').innerHTML='';retu
 document.getElementById('optionsSection').innerHTML=_options.map((opt,i)=>{
 const vals=opt.values||[];const selected=_selectedOpts[opt.name];
 const isSize=/size/i.test(opt.name);
-return '<div class="option-group" style="margin-bottom:8px"><div class="option-label-row"><span class="option-name">'+opt.name+(selected?'':' — Choose'):''+'</span>'+
+return '<div class="option-group" style="margin-bottom:8px"><div class="option-label-row"><span class="option-name">'+opt.name+(selected?'':' — Choose')+'</span>'+
 (selected?'<span class="option-selected">'+selected+'</span>':'')+
 (isSize?'<a class="size-guide-link" onclick="SivraStore.toast(\'Size guide coming soon\')">Size guide</a>':'')+
 '</div><div class="option-pills">'+
