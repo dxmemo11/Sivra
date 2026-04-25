@@ -12,87 +12,87 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Anton&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="storefront.css"/>
 <style>
-.prod-layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:48px;max-width:var(--max-w);margin:0 auto;padding:32px 32px 80px;align-items:start}
-
-/* GALLERY */
+/* ── BUY SECTION ────────────────────────────────────── */
+.buy-section{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:48px;max-width:var(--max-w);margin:0 auto;padding:32px 32px 80px;align-items:start}
 .gallery{display:flex;flex-direction:column;gap:8px;position:sticky;top:90px}
-.gallery-main{aspect-ratio:1;background:var(--grey-100);overflow:hidden;position:relative;cursor:zoom-in}
+.gallery-main{aspect-ratio:1;background:var(--grey-100);overflow:hidden;position:relative;cursor:zoom-in;border-radius:var(--radius-lg)}
 .gallery-main img{width:100%;height:100%;object-fit:cover;transition:transform 0.3s var(--ease)}
-.gallery-main.zoomed img{transform:scale(1.5);cursor:zoom-out}
+.gallery-main.zoomed{cursor:zoom-out}
+.gallery-main.zoomed img{transform:scale(1.5)}
 .gallery-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:120px;opacity:0.3}
-.gallery-arrow{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;background:rgba(255,255,255,0.9);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s var(--ease);z-index:2;opacity:0}
+.gallery-arrow{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s var(--ease);z-index:2;opacity:0;box-shadow:var(--shadow-sm)}
 .gallery-main:hover .gallery-arrow{opacity:1}
 .gallery-arrow:hover{background:var(--white);transform:translateY(-50%) scale(1.05)}
 .gallery-arrow.prev{left:14px}
 .gallery-arrow.next{right:14px}
 .gallery-thumbs{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-.gallery-thumb{aspect-ratio:1;background:var(--grey-100);overflow:hidden;cursor:pointer;border:2px solid transparent;transition:border-color 0.15s}
+.gallery-thumb{aspect-ratio:1;background:var(--grey-100);overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all 0.15s;border-radius:var(--radius-sm)}
 .gallery-thumb img{width:100%;height:100%;object-fit:cover}
 .gallery-thumb:hover{border-color:var(--grey-400)}
 .gallery-thumb.active{border-color:var(--black)}
 
-.gallery-ribbon{position:absolute;top:14px;left:14px;padding:6px 14px;color:var(--white);font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;z-index:2}
+.gallery-ribbon{position:absolute;top:14px;left:14px;padding:6px 12px;color:var(--white);font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;z-index:2;border-radius:var(--radius-sm)}
 .gallery-ribbon.sale{background:var(--red)}
 .gallery-ribbon.new{background:var(--black)}
 
-/* INFO */
-.info-col{display:flex;flex-direction:column;gap:24px;padding-top:8px}
-.prod-vendor-tag{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--red);width:fit-content}
-.prod-vendor-tag::before{content:'';width:20px;height:2px;background:var(--red)}
-.prod-h1{font-size:clamp(28px,3.5vw,44px);font-weight:900;letter-spacing:-0.03em;line-height:1;text-transform:uppercase;color:var(--black)}
+.info-col{display:flex;flex-direction:column;gap:14px;padding-top:8px}
+.prod-vendor-tag{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--grey-500);width:fit-content}
+.prod-vendor-tag::before{content:'';width:18px;height:1.5px;background:var(--grey-400)}
+.prod-h1{font-size:clamp(32px,3.8vw,48px);font-weight:900;letter-spacing:-0.025em;line-height:1.05;color:var(--black)}
+.prod-rating-row{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--grey-700);font-weight:500;flex-wrap:wrap}
+.stars-display{color:var(--black);font-size:15px;letter-spacing:1px}
+.rating-text{font-weight:600}
+.rating-divider{color:var(--grey-300)}
 
-.prod-rating{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--grey-700);font-weight:600}
-.stars{color:#000;font-size:14px;letter-spacing:1px}
-.rating-text{text-transform:uppercase;letter-spacing:1px;font-weight:700}
-
-.prod-price-block{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:18px 0;border-top:1px solid var(--grey-200);border-bottom:1px solid var(--grey-200)}
-.price-main{font-size:32px;font-weight:900;color:var(--black);letter-spacing:-0.02em;font-family:'Anton',sans-serif;font-weight:400}
-.price-compare-lg{font-size:18px;color:var(--grey-500);text-decoration:line-through;font-weight:600}
-.price-save-pill{background:var(--red);color:var(--white);padding:5px 12px;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase}
+.prod-price-block{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;padding:18px 0;border-top:1px solid var(--grey-200);border-bottom:1px solid var(--grey-200)}
+.price-main{font-size:32px;font-weight:900;color:var(--black);letter-spacing:-0.02em}
+.price-compare-lg{font-size:18px;color:var(--grey-400);text-decoration:line-through;font-weight:600}
+.price-save-pill{background:var(--red);color:var(--white);padding:5px 11px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border-radius:var(--radius-sm)}
 
 .option-group{}
 .option-label-row{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
-.option-name{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--black)}
-.option-selected{font-size:11px;color:var(--grey-600);font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.option-name{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--black)}
+.option-selected{font-size:12px;color:var(--grey-600);font-weight:600}
 .option-pills{display:flex;flex-wrap:wrap;gap:8px}
-.option-pill{padding:14px 20px;background:var(--white);border:1.5px solid var(--grey-300);font-size:13px;font-weight:700;color:var(--black);cursor:pointer;transition:all 0.15s var(--ease);min-width:54px;text-align:center;text-transform:uppercase;letter-spacing:0.5px;position:relative}
+.option-pill{padding:13px 20px;background:var(--white);border:1.5px solid var(--grey-300);border-radius:var(--radius);font-size:13px;font-weight:600;color:var(--black);cursor:pointer;transition:all 0.15s var(--ease);min-width:54px;text-align:center;text-transform:uppercase;letter-spacing:0.5px}
 .option-pill:hover{border-color:var(--black)}
 .option-pill.active{background:var(--black);color:var(--white);border-color:var(--black)}
-.option-pill.unavailable{color:var(--grey-400);text-decoration:line-through;cursor:not-allowed;background:var(--grey-50)}
-.option-pill.unavailable:hover{border-color:var(--grey-300)}
 
-.size-guide-link{font-size:11px;color:var(--grey-700);text-decoration:underline;cursor:pointer;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.size-guide-link{font-size:11px;color:var(--grey-700);text-decoration:underline;cursor:pointer;font-weight:600;letter-spacing:0.5px;text-transform:uppercase}
 .size-guide-link:hover{color:var(--black)}
 
-.qty-add-row{display:flex;gap:8px;align-items:stretch}
-.qty-control{display:flex;align-items:center;border:1.5px solid var(--grey-300);background:var(--white);height:54px;flex-shrink:0}
-.qty-btn{width:44px;height:100%;background:none;color:var(--black);font-size:18px;font-weight:700;cursor:pointer;transition:background 0.15s}
-.qty-btn:hover{background:var(--grey-100)}
-.qty-val{min-width:36px;text-align:center;font-weight:800;font-size:14px;color:var(--black)}
-.add-cart-btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:0 32px;background:var(--black);color:var(--white);font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;transition:all 0.25s var(--ease);cursor:pointer;border:2px solid var(--black);height:54px;position:relative;overflow:hidden}
-.add-cart-btn::before{content:'';position:absolute;inset:0;background:var(--red);transform:translateX(-100%);transition:transform 0.35s var(--ease)}
-.add-cart-btn:hover::before{transform:translateX(0)}
-.add-cart-btn:hover{border-color:var(--red)}
-.add-cart-btn > *{position:relative;z-index:1}
-.add-cart-btn:disabled{opacity:0.4;cursor:not-allowed}
-.add-cart-btn:disabled::before{display:none}
-.buy-now-btn{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:18px 32px;background:var(--white);color:var(--black);font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;border:2px solid var(--black);cursor:pointer;transition:all 0.2s var(--ease)}
-.buy-now-btn:hover{background:var(--black);color:var(--white)}
-.buy-now-btn:active{transform:scale(0.99)}
+/* Fit switcher (Home/Away) */
+.fit-switcher{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1.5px solid var(--grey-300);border-radius:var(--radius);overflow:hidden;margin-bottom:6px}
+.fit-btn{padding:14px 16px;background:var(--white);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--grey-700);cursor:pointer;transition:all 0.2s var(--ease);display:flex;flex-direction:column;align-items:center;gap:2px;border-right:1.5px solid var(--grey-300)}
+.fit-btn:last-child{border-right:none}
+.fit-btn:hover{background:var(--grey-100);color:var(--black)}
+.fit-btn.active{background:var(--black);color:var(--white)}
+.fit-btn-sub{font-size:10px;font-weight:500;opacity:0.7;letter-spacing:0.5px;text-transform:none}
 
-.guarantees{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:8px;border:1px solid var(--grey-200)}
+.qty-add-row{display:flex;gap:8px;align-items:stretch}
+.qty-control{display:flex;align-items:center;border:1.5px solid var(--grey-300);background:var(--white);height:54px;flex-shrink:0;border-radius:var(--radius);overflow:hidden}
+.qty-btn{width:44px;height:100%;background:none;color:var(--black);font-size:18px;font-weight:600;cursor:pointer;transition:background 0.15s}
+.qty-btn:hover{background:var(--grey-100)}
+.qty-val{min-width:36px;text-align:center;font-weight:700;font-size:14px;color:var(--black)}
+.add-cart-btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:0 28px;background:var(--black);color:var(--white);font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;transition:all 0.2s var(--ease);cursor:pointer;border:1.5px solid var(--black);border-radius:var(--radius);height:54px}
+.add-cart-btn:hover{background:var(--grey-700);border-color:var(--grey-700)}
+.add-cart-btn:active{transform:scale(0.98)}
+.add-cart-btn:disabled{opacity:0.4;cursor:not-allowed}
+.buy-now-btn{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:16px 32px;background:var(--white);color:var(--black);font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;border:1.5px solid var(--black);cursor:pointer;transition:all 0.2s var(--ease);border-radius:var(--radius)}
+.buy-now-btn:hover{background:var(--black);color:var(--white)}
+
+.urgency-banner{display:flex;align-items:center;gap:10px;background:var(--orange-bg);color:var(--orange);padding:12px 16px;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;border-radius:var(--radius);border-left:3px solid var(--orange)}
+
+.guarantees{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:8px;border:1px solid var(--grey-200);border-radius:var(--radius);overflow:hidden}
 .guarantee{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:18px 8px;border-right:1px solid var(--grey-200)}
 .guarantee:last-child{border-right:none}
 .guarantee-icon{font-size:22px}
-.guarantee-text{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--grey-700);line-height:1.3}
-
-.urgency-banner{display:flex;align-items:center;gap:10px;background:var(--orange-bg);color:var(--orange);padding:12px 16px;font-size:12px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;border-left:3px solid var(--orange)}
-.urgency-icon{font-size:14px}
+.guarantee-text{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--grey-700);line-height:1.3}
 
 .accordion{margin-top:8px}
 .acc-item{border-bottom:1px solid var(--grey-200)}
 .acc-item:first-child{border-top:1px solid var(--grey-200)}
-.acc-header{display:flex;align-items:center;justify-content:space-between;padding:18px 0;cursor:pointer;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--black);user-select:none;transition:padding-left 0.2s var(--ease)}
+.acc-header{display:flex;align-items:center;justify-content:space-between;padding:18px 0;cursor:pointer;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--black);user-select:none;transition:padding-left 0.2s var(--ease)}
 .acc-header:hover{padding-left:4px}
 .acc-body{padding:0 0 18px;font-size:14px;color:var(--grey-700);line-height:1.7;display:none}
 .acc-body.open{display:block}
@@ -100,25 +100,128 @@
 .acc-icon{width:18px;height:18px;transition:transform 0.25s var(--ease)}
 .acc-item.open .acc-icon{transform:rotate(45deg)}
 
-/* STICKY MOBILE CTA */
-.mobile-sticky-cta{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--grey-200);padding:12px 16px;display:none;align-items:center;gap:10px;z-index:50;box-shadow:0 -4px 20px rgba(0,0,0,0.08)}
-.mobile-sticky-price{font-size:18px;font-weight:900;color:var(--black);font-family:'Anton',sans-serif;font-weight:400;letter-spacing:-0.02em;flex-shrink:0}
-.mobile-sticky-btn{flex:1;background:var(--black);color:var(--white);padding:14px;font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;border:none}
-.mobile-sticky-btn:active{transform:scale(0.98)}
-.mobile-sticky-btn:disabled{background:var(--grey-400)}
+/* ── STICKY BAR (smart show/hide) ───────────────────── */
+.sticky-bar{position:fixed;top:0;left:0;right:0;background:rgba(255,255,255,0.95);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--grey-200);z-index:90;transform:translateY(-100%);transition:transform 0.4s var(--ease);box-shadow:var(--shadow-sm);padding:14px 32px}
+.sticky-bar.show{transform:translateY(0)}
+.sticky-inner{max-width:var(--max-w);margin:0 auto;display:flex;align-items:center;gap:16px}
+.sticky-img{width:54px;height:54px;background:var(--grey-100);overflow:hidden;border-radius:var(--radius-sm);flex-shrink:0}
+.sticky-img img{width:100%;height:100%;object-fit:cover}
+.sticky-info{flex:1;min-width:0}
+.sticky-title{font-size:14px;font-weight:700;color:var(--black);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-0.01em}
+.sticky-meta{font-size:12px;color:var(--grey-500);font-weight:500}
+.sticky-price{font-size:18px;font-weight:900;color:var(--black);letter-spacing:-0.02em;flex-shrink:0;text-align:right}
+.sticky-compare{font-size:12px;color:var(--grey-400);text-decoration:line-through;font-weight:500;margin-top:1px}
+.sticky-btn{padding:12px 24px;background:var(--black);color:var(--white);font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;border-radius:var(--radius);cursor:pointer;transition:background 0.2s;flex-shrink:0;border:none;min-height:44px;white-space:nowrap}
+.sticky-btn:hover{background:var(--grey-700)}
+.sticky-btn:disabled{background:var(--grey-400);cursor:not-allowed}
 
-.related-section{max-width:var(--max-w);margin:0 auto;padding:60px 32px}
+/* ── MISSION/STORY BAND ─────────────────────────────── */
+.story-band{background:var(--grey-100);padding:80px 32px;text-align:center;border-top:1px solid var(--grey-200);border-bottom:1px solid var(--grey-200)}
+.story-inner{max-width:780px;margin:0 auto}
+.story-eyebrow{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--grey-500);margin-bottom:18px}
+.story-title{font-size:clamp(32px,5vw,56px);font-weight:900;letter-spacing:-0.035em;line-height:1;text-transform:uppercase;margin-bottom:22px}
+.story-body{font-size:17px;line-height:1.65;color:var(--grey-700);max-width:660px;margin:0 auto}
+.story-body strong{color:var(--black);font-weight:700}
+
+/* ── FEATURE GRID ────────────────────────────────────── */
+.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;max-width:var(--max-w);margin:0 auto;padding:0 32px}
+.feature-card{background:var(--white);border:1px solid var(--grey-200);border-radius:var(--radius-lg);padding:32px 28px;transition:all 0.25s var(--ease)}
+.feature-card:hover{border-color:var(--black);transform:translateY(-3px);box-shadow:var(--shadow-md)}
+.feature-icon{font-size:36px;margin-bottom:16px}
+.feature-title{font-size:18px;font-weight:800;letter-spacing:-0.02em;text-transform:uppercase;margin-bottom:10px}
+.feature-desc{font-size:14px;color:var(--grey-700);line-height:1.6}
+
+/* ── COMPARE TABLE ──────────────────────────────────── */
+.compare-section{max-width:980px;margin:0 auto;padding:0 32px}
+.compare-table{background:var(--white);border:1px solid var(--grey-200);border-radius:var(--radius-lg);overflow:hidden}
+.compare-row{display:grid;grid-template-columns:2fr 1fr 1fr;border-bottom:1px solid var(--grey-200);align-items:center}
+.compare-row:last-child{border-bottom:none}
+.compare-row.header{background:var(--black);color:var(--white)}
+.compare-row.header .compare-cell{font-weight:800;letter-spacing:1px;text-transform:uppercase;font-size:12px}
+.compare-row.us{background:var(--grey-50)}
+.compare-cell{padding:18px 20px;font-size:14px;color:var(--grey-700);font-weight:500}
+.compare-cell:first-child{font-weight:700;color:var(--black);text-transform:uppercase;font-size:11px;letter-spacing:1px}
+.compare-cell.center{text-align:center}
+.compare-yes{color:var(--green);font-weight:800;font-size:18px}
+.compare-no{color:var(--grey-400);font-weight:800;font-size:18px}
+
+/* ── QUALITY SHOWCASE ───────────────────────────────── */
+.quality-band{background:var(--black);color:var(--white);padding:96px 32px}
+.quality-inner{max-width:var(--max-w);margin:0 auto}
+.quality-header{text-align:center;margin-bottom:60px}
+.quality-eyebrow{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:16px}
+.quality-title{font-size:clamp(36px,6vw,72px);font-weight:900;letter-spacing:-0.04em;line-height:0.95;text-transform:uppercase;margin-bottom:18px}
+.quality-sub{font-size:16px;color:rgba(255,255,255,0.75);max-width:620px;margin:0 auto;line-height:1.6}
+.quality-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px;margin-bottom:48px}
+.quality-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:32px 24px;transition:all 0.3s var(--ease);border-radius:var(--radius-lg)}
+.quality-card:hover{background:rgba(255,255,255,0.08);transform:translateY(-3px);border-color:rgba(255,255,255,0.2)}
+.quality-icon{font-size:32px;margin-bottom:16px}
+.quality-card-title{font-size:16px;font-weight:800;letter-spacing:-0.01em;text-transform:uppercase;margin-bottom:10px}
+.quality-card-desc{font-size:14px;color:rgba(255,255,255,0.7);line-height:1.6}
+.quality-bigstat{text-align:center;padding:48px 24px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius-lg);margin-top:8px}
+.quality-bigstat-num{font-family:'Anton',sans-serif;font-size:96px;font-weight:400;letter-spacing:-0.04em;line-height:1;color:var(--white);margin-bottom:8px}
+.quality-bigstat-label{font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.6)}
+.quality-quote{font-size:16px;color:rgba(255,255,255,0.85);font-style:italic;max-width:680px;margin:32px auto 0;line-height:1.6;padding:24px 0;border-top:1px solid rgba(255,255,255,0.1);border-bottom:1px solid rgba(255,255,255,0.1);text-align:center}
+.quality-quote-author{font-size:12px;color:rgba(255,255,255,0.6);font-weight:600;letter-spacing:1px;text-transform:uppercase;font-style:normal;margin-top:14px}
+
+/* ── REVIEWS ─────────────────────────────────────────── */
+.reviews-band{background:var(--grey-100);padding:80px 32px}.reviews-inner{max-width:var(--max-w);margin:0 auto}
+.reviews-header{text-align:center;margin-bottom:48px}
+.reviews-stat{font-size:60px;font-weight:900;letter-spacing:-0.04em;color:var(--black);font-family:'Anton',sans-serif;font-weight:400;line-height:1}
+.reviews-stars{font-size:24px;color:var(--black);letter-spacing:3px;margin:8px 0}
+.reviews-meta{font-size:13px;color:var(--grey-700);text-transform:uppercase;letter-spacing:1.5px;font-weight:600}
+.reviews-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.review-card{background:var(--white);padding:28px;border-radius:var(--radius-lg)}
+.review-stars{font-size:14px;color:var(--black);letter-spacing:1.5px;margin-bottom:14px}
+.review-text{font-size:14px;color:var(--grey-700);line-height:1.6;margin-bottom:16px;font-style:italic}
+.review-author{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:700;color:var(--black)}
+.review-verified{color:var(--green);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:inline-flex;align-items:center;gap:4px}
+
+/* ── FAQ ─────────────────────────────────────────────── */
+.faq-section{max-width:780px;margin:0 auto;padding:0 32px}
+.faq-item{border-bottom:1px solid var(--grey-200);transition:background 0.15s}
+.faq-item:first-child{border-top:1px solid var(--grey-200)}
+.faq-q{display:flex;align-items:center;justify-content:space-between;padding:22px 0;cursor:pointer;font-size:16px;font-weight:700;color:var(--black);user-select:none;transition:padding-left 0.2s var(--ease)}
+.faq-q:hover{padding-left:6px}
+.faq-a{padding:0 0 22px;font-size:15px;color:var(--grey-700);line-height:1.7;display:none}
+.faq-a.open{display:block}
+.faq-icon{width:18px;height:18px;flex-shrink:0;transition:transform 0.25s var(--ease)}
+.faq-item.open .faq-icon{transform:rotate(45deg)}
+
+/* ── FINAL CTA ───────────────────────────────────────── */
+.final-cta{background:var(--black);color:var(--white);padding:80px 32px;text-align:center}
+.final-cta-inner{max-width:680px;margin:0 auto}
+.final-cta-eyebrow{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:18px}
+.final-cta-title{font-size:clamp(36px,5.5vw,64px);font-weight:900;letter-spacing:-0.035em;line-height:1;margin-bottom:18px;text-transform:uppercase}
+.final-cta-body{font-size:16px;line-height:1.6;color:rgba(255,255,255,0.75);margin-bottom:32px}
+.final-cta-btn{display:inline-flex;align-items:center;gap:10px;padding:18px 40px;background:var(--white);color:var(--black);font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;border-radius:var(--radius);transition:all 0.2s var(--ease);cursor:pointer;border:1.5px solid var(--white)}
+.final-cta-btn:hover{background:transparent;color:var(--white)}
+
+/* ── RELATED ─────────────────────────────────────────── */
+.related-section{max-width:var(--max-w);margin:0 auto;padding:80px 32px}
 
 @media (max-width:900px){
-.prod-layout{grid-template-columns:1fr;gap:24px;padding:16px 16px 100px}
+.buy-section{grid-template-columns:1fr;gap:24px;padding:16px 16px 80px}
 .gallery{position:static}
 .gallery-thumbs{grid-template-columns:repeat(4,1fr)}
 .gallery-arrow{display:none}
 .guarantees{grid-template-columns:1fr;border-top:none}
 .guarantee{border-right:none;border-bottom:1px solid var(--grey-200);flex-direction:row;justify-content:flex-start;gap:14px;padding:14px 16px}
 .guarantee:last-child{border-bottom:none}
-.mobile-sticky-cta{display:flex}
-.related-section{padding:40px 16px}
+.story-band,.reviews-band{padding:50px 16px}
+.quality-band{padding:60px 16px}
+.quality-bigstat{padding:36px 20px}
+.quality-bigstat-num{font-size:64px}
+.feature-grid,.faq-section,.compare-section{padding:0 16px}
+.compare-cell{padding:14px 12px;font-size:12px}
+.compare-cell:first-child{font-size:10px}
+.related-section{padding:50px 16px}
+.final-cta{padding:60px 20px}
+.sticky-bar{padding:10px 16px}
+.sticky-inner{gap:10px}
+.sticky-meta{display:none}
+.sticky-img{width:48px;height:48px}
+.sticky-btn{padding:10px 18px;font-size:11px}
 }
 </style>
 </head>
@@ -128,6 +231,7 @@
 <span>★ UP TO 70% OFF RETAIL</span>
 <span>★ FREE SHIPPING OVER $75</span>
 <span>★ 30-DAY RETURNS</span>
+<span>★ AUTHENTIC QUALITY</span>
 </div></div>
 
 <nav class="store-nav"><div class="nav-inner">
@@ -143,6 +247,19 @@
 </button>
 </div></div></nav>
 
+<!-- STICKY BAR (shows when scrolled past hero buy section) -->
+<div class="sticky-bar" id="stickyBar">
+<div class="sticky-inner">
+<div class="sticky-img" id="stickyImg"></div>
+<div class="sticky-info">
+<div class="sticky-title" id="stickyTitle">—</div>
+<div class="sticky-meta" id="stickyMeta">—</div>
+</div>
+<div class="sticky-price" id="stickyPrice">—</div>
+<button class="sticky-btn" id="stickyBtn" onclick="addToCart()">Add to cart</button>
+</div>
+</div>
+
 <div class="crumb">
 <a onclick="SivraStore.goHome()">Home</a>
 <span class="crumb-sep">/</span>
@@ -151,12 +268,13 @@
 <span id="bcTitle">Product</span>
 </div>
 
-<div class="prod-layout">
+<!-- BUY SECTION -->
+<div class="buy-section" id="buySection">
 <div class="gallery">
 <div class="gallery-main" id="mainImg">
 <div class="gallery-placeholder">👕</div>
-<button class="gallery-arrow prev" onclick="navImg(-1)" aria-label="Previous image"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-<button class="gallery-arrow next" onclick="navImg(1)" aria-label="Next image"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 2l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+<button class="gallery-arrow prev" onclick="event.stopPropagation();navImg(-1)" aria-label="Previous"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+<button class="gallery-arrow next" onclick="event.stopPropagation();navImg(1)" aria-label="Next"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 2l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
 </div>
 <div class="gallery-thumbs" id="thumbs"></div>
 </div>
@@ -165,9 +283,11 @@
 <div class="prod-vendor-tag" id="prodVendor"></div>
 <h1 class="prod-h1" id="prodTitle">Loading...</h1>
 
-<div class="prod-rating" id="prodRating" style="display:none">
-<span class="stars">★★★★★</span>
-<span class="rating-text" id="ratingText">4.8 (124 reviews)</span>
+<div class="prod-rating-row" id="prodRating">
+<span class="stars-display">★★★★★</span>
+<span class="rating-text">4.8</span>
+<span class="rating-divider">·</span>
+<span style="color:var(--grey-700);font-weight:500">Loved by hundreds of fans</span>
 </div>
 
 <div id="urgencyBanner"></div>
@@ -175,6 +295,7 @@
 
 <div class="prod-price-block" id="priceBlock"><span class="price-main">—</span></div>
 
+<div id="fitSwitcher"></div>
 <div id="optionsSection"></div>
 
 <div class="qty-add-row">
@@ -185,16 +306,15 @@
 </div>
 <button class="add-cart-btn" id="addCartBtn" onclick="addToCart()">
 <span>Add to cart</span>
-<svg style="position:relative;z-index:1" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h2l1.5 8h6L13 5H4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h2l1.5 8h6L13 5H4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
 </button>
 </div>
-
 <button class="buy-now-btn" onclick="buyNow()">Buy it now</button>
 
 <div class="guarantees">
-<div class="guarantee"><div class="guarantee-icon">🚀</div><div class="guarantee-text">Fast shipping</div></div>
-<div class="guarantee"><div class="guarantee-icon">↺</div><div class="guarantee-text">30-day returns</div></div>
-<div class="guarantee"><div class="guarantee-icon">💎</div><div class="guarantee-text">Authentic quality</div></div>
+<div class="guarantee"><div class="guarantee-icon">🚀</div><div class="guarantee-text">Ships in 24h</div></div>
+<div class="guarantee"><div class="guarantee-icon">💎</div><div class="guarantee-text">Premium Quality</div></div>
+<div class="guarantee"><div class="guarantee-icon">🔒</div><div class="guarantee-text">Secure checkout</div></div>
 </div>
 
 <div class="accordion">
@@ -202,24 +322,201 @@
 <div class="acc-header" onclick="toggleAcc('descAcc')"><span>Description</span><svg class="acc-icon" viewBox="0 0 18 18" fill="none"><path d="M9 4v10M4 9h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
 <div class="acc-body open" id="prodDesc"></div>
 </div>
-<div class="acc-item" id="shipAcc">
-<div class="acc-header" onclick="toggleAcc('shipAcc')"><span>Shipping & Returns</span><svg class="acc-icon" viewBox="0 0 18 18" fill="none"><path d="M9 4v10M4 9h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+<div class="acc-item">
+<div class="acc-header" onclick="toggleAcc(this.parentElement.id||'shipAcc',this)"><span>Shipping & Returns</span><svg class="acc-icon" viewBox="0 0 18 18" fill="none"><path d="M9 4v10M4 9h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
 <div class="acc-body">
-<p><strong>Fast & free shipping:</strong> Orders over $75 ship free. Express worldwide delivery available at checkout.</p>
-<p><strong>Easy returns:</strong> 30-day returns on unworn items. If it doesn't fit or you don't love it, send it back for a full refund.</p>
+<p><strong>Fast shipping:</strong> All orders ship within 24 hours. Free shipping on orders over $75. Express worldwide delivery available.</p>
+<p><strong>30-day returns:</strong> If it doesn't fit or you don't love it, send it back for a full refund — no questions asked.</p>
 </div>
 </div>
-<div class="acc-item" id="sizeAcc">
-<div class="acc-header" onclick="toggleAcc('sizeAcc')"><span>Size & Fit</span><svg class="acc-icon" viewBox="0 0 18 18" fill="none"><path d="M9 4v10M4 9h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+<div class="acc-item">
+<div class="acc-header" onclick="toggleAcc(this.parentElement.id||'sizeAcc',this)"><span>Size & Fit</span><svg class="acc-icon" viewBox="0 0 18 18" fill="none"><path d="M9 4v10M4 9h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
 <div class="acc-body">
-<p>Our jerseys run true to standard sizing. For a relaxed fit, size up. Kids sizes available for most teams — check the variant selector above.</p>
-<p><strong>Materials:</strong> Premium polyester blend with moisture-wicking technology. Machine washable.</p>
+<p>Our jerseys run true to standard sizing. For a relaxed fit, we recommend sizing up.</p>
+<p><strong>Materials:</strong> Premium polyester blend with moisture-wicking technology. Machine washable, no shrinkage.</p>
 </div>
 </div>
 </div>
 </div>
 </div>
 
+<!-- WHY US — story band -->
+<section class="story-band reveal">
+<div class="story-inner">
+<div class="story-eyebrow">Our Mission</div>
+<h2 class="story-title">Quality Without<br/>The Markup</h2>
+<p class="story-body">Parents juggle a thousand bills. A <strong>$120 jersey</strong> shouldn't be one of them — especially when your kid outgrows it in a year. We bring you the same premium quality you'd find at retail, for <strong>a fraction of the price</strong>. Whether it's your favorite anime hero or your country's World Cup star, everyone deserves to wear what they love.</p>
+</div>
+</section>
+
+<!-- WHY CHOOSE US — feature grid -->
+<section class="section reveal">
+<div class="section-header" style="justify-content:center;flex-direction:column;text-align:center">
+<div><div class="section-eyebrow" style="margin:0 auto 14px">Why Choose Us</div><h2 class="section-title">Built Different.<br/>Priced Right.</h2></div>
+</div>
+<div class="feature-grid">
+<div class="feature-card">
+<div class="feature-icon">💎</div>
+<div class="feature-title">Premium Quality</div>
+<div class="feature-desc">Same fabric, stitching, and construction as the $120 jerseys at the official store. Backed by our quality guarantee.</div>
+</div>
+<div class="feature-card">
+<div class="feature-icon">💰</div>
+<div class="feature-title">Up to 70% Less</div>
+<div class="feature-desc">Cut out the middlemen, the licensing fees, the inflated prices. We sell direct so you save big.</div>
+</div>
+<div class="feature-card">
+<div class="feature-icon">🚀</div>
+<div class="feature-title">Ships in 24 Hours</div>
+<div class="feature-desc">Order today, we'll ship it tomorrow. Express delivery available worldwide for when you can't wait.</div>
+</div>
+<div class="feature-card">
+<div class="feature-icon">↺</div>
+<div class="feature-title">30-Day Returns</div>
+<div class="feature-desc">Risk-free. If it doesn't fit or you don't love it, send it back for a full refund. We've got you covered.</div>
+</div>
+</div>
+</section>
+
+<!-- COMPARISON TABLE -->
+<section class="section reveal" style="padding-top:0">
+<div class="section-header" style="justify-content:center;flex-direction:column;text-align:center">
+<div><div class="section-eyebrow" style="margin:0 auto 14px">The Difference</div><h2 class="section-title">Us vs Them</h2></div>
+</div>
+<div class="compare-section">
+<div class="compare-table">
+<div class="compare-row header">
+<div class="compare-cell">Feature</div>
+<div class="compare-cell center">Us</div>
+<div class="compare-cell center">Big Brand Stores</div>
+</div>
+<div class="compare-row us">
+<div class="compare-cell">Premium Quality</div>
+<div class="compare-cell center compare-yes">✓</div>
+<div class="compare-cell center compare-yes">✓</div>
+</div>
+<div class="compare-row us">
+<div class="compare-cell">Price under $50</div>
+<div class="compare-cell center compare-yes">✓</div>
+<div class="compare-cell center compare-no">✗</div>
+</div>
+<div class="compare-row us">
+<div class="compare-cell">Kids Sizes</div>
+<div class="compare-cell center compare-yes">✓</div>
+<div class="compare-cell center compare-yes">✓</div>
+</div>
+<div class="compare-row us">
+<div class="compare-cell">Ships in 24h</div>
+<div class="compare-cell center compare-yes">✓</div>
+<div class="compare-cell center compare-no">✗</div>
+</div>
+<div class="compare-row us">
+<div class="compare-cell">30-Day Returns</div>
+<div class="compare-cell center compare-yes">✓</div>
+<div class="compare-cell center compare-no">✗</div>
+</div>
+<div class="compare-row us">
+<div class="compare-cell">Family-Friendly Pricing</div>
+<div class="compare-cell center compare-yes">✓</div>
+<div class="compare-cell center compare-no">✗</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- QUALITY EMPHASIS — high quality, durable, breathable, lasting -->
+<section class="quality-band reveal">
+<div class="quality-inner">
+<div class="quality-header">
+<div class="quality-eyebrow">Built To Last</div>
+<h2 class="quality-title">Same Jersey.<br/>Better Price.</h2>
+<p class="quality-sub">We don't cut corners on materials — we cut out the markup. Our jerseys are crafted with the exact same fabric blend, stitching technique, and construction as the official kits selling for $120+. The difference? You're not paying for the licensing fee.</p>
+</div>
+
+<div class="quality-grid">
+<div class="quality-card">
+<div class="quality-icon">🌬️</div>
+<div class="quality-card-title">Breathable Fabric</div>
+<div class="quality-card-desc">Moisture-wicking polyester blend keeps you cool through full 90-minute matches. Sweat dries fast, color stays bright.</div>
+</div>
+<div class="quality-card">
+<div class="quality-icon">💪</div>
+<div class="quality-card-title">Reinforced Stitching</div>
+<div class="quality-card-desc">Double-needle seams at high-stress points mean no tearing, no unraveling — even after countless wears and washes.</div>
+</div>
+<div class="quality-card">
+<div class="quality-icon">🎨</div>
+<div class="quality-card-title">Vibrant Sublimation</div>
+<div class="quality-card-desc">Heat-pressed graphics that won't peel, crack, or fade. Crests, numbers, and colors stay sharp for years.</div>
+</div>
+<div class="quality-card">
+<div class="quality-icon">🧵</div>
+<div class="quality-card-title">Pre-Shrunk Cotton Blend</div>
+<div class="quality-card-desc">Wash it 100 times — same size, same shape, same fit. Tested in commercial laundering machines.</div>
+</div>
+</div>
+
+<div class="quality-bigstat">
+<div class="quality-bigstat-num">4+</div>
+<div class="quality-bigstat-label">Years of wear from our customers</div>
+<div class="quality-quote">"I've had my jersey for over 4 years now. Worn it to dozens of matches, washed it hundreds of times — still looks brand new. You'd never guess it cost a fraction of what the official one does."<div class="quality-quote-author">— Jordan R., Verified Customer</div></div>
+</div>
+</div>
+</section>
+
+<!-- REVIEWS / SOCIAL PROOF -->
+<section class="reviews-band reveal">
+<div class="reviews-inner">
+<div class="reviews-header">
+<div class="reviews-stat">4.8</div>
+<div class="reviews-stars">★★★★★</div>
+<div class="reviews-meta">Based on hundreds of happy customers</div>
+</div>
+<div class="reviews-grid">
+<div class="review-card">
+<div class="review-stars">★★★★★</div>
+<div class="review-text">"Got 3 jerseys for what one would cost at the official store. My kid is OBSESSED. Quality is incredible — you can't tell the difference."</div>
+<div class="review-author"><span>Sarah M.</span><span class="review-verified">✓ Verified</span></div>
+</div>
+<div class="review-card">
+<div class="review-stars">★★★★★</div>
+<div class="review-text">"Finally a place where I can afford to get the whole family their kits. Shipped fast, fits perfect. Will definitely order again."</div>
+<div class="review-author"><span>Marcus J.</span><span class="review-verified">✓ Verified</span></div>
+</div>
+<div class="review-card">
+<div class="review-stars">★★★★★</div>
+<div class="review-text">"As a die-hard anime fan, I've ordered from a lot of places. The quality here beats the rest by a mile. Plus the price? Insane value."</div>
+<div class="review-author"><span>Alex T.</span><span class="review-verified">✓ Verified</span></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- FAQ -->
+<section class="section reveal">
+<div class="section-header" style="justify-content:center;flex-direction:column;text-align:center">
+<div><div class="section-eyebrow" style="margin:0 auto 14px">Got Questions?</div><h2 class="section-title">FAQs</h2></div>
+</div>
+<div class="faq-section">
+<div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span>Are these authentic jerseys?</span><svg class="faq-icon" viewBox="0 0 18 18" fill="none"><path d="M9 4v10M4 9h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><div class="faq-a"><p>Our jerseys are premium-quality replicas crafted with the same materials and stitching as the official versions. We don't claim them as official-licensed, but the quality difference is virtually impossible to spot — at a fraction of the price.</p></div></div>
+<div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span>How long does shipping take?</span><svg class="faq-icon" viewBox="0 0 18 18" fill="none"><path d="M9 4v10M4 9h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><div class="faq-a"><p>Standard shipping is 5–7 business days within the US. Express shipping (2–3 days) is available at checkout. International orders ship within 7–14 business days.</p></div></div>
+<div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span>What if it doesn't fit?</span><svg class="faq-icon" viewBox="0 0 18 18" fill="none"><path d="M9 4v10M4 9h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><div class="faq-a"><p>We offer 30-day free returns on all unworn items. Just contact us and we'll send you a return label. Full refund processed within 5 business days of receipt.</p></div></div>
+<div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span>Do you offer kids sizes?</span><svg class="faq-icon" viewBox="0 0 18 18" fill="none"><path d="M9 4v10M4 9h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><div class="faq-a"><p>Yes! Most of our jerseys are available in kids sizes (5T through Youth XL). Look for the "Kids" badge on collection pages, or filter by size on the search.</p></div></div>
+<div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span>Can I customize my jersey?</span><svg class="faq-icon" viewBox="0 0 18 18" fill="none"><path d="M9 4v10M4 9h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><div class="faq-a"><p>Custom name and number printing coming soon! In the meantime, all our team jerseys come standard with the official player names and numbers.</p></div></div>
+</div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta reveal">
+<div class="final-cta-inner">
+<div class="final-cta-eyebrow">Last Chance</div>
+<h2 class="final-cta-title">Ready To<br/>Wear It?</h2>
+<p class="final-cta-body">Join hundreds of fans who refuse to overpay for quality. Free shipping on orders over $75. Premium quality, every time.</p>
+<button class="final-cta-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">Add to cart <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+</div>
+</section>
+
+<!-- RELATED -->
 <section class="related-section reveal" id="relatedSection" style="display:none">
 <div class="section-header">
 <div><div class="section-eyebrow">More Like This</div><h2 class="section-title">You May<br/>Also Like</h2></div>
@@ -227,17 +524,12 @@
 <div class="prod-grid" id="relatedGrid"></div>
 </section>
 
-<div class="mobile-sticky-cta">
-<div class="mobile-sticky-price" id="mobilePriceCta">—</div>
-<button class="mobile-sticky-btn" id="mobileAddBtn" onclick="addToCart()">Add to cart</button>
-</div>
-
 <footer class="store-footer">
 <div class="footer-massive">SIVRA</div>
 <div class="footer-grid">
 <div>
 <div class="footer-brand">STORE</div>
-<div class="footer-desc">Authentic jerseys at a fraction of retail. Built for the fans, families, and kids who live for the game.</div>
+<div class="footer-desc">Premium jerseys at a fraction of retail. Built for the fans, families, and kids who live for the game.</div>
 <div class="footer-mission">Quality for every family</div>
 </div>
 <div><div class="footer-heading">Shop</div><a class="footer-link" onclick="SivraStore.goHome()">All products</a><span class="footer-coll-links"></span></div>
@@ -252,7 +544,18 @@
 let _product=null,_qty=1,_imgs=[],_options=[],_variants=[],_selectedVariant=null,_selectedOpts={},_currentImg=0;
 const _id=new URLSearchParams(location.search).get('id');
 
-function toggleAcc(id){const el=document.getElementById(id);const body=el.querySelector('.acc-body');el.classList.toggle('open');body.classList.toggle('open');}
+function toggleAcc(idOrEl,el){
+const item=typeof idOrEl==='string'?document.getElementById(idOrEl):idOrEl.closest('.acc-item');
+if(!item)return;
+const body=item.querySelector('.acc-body');
+item.classList.toggle('open');
+body.classList.toggle('open');
+}
+function toggleFaq(item){
+const a=item.querySelector('.faq-a');
+item.classList.toggle('open');
+a.classList.toggle('open');
+}
 
 function getMaxQty(){
 const qty=_selectedVariant?(_selectedVariant.quantity||0):(_product?.quantity||0);
@@ -273,7 +576,7 @@ const match=_variants.find(v=>Object.entries(_selectedOpts).every(([n,val])=>{co
 _selectedVariant=match||null;
 if(match&&match.image){const idx=_imgs.indexOf(match.image);if(idx>=0)setMainImg(idx);}
 }
-renderOptions();renderPrice();renderStock();
+renderOptions();renderPrice();renderStock();updateSticky();
 }
 
 function navImg(d){
@@ -285,18 +588,18 @@ function setMainImg(idx){
 _currentImg=idx;
 const main=document.getElementById('mainImg');
 const src=_imgs[idx];
-const arrows='<button class="gallery-arrow prev" onclick="navImg(-1)" aria-label="Previous image"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="gallery-arrow next" onclick="navImg(1)" aria-label="Next image"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 2l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
+const arrows='<button class="gallery-arrow prev" onclick="event.stopPropagation();navImg(-1)" aria-label="Previous"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="gallery-arrow next" onclick="event.stopPropagation();navImg(1)" aria-label="Next"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 2l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
 main.innerHTML=(src?'<img src="'+src+'" alt=""/>':'<div class="gallery-placeholder">👕</div>')+arrows;
-
-// Add ribbon
 const price=_selectedVariant?_selectedVariant.price:_product?.price;
 const compare=_selectedVariant?_selectedVariant.compare_price:_product?.compare_price;
 const isSale=compare&&parseFloat(compare)>parseFloat(price);
 const isNew=_product?.created_at&&(new Date()-new Date(_product.created_at))<14*86400000;
 if(isSale){const s=Math.round((1-price/compare)*100);main.insertAdjacentHTML('afterbegin','<div class="gallery-ribbon sale">Save '+s+'%</div>');}
 else if(isNew){main.insertAdjacentHTML('afterbegin','<div class="gallery-ribbon new">New</div>');}
-
 document.querySelectorAll('.gallery-thumb').forEach((t,i)=>t.classList.toggle('active',i===idx));
+// Sticky bar img
+const stickyImg=document.getElementById('stickyImg');
+if(stickyImg)stickyImg.innerHTML=src?'<img src="'+src+'"/>':'';
 }
 
 function renderThumbs(){
@@ -311,7 +614,6 @@ const el=document.getElementById('priceBlock');
 let html='<span class="price-main">'+SivraStore.fmtMoney(price||0)+'</span>';
 if(isSale){const savings=Math.round((1-price/compare)*100);html+='<span class="price-compare-lg">'+SivraStore.fmtMoney(compare)+'</span><span class="price-save-pill">Save '+savings+'%</span>';}
 el.innerHTML=html;
-document.getElementById('mobilePriceCta').textContent=SivraStore.fmtMoney(price||0);
 }
 
 function renderStock(){
@@ -321,32 +623,26 @@ const cont=_selectedVariant?_selectedVariant.continue_selling:_product?.continue
 const stockEl=document.getElementById('stockBadge');
 const urgEl=document.getElementById('urgencyBanner');
 const btn=document.getElementById('addCartBtn');
-const mobileBtn=document.getElementById('mobileAddBtn');
 urgEl.innerHTML='';
-
 if(!trackQty||cont){
 stockEl.innerHTML='<div class="stock-badge in"><div class="stock-dot"></div>In Stock — Ships in 24h</div>';
-btn.disabled=false;mobileBtn.disabled=false;
-btn.querySelector('span').textContent='Add to cart';mobileBtn.textContent='Add to cart';
+btn.disabled=false;btn.querySelector('span').textContent='Add to cart';
 }else if(qty<=0){
 stockEl.innerHTML='<div class="stock-badge out"><div class="stock-dot"></div>Sold out</div>';
-btn.disabled=true;mobileBtn.disabled=true;
-btn.querySelector('span').textContent='Sold out';mobileBtn.textContent='Sold out';
+btn.disabled=true;btn.querySelector('span').textContent='Sold out';
 }else if(qty<=5){
 stockEl.innerHTML='<div class="stock-badge low"><div class="stock-dot"></div>Only '+qty+' left in stock</div>';
-urgEl.innerHTML='<div class="urgency-banner"><span class="urgency-icon">⚡</span> Hurry — only '+qty+' left in this size</div>';
-btn.disabled=false;mobileBtn.disabled=false;
-btn.querySelector('span').textContent='Add to cart';mobileBtn.textContent='Add to cart';
+urgEl.innerHTML='<div class="urgency-banner"><span>⚡</span> Hurry — only '+qty+' left in this size</div>';
+btn.disabled=false;btn.querySelector('span').textContent='Add to cart';
 }else{
 stockEl.innerHTML='<div class="stock-badge in"><div class="stock-dot"></div>In Stock — Ships in 24h</div>';
-btn.disabled=false;mobileBtn.disabled=false;
-btn.querySelector('span').textContent='Add to cart';mobileBtn.textContent='Add to cart';
+btn.disabled=false;btn.querySelector('span').textContent='Add to cart';
 }
 }
 
 function renderOptions(){
 if(!_options.length){document.getElementById('optionsSection').innerHTML='';return;}
-document.getElementById('optionsSection').innerHTML=_options.map((opt,i)=>{
+document.getElementById('optionsSection').innerHTML=_options.map((opt)=>{
 const vals=opt.values||[];const selected=_selectedOpts[opt.name];
 const isSize=/size/i.test(opt.name);
 return '<div class="option-group" style="margin-bottom:8px"><div class="option-label-row"><span class="option-name">'+opt.name+(selected?'':' — Choose')+'</span>'+
@@ -356,6 +652,17 @@ return '<div class="option-group" style="margin-bottom:8px"><div class="option-l
 vals.map(v=>{const isActive=selected===v;return '<button class="option-pill'+(isActive?' active':'')+'" onclick="selectOption(\''+opt.name+'\',\''+v.replace(/'/g,"\\'")+'\')">'+v+'</button>';}).join('')+
 '</div></div>';
 }).join('');
+}
+
+function updateSticky(){
+const price=_selectedVariant?_selectedVariant.price:_product?.price;
+const compare=_selectedVariant?_selectedVariant.compare_price:_product?.compare_price;
+const isSale=compare&&parseFloat(compare)>parseFloat(price);
+let priceHtml=SivraStore.fmtMoney(price||0);
+if(isSale){priceHtml=SivraStore.fmtMoney(price)+'<div class="sticky-compare">'+SivraStore.fmtMoney(compare)+'</div>';}
+document.getElementById('stickyPrice').innerHTML=priceHtml;
+const opts=Object.values(_selectedOpts).filter(Boolean).join(' / ');
+document.getElementById('stickyMeta').textContent=opts||(_product?.vendor||'');
 }
 
 function addToCart(){
@@ -392,6 +699,24 @@ SivraStore.updateBadges();
 location.href='sivra-checkout.html?store='+SivraStore.getStoreSlug();
 }
 
+// Smart sticky bar — show only when buy section is out of view AND scrolling up
+let _lastScroll=0,_buySectionBottom=0;
+function updateBuyBottom(){
+const buy=document.getElementById('buySection');
+if(buy){const r=buy.getBoundingClientRect();_buySectionBottom=window.scrollY+r.bottom;}
+}
+window.addEventListener('scroll',()=>{
+const y=window.scrollY;
+const bar=document.getElementById('stickyBar');
+const past=y>_buySectionBottom-100;
+const scrollingUp=y<_lastScroll;
+const nearTop=y<200;
+if(past&&scrollingUp&&!nearTop)bar.classList.add('show');
+else bar.classList.remove('show');
+_lastScroll=y;
+},{passive:true});
+window.addEventListener('resize',updateBuyBottom);
+
 async function loadProduct(){
 if(!_id){SivraStore.goHome();return;}
 const store=await SivraStore.loadStoreData();
@@ -411,6 +736,7 @@ document.title=_product.title+' — '+(store.name||'Store');
 document.getElementById('pageTitle').textContent=_product.title;
 document.getElementById('bcTitle').textContent=_product.title;
 document.getElementById('prodTitle').textContent=_product.title;
+document.getElementById('stickyTitle').textContent=_product.title;
 if(_product.vendor){document.getElementById('prodVendor').textContent=_product.vendor;}
 else{document.getElementById('prodVendor').style.display='none';}
 document.getElementById('prodDesc').innerHTML=_product.description?'<p>'+_product.description.replace(/\n/g,'</p><p>')+'</p>':'<p style="color:var(--grey-500)">No description available.</p>';
@@ -430,9 +756,53 @@ const match=_variants.find(v=>Object.entries(_selectedOpts).every(([n,val])=>{co
 _selectedVariant=match||null;
 }
 }
-renderOptions();renderPrice();renderStock();
+renderOptions();renderPrice();renderStock();updateSticky();
+setTimeout(updateBuyBottom,100);
 loadRelated();
+loadFitPair();
 }catch(e){console.error(e);document.getElementById('prodTitle').textContent='Product not found';}
+}
+
+// Detect Home/Away from title and find paired product
+async function loadFitPair(){
+const title=(_product.title||'').toLowerCase();
+const isHome=/\bhome\b/.test(title);
+const isAway=/\baway\b/.test(title);
+if(!isHome&&!isAway){document.getElementById('fitSwitcher').innerHTML='';return;}
+const currentFit=isHome?'Home':'Away';
+const otherFit=isHome?'Away':'Home';
+// Build search keywords from title minus the fit word
+const baseTitle=_product.title.replace(/\b(home|away)\b/gi,'').replace(/\s+/g,' ').trim();
+try{
+const slug=SivraStore.getStoreSlug();
+const r=await fetch('/api/storefront/'+slug+'/products?limit=200');
+const d=await r.json();
+const all=d.products||[];
+// Find paired product: contains base words + opposite fit word
+const baseWords=baseTitle.toLowerCase().split(' ').filter(w=>w.length>2);
+const pair=all.find(p=>{
+if(p.id===_id)return false;
+const t=(p.title||'').toLowerCase();
+const hasOtherFit=new RegExp('\\b'+otherFit.toLowerCase()+'\\b').test(t);
+if(!hasOtherFit)return false;
+const matches=baseWords.filter(w=>t.includes(w)).length;
+return matches>=Math.max(2,Math.floor(baseWords.length*0.6));
+});
+const switcher=document.getElementById('fitSwitcher');
+if(pair){
+switcher.innerHTML='<div class="option-label-row"><span class="option-name">Fit — '+currentFit+'</span></div>'+
+'<div class="fit-switcher">'+
+'<div class="fit-btn '+(isHome?'active':'')+'" '+(isHome?'':"onclick=\"goProductPair('"+(isHome?_id:pair.id)+"')\"")+'><span>Home</span><span class="fit-btn-sub">'+(isHome?'Selected':'Switch')+'</span></div>'+
+'<div class="fit-btn '+(isAway?'active':'')+'" '+(isAway?'':"onclick=\"goProductPair('"+(isAway?_id:pair.id)+"')\"")+'><span>Away</span><span class="fit-btn-sub">'+(isAway?'Selected':'Switch')+'</span></div>'+
+'</div>';
+}else{
+switcher.innerHTML='';
+}
+}catch(e){console.error('Fit pair load:',e);}
+}
+
+function goProductPair(pid){
+location.href='sivra-product.html?id='+pid+'&store='+SivraStore.getStoreSlug();
 }
 
 async function loadRelated(){
@@ -457,7 +827,6 @@ SivraStore.initReveal();
 }catch(e){}
 }
 
-// Click-to-zoom on main image
 document.getElementById('mainImg').addEventListener('click',function(e){
 if(e.target.closest('.gallery-arrow'))return;
 this.classList.toggle('zoomed');
