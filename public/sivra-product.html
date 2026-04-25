@@ -208,7 +208,7 @@
 .guarantees{grid-template-columns:1fr;border-top:none}
 .guarantee{border-right:none;border-bottom:1px solid var(--grey-200);flex-direction:row;justify-content:flex-start;gap:14px;padding:14px 16px}
 .guarantee:last-child{border-bottom:none}
-.story-band,.reviews-band{padding:50px 16px}
+.story-band,.reviews-band{padding:50px 16px;text-align:center}
 .quality-band{padding:60px 16px}
 .quality-bigstat{padding:36px 20px}
 .quality-bigstat-num{font-size:64px}
@@ -222,6 +222,23 @@
 .sticky-meta{display:none}
 .sticky-img{width:48px;height:48px}
 .sticky-btn{padding:10px 18px;font-size:11px}
+
+/* MOBILE: center all section headers */
+.section .section-header,.section-header{justify-content:center!important;flex-direction:column!important;text-align:center!important;align-items:center}
+.section .section-header > div{text-align:center;width:100%}
+.section-eyebrow{margin-left:auto;margin-right:auto;display:inline-flex!important}
+
+/* MOBILE: horizontal scroll for feature/quality/reviews grids */
+.feature-grid,.quality-grid,.reviews-grid{display:flex;grid-template-columns:none;gap:12px;padding:4px 16px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin:0 -16px;padding-left:16px;padding-right:16px}
+.feature-grid::-webkit-scrollbar,.quality-grid::-webkit-scrollbar,.reviews-grid::-webkit-scrollbar{display:none}
+.feature-card,.quality-card,.review-card{flex:0 0 78%;min-width:78%;scroll-snap-align:start;margin-bottom:0}
+.feature-card:last-child,.quality-card:last-child,.review-card:last-child{margin-right:16px}
+
+/* Quality bigstat full width on mobile */
+.quality-grid{margin-bottom:24px}
+
+/* Story body centered */
+.story-body{text-align:center}
 }
 </style>
 </head>
@@ -230,8 +247,8 @@
 <div class="ann-bar"><div class="ann-slide">
 <span>★ UP TO 70% OFF RETAIL</span>
 <span>★ FREE SHIPPING OVER $75</span>
-<span>★ 30-DAY RETURNS</span>
-<span>★ AUTHENTIC QUALITY</span>
+<span>★ PREMIUM QUALITY</span>
+<span>★ SHIPS IN 24 HOURS</span>
 </div></div>
 
 <nav class="store-nav"><div class="nav-inner">
