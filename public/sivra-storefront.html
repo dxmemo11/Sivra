@@ -1,177 +1,224 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="description" id="metaDesc" content=""/><meta property="og:title" id="ogTitle" content=""/><meta property="og:description" id="ogDesc" content=""/><meta property="og:image" id="ogImage" content=""/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary_large_image"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title id="pageTitle">Store</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Archivo+Black&display=swap" rel="stylesheet"/>
+<html lang="en"><head>
+<meta charset="UTF-8"/>
+<meta name="description" id="metaDesc" content=""/>
+<meta property="og:title" id="ogTitle" content=""/>
+<meta property="og:description" id="ogDesc" content=""/>
+<meta property="og:image" id="ogImage" content=""/>
+<meta property="og:type" content="website"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title id="pageTitle">Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Anton&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="storefront.css"/>
 <style>
-/* Homepage-specific styles */
-.hero{position:relative;min-height:78vh;display:flex;align-items:center;overflow:hidden;background:#fff;border-bottom:1px solid #eee}
-.hero-bg{position:absolute;inset:0;opacity:0.08;background-size:cover;background-position:center}
-.hero-content{position:relative;max-width:1440px;margin:0 auto;padding:80px 32px 100px;width:100%;z-index:2;color:#0a0a0a}
-.hero-eyebrow{display:inline-block;padding:6px 14px;background:rgba(255,56,56,0.1);border:1px solid rgba(255,56,56,0.3);border-radius:100px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:24px;color:#ff3838}
-.hero-title{font-size:clamp(48px,9vw,130px);font-weight:900;line-height:0.92;letter-spacing:-0.04em;text-transform:uppercase;margin-bottom:24px;color:#0a0a0a}
-.hero-title span{background:linear-gradient(90deg,#ff3838 30%,#ff6666 80%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero-sub{font-size:18px;color:#555;max-width:560px;line-height:1.6;margin-bottom:40px}
-.hero-cta-row{display:flex;gap:12px;flex-wrap:wrap}
+/* HOMEPAGE-SPECIFIC */
+.hero{position:relative;min-height:90vh;display:flex;align-items:flex-end;overflow:hidden;background:#0a0a0a;color:#fff}
+.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0.7;transform:scale(1.05);transition:transform 8s linear;animation:slowZoom 30s ease-in-out infinite alternate}
+@keyframes slowZoom{0%{transform:scale(1.05)}100%{transform:scale(1.15)}}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,10,0.2) 0%,rgba(10,10,10,0.4) 50%,rgba(10,10,10,0.95) 100%)}
+.hero-content{position:relative;max-width:var(--max-w);margin:0 auto;padding:60px 32px;width:100%;z-index:2}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:10px;padding:8px 16px;background:rgba(255,255,255,0.1);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.2);font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:24px;animation:fadeUp 0.8s var(--ease) 0.2s both}
+.hero-eyebrow::before{content:'';width:6px;height:6px;background:var(--red);border-radius:50%;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.hero-title{font-size:clamp(56px,11vw,160px);font-weight:900;line-height:0.85;letter-spacing:-0.05em;text-transform:uppercase;margin-bottom:24px;animation:fadeUp 0.8s var(--ease) 0.3s both}
+.hero-title .accent{display:inline-block;color:var(--red)}
+.hero-sub{font-size:clamp(15px,1.5vw,18px);color:rgba(255,255,255,0.85);max-width:540px;line-height:1.55;margin-bottom:36px;animation:fadeUp 0.8s var(--ease) 0.5s both}
+.hero-cta-row{display:flex;gap:12px;flex-wrap:wrap;animation:fadeUp 0.8s var(--ease) 0.7s both}
+.hero-cta{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:18px 40px;background:var(--white);color:var(--black);font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;transition:all 0.25s var(--ease);cursor:pointer;border:2px solid var(--white);position:relative;overflow:hidden}
+.hero-cta::before{content:'';position:absolute;inset:0;background:var(--red);transform:translateX(-100%);transition:transform 0.35s var(--ease)}
+.hero-cta:hover::before{transform:translateX(0)}
+.hero-cta:hover{color:var(--white);border-color:var(--red)}
+.hero-cta > *{position:relative;z-index:1}
+.hero-cta.outline{background:transparent;color:var(--white);border-color:rgba(255,255,255,0.4)}
+.hero-cta.outline::before{background:var(--white)}
+.hero-cta.outline:hover{color:var(--black);border-color:var(--white)}
+@keyframes fadeUp{0%{opacity:0;transform:translateY(30px)}100%{opacity:1;transform:translateY(0)}}
 
-/* Mission — white with accent border */
-.mission{background:#fff;padding:80px 32px;text-align:center;border-bottom:1px solid #eee}
-.mission-inner{max-width:900px;margin:0 auto}
-.mission-kicker{font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#ff3838;margin-bottom:20px}
-.mission-title{font-size:clamp(32px,5vw,56px);font-weight:900;letter-spacing:-0.03em;line-height:1.05;margin-bottom:24px;text-transform:uppercase;color:#0a0a0a}
-.mission-body{font-size:17px;line-height:1.6;color:#555;max-width:700px;margin:0 auto 28px}
-.mission-body strong{color:#0a0a0a;font-weight:800}
-.mission-stat{display:inline-flex;align-items:center;gap:12px;padding:14px 24px;background:#0a0a0a;color:#fff;border-radius:100px;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
-.mission-stat span{color:#ff5555;font-weight:900}
+.hero-scroll{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.6);display:flex;flex-direction:column;align-items:center;gap:8px;animation:bounce 2s ease-in-out infinite;z-index:2}
+@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
 
-/* Split */
-.split-section{padding:100px 32px;max-width:1440px;margin:0 auto}
-.split-header{text-align:center;margin-bottom:60px}
-.split-sub{font-size:16px;color:#666;margin-top:16px;max-width:560px;margin-left:auto;margin-right:auto;line-height:1.5}
-.split-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.split-card{position:relative;aspect-ratio:4/5;border-radius:20px;overflow:hidden;cursor:pointer;transition:transform 0.35s;background:#0a0a0a}
-.split-card:hover{transform:translateY(-6px)}
-.split-card-img{position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(0.65);transition:all 0.5s}
-.split-card:hover .split-card-img{transform:scale(1.05);filter:brightness(0.8)}
-.split-card-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:120px;opacity:0.4;background:linear-gradient(135deg,#1f1f1f,#2a2a2a);color:#fff}
-.split-card-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,0.95) 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:40px;color:#fff}
-.split-eyebrow{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.7);margin-bottom:10px}
-.split-title{font-size:clamp(36px,4.5vw,56px);font-weight:900;letter-spacing:-0.02em;text-transform:uppercase;line-height:0.95;margin-bottom:14px}
-.split-desc{font-size:14px;color:rgba(255,255,255,0.8);line-height:1.5;margin-bottom:22px;max-width:360px}
-.split-btn{display:inline-flex;align-items:center;gap:10px;padding:12px 24px;background:#fff;color:#0a0a0a;font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;border-radius:100px;align-self:flex-start;transition:all 0.2s}
-.split-card:hover .split-btn{background:#ff3838;color:#fff;gap:14px}
+/* MISSION */
+.mission{padding:90px 32px;text-align:center;background:var(--white)}
+.mission-inner{max-width:800px;margin:0 auto}
+.mission-title{font-size:clamp(36px,6vw,72px);font-weight:900;letter-spacing:-0.04em;line-height:1;text-transform:uppercase;margin:18px 0 24px}
+.mission-body{font-size:clamp(15px,1.6vw,18px);line-height:1.7;color:var(--grey-700);max-width:680px;margin:0 auto 32px}
+.mission-body strong{color:var(--black);font-weight:800}
+.mission-pill{display:inline-flex;align-items:center;gap:14px;padding:14px 28px;background:var(--black);color:var(--white);font-size:13px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase}
+.mission-pill .num{font-size:22px;font-weight:900;color:var(--red);font-family:'Anton',sans-serif;font-weight:400;letter-spacing:0}
 
-/* Category grid */
-.cat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
-.cat-card{position:relative;aspect-ratio:3/4;background:#0a0a0a;border-radius:16px;overflow:hidden;cursor:pointer;transition:transform 0.3s}
-.cat-card:hover{transform:translateY(-4px)}
-.cat-card img{width:100%;height:100%;object-fit:cover;transition:transform 0.5s;filter:brightness(0.7)}
-.cat-card:hover img{transform:scale(1.05);filter:brightness(0.85)}
-.cat-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1f1f1f,#2a2a2a);font-size:70px;opacity:0.4;color:#fff}
-.cat-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(0,0,0,0.9) 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:24px;color:#fff}
-.cat-eyebrow{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.7);margin-bottom:6px}
-.cat-title{font-size:24px;font-weight:900;letter-spacing:-0.02em;text-transform:uppercase;margin-bottom:12px;line-height:1}
-.cat-btn{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;transition:gap 0.2s}
-.cat-card:hover .cat-btn{gap:14px}
+/* SPLIT */
+.split-section{padding:80px 0;background:var(--grey-50)}
+.split-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;max-width:none}
+.split-card{position:relative;aspect-ratio:1;overflow:hidden;cursor:pointer;background:var(--black);color:var(--white)}
+.split-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(0.55);transition:all 0.6s var(--ease)}
+.split-card:hover .split-bg{transform:scale(1.06);filter:brightness(0.7)}
+.split-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:140px;opacity:0.15;background:linear-gradient(135deg,#1a1a1a,#2a2a2a)}
+.split-content{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:48px;z-index:2}
+.split-eyebrow{font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.7);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.split-eyebrow::before{content:'';width:24px;height:2px;background:var(--red)}
+.split-title{font-size:clamp(48px,5.5vw,80px);font-weight:900;letter-spacing:-0.03em;text-transform:uppercase;line-height:0.9;margin-bottom:18px}
+.split-desc{font-size:15px;color:rgba(255,255,255,0.85);line-height:1.5;margin-bottom:28px;max-width:380px}
+.split-arrow{display:inline-flex;align-items:center;gap:12px;font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;transition:gap 0.3s var(--ease)}
+.split-card:hover .split-arrow{gap:18px}
+.split-arrow svg{transition:transform 0.3s var(--ease)}
+.split-card:hover .split-arrow svg{transform:translateX(4px)}
 
-/* Red family band */
-.family-band{background:linear-gradient(135deg,#ff3838 0%,#c41e1e 100%);color:#fff;padding:80px 32px;text-align:center;position:relative;overflow:hidden}
-.family-band::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 50%,rgba(255,255,255,0.1) 0%,transparent 50%),radial-gradient(circle at 80% 50%,rgba(255,255,255,0.08) 0%,transparent 50%)}
-.family-inner{max-width:900px;margin:0 auto;position:relative;z-index:1}
-.family-kicker{font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;opacity:0.9}
-.family-title{font-size:clamp(32px,5.5vw,64px);font-weight:900;letter-spacing:-0.03em;line-height:1;margin-bottom:20px;text-transform:uppercase}
-.family-sub{font-size:18px;line-height:1.6;max-width:640px;margin:0 auto 32px;opacity:0.95}
-.family-cta{display:inline-flex;align-items:center;gap:10px;padding:16px 32px;background:#fff;color:#ff3838;font-size:13px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;border-radius:100px;transition:all 0.2s;cursor:pointer}
-.family-cta:hover{background:#0a0a0a;color:#fff;transform:translateY(-2px)}
+/* CATEGORIES */
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px}
+.cat-card{position:relative;aspect-ratio:3/4;overflow:hidden;cursor:pointer;background:#0a0a0a;color:#fff;transition:transform 0.4s var(--ease)}
+.cat-card:hover{transform:translateY(-6px)}
+.cat-card img{width:100%;height:100%;object-fit:cover;transition:transform 0.6s var(--ease);filter:brightness(0.65)}
+.cat-card:hover img{transform:scale(1.1);filter:brightness(0.8)}
+.cat-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a1a,#2a2a2a);font-size:80px;opacity:0.3}
+.cat-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(0,0,0,0.95) 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:24px;z-index:2}
+.cat-eyebrow-num{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:8px}
+.cat-title{font-size:24px;font-weight:900;letter-spacing:-0.02em;text-transform:uppercase;line-height:1;margin-bottom:14px}
+.cat-arrow{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px;transition:gap 0.2s var(--ease)}
+.cat-card:hover .cat-arrow{gap:12px}
 
-/* Value strip */
-.value-strip{background:#f5f5f5;color:#0a0a0a;padding:60px 32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:32px;margin:60px 0;border-top:1px solid #eee;border-bottom:1px solid #eee}
+/* RED BAND */
+.family-band{background:var(--red);color:var(--white);padding:90px 32px;text-align:center;position:relative;overflow:hidden}
+.family-band::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 25% 50%,rgba(255,255,255,0.08) 0%,transparent 60%),radial-gradient(circle at 75% 50%,rgba(0,0,0,0.1) 0%,transparent 60%);pointer-events:none}
+.family-bg-text{font-family:'Anton',sans-serif;font-weight:400;font-size:clamp(120px,20vw,300px);letter-spacing:-0.04em;color:rgba(255,255,255,0.06);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);white-space:nowrap;text-transform:uppercase;pointer-events:none}
+.family-inner{max-width:880px;margin:0 auto;position:relative;z-index:1}
+.family-eyebrow{font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;margin-bottom:18px;opacity:0.9}
+.family-title{font-size:clamp(40px,7vw,88px);font-weight:900;letter-spacing:-0.04em;line-height:0.95;margin-bottom:24px;text-transform:uppercase}
+.family-sub{font-size:clamp(15px,1.5vw,18px);line-height:1.6;max-width:640px;margin:0 auto 36px;opacity:0.95}
+.family-cta{display:inline-flex;align-items:center;gap:12px;padding:18px 40px;background:var(--white);color:var(--red);font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;transition:all 0.25s var(--ease);cursor:pointer;border:2px solid var(--white)}
+.family-cta:hover{background:var(--black);color:var(--white);border-color:var(--black)}
+
+/* VALUES */
+.values{padding:60px 32px;background:var(--black);color:var(--white)}
+.values-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:32px;max-width:var(--max-w);margin:0 auto}
 .value-item{text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
-.value-icon{font-size:32px}
-.value-num{font-size:36px;font-weight:900;letter-spacing:-0.02em;font-family:'Archivo Black',sans-serif;line-height:1;color:#0a0a0a}
-.value-label{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#666}
+.value-icon{font-size:32px;margin-bottom:4px}
+.value-num{font-family:'Anton',sans-serif;font-size:48px;font-weight:400;letter-spacing:-0.02em;line-height:1;color:var(--red)}
+.value-label{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.7)}
 
-/* Newsletter */
-.newsletter{background:#f5f5f5;border-radius:24px;padding:80px 40px;text-align:center;margin:60px 32px;max-width:1376px;margin-left:auto;margin-right:auto}
-.newsletter h2{font-size:clamp(32px,5vw,56px);font-weight:900;letter-spacing:-0.03em;text-transform:uppercase;margin-bottom:12px;color:#0a0a0a}
-.newsletter p{font-size:15px;color:#666;margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.5}
-.newsletter-form{display:flex;gap:8px;max-width:440px;margin:0 auto;background:#fff;border:2px solid #0a0a0a;border-radius:100px;padding:4px}
-.newsletter-form input{flex:1;background:none;border:none;color:#0a0a0a;padding:14px 24px;font-size:14px;outline:none;font-family:inherit}
-.newsletter-form button{background:#0a0a0a;color:#fff;padding:14px 28px;border-radius:100px;font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;transition:all 0.15s}
-.newsletter-form button:hover{background:#ff3838}
+/* NEWSLETTER */
+.newsletter{padding:80px 32px;background:var(--grey-100);text-align:center}
+.newsletter-inner{max-width:560px;margin:0 auto}
+.newsletter h2{font-size:clamp(36px,5vw,56px);font-weight:900;letter-spacing:-0.03em;text-transform:uppercase;margin-bottom:14px;line-height:1}
+.newsletter p{font-size:15px;color:var(--grey-700);margin-bottom:32px;line-height:1.5}
+.newsletter-form{display:flex;gap:0;background:var(--white);border:2px solid var(--black)}
+.newsletter-form input{flex:1;border:none;color:var(--black);padding:16px 24px;font-size:14px;outline:none;font-family:inherit;background:transparent;font-weight:500}
+.newsletter-form button{background:var(--black);color:var(--white);padding:16px 32px;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;transition:background 0.15s;border:none;cursor:pointer}
+.newsletter-form button:hover{background:var(--red)}
 
 @media (max-width:768px){
-.section,.split-section{padding:50px 16px}
-.hero-content{padding:50px 16px 70px}
-.mission{padding:50px 20px}
-.family-band{padding:50px 20px}
-.value-strip{padding:40px 16px;gap:24px;margin:32px 0}
-.value-num{font-size:28px}
-.newsletter{padding:50px 20px;margin:32px 16px}
-.cat-grid{grid-template-columns:repeat(2,1fr);gap:8px}
-.cat-title{font-size:18px}
-.cat-overlay{padding:16px}
+.hero{min-height:75vh;align-items:flex-end}
+.hero-content{padding:40px 16px 80px}
 .split-grid{grid-template-columns:1fr}
-.split-card{aspect-ratio:1}
-.split-card-overlay{padding:24px}
-.split-title{font-size:32px}
+.split-content{padding:32px}
+.split-title{font-size:42px}
+.cat-grid{grid-template-columns:repeat(2,1fr)}
+.cat-overlay{padding:18px}
+.cat-title{font-size:18px}
+.mission,.family-band{padding:60px 20px}
+.values{padding:40px 16px}
+.newsletter{padding:60px 20px}
+.value-num{font-size:36px}
 .hero-cta-row{flex-direction:column;width:100%}
-.hero-cta-row .btn-primary,.hero-cta-row .btn-secondary{width:100%}
+.hero-cta{width:100%}
+.hero-scroll{display:none}
 }
-</style></head><body>
+</style>
+</head>
+<body>
 
-<div class="ann-bar"><div class="ann-slide"><span>UP TO 70% OFF RETAIL PRICES</span><span>★</span><span>FREE SHIPPING OVER $75</span><span>★</span><span>AUTHENTIC QUALITY · FRACTION OF THE COST</span><span>★</span><span>KIDS SIZES AVAILABLE</span></div></div>
-
-<nav class="store-nav"><div class="nav-inner">
-<a class="nav-logo" id="navLogo" onclick="goHome()">STORE</a>
-<div class="nav-links" id="navLinks"></div>
-<div class="nav-right">
-<button class="nav-icon" onclick="goSearch()"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M12 12l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
-<button class="nav-icon" onclick="goCart()"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 5h11l-1 9H5L4 5zM4 5L3.5 3H1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="cart-count" id="cartCount" style="display:none">0</span></button>
-</div></div></nav>
-
-<section class="hero"><div class="hero-bg" id="heroBg"></div><div class="hero-content">
-<div class="hero-eyebrow">Jerseys Shouldn't Cost A Fortune</div>
-<h1 class="hero-title">3 JERSEYS<br/>FOR THE PRICE<br/>OF <span>ONE</span></h1>
-<p class="hero-sub">Authentic quality jerseys at a fraction of retail. Because every kid deserves to wear their hero's name — and no parent should have to break the bank to make that happen.</p>
-<div class="hero-cta-row">
-<button class="btn-primary" onclick="document.getElementById('collections').scrollIntoView({behavior:'smooth'})">Shop now <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-<button class="btn-secondary" onclick="document.getElementById('mission').scrollIntoView({behavior:'smooth'})">Our story</button>
-</div>
-</div></section>
-
-<section class="mission" id="mission"><div class="mission-inner">
-<div class="mission-kicker">★ Our Mission</div>
-<h2 class="mission-title">Quality Jerseys for Every Family</h2>
-<p class="mission-body">Parents already juggle a thousand bills. A <strong>$120 jersey</strong> shouldn't be one of them — especially when your kid outgrows it in a year. We bring you the same premium quality you'd find at retail for <strong>a fraction of the price</strong>. Whether it's your kid's favorite anime legend or your country's World Cup hero, everyone deserves to rep their team without the markup.</p>
-<div class="mission-stat">Save <span>up to 70%</span> on every kit</div>
-</div></section>
-
-<section class="split-section">
-<div class="split-header">
-<div class="section-eyebrow">Two Worlds, One Store</div>
-<h2 class="section-title">Rep Your<br/>Passion</h2>
-<p class="split-sub">Whether you live for the beautiful game or the world's greatest anime, we've got the kit. High-quality stitching, breathable fabric, and prices that actually make sense.</p>
-</div>
-<div class="split-grid">
-<div class="split-card" onclick="goAnimeSection()">
-<div class="split-card-img" id="animeCardImg"></div>
-<div class="split-card-placeholder" id="animeCardPlaceholder">⚔️</div>
-<div class="split-card-overlay">
-<div class="split-eyebrow">Anime Collection</div>
-<div class="split-title">Anime<br/>Jerseys</div>
-<div class="split-desc">Wear your favorite characters. From legendary heroes to cult classics — statement pieces for anime fans who live the culture.</div>
-<div class="split-btn">Explore <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-</div>
-</div>
-<div class="split-card" onclick="goWorldCupSection()">
-<div class="split-card-img" id="worldCupCardImg"></div>
-<div class="split-card-placeholder" id="worldCupCardPlaceholder">⚽</div>
-<div class="split-card-overlay">
-<div class="split-eyebrow">World Cup & Football</div>
-<div class="split-title">World Cup<br/>Kits</div>
-<div class="split-desc">Home, away, and kids' sizes for every country. Represent your nation this World Cup season — same premium quality, zero markup.</div>
-<div class="split-btn">Explore <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-</div>
-</div>
-</div>
-</section>
-
-<section class="section" id="collections">
-<div class="section-header">
-<div><div class="section-eyebrow">Shop By Country & Team</div><h2 class="section-title">All<br/>Collections</h2></div>
-<a class="section-link" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">View all products <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-</div>
-<div class="cat-grid" id="collectionCards"><div style="grid-column:1/-1;text-align:center;padding:40px;color:#999">Loading collections...</div></div>
-</section>
-
-<div class="family-band"><div class="family-inner">
-<div class="family-kicker">For The Whole Family</div>
-<h2 class="family-title">Kids Kits,<br/>Big Dreams</h2>
-<p class="family-sub">Every country. Home, away, and training kits. Kids sizes that fit right and last a season. Because watching your kid wear their hero's number shouldn't mean skipping this month's groceries.</p>
-<button class="family-cta" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">Shop kids jerseys <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+<div class="ann-bar"><div class="ann-slide">
+<span>★ UP TO 70% OFF RETAIL</span>
+<span>★ FREE SHIPPING OVER $75</span>
+<span>★ AUTHENTIC QUALITY</span>
+<span>★ KIDS SIZES AVAILABLE</span>
+<span>★ NEW DROPS WEEKLY</span>
 </div></div>
 
-<section class="section" id="featured">
+<nav class="store-nav"><div class="nav-inner">
+<a class="nav-logo" onclick="SivraStore.goHome()">STORE</a>
+<div class="nav-links"></div>
+<div class="nav-right">
+<button class="nav-icon btn-press" onclick="document.getElementById('searchInput').focus();document.getElementById('products').scrollIntoView({behavior:'smooth'})" aria-label="Search">
+<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M12 12l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+</button>
+<button class="nav-icon btn-press" onclick="SivraStore.openDrawer()" aria-label="Cart">
+<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 5h11l-1 9H5L4 5zM4 5L3.5 3H1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<span class="cart-count" style="display:none">0</span>
+</button>
+</div></div></nav>
+
+<section class="hero">
+<div class="hero-bg" id="heroBg"></div>
+<div class="hero-overlay"></div>
+<div class="hero-content">
+<div class="hero-eyebrow">Built For Every Family</div>
+<h1 class="hero-title">3 Jerseys<br/>For The<br/>Price Of <span class="accent">One.</span></h1>
+<p class="hero-sub">Authentic quality. Fraction of retail. Because every kid deserves to wear their hero's name — and no parent should have to break the bank to make it happen.</p>
+<div class="hero-cta-row">
+<button class="hero-cta" onclick="document.getElementById('collections').scrollIntoView({behavior:'smooth'})"><span>Shop the drop</span> <svg style="position:relative;z-index:1" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+<button class="hero-cta outline" onclick="document.getElementById('mission').scrollIntoView({behavior:'smooth'})"><span>Our story</span></button>
+</div>
+</div>
+<div class="hero-scroll">
+<span>Scroll</span>
+<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M3 8l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</div>
+</section>
+
+<section class="mission reveal" id="mission">
+<div class="mission-inner">
+<div class="section-eyebrow" style="margin:0 auto 0;display:inline-flex">Our Mission</div>
+<h2 class="mission-title">Quality<br/>For Every Family</h2>
+<p class="mission-body">Parents already juggle a thousand bills. A <strong>$120 jersey</strong> shouldn't be one of them — especially when your kid outgrows it in a year. We bring the same premium quality you'd find at retail for <strong>a fraction of the price</strong>.</p>
+<div class="mission-pill">Save up to <span class="num">70%</span> on every kit</div>
+</div>
+</section>
+
+<section class="split-section reveal">
+<div class="split-grid">
+<div class="split-card" id="animeCard" onclick="goAnimeSection()">
+<div class="split-bg" id="animeBg"></div>
+<div class="split-placeholder" id="animePh">⚔️</div>
+<div class="split-content">
+<div class="split-eyebrow">Anime Collection</div>
+<h3 class="split-title">Anime<br/>Jerseys</h3>
+<p class="split-desc">Wear your favorite characters. Statement pieces for fans who live the culture.</p>
+<div class="split-arrow">Explore <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+</div>
+</div>
+<div class="split-card" id="wcCard" onclick="goWorldCupSection()">
+<div class="split-bg" id="wcBg"></div>
+<div class="split-placeholder" id="wcPh">⚽</div>
+<div class="split-content">
+<div class="split-eyebrow">World Cup & Football</div>
+<h3 class="split-title">World Cup<br/>Kits</h3>
+<p class="split-desc">Home, away, and kids' sizes for every country. Same premium, zero markup.</p>
+<div class="split-arrow">Explore <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="section reveal" id="collections">
+<div class="section-header">
+<div><div class="section-eyebrow">Shop By Country & Team</div><h2 class="section-title">Every<br/>Collection</h2></div>
+<a class="section-link" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">View all <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+</div>
+<div class="cat-grid" id="collectionCards"><div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--grey-500)">Loading...</div></div>
+</section>
+
+<section class="family-band reveal">
+<div class="family-bg-text">FAMILY</div>
+<div class="family-inner">
+<div class="family-eyebrow">For The Whole Family</div>
+<h2 class="family-title">Kids Kits.<br/>Big Dreams.</h2>
+<p class="family-sub">Every country. Home, away, and training kits. Kids sizes that fit right and last a season. Because watching your kid wear their hero's number shouldn't mean skipping this month's groceries.</p>
+<button class="family-cta" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">Shop kids jerseys <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+</div>
+</section>
+
+<section class="section reveal" id="featured">
 <div class="section-header">
 <div><div class="section-eyebrow">Top Picks</div><h2 class="section-title">Featured<br/>Drops</h2></div>
 <a class="section-link" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">Shop all <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
@@ -179,173 +226,149 @@
 <div class="prod-grid" id="featuredGrid"></div>
 </section>
 
-<div class="value-strip">
+<section class="values reveal">
+<div class="values-grid">
 <div class="value-item"><div class="value-icon">💎</div><div class="value-num">100%</div><div class="value-label">Quality Guaranteed</div></div>
 <div class="value-item"><div class="value-icon">🚀</div><div class="value-num">24H</div><div class="value-label">Fast Shipping</div></div>
 <div class="value-item"><div class="value-icon">💰</div><div class="value-num">70%</div><div class="value-label">Off Retail</div></div>
 <div class="value-item"><div class="value-icon">↺</div><div class="value-num">30D</div><div class="value-label">Easy Returns</div></div>
 </div>
+</section>
 
-<section class="section" id="products">
+<section class="section reveal" id="products">
 <div class="section-header" style="justify-content:center;flex-direction:column;text-align:center">
-<div><div class="section-eyebrow" style="text-align:center">The Full Lineup</div><h2 class="section-title">Every Jersey</h2></div>
+<div><div class="section-eyebrow" style="margin:0 auto 12px;display:inline-flex">The Full Lineup</div><h2 class="section-title">Every Jersey</h2></div>
 </div>
 <div class="search-bar">
-<svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="color:#999"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="color:var(--grey-500)"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
 <input type="text" id="searchInput" placeholder="Search teams, players, anime..." oninput="renderProducts()"/>
 <button class="search-submit" onclick="renderProducts()">Search</button>
 </div>
 <div class="filter-row" id="filterChips"></div>
-<div class="prod-grid" id="productsGrid"><div style="grid-column:1/-1;text-align:center;padding:60px;color:#999">Loading...</div></div>
-<div id="pagination" style="margin-top:48px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap"></div>
+<div class="prod-grid" id="productsGrid"><div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--grey-500)">Loading...</div></div>
+<div id="pagination" style="margin-top:48px;display:flex;justify-content:center;gap:6px;flex-wrap:wrap"></div>
 </section>
 
-<div class="newsletter">
-<h2>Never Miss a Drop</h2>
-<p>Be first to know when new kits launch — World Cup releases, anime drops, and subscriber-exclusive deals you won't find anywhere else.</p>
+<section class="newsletter reveal">
+<div class="newsletter-inner">
+<h2>Join The Squad</h2>
+<p>First dibs on new drops. Subscriber-only deals. Zero spam.</p>
 <form class="newsletter-form" onsubmit="event.preventDefault();subscribeEmail()">
-<input type="email" id="newsletterEmail" placeholder="Enter your email" required/>
+<input type="email" id="newsletterEmail" placeholder="Email address" required/>
 <button type="submit">Subscribe</button>
 </form>
 </div>
+</section>
 
-<footer class="store-footer"><div class="footer-grid">
+<footer class="store-footer">
+<div class="footer-massive">SIVRA</div>
+<div class="footer-grid">
 <div>
-<div class="footer-brand" id="footerBrand">STORE</div>
-<div class="footer-desc" id="footerDesc">Authentic jerseys and kits at a fraction of retail. Built for the fans, families, and kids who live for the game.</div>
-<div class="footer-mission">★ Quality for every family</div>
+<div class="footer-brand">STORE</div>
+<div class="footer-desc">Authentic jerseys at a fraction of retail. Built for the fans, families, and kids who live for the game.</div>
+<div class="footer-mission">Quality for every family</div>
 </div>
-<div><div class="footer-heading">Shop</div><a class="footer-link" onclick="goHome()">All products</a><span id="footerCollLinks"></span></div>
-<div><div class="footer-heading">Help</div><a class="footer-link" onclick="goPage('contact')">Contact</a><a class="footer-link" onclick="goPage('faq')">FAQ</a><a class="footer-link" onclick="goPage('shipping-policy')">Shipping</a><a class="footer-link" onclick="goPage('returns')">Returns</a><a class="footer-link" onclick="location.href='sivra-order-status.html?store='+_storeSlug">Track order</a><a class="footer-link" onclick="goBlog()">Blog</a></div>
-<div><div class="footer-heading">Legal</div><a class="footer-link" onclick="goPage('privacy-policy')">Privacy</a><a class="footer-link" onclick="goPage('refund-policy')">Refund Policy</a><a class="footer-link" onclick="goPage('terms-of-service')">Terms</a></div>
-</div><div class="footer-bottom"><span id="footerCopy">© 2026</span><span>Powered by Sivra</span></div></footer>
+<div><div class="footer-heading">Shop</div><a class="footer-link" onclick="SivraStore.goHome()">All products</a><span class="footer-coll-links"></span></div>
+<div><div class="footer-heading">Help</div><a class="footer-link" onclick="SivraStore.goPage('contact')">Contact</a><a class="footer-link" onclick="SivraStore.goPage('faq')">FAQ</a><a class="footer-link" onclick="SivraStore.goPage('shipping-policy')">Shipping</a><a class="footer-link" onclick="SivraStore.goPage('returns')">Returns</a><a class="footer-link" onclick="location.href='sivra-order-status.html?store='+SivraStore.getStoreSlug()">Track order</a><a class="footer-link" onclick="SivraStore.goBlog()">Blog</a></div>
+<div><div class="footer-heading">Legal</div><a class="footer-link" onclick="SivraStore.goPage('privacy-policy')">Privacy</a><a class="footer-link" onclick="SivraStore.goPage('refund-policy')">Refund</a><a class="footer-link" onclick="SivraStore.goPage('terms-of-service')">Terms</a></div>
+</div>
+<div class="footer-bottom"><span class="footer-copy">© 2026</span><span>Powered by Sivra</span></div>
+</footer>
 
-<div class="toast" id="sivraToast"></div>
-
+<script src="storefront-app.js"></script>
 <script>
-let _storeSlug=localStorage.getItem('sivra_store_slug')||'';
-let _store=null,_products=[],_collections=[],_currentCollection=null,_currentPage=1;
+let _products=[],_collections=[],_currentCollection=null,_currentPage=1;
 const PER_PAGE=12;
-function getCart(){try{return JSON.parse(localStorage.getItem('sivra_cart')||'[]');}catch(e){return[];}}
-function updateCartBadge(){const n=getCart().reduce((s,i)=>s+(i.qty||0),0);const el=document.getElementById('cartCount');if(el){el.textContent=n;el.style.display=n>0?'flex':'none';}}
-function toast(msg){const el=document.getElementById('sivraToast');if(!el)return;el.textContent=msg;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2500);}
-function goHome(){location.href='sivra-storefront.html?store='+_storeSlug;}
-function goCart(){location.href='sivra-cart.html?store='+_storeSlug;}
-function goSearch(){document.getElementById('products').scrollIntoView({behavior:'smooth'});setTimeout(()=>document.getElementById('searchInput')?.focus(),400);}
-function goPage(slug){location.href='sivra-policy.html?store='+_storeSlug+'&page='+slug;}
-function goBlog(){location.href='sivra-blog-storefront.html?store='+_storeSlug;}
-function goCollection(id){location.href='sivra-collection.html?store='+_storeSlug+'&id='+id;}
-function goProduct(id){location.href='sivra-product.html?id='+id+'&store='+_storeSlug;}
-function fmtMoney(v){return '$'+parseFloat(v||0).toFixed(2);}
+
 function findAnimeColl(){return _collections.find(c=>/anime|manga|naruto|dragon|demon|one piece|goku|jujutsu|hunter/i.test(c.name||''));}
 function findWorldCupColl(){return _collections.find(c=>/world cup|fifa|football|soccer|argentina|brazil|france|germany|spain|england/i.test(c.name||''));}
-function goAnimeSection(){const c=findAnimeColl();if(c)goCollection(c.id);else filterByKeyword('anime');}
-function goWorldCupSection(){const c=findWorldCupColl();if(c)goCollection(c.id);else filterByKeyword('world cup');}
+function goAnimeSection(){const c=findAnimeColl();if(c)SivraStore.goCollection(c.id);else filterByKeyword('anime');}
+function goWorldCupSection(){const c=findWorldCupColl();if(c)SivraStore.goCollection(c.id);else filterByKeyword('world cup');}
 function filterByKeyword(kw){document.getElementById('searchInput').value=kw;_currentCollection=null;_currentPage=1;renderProducts();document.getElementById('products').scrollIntoView({behavior:'smooth'});}
 function filterByCollection(id,el){_currentCollection=id;_currentPage=1;document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));if(el)el.classList.add('active');renderProducts();document.getElementById('products').scrollIntoView({behavior:'smooth'});}
 function clearCollection(el){_currentCollection=null;_currentPage=1;document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));if(el)el.classList.add('active');renderProducts();}
-async function loadStore(){
-_storeSlug=new URLSearchParams(location.search).get('store')||_storeSlug;
-localStorage.setItem('sivra_store_slug',_storeSlug);
+
+async function init(){
+const store=await SivraStore.loadStoreData();
+if(!store)return;
+const slug=SivraStore.getStoreSlug();
+document.title=store.name||'Store';
+
+// Load collections
 try{
-const res=await fetch('/api/storefront/'+_storeSlug);_store=await res.json();
-const name=_store.name||'Store';document.title=name;
-document.getElementById('navLogo').textContent=name.toUpperCase();
-document.getElementById('footerBrand').textContent=name.toUpperCase();
-document.getElementById('footerCopy').textContent='© '+new Date().getFullYear()+' '+name;
-if(_store.logo_url&&_store.logo_url.startsWith('http')){document.getElementById('navLogo').innerHTML='<img src="'+_store.logo_url+'" alt="'+name+'" style="height:32px;max-width:140px;object-fit:contain"/>';}
-await loadNavMenus();await loadCollections();await loadFeatured();await loadProducts();
-updateCartBadge();
-}catch(e){console.error('Store load error:',e);}
-}
-async function loadNavMenus(){
-try{const res=await fetch('/api/storefront/'+_storeSlug+'/menus');const data=await res.json();
-const menus=data.menus||[];const nav=menus.find(m=>m.location==='main'||m.handle==='main-menu')||menus[0];
-if(!nav||!nav.items)return;const items=typeof nav.items==='string'?JSON.parse(nav.items):nav.items;
-document.getElementById('navLinks').innerHTML=items.map(i=>{
-const click=i.url?"location.href='"+i.url+"'":i.collection_id?"goCollection('"+i.collection_id+"')":i.page_slug?"goPage('"+i.page_slug+"')":"goHome()";
-return '<a class="nav-link" onclick="'+click+'">'+(i.title||i.name||'')+'</a>';}).join('');
-}catch(e){}
-}
-async function loadCollections(){
-try{const res=await fetch('/api/storefront/'+_storeSlug+'/collections');const data=await res.json();
+const res=await fetch('/api/storefront/'+slug+'/collections');
+const data=await res.json();
 _collections=(data.collections||[]).filter(c=>(c.product_count||0)>0);
+
 if(_collections[0]&&_collections[0].image){document.getElementById('heroBg').style.backgroundImage="url('"+_collections[0].image+"')";}
+
 const anime=findAnimeColl();const wc=findWorldCupColl();
-if(anime&&anime.image){document.getElementById('animeCardImg').style.backgroundImage="url('"+anime.image+"')";document.getElementById('animeCardPlaceholder').style.display='none';}
-if(wc&&wc.image){document.getElementById('worldCupCardImg').style.backgroundImage="url('"+wc.image+"')";document.getElementById('worldCupCardPlaceholder').style.display='none';}
+if(anime&&anime.image){document.getElementById('animeBg').style.backgroundImage="url('"+anime.image+"')";document.getElementById('animePh').style.display='none';}
+if(wc&&wc.image){document.getElementById('wcBg').style.backgroundImage="url('"+wc.image+"')";document.getElementById('wcPh').style.display='none';}
+
 const grid=document.getElementById('collectionCards');
-if(_collections.length===0){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:#999">No collections yet</div>';}
-else{grid.innerHTML=_collections.slice(0,8).map(c=>
-'<div class="cat-card" onclick="goCollection(\''+c.id+'\')">'+
+if(!_collections.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--grey-500)">No collections yet</div>';}
+else{grid.innerHTML=_collections.slice(0,8).map((c,i)=>
+'<div class="cat-card" onclick="SivraStore.goCollection(\''+c.id+'\')">'+
 (c.image?'<img src="'+c.image+'" alt="'+c.name+'"/>':'<div class="cat-placeholder">👕</div>')+
-'<div class="cat-overlay"><div class="cat-eyebrow">'+(c.product_count||0)+' items</div>'+
+'<div class="cat-overlay">'+
+'<div class="cat-eyebrow-num">'+String(i+1).padStart(2,'0')+' · '+(c.product_count||0)+' items</div>'+
 '<div class="cat-title">'+c.name+'</div>'+
-'<div class="cat-btn">Shop now <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div>'
+'<div class="cat-arrow">Shop now <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M6 2l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'+
+'</div></div>'
 ).join('');}
-const chips=document.getElementById('filterChips');
-chips.innerHTML='<div class="filter-chip active" onclick="clearCollection(this)">All</div>'+
-_collections.map(c=>'<div class="filter-chip" onclick="filterByCollection(\''+c.id+'\',this)">'+c.name+'</div>').join('');
-document.getElementById('footerCollLinks').innerHTML=_collections.slice(0,5).map(c=>'<a class="footer-link" onclick="goCollection(\''+c.id+'\')">'+c.name+'</a>').join('');
+
+// Filter chips
+document.getElementById('filterChips').innerHTML='<div class="filter-chip active" onclick="clearCollection(this)">All</div>'+_collections.map(c=>'<div class="filter-chip" onclick="filterByCollection(\''+c.id+'\',this)">'+c.name+'</div>').join('');
 }catch(e){console.error(e);}
-}
-async function loadFeatured(){
-try{const res=await fetch('/api/storefront/'+_storeSlug+'/products?sort=bestseller&limit=8');const data=await res.json();
-const items=data.products||[];const grid=document.getElementById('featuredGrid');
-if(!items.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:#999">No products yet</div>';return;}
-grid.innerHTML=items.slice(0,8).map(renderProductCard).join('');
+
+// Featured products
+try{
+const res=await fetch('/api/storefront/'+slug+'/products?sort=bestseller&limit=8');
+const data=await res.json();const items=data.products||[];
+const grid=document.getElementById('featuredGrid');
+if(!items.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--grey-500)">No products yet</div>';}
+else{grid.innerHTML=items.slice(0,8).map(p=>SivraStore.productCardHtml(p)).join('');}
 }catch(e){}
-}
-async function loadProducts(){
-try{const res=await fetch('/api/storefront/'+_storeSlug+'/products?limit=200');const data=await res.json();
-_products=data.products||[];renderProducts();
+
+// All products
+try{
+const res=await fetch('/api/storefront/'+slug+'/products?limit=200');
+const data=await res.json();_products=data.products||[];renderProducts();
 }catch(e){}
+
+// Re-init reveal for new content
+SivraStore.initReveal();
 }
-function renderProductCard(p){
-const imgs=Array.isArray(p.images)?p.images:(typeof p.images==='string'?JSON.parse(p.images||'[]'):[]);
-const img=imgs[0];const price=parseFloat(p.price||0);const compare=parseFloat(p.compare_price||0);
-const isSale=compare>price;const savings=isSale?Math.round((1-price/compare)*100):0;
-const isNew=p.created_at&&(new Date()-new Date(p.created_at))<14*86400000;
-const isKids=/kids|youth|junior|child/i.test((p.title||'')+(p.tags||''));
-let badge='';
-if(isKids)badge='<div class="prod-badge kids">Kids</div>';
-else if(isSale)badge='<div class="prod-badge sale">-'+savings+'%</div>';
-else if(isNew)badge='<div class="prod-badge new">NEW</div>';
-return '<a class="prod-card" onclick="goProduct(\''+p.id+'\')" href="javascript:void(0)">'+
-'<div class="prod-img">'+badge+
-(img?'<img src="'+img+'" alt="'+p.title+'" loading="lazy"/>':'<div class="prod-placeholder">👕</div>')+
-'</div><div class="prod-info">'+
-'<div class="prod-title">'+p.title+'</div>'+
-(p.vendor?'<div class="prod-meta">'+p.vendor+'</div>':'')+
-'<div class="prod-price-row"><span class="prod-price">'+fmtMoney(price)+'</span>'+
-(isSale?'<span class="prod-compare">'+fmtMoney(compare)+'</span><span class="prod-save">Save '+savings+'%</span>':'')+
-'</div></div></a>';
-}
+
 function renderProducts(){
 const q=(document.getElementById('searchInput')?.value||'').toLowerCase();
 let list=_products;
 if(_currentCollection)list=list.filter(p=>(p.collections||[]).some(c=>c.id===_currentCollection));
 if(q)list=list.filter(p=>(p.title||'').toLowerCase().includes(q)||(p.description||'').toLowerCase().includes(q)||(p.vendor||'').toLowerCase().includes(q)||(p.tags||'').toLowerCase().includes(q));
 const grid=document.getElementById('productsGrid');
-if(!list.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:60px;color:#999;font-size:14px">No products found'+(q?' for "'+q+'"':'')+'</div>';document.getElementById('pagination').innerHTML='';return;}
+if(!list.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--grey-500)">No products found'+(q?' for "'+q+'"':'')+'</div>';document.getElementById('pagination').innerHTML='';return;}
 const start=(_currentPage-1)*PER_PAGE;
-grid.innerHTML=list.slice(start,start+PER_PAGE).map(renderProductCard).join('');
-const totalPages=Math.ceil(list.length/PER_PAGE);const pgEl=document.getElementById('pagination');
+grid.innerHTML=list.slice(start,start+PER_PAGE).map(p=>SivraStore.productCardHtml(p)).join('');
+const totalPages=Math.ceil(list.length/PER_PAGE);
+const pgEl=document.getElementById('pagination');
 if(totalPages<=1){pgEl.innerHTML='';return;}
 let btns='';
 for(let i=1;i<=totalPages;i++){
-const active=i===_currentPage?'background:#0a0a0a;color:#fff;border-color:#0a0a0a':'';
-btns+='<button onclick="_currentPage='+i+';renderProducts();document.getElementById(\'products\').scrollIntoView({behavior:\'smooth\'})" style="padding:10px 16px;background:#fff;border:1.5px solid #e5e5e5;border-radius:8px;color:#555;font-size:13px;font-weight:700;cursor:pointer;'+active+'">'+i+'</button>';
+const active=i===_currentPage?'background:var(--black);color:var(--white);border-color:var(--black)':'';
+btns+='<button onclick="_currentPage='+i+';renderProducts();document.getElementById(\'products\').scrollIntoView({behavior:\'smooth\'})" style="padding:11px 18px;background:var(--white);border:1.5px solid var(--grey-300);color:var(--grey-700);font-size:12px;font-weight:800;cursor:pointer;letter-spacing:1px;'+active+'">'+i+'</button>';
 }
 pgEl.innerHTML=btns;
 }
+
 async function subscribeEmail(){
 const email=document.getElementById('newsletterEmail').value;if(!email)return;
-try{await fetch('/api/storefront/'+_storeSlug+'/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})});
-toast('Thanks for joining the squad!');document.getElementById('newsletterEmail').value='';
-}catch(e){toast('Thanks for joining the squad!');}
+try{await fetch('/api/storefront/'+SivraStore.getStoreSlug()+'/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})});
+SivraStore.toast('Welcome to the squad!');document.getElementById('newsletterEmail').value='';
+}catch(e){SivraStore.toast('Welcome to the squad!');}
 }
-loadStore();
+
+init();
 </script>
 <script src="storefront-tracker.js"></script>
 </body></html>
