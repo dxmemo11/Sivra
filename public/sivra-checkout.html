@@ -17,15 +17,29 @@
 
 .check-layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:48px;align-items:start}
 
-.check-section{background:var(--white);border:1px solid var(--grey-200);padding:32px;margin-bottom:14px;position:relative}
-.section-num{position:absolute;top:-1px;left:-1px;background:var(--black);color:var(--white);width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-family:'Anton',sans-serif;font-size:18px;font-weight:400}
+/* MOBILE COMPACT SUMMARY (top of page) */
+.mobile-top-summary{display:none;background:var(--white);border:1.5px solid var(--black);border-radius:var(--radius-lg);padding:18px 20px;margin-bottom:20px;cursor:pointer;transition:box-shadow 0.2s}
+.mobile-top-summary:hover{box-shadow:var(--shadow-sm)}
+.mts-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.mts-left{display:flex;align-items:center;gap:12px}
+.mts-icon{width:36px;height:36px;border-radius:50%;background:var(--grey-100);display:flex;align-items:center;justify-content:center;font-size:16px}
+.mts-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--grey-700)}
+.mts-count{font-size:12px;color:var(--grey-500);font-weight:600;margin-top:2px}
+.mts-total{font-size:22px;font-weight:900;color:var(--black);font-family:'Anton',sans-serif;font-weight:400;letter-spacing:-0.02em;display:flex;align-items:center;gap:8px}
+.mts-chev{width:14px;height:14px;color:var(--grey-500);transition:transform 0.25s var(--ease)}
+.mobile-top-summary.expanded .mts-chev{transform:rotate(180deg)}
+.mts-expand{display:none;margin-top:18px;padding-top:18px;border-top:1px solid var(--grey-200)}
+.mobile-top-summary.expanded .mts-expand{display:block}
+
+.check-section{background:var(--white);border:1px solid var(--grey-200);border-radius:var(--radius-lg);padding:32px;margin-bottom:14px;position:relative}
+.section-num{position:absolute;top:-1px;left:-1px;background:var(--black);color:var(--white);width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-family:'Anton',sans-serif;font-size:18px;font-weight:400;border-top-left-radius:var(--radius-lg);border-bottom-right-radius:var(--radius-lg)}
 .section-title-row{margin-left:42px;display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
 .check-section h2{font-size:18px;font-weight:900;letter-spacing:-0.02em;text-transform:uppercase;color:var(--black)}
 .check-section p.section-desc{font-size:13px;color:var(--grey-500);margin-bottom:24px;margin-left:42px}
 .check-section .form-stack{padding-top:8px}
 
 .ship-options{display:flex;flex-direction:column;gap:8px}
-.ship-option{border:1.5px solid var(--grey-300);padding:18px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all 0.15s var(--ease);background:var(--white)}
+.ship-option{border:1.5px solid var(--grey-300);border-radius:var(--radius);padding:18px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all 0.15s var(--ease);background:var(--white)}
 .ship-option:hover{border-color:var(--black)}
 .ship-option.selected{border-color:var(--black);border-width:2px;padding:17px;background:var(--grey-50)}
 .ship-radio{flex-shrink:0;width:20px;height:20px;border:1.5px solid var(--grey-400);border-radius:50%;position:relative;transition:border-color 0.15s}
@@ -37,47 +51,45 @@
 .ship-price{font-size:16px;font-weight:900;color:var(--black);font-family:'Anton',sans-serif;font-weight:400;letter-spacing:-0.02em}
 .ship-price.free{color:var(--green);font-family:inherit;font-weight:800;font-size:11px;letter-spacing:1.5px;text-transform:uppercase}
 
-.err-banner{display:none;background:var(--red-bg);color:var(--red-dark);padding:14px 18px;font-size:13px;margin-bottom:20px;border-left:3px solid var(--red);font-weight:700}
+.err-banner{display:none;background:var(--red-soft);color:var(--red-text);padding:14px 18px;font-size:13px;margin-bottom:20px;border-left:3px solid var(--red);border-radius:var(--radius);font-weight:700}
 .err-banner.show{display:block;animation:shake 0.4s var(--ease)}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 
-#stripe-payment-element{margin-top:8px;padding:16px;border:1.5px solid var(--grey-300);background:var(--white);min-height:50px}
-#stripe-errors{background:var(--red-bg);color:var(--red-dark);padding:12px 16px;font-size:13px;margin-top:12px;display:none;font-weight:700;border-left:3px solid var(--red)}
-.payment-note{background:var(--grey-100);padding:18px 20px;font-size:13px;color:var(--grey-700);border-left:3px solid var(--black);font-weight:600;line-height:1.5}
+#stripe-payment-element{margin-top:8px;min-height:50px}
+#stripe-errors{background:var(--red-soft);color:var(--red-text);padding:12px 16px;font-size:13px;margin-top:12px;display:none;font-weight:700;border-left:3px solid var(--red);border-radius:var(--radius)}
+.payment-loading{padding:20px;text-align:center;color:var(--grey-500);font-size:13px;font-weight:600;border:1.5px dashed var(--grey-300);border-radius:var(--radius)}
+.payment-note{background:var(--grey-100);padding:18px 20px;font-size:13px;color:var(--grey-700);border-left:3px solid var(--black);font-weight:600;line-height:1.5;border-radius:var(--radius)}
 
-.complete-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:12px;padding:22px;background:var(--black);color:var(--white);font-size:14px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;cursor:pointer;border:none;margin-top:16px;position:relative;overflow:hidden;transition:all 0.25s var(--ease)}
-.complete-btn::before{content:'';position:absolute;inset:0;background:var(--red);transform:translateX(-100%);transition:transform 0.35s var(--ease)}
-.complete-btn:hover::before{transform:translateX(0)}
-.complete-btn > *{position:relative;z-index:1}
+.complete-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:12px;padding:22px;background:var(--black);color:var(--white);font-size:14px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;cursor:pointer;border:none;border-radius:var(--radius);margin-top:16px;transition:background 0.2s var(--ease)}
+.complete-btn:hover{background:var(--grey-700)}
 .complete-btn:disabled{opacity:0.5;cursor:not-allowed}
-.complete-btn:disabled::before{display:none}
 .complete-btn:active{transform:scale(0.99)}
 .checkout-secure-row{display:flex;justify-content:center;gap:24px;margin-top:18px;font-size:10px;color:var(--grey-500);text-transform:uppercase;letter-spacing:1.5px;font-weight:800;flex-wrap:wrap}
 
-/* SUMMARY */
-.check-summary{background:var(--white);border:2px solid var(--black);padding:28px;position:sticky;top:24px}
+/* DESKTOP SUMMARY */
+.check-summary{background:var(--white);border:2px solid var(--black);border-radius:var(--radius-lg);padding:28px;position:sticky;top:24px}
 .summary-title{font-size:16px;font-weight:900;text-transform:uppercase;letter-spacing:-0.02em;color:var(--black);margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--grey-200);display:flex;justify-content:space-between;align-items:baseline}
 .summary-edit{font-size:11px;color:var(--grey-700);text-decoration:underline;cursor:pointer;font-weight:700;letter-spacing:1px;text-transform:uppercase}
 .summary-edit:hover{color:var(--black)}
 
 .sum-items{display:flex;flex-direction:column;gap:14px;margin-bottom:18px;max-height:300px;overflow-y:auto}
 .sum-item{display:grid;grid-template-columns:60px 1fr auto;gap:12px;align-items:center;font-size:13px}
-.sum-img{width:60px;height:72px;background:var(--grey-100);overflow:hidden;position:relative}
+.sum-img{width:60px;height:72px;background:var(--grey-100);overflow:hidden;position:relative;border-radius:var(--radius-sm)}
 .sum-img img{width:100%;height:100%;object-fit:cover}
-.sum-qty{position:absolute;top:-6px;right:-6px;background:var(--black);color:var(--white);min-width:22px;height:22px;padding:0 6px;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid var(--white)}
+.sum-qty{position:absolute;top:-6px;right:-6px;background:var(--black);color:var(--white);min-width:22px;height:22px;padding:0 6px;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid var(--white);border-radius:11px}
 .sum-item-info{min-width:0}
 .sum-item-title{font-weight:700;color:var(--black);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
 .sum-item-variant{color:var(--grey-500);font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-top:2px;font-weight:700}
 .sum-item-price{font-weight:800;color:var(--black);font-size:14px}
 
 .disc-input-row{display:flex;gap:0;padding-top:18px;border-top:1px solid var(--grey-200);margin-top:6px}
-.disc-input-row input{flex:1;height:42px;padding:0 14px;background:var(--grey-100);border:1.5px solid var(--grey-100);font-size:12px;outline:none;font-family:inherit;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;transition:all 0.15s}
+.disc-input-row input{flex:1;height:42px;padding:0 14px;background:var(--grey-100);border:1.5px solid var(--grey-100);border-radius:var(--radius-sm) 0 0 var(--radius-sm);font-size:12px;outline:none;font-family:inherit;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;transition:all 0.15s}
 .disc-input-row input:focus{border-color:var(--black);background:var(--white)}
-.disc-input-row button{padding:0 18px;background:var(--black);color:var(--white);border:none;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:background 0.15s}
-.disc-input-row button:hover{background:var(--red)}
+.disc-input-row button{padding:0 18px;background:var(--black);color:var(--white);border:none;border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:background 0.15s}
+.disc-input-row button:hover{background:var(--grey-700)}
 
 .disc-applied{padding-top:18px;border-top:1px solid var(--grey-200);margin-top:6px}
-.disc-chip{background:var(--green-bg);color:var(--green);padding:10px 14px;font-size:12px;font-weight:800;display:flex;justify-content:space-between;align-items:center;letter-spacing:0.5px;text-transform:uppercase;border-left:3px solid var(--green)}
+.disc-chip{background:var(--green-bg);color:var(--green);padding:10px 14px;font-size:12px;font-weight:800;display:flex;justify-content:space-between;align-items:center;letter-spacing:0.5px;text-transform:uppercase;border-left:3px solid var(--green);border-radius:var(--radius-sm)}
 .disc-chip button{background:none;border:none;color:var(--green);cursor:pointer;font-size:18px;font-weight:700;padding:0 4px}
 
 .sum-totals{padding-top:18px;border-top:1px solid var(--grey-200);margin-top:18px}
@@ -89,15 +101,40 @@
 .summary-trust{display:flex;justify-content:center;gap:18px;margin-top:22px;padding-top:18px;border-top:1px solid var(--grey-200);flex-wrap:wrap}
 .summary-trust span{font-size:10px;color:var(--grey-700);font-weight:800;letter-spacing:1.5px;text-transform:uppercase}
 
+/* STICKY MOBILE PAY BAR */
+.mobile-pay-bar{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--grey-200);padding:14px 16px;z-index:80;box-shadow:0 -8px 24px rgba(0,0,0,0.08)}
+.mpb-inner{display:flex;align-items:center;gap:12px;max-width:600px;margin:0 auto}
+.mpb-info{flex-shrink:0}
+.mpb-label{font-size:10px;font-weight:700;color:var(--grey-500);text-transform:uppercase;letter-spacing:1.2px}
+.mpb-amt{font-size:22px;font-weight:900;color:var(--black);font-family:'Anton',sans-serif;font-weight:400;letter-spacing:-0.02em;line-height:1}
+.mpb-btn{flex:1;background:var(--black);color:var(--white);padding:16px;font-size:13px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;border:none;border-radius:var(--radius);cursor:pointer;transition:background 0.2s}
+.mpb-btn:hover{background:var(--grey-700)}
+.mpb-btn:disabled{opacity:0.6;cursor:not-allowed}
+.mpb-btn:active{transform:scale(0.98)}
+
 @media (max-width:900px){
-.check-layout{grid-template-columns:1fr;gap:24px}
-.check-page{padding:24px 16px 60px}
+.check-layout{grid-template-columns:1fr;gap:16px}
+.check-page{padding:20px 16px 100px}
 .check-section{padding:20px}
 .section-num{width:36px;height:36px;font-size:16px}
 .section-title-row,.check-section p.section-desc{margin-left:36px}
-.check-summary{position:static;padding:20px}
+
+/* Show mobile compact summary at top, hide desktop sidebar summary */
+.mobile-top-summary{display:block}
+.check-summary{display:none}
+
+/* Hide the original complete button (mobile uses sticky bar) */
+.complete-btn,.checkout-secure-row{display:none}
+
+/* Show sticky pay bar */
+.mobile-pay-bar{display:block}
+
+/* Reorder: summary first */
+.check-layout > div:nth-child(1){order:2}
+.check-layout > div:nth-child(2){order:1}
+
 .check-bar{padding:14px 16px}
-.complete-btn{padding:20px;font-size:13px;letter-spacing:2px}
+.check-h1{font-size:32px;margin-bottom:20px}
 }
 </style>
 </head>
@@ -106,10 +143,10 @@
 <div class="check-bar">
 <a class="check-back" onclick="history.back()">
 <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-Continue shopping
+Back
 </a>
-<a class="nav-logo" style="font-size:18px;color:var(--black);font-weight:900;text-transform:uppercase;letter-spacing:-0.02em" onclick="SivraStore.goHome()">STORE</a>
-<div class="check-secure">🔒 Secure Checkout</div>
+<a class="nav-logo" style="font-size:18px;color:var(--black);font-weight:900;text-transform:uppercase;letter-spacing:-0.025em" onclick="SivraStore.goHome()">STORE</a>
+<div class="check-secure">🔒 Secure</div>
 </div>
 
 <div class="check-page">
@@ -119,6 +156,24 @@ Continue shopping
 
 <div class="check-layout">
 <div>
+<!-- MOBILE COMPACT SUMMARY (top, expandable) -->
+<div class="mobile-top-summary" id="mobTopSum" onclick="toggleMobSummary()">
+<div class="mts-row">
+<div class="mts-left">
+<div class="mts-icon">🛒</div>
+<div>
+<div class="mts-label">Order</div>
+<div class="mts-count" id="mobItemCount">— items</div>
+</div>
+</div>
+<div class="mts-total">
+<span id="mobTotalAmt">$0.00</span>
+<svg class="mts-chev" viewBox="0 0 14 14" fill="none"><path d="M2 4l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</div>
+</div>
+<div class="mts-expand" id="mobExpandBody"></div>
+</div>
+
 <div class="check-section">
 <div class="section-num">01</div>
 <div class="section-title-row"><h2>Contact</h2></div>
@@ -137,30 +192,14 @@ Continue shopping
 <p class="section-desc">Where should we send it?</p>
 <div class="form-stack">
 <div class="form-row">
-<div class="form-group">
-<label class="form-label">First name</label>
-<input class="form-input" id="firstName" autocomplete="given-name"/>
+<div class="form-group"><label class="form-label">First name</label><input class="form-input" id="firstName" autocomplete="given-name"/></div>
+<div class="form-group"><label class="form-label">Last name</label><input class="form-input" id="lastName" autocomplete="family-name"/></div>
 </div>
-<div class="form-group">
-<label class="form-label">Last name</label>
-<input class="form-input" id="lastName" autocomplete="family-name"/>
-</div>
-</div>
-<div class="form-group">
-<label class="form-label">Address</label>
-<input class="form-input" id="address" placeholder="Street address" autocomplete="street-address"/>
-</div>
-<div class="form-group">
-<label class="form-label">Apartment, suite, etc. <span style="font-weight:600;text-transform:none;letter-spacing:0;color:var(--grey-500)">(optional)</span></label>
-<input class="form-input" id="apt" autocomplete="address-line2"/>
-</div>
+<div class="form-group"><label class="form-label">Address</label><input class="form-input" id="address" placeholder="Street address" autocomplete="street-address"/></div>
+<div class="form-group"><label class="form-label">Apartment, suite, etc. <span style="font-weight:600;text-transform:none;letter-spacing:0;color:var(--grey-500)">(optional)</span></label><input class="form-input" id="apt" autocomplete="address-line2"/></div>
 <div class="form-row">
-<div class="form-group">
-<label class="form-label">City</label>
-<input class="form-input" id="city" autocomplete="address-level2"/>
-</div>
-<div class="form-group">
-<label class="form-label">Country</label>
+<div class="form-group"><label class="form-label">City</label><input class="form-input" id="city" autocomplete="address-level2"/></div>
+<div class="form-group"><label class="form-label">Country</label>
 <select class="form-select" id="country" onchange="loadShippingMethods()">
 <option value="">Select country</option>
 <option value="US">United States</option><option value="CA">Canada</option><option value="GB">United Kingdom</option><option value="AU">Australia</option><option value="DE">Germany</option><option value="FR">France</option><option value="ES">Spain</option><option value="IT">Italy</option><option value="NL">Netherlands</option><option value="BE">Belgium</option><option value="SE">Sweden</option><option value="NO">Norway</option><option value="DK">Denmark</option><option value="FI">Finland</option><option value="IE">Ireland</option><option value="PT">Portugal</option><option value="AT">Austria</option><option value="CH">Switzerland</option><option value="JP">Japan</option><option value="MX">Mexico</option><option value="BR">Brazil</option><option value="AR">Argentina</option><option value="OTHER">Other</option>
@@ -168,14 +207,8 @@ Continue shopping
 </div>
 </div>
 <div class="form-row">
-<div class="form-group">
-<label class="form-label">Postal code</label>
-<input class="form-input" id="postcode" autocomplete="postal-code"/>
-</div>
-<div class="form-group">
-<label class="form-label">Phone <span style="font-weight:600;text-transform:none;letter-spacing:0;color:var(--grey-500)">(optional)</span></label>
-<input class="form-input" type="tel" id="phone" autocomplete="tel"/>
-</div>
+<div class="form-group"><label class="form-label">Postal code</label><input class="form-input" id="postcode" autocomplete="postal-code"/></div>
+<div class="form-group"><label class="form-label">Phone <span style="font-weight:600;text-transform:none;letter-spacing:0;color:var(--grey-500)">(optional)</span></label><input class="form-input" type="tel" id="phone" autocomplete="tel"/></div>
 </div>
 </div>
 </div>
@@ -185,7 +218,7 @@ Continue shopping
 <div class="section-title-row"><h2>Shipping Method</h2></div>
 <p class="section-desc">How fast do you need it?</p>
 <div id="shippingMethods" class="ship-options">
-<div style="text-align:center;padding:24px;color:var(--grey-500);font-size:13px;border:1.5px dashed var(--grey-300);font-weight:600">Enter your address to see shipping options</div>
+<div style="text-align:center;padding:24px;color:var(--grey-500);font-size:13px;border:1.5px dashed var(--grey-300);border-radius:var(--radius);font-weight:600">Enter your address to see shipping options</div>
 </div>
 </div>
 
@@ -193,24 +226,21 @@ Continue shopping
 <div class="section-num">04</div>
 <div class="section-title-row"><h2>Payment</h2></div>
 <p class="section-desc" id="paymentDesc">🔒 All transactions are secure and encrypted via Stripe.</p>
-<div id="stripe-payment-element"></div>
+<div id="stripe-payment-element"><div class="payment-loading">Loading payment options...</div></div>
 <div id="stripe-errors"></div>
 <div class="payment-note" id="manualPayNote" style="display:none">Manual payment — you'll receive payment instructions via email after placing your order.</div>
 </div>
 
 <button class="complete-btn" id="payBtn" onclick="placeOrder()">
-<span>Complete Order</span>
-<svg style="position:relative;z-index:1" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<span id="payBtnText">Pay $0.00</span>
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
 </button>
 <div class="checkout-secure-row">
-<span>🔒 Secure</span>
-<span>·</span>
-<span>Powered by Stripe</span>
-<span>·</span>
-<span>256-bit SSL</span>
+<span>🔒 Secure</span><span>·</span><span>Powered by Stripe</span><span>·</span><span>256-bit SSL</span>
 </div>
 </div>
 
+<div>
 <div class="check-summary">
 <div class="summary-title"><span>Order Summary</span><a class="summary-edit" onclick="SivraStore.openDrawer()">Edit</a></div>
 <div class="sum-items" id="sumItems"></div>
@@ -223,11 +253,21 @@ Continue shopping
 <div class="sum-total"><span>Total</span><span class="sum-total-amt" id="sumTotal">$0.00</span></div>
 </div>
 <div class="summary-trust">
-<span>🔒 Secure</span>
-<span>🚀 Fast ship</span>
-<span>↺ Returns</span>
+<span>🔒 Secure</span><span>🚀 Fast ship</span><span>💎 Premium</span>
 </div>
 </div>
+</div>
+</div>
+</div>
+
+<!-- STICKY MOBILE PAY BAR -->
+<div class="mobile-pay-bar">
+<div class="mpb-inner">
+<div class="mpb-info">
+<div class="mpb-label">Total</div>
+<div class="mpb-amt" id="mpbAmt">$0.00</div>
+</div>
+<button class="mpb-btn" id="mpbBtn" onclick="placeOrder()">Pay now</button>
 </div>
 </div>
 
@@ -236,8 +276,9 @@ Continue shopping
 <script src="storefront-app.js"></script>
 <script>
 let _cart=[],_store=null,_discount=null,_selectedShipping=null,_selectedShippingName='',_shippingZones=[];
-let _stripe=null,_stripeConfigured=false;
+let _stripe=null,_stripeConfigured=false,_stripeElements=null,_paymentElement=null,_clientSecret=null,_orderTotal=0;
 
+function toggleMobSummary(){document.getElementById('mobTopSum').classList.toggle('expanded');}
 function showError(msg){const el=document.getElementById('errBanner');el.textContent=msg;el.classList.add('show');window.scrollTo({top:0,behavior:'smooth'});}
 function hideError(){document.getElementById('errBanner').classList.remove('show');}
 
@@ -247,7 +288,6 @@ if(slug)SivraStore.setStoreSlug(slug);
 _cart=SivraStore.getCart();
 if(!_cart.length){location.href='sivra-storefront.html?store='+slug;return;}
 
-// Save abandoned checkout
 try{
 const subtotal=_cart.reduce((s,i)=>s+parseFloat(i.price||0)*(i.qty||1),0);
 const email=localStorage.getItem('sivra_last_email')||'';
@@ -259,19 +299,22 @@ const res=await fetch('/api/storefront/'+slug);_store=await res.json();
 const name=_store.name||'Store';
 document.title='Checkout — '+name;
 document.querySelectorAll('.nav-logo').forEach(el=>el.textContent=name.toUpperCase());
-
 _shippingZones=Array.isArray(_store.shipping_zones)?_store.shipping_zones:(typeof _store.shipping_zones==='string'?JSON.parse(_store.shipping_zones||'[]'):[]);
 
-// Stripe
 if(_store.stripe_publishable_key){
-try{_stripe=Stripe(_store.stripe_publishable_key);_stripeConfigured=true;document.getElementById('manualPayNote').style.display='none';}
-catch(e){_stripeConfigured=false;document.getElementById('manualPayNote').style.display='';document.getElementById('paymentDesc').style.display='none';}
+try{_stripe=Stripe(_store.stripe_publishable_key);_stripeConfigured=true;}
+catch(e){_stripeConfigured=false;}
 }else{
 try{
 const cfgRes=await fetch('/api/checkout/config');const cfg=await cfgRes.json();
-if(cfg.configured&&cfg.publishableKey){_stripe=Stripe(cfg.publishableKey);_stripeConfigured=true;document.getElementById('manualPayNote').style.display='none';}
-else{_stripeConfigured=false;document.getElementById('manualPayNote').style.display='';document.getElementById('paymentDesc').style.display='none';}
-}catch(e){_stripeConfigured=false;document.getElementById('manualPayNote').style.display='';document.getElementById('paymentDesc').style.display='none';}
+if(cfg.configured&&cfg.publishableKey){_stripe=Stripe(cfg.publishableKey);_stripeConfigured=true;}
+}catch(e){_stripeConfigured=false;}
+}
+
+if(!_stripeConfigured){
+document.getElementById('stripe-payment-element').innerHTML='';
+document.getElementById('manualPayNote').style.display='';
+document.getElementById('paymentDesc').style.display='none';
 }
 
 try{const saved=localStorage.getItem('sivra_discount');if(saved)_discount=JSON.parse(saved);}catch(e){}
@@ -281,17 +324,68 @@ if(savedEmail)document.getElementById('email').value=savedEmail;
 
 SivraStore.updateBadges();
 renderSummary();
+if(_stripeConfigured)mountStripeElement();
+}
+
+async function mountStripeElement(){
+try{
+const total=getTotal();
+if(total<0.5){
+document.getElementById('stripe-payment-element').innerHTML='<div class="payment-loading">Add items to cart to see payment options</div>';
+return;
+}
+const totalCents=Math.round(total*100);
+const currency=(_store?.currency||'USD').toLowerCase();
+const intentRes=await fetch('/api/checkout/create-intent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:totalCents,currency,metadata:{preview:'true'}})});
+const intentData=await intentRes.json();
+if(!intentRes.ok||!intentData.client_secret){
+document.getElementById('stripe-payment-element').innerHTML='<div class="payment-loading">Payment temporarily unavailable</div>';
+return;
+}
+_clientSecret=intentData.client_secret;
+_orderTotal=total;
+_stripeElements=_stripe.elements({clientSecret:_clientSecret,appearance:{theme:'stripe',variables:{colorPrimary:'#0a0a0a',borderRadius:'10px',fontFamily:'Inter, -apple-system, sans-serif',fontSizeBase:'14px',fontWeightNormal:'500',fontWeightMedium:'600',fontWeightBold:'700',colorBackground:'#ffffff',colorText:'#0a0a0a'},rules:{'.Input':{border:'1.5px solid #dcdcdc',padding:'12px 14px'},'.Input:focus':{border:'1.5px solid #0a0a0a',boxShadow:'0 0 0 3px rgba(10,10,10,0.08)'},'.Label':{fontSize:'11px',fontWeight:'700',letterSpacing:'1.2px',textTransform:'uppercase',color:'#0a0a0a'}}}});
+_paymentElement=_stripeElements.create('payment',{layout:'tabs'});
+document.getElementById('stripe-payment-element').innerHTML='';
+_paymentElement.mount('#stripe-payment-element');
+}catch(e){console.error('Stripe mount error:',e);document.getElementById('stripe-payment-element').innerHTML='<div class="payment-loading">Payment temporarily unavailable</div>';}
+}
+
+async function refreshPaymentIntent(){
+if(!_stripeConfigured||!_paymentElement)return;
+const total=getTotal();
+if(Math.abs(total-_orderTotal)<0.01)return;
+try{
+const totalCents=Math.round(total*100);
+if(totalCents<50)return;
+const currency=(_store?.currency||'USD').toLowerCase();
+const intentRes=await fetch('/api/checkout/create-intent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:totalCents,currency,metadata:{preview:'true'}})});
+const intentData=await intentRes.json();
+if(!intentRes.ok||!intentData.client_secret)return;
+_clientSecret=intentData.client_secret;
+_orderTotal=total;
+_stripeElements.fetchUpdates();
+}catch(e){console.error('Intent refresh error:',e);}
+}
+
+function getTotal(){
+const subtotal=_cart.reduce((s,i)=>s+parseFloat(i.price||0)*(i.qty||1),0);
+const discountAmt=_discount?(_discount.type==='percentage'?subtotal*(parseFloat(_discount.value)/100):(_discount.type==='fixed'?Math.min(subtotal,parseFloat(_discount.value)):0)):0;
+const shippingAmt=_selectedShipping||0;
+const taxRate=_store?._tax_rate||0;
+const tax=taxRate?(subtotal-discountAmt)*taxRate:0;
+return subtotal-discountAmt+shippingAmt+tax;
 }
 
 function renderSummary(){
 const itemsEl=document.getElementById('sumItems');
-itemsEl.innerHTML=_cart.map(i=>
+const itemsHtml=_cart.map(i=>
 '<div class="sum-item">'+
 '<div class="sum-img">'+(i.image?'<img src="'+i.image+'" alt=""/>':'')+'<span class="sum-qty">'+i.qty+'</span></div>'+
 '<div class="sum-item-info"><div class="sum-item-title">'+i.title+'</div>'+(i.variantTitle?'<div class="sum-item-variant">'+i.variantTitle+'</div>':'')+'</div>'+
 '<div class="sum-item-price">'+SivraStore.fmtMoney(parseFloat(i.price)*i.qty)+'</div>'+
-'</div>'
-).join('');
+'</div>').join('');
+itemsEl.innerHTML=itemsHtml;
 
 const discEl=document.getElementById('discountArea');
 if(_discount){
@@ -315,16 +409,37 @@ shipEl.textContent=shippingAmt===null?'Calculated next':shippingAmt===0?'FREE':S
 shipEl.style.color=shippingAmt===0?'var(--green)':'';
 shipEl.style.fontWeight=shippingAmt===0?'800':'';
 document.getElementById('sumTotal').textContent=SivraStore.fmtMoney(total);
+
+// Mobile compact summary
+const itemCount=_cart.reduce((s,i)=>s+(i.qty||0),0);
+document.getElementById('mobItemCount').textContent=itemCount+' item'+(itemCount!==1?'s':'');
+document.getElementById('mobTotalAmt').textContent=SivraStore.fmtMoney(total);
+document.getElementById('mpbAmt').textContent=SivraStore.fmtMoney(total);
+
+// Mobile expanded body — clone of summary minus title
+document.getElementById('mobExpandBody').innerHTML=itemsHtml+
+(_discount?'<div class="disc-applied"><div class="disc-chip"><span>✓ '+_discount.code+'</span></div></div>':'')+
+'<div class="sum-totals" style="margin-top:14px;padding-top:14px">'+
+'<div class="sum-row"><span>Subtotal</span><span>'+SivraStore.fmtMoney(subtotal)+'</span></div>'+
+(_discount?'<div class="sum-row discount"><span>Discount</span><span>-'+SivraStore.fmtMoney(discountAmt)+'</span></div>':'')+
+'<div class="sum-row"><span>Shipping</span><span style="'+(shippingAmt===0?'color:var(--green);font-weight:800':'')+'">'+(shippingAmt===null?'—':shippingAmt===0?'FREE':SivraStore.fmtMoney(shippingAmt))+'</span></div>'+
+'</div>';
+
+// Update pay button text
+const payText='Pay '+SivraStore.fmtMoney(total);
+document.getElementById('payBtnText').textContent=payText;
+const mpbBtn=document.getElementById('mpbBtn');
+if(mpbBtn&&!mpbBtn.disabled)mpbBtn.textContent=payText;
 }
 
 function loadShippingMethods(){
 const country=document.getElementById('country').value;
 const el=document.getElementById('shippingMethods');
-if(!country){el.innerHTML='<div style="text-align:center;padding:24px;color:var(--grey-500);font-size:13px;border:1.5px dashed var(--grey-300);font-weight:600">Enter your address to see shipping options</div>';return;}
+if(!country){el.innerHTML='<div style="text-align:center;padding:24px;color:var(--grey-500);font-size:13px;border:1.5px dashed var(--grey-300);border-radius:var(--radius);font-weight:600">Enter your address to see shipping options</div>';return;}
 if(!_shippingZones.length){
 el.innerHTML=buildShippingOption('free','Standard shipping','5–7 business days',0,true);
 _selectedShipping=0;_selectedShippingName='Standard shipping';
-renderSummary();return;
+renderSummary();refreshPaymentIntent();return;
 }
 const options=[];
 _shippingZones.forEach(zone=>{
@@ -342,7 +457,7 @@ _selectedShipping=0;_selectedShippingName='Standard shipping';
 el.innerHTML=options.map((o,i)=>buildShippingOption(o.id,o.name,o.eta,o.price,i===0)).join('');
 _selectedShipping=options[0].price;_selectedShippingName=options[0].name;
 }
-renderSummary();
+renderSummary();refreshPaymentIntent();
 }
 
 function buildShippingOption(id,name,eta,price,selected){
@@ -357,7 +472,7 @@ function selectShipping(el,id,price,name){
 document.querySelectorAll('.ship-option').forEach(o=>o.classList.remove('selected'));
 el.classList.add('selected');
 _selectedShipping=price;_selectedShippingName=name||'Shipping';
-renderSummary();
+renderSummary();refreshPaymentIntent();
 }
 
 async function applyDiscount(){
@@ -369,11 +484,11 @@ const data=await res.json();
 if(data.error){SivraStore.toast(data.error);return;}
 _discount=data.discount;
 localStorage.setItem('sivra_discount',JSON.stringify(_discount));
-SivraStore.toast('Discount applied!');renderSummary();
+SivraStore.toast('Discount applied!');renderSummary();refreshPaymentIntent();
 }catch(e){SivraStore.toast('Invalid discount code');}
 }
 
-function removeDiscount(){_discount=null;localStorage.removeItem('sivra_discount');renderSummary();}
+function removeDiscount(){_discount=null;localStorage.removeItem('sivra_discount');renderSummary();refreshPaymentIntent();}
 
 async function placeOrder(){
 const emailVal=document.getElementById('email')?.value||'';
@@ -399,7 +514,10 @@ if(!country)errs.push('Country is required');
 if(errs.length){showError(errs[0]);return;}
 
 const btn=document.getElementById('payBtn');
-btn.disabled=true;btn.querySelector('span').textContent='Processing...';
+const mpbBtn=document.getElementById('mpbBtn');
+const setBtnText=(t)=>{document.getElementById('payBtnText').textContent=t;mpbBtn.textContent=t;};
+const setBtnDisabled=(d)=>{btn.disabled=d;mpbBtn.disabled=d;};
+setBtnDisabled(true);setBtnText('Processing...');
 
 try{
 const params=new URLSearchParams(location.search);
@@ -417,31 +535,25 @@ shippingAmount:_selectedShipping||0,
 const slug=SivraStore.getStoreSlug();
 const res=await fetch('/api/storefront/'+slug+'/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
 const data=await res.json();
-if(!res.ok){showError(data.error||'Checkout failed. Please try again.');btn.disabled=false;btn.querySelector('span').textContent='Complete Order';return;}
+if(!res.ok){showError(data.error||'Checkout failed. Please try again.');setBtnDisabled(false);setBtnText('Pay '+SivraStore.fmtMoney(getTotal()));return;}
 
-if(_stripeConfigured&&_stripe){
-btn.querySelector('span').textContent='Processing payment...';
-try{
+if(_stripeConfigured&&_stripe&&_stripeElements){
+setBtnText('Confirming payment...');
 const totalCents=Math.round((data.total||0)*100);
 if(totalCents>=50){
-const currency=(_store?.currency||'USD').toLowerCase();
-const intentRes=await fetch('/api/checkout/create-intent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:totalCents,currency,orderId:data.orderId,metadata:{order_number:String(data.orderNumber),email}})});
-const intentData=await intentRes.json();
-if(!intentRes.ok){showError(intentData.error||'Payment setup failed.');btn.disabled=false;btn.querySelector('span').textContent='Complete Order';return;}
-const elements=_stripe.elements({clientSecret:intentData.client_secret,appearance:{theme:'stripe',variables:{colorPrimary:'#0a0a0a',borderRadius:'0px',fontFamily:'Inter, sans-serif',fontSizeBase:'14px',fontWeightNormal:'500',fontWeightBold:'800'}}});
-const paymentElement=elements.create('payment');
-document.getElementById('stripe-payment-element').innerHTML='';
-paymentElement.mount('#stripe-payment-element');
-btn.querySelector('span').textContent='Pay '+SivraStore.fmtMoney(data.total);
-btn.disabled=false;
-btn.onclick=async function(){
-btn.disabled=true;btn.querySelector('span').textContent='Confirming payment...';
-const{error}=await _stripe.confirmPayment({elements,confirmParams:{return_url:window.location.origin+'/sivra-order-confirm.html?id='+data.orderId+'&num='+data.orderNumber,receipt_email:email}});
-if(error){document.getElementById('stripe-errors').textContent=error.message;document.getElementById('stripe-errors').style.display='';btn.disabled=false;btn.querySelector('span').textContent='Pay '+SivraStore.fmtMoney(data.total);}
-};
+// Update intent with real order ID
+try{
+await fetch('/api/checkout/create-intent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:totalCents,currency:(_store?.currency||'USD').toLowerCase(),orderId:data.orderId,clientSecret:_clientSecret,metadata:{order_number:String(data.orderNumber),email}})});
+}catch(e){}
+const{error}=await _stripe.confirmPayment({elements:_stripeElements,confirmParams:{return_url:window.location.origin+'/sivra-order-confirm.html?id='+data.orderId+'&num='+data.orderNumber,receipt_email:email}});
+if(error){
+document.getElementById('stripe-errors').textContent=error.message;
+document.getElementById('stripe-errors').style.display='';
+setBtnDisabled(false);setBtnText('Pay '+SivraStore.fmtMoney(data.total));
 return;
 }
-}catch(stripeErr){console.error('Stripe error:',stripeErr);}
+return;
+}
 }
 
 // Manual flow (no stripe)
@@ -449,7 +561,7 @@ SivraStore.saveCart([]);
 localStorage.removeItem('sivra_discount');
 const params2=new URLSearchParams({id:data.orderId||'',num:data.orderNumber||''});
 location.href='sivra-order-confirm.html?'+params2.toString();
-}catch(e){showError('Something went wrong. Please try again.');btn.disabled=false;btn.querySelector('span').textContent='Complete Order';}
+}catch(e){console.error(e);showError('Something went wrong. Please try again.');setBtnDisabled(false);setBtnText('Pay '+SivraStore.fmtMoney(getTotal()));}
 }
 
 load();
