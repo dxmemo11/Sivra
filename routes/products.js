@@ -290,6 +290,21 @@ router.patch('/:id', async (req, res) => {
       });
     }
 
+    // Cascade track_qty / continue_selling changes to all variants of this product
+    if (trackQty !== undefined || track_qty !== undefined) {
+      const tq = trackQty !== undefined ? (trackQty ? 1 : 0) : (track_qty ? 1 : 0);
+      await db.execute({
+        sql: 'UPDATE product_variants SET track_qty = ? WHERE product_id = ?',
+        args: [tq, req.params.id]
+      });
+    }
+    if (continue_selling !== undefined) {
+      await db.execute({
+        sql: 'UPDATE product_variants SET continue_selling = ? WHERE product_id = ?',
+        args: [continue_selling ? 1 : 0, req.params.id]
+      });
+    }
+
     const updated = await db.execute({ sql: 'SELECT * FROM products WHERE id = ?', args: [req.params.id] });
     res.json(parseProduct(updated.rows[0]));
   } catch(err) {
