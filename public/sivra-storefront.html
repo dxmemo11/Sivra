@@ -331,9 +331,9 @@ if(!items.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center
 else{grid.innerHTML=items.slice(0,8).map(p=>SivraStore.productCardHtml(p)).join('');}
 }catch(e){}
 
-// All products
+// All products — initial load just enough for first page
 try{
-const res=await fetch('/api/storefront/'+slug+'/products?limit=200');
+const res=await fetch('/api/storefront/'+slug+'/products?limit=48');
 const data=await res.json();_products=data.products||[];renderProducts();
 }catch(e){}
 

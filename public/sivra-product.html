@@ -792,7 +792,9 @@ const otherFit=isHome?'Away':'Home';
 const baseTitle=_product.title.replace(/\b(home|away)\b/gi,'').replace(/\s+/g,' ').trim();
 try{
 const slug=SivraStore.getStoreSlug();
-const r=await fetch('/api/storefront/'+slug+'/products?limit=200');
+// Search by base team name with the opposite fit word - much smaller payload
+const searchTerm=encodeURIComponent(baseTitle+' '+otherFit);
+const r=await fetch('/api/storefront/'+slug+'/products?limit=20&search='+searchTerm);
 const d=await r.json();
 const all=d.products||[];
 // Find paired product: contains base words + opposite fit word

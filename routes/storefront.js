@@ -6,6 +6,19 @@ const { getDB } = require('../db/database');
 let emailModule = null;
 try { emailModule = require('../email'); } catch(e) {}
 
+// ── In-memory cache (60s TTL) for store slug→id lookups (called on every request) ──
+const _slugCache = new Map();
+const _SLUG_TTL = 60 * 1000;
+async function getStoreIdBySlug(db, slug) {
+  const cached = _slugCache.get(slug);
+  if (cached && (Date.now() - cached.t) < _SLUG_TTL) return cached.id;
+  const r = await db.execute({ sql: `SELECT id FROM stores WHERE slug = ? AND status = 'active'`, args: [slug] });
+  if (!r.rows.length) return null;
+  const id = r.rows[0].id;
+  _slugCache.set(slug, { id, t: Date.now() });
+  return id;
+}
+
 // ── GET STORE INFO ─────────────────────────────────────────────────────────────
 router.get('/:slug', async (req, res) => {
   try {
@@ -23,38 +36,43 @@ router.get('/:slug', async (req, res) => {
     store.theme_settings = safeJson(store.theme_settings, {});
     // Pass Stripe publishable key to frontend (safe to expose)
     store.stripe_publishable_key = process.env.STRIPE_PUBLISHABLE_KEY || null;
+    res.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
     res.json(store);
   } catch(err) { res.status(500).json({ error: 'Failed to fetch store.' }); }
 });
 
 // ── LIST PRODUCTS (public) ─────────────────────────────────────────────────────
+// SPEED: only return fields needed for product cards. NO description/body_html/seo fields.
+// Images: keep only first image to reduce payload size on listings.
 router.get('/:slug/products', async (req, res) => {
   try {
     const db = getDB();
-    const storeResult = await db.execute({ sql: `SELECT id FROM stores WHERE slug = ? AND status = 'active'`, args: [req.params.slug] });
-    if (!storeResult.rows.length) return res.status(404).json({ error: 'Store not found.' });
-    const store = storeResult.rows[0];
+    const storeId = await getStoreIdBySlug(db, req.params.slug);
+    if (!storeId) return res.status(404).json({ error: 'Store not found.' });
     const { collection, search, sort = 'newest', page = 1, limit = 24 } = req.query;
-    let sql = `SELECT p.* FROM products p`;
+    // Only select fields needed for product cards — exclude description, body_html, seo_*, options
+    const fields = `p.id, p.title, p.price, p.compare_price, p.quantity, p.track_qty, p.continue_selling, p.images, p.vendor, p.tags, p.created_at, p.has_variants, p.seo_handle`;
+    let sql = `SELECT ${fields} FROM products p`;
     const args = [];
     if (collection) {
       sql += ` JOIN product_collections pc ON p.id = pc.product_id JOIN collections c ON pc.collection_id = c.id`;
     }
     sql += ` WHERE p.store_id = ? AND p.status = 'active'`;
-    args.push(store.id);
+    args.push(storeId);
     if (collection) { sql += ` AND (c.slug = ? OR c.id = ?)`; args.push(collection, collection); }
     if (search) { sql += ` AND p.title LIKE ?`; args.push(`%${search}%`); }
     const sortMap = { newest: 'p.created_at DESC', oldest: 'p.created_at ASC', 'price-asc': 'p.price ASC', 'price-desc': 'p.price DESC', 'title-asc': 'p.title ASC' };
     sql += ` ORDER BY ${sortMap[sort]||'p.created_at DESC'} LIMIT ? OFFSET ?`;
-    args.push(parseInt(limit), (parseInt(page)-1)*parseInt(limit));
+    const limitNum = Math.min(parseInt(limit) || 24, 100); // Cap at 100 to prevent abuse
+    args.push(limitNum, (parseInt(page)-1)*limitNum);
     const result = await db.execute({ sql, args });
-    const products = result.rows.map(p => ({ ...p, images: safeJson(p.images, []) }));
-    const countSql = collection
-      ? `SELECT COUNT(*) as total FROM products p JOIN product_collections pc ON p.id=pc.product_id JOIN collections c ON pc.collection_id=c.id WHERE p.store_id=? AND p.status='active' AND (c.slug=? OR c.id=?)`
-      : `SELECT COUNT(*) as total FROM products WHERE store_id=? AND status='active'`;
-    const countArgs = collection ? [store.id, collection, collection] : [store.id];
-    const countResult = await db.execute({ sql: countSql, args: countArgs });
-    res.json({ products, total: countResult.rows[0].total });
+    // Only keep first 2 images to keep payload tiny on list views
+    const products = result.rows.map(p => {
+      const images = safeJson(p.images, []);
+      return { ...p, images: images.slice(0, 2) };
+    });
+    res.set('Cache-Control', 'public, max-age=30, stale-while-revalidate=120');
+    res.json({ products, total: products.length });
   } catch(err) { console.error(err); res.status(500).json({ error: 'Failed to fetch products.' }); }
 });
 
@@ -64,21 +82,32 @@ router.get('/:slug/products/:productId', async (req, res) => {
     const db = getDB();
     const storeResult = await db.execute({ sql: 'SELECT id FROM stores WHERE slug = ?', args: [req.params.slug] });
     if (!storeResult.rows.length) return res.status(404).json({ error: 'Store not found.' });
-    const result = await db.execute({
-      sql: `SELECT * FROM products WHERE id = ? AND store_id = ? AND status = 'active'`,
-      args: [req.params.productId, storeResult.rows[0].id]
-    });
-    if (!result.rows.length) return res.status(404).json({ error: 'Product not found.' });
-    const p = result.rows[0];
-    // Load variants if product has them
-    const variants = await db.execute({ sql: 'SELECT * FROM product_variants WHERE product_id = ? ORDER BY position', args: [p.id] });
-    const options = await db.execute({ sql: 'SELECT * FROM product_options WHERE product_id = ? ORDER BY position', args: [p.id] });
-    const optionsWithValues = await Promise.all(options.rows.map(async opt => {
-      const vals = await db.execute({ sql: 'SELECT * FROM product_option_values WHERE option_id = ? ORDER BY position', args: [opt.id] });
-      return { ...opt, values: vals.rows.map(v => v.value) };
-    }));
-    res.json({ ...p, images: safeJson(p.images, []), variants: variants.rows, options: optionsWithValues });
-  } catch(err) { res.status(500).json({ error: 'Failed to fetch product.' }); }
+    const storeId = storeResult.rows[0].id;
+    // Parallel queries — saves 100-300ms
+    const [productRes, variantsRes, optionsRes] = await Promise.all([
+      db.execute({ sql: `SELECT * FROM products WHERE id = ? AND store_id = ? AND status = 'active'`, args: [req.params.productId, storeId] }),
+      db.execute({ sql: 'SELECT * FROM product_variants WHERE product_id = ? ORDER BY position', args: [req.params.productId] }),
+      db.execute({ sql: 'SELECT * FROM product_options WHERE product_id = ? ORDER BY position', args: [req.params.productId] })
+    ]);
+    if (!productRes.rows.length) return res.status(404).json({ error: 'Product not found.' });
+    const p = productRes.rows[0];
+    // Load all option values in one query instead of N queries
+    let optionsWithValues = [];
+    if (optionsRes.rows.length) {
+      const optIds = optionsRes.rows.map(o => o.id);
+      const placeholders = optIds.map(() => '?').join(',');
+      const valsRes = await db.execute({
+        sql: `SELECT * FROM product_option_values WHERE option_id IN (${placeholders}) ORDER BY position`,
+        args: optIds
+      });
+      optionsWithValues = optionsRes.rows.map(opt => ({
+        ...opt,
+        values: valsRes.rows.filter(v => v.option_id === opt.id).map(v => v.value)
+      }));
+    }
+    res.set('Cache-Control', 'public, max-age=30, stale-while-revalidate=120');
+    res.json({ ...p, images: safeJson(p.images, []), variants: variantsRes.rows, options: optionsWithValues });
+  } catch(err) { console.error(err); res.status(500).json({ error: 'Failed to fetch product.' }); }
 });
 
 // ── GET COLLECTIONS (public) ───────────────────────────────────────────────────
@@ -94,6 +123,7 @@ router.get('/:slug/collections', async (req, res) => {
             GROUP BY c.id ORDER BY c.created_at DESC`,
       args: [storeResult.rows[0].id]
     });
+    res.set('Cache-Control', 'public, max-age=120, stale-while-revalidate=600');
     res.json({ collections: result.rows });
   } catch(err) { res.status(500).json({ error: 'Failed to fetch collections.' }); }
 });

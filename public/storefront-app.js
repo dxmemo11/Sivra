@@ -178,8 +178,25 @@ window.SivraStore = {
     if (slug) this.setStoreSlug(slug);
     if (!_storeSlug) return null;
     try {
-      const res = await fetch('/api/storefront/' + _storeSlug);
-      const store = await res.json();
+      // Use sessionStorage cache to make page navigation instant
+      const cacheKey = 'sivra_store_cache_' + _storeSlug;
+      const cached = sessionStorage.getItem(cacheKey);
+      let store = null;
+      let fromCache = false;
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          if (Date.now() - parsed.t < 5 * 60 * 1000) { // 5 min cache
+            store = parsed.data;
+            fromCache = true;
+          }
+        } catch(e) {}
+      }
+      if (!store) {
+        const res = await fetch('/api/storefront/' + _storeSlug);
+        store = await res.json();
+        try { sessionStorage.setItem(cacheKey, JSON.stringify({ t: Date.now(), data: store })); } catch(e) {}
+      }
       const name = store.name || 'Store';
       // Update branding
       document.querySelectorAll('.nav-logo').forEach(el => {
@@ -191,17 +208,28 @@ window.SivraStore = {
       });
       document.querySelectorAll('.footer-brand').forEach(el => el.textContent = name.toUpperCase());
       document.querySelectorAll('.footer-copy').forEach(el => el.textContent = '© ' + new Date().getFullYear() + ' ' + name);
-      // Load nav menu
+      // Load nav menu and footer in parallel (don't await — let them load in background)
       this.loadMenu();
-      // Load footer collections
       this.loadFooterCollections();
       return store;
     } catch(e) { console.error('Store load:', e); return null; }
   },
   async loadMenu(){
     try {
-      const res = await fetch('/api/storefront/' + _storeSlug + '/menus');
-      const data = await res.json();
+      const cacheKey = 'sivra_menu_cache_' + _storeSlug;
+      const cached = sessionStorage.getItem(cacheKey);
+      let data = null;
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          if (Date.now() - parsed.t < 5 * 60 * 1000) data = parsed.data;
+        } catch(e) {}
+      }
+      if (!data) {
+        const res = await fetch('/api/storefront/' + _storeSlug + '/menus');
+        data = await res.json();
+        try { sessionStorage.setItem(cacheKey, JSON.stringify({ t: Date.now(), data })); } catch(e) {}
+      }
       const menus = data.menus || [];
       const nav = menus.find(m => m.location === 'main' || m.handle === 'main-menu') || menus[0];
       if (!nav || !nav.items) return;
@@ -218,8 +246,20 @@ window.SivraStore = {
   },
   async loadFooterCollections(){
     try {
-      const res = await fetch('/api/storefront/' + _storeSlug + '/collections');
-      const data = await res.json();
+      const cacheKey = 'sivra_collections_cache_' + _storeSlug;
+      const cached = sessionStorage.getItem(cacheKey);
+      let data = null;
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          if (Date.now() - parsed.t < 5 * 60 * 1000) data = parsed.data;
+        } catch(e) {}
+      }
+      if (!data) {
+        const res = await fetch('/api/storefront/' + _storeSlug + '/collections');
+        data = await res.json();
+        try { sessionStorage.setItem(cacheKey, JSON.stringify({ t: Date.now(), data })); } catch(e) {}
+      }
       const colls = (data.collections || []).filter(c => (c.product_count||0) > 0).slice(0, 5);
       document.querySelectorAll('.footer-coll-links').forEach(el => {
         el.innerHTML = colls.map(c => `<a class="footer-link" onclick="SivraStore.goCollection('${c.id}')">${c.name}</a>`).join('');
@@ -247,8 +287,8 @@ window.SivraStore = {
       <a class="prod-card" onclick="SivraStore.goProduct('${p.id}')" href="javascript:void(0)">
         <div class="prod-img">
           ${badge}
-          ${img ? `<img src="${img}" alt="${p.title}" loading="lazy"/>` : '<div class="prod-placeholder">👕</div>'}
-          ${img2 ? `<img src="${img2}" alt="" class="prod-img-secondary" loading="lazy"/>` : ''}
+          ${img ? `<img src="${img}" alt="${p.title}" loading="lazy" decoding="async"/>` : '<div class="prod-placeholder">👕</div>'}
+          ${img2 ? `<img src="${img2}" alt="" class="prod-img-secondary" loading="lazy" decoding="async"/>` : ''}
           ${!isOos ? '<div class="prod-quick">Quick view</div>' : ''}
         </div>
         <div class="prod-info">
