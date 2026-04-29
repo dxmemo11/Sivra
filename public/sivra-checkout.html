@@ -17,20 +17,6 @@
 
 .check-layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:48px;align-items:start}
 
-/* MOBILE COMPACT SUMMARY (top of page) */
-.mobile-top-summary{display:none;background:var(--white);border:1.5px solid var(--black);border-radius:var(--radius-lg);padding:18px 20px;margin-bottom:20px;cursor:pointer;transition:box-shadow 0.2s}
-.mobile-top-summary:hover{box-shadow:var(--shadow-sm)}
-.mts-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.mts-left{display:flex;align-items:center;gap:12px}
-.mts-icon{width:36px;height:36px;border-radius:50%;background:var(--grey-100);display:flex;align-items:center;justify-content:center;font-size:16px}
-.mts-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--grey-700)}
-.mts-count{font-size:12px;color:var(--grey-500);font-weight:600;margin-top:2px}
-.mts-total{font-size:22px;font-weight:900;color:var(--black);font-family:'Anton',sans-serif;font-weight:400;letter-spacing:-0.02em;display:flex;align-items:center;gap:8px}
-.mts-chev{width:14px;height:14px;color:var(--grey-500);transition:transform 0.25s var(--ease)}
-.mobile-top-summary.expanded .mts-chev{transform:rotate(180deg)}
-.mts-expand{display:none;margin-top:18px;padding-top:18px;border-top:1px solid var(--grey-200)}
-.mobile-top-summary.expanded .mts-expand{display:block}
-
 .check-section{background:var(--white);border:1px solid var(--grey-200);border-radius:var(--radius-lg);padding:32px;margin-bottom:14px;position:relative}
 .section-num{position:absolute;top:-1px;left:-1px;background:var(--black);color:var(--white);width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-family:'Anton',sans-serif;font-size:18px;font-weight:400;border-top-left-radius:var(--radius-lg);border-bottom-right-radius:var(--radius-lg)}
 .section-title-row{margin-left:42px;display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
@@ -119,19 +105,34 @@
 .section-num{width:36px;height:36px;font-size:16px}
 .section-title-row,.check-section p.section-desc{margin-left:36px}
 
-/* Show mobile compact summary at top, hide desktop sidebar summary */
-.mobile-top-summary{display:block}
-.check-summary{display:none}
+/* Reorder: summary first */
+.check-layout > div:nth-child(1){order:2}
+.check-layout > div:nth-child(2){order:1}
+
+/* Make the summary smaller on mobile but keep same look */
+.check-summary{position:static;padding:18px;border-width:1.5px}
+.summary-title{font-size:14px;margin-bottom:14px;padding-bottom:12px}
+.sum-items{max-height:none;gap:10px;margin-bottom:14px}
+.sum-item{grid-template-columns:48px 1fr auto;gap:10px;font-size:12px}
+.sum-img{width:48px;height:58px}
+.sum-item-title{font-size:12px}
+.sum-item-variant{font-size:9px}
+.sum-item-price{font-size:13px}
+.sum-totals{padding-top:14px;margin-top:14px}
+.sum-row{font-size:12px;padding:4px 0}
+.sum-total{font-size:13px;padding-top:12px;margin-top:8px}
+.sum-total-amt{font-size:26px}
+.summary-trust{margin-top:14px;padding-top:14px;gap:14px}
+.summary-trust span{font-size:9px}
+.disc-input-row{padding-top:14px;margin-top:4px}
+.disc-input-row input{height:38px;font-size:11px}
+.disc-input-row button{padding:0 14px;font-size:10px}
 
 /* Hide the original complete button (mobile uses sticky bar) */
 .complete-btn,.checkout-secure-row{display:none}
 
 /* Show sticky pay bar */
 .mobile-pay-bar{display:block}
-
-/* Reorder: summary first */
-.check-layout > div:nth-child(1){order:2}
-.check-layout > div:nth-child(2){order:1}
 
 .check-bar{padding:14px 16px}
 .check-h1{font-size:32px;margin-bottom:20px}
@@ -156,24 +157,6 @@ Back
 
 <div class="check-layout">
 <div>
-<!-- MOBILE COMPACT SUMMARY (top, expandable) -->
-<div class="mobile-top-summary" id="mobTopSum" onclick="toggleMobSummary()">
-<div class="mts-row">
-<div class="mts-left">
-<div class="mts-icon">🛒</div>
-<div>
-<div class="mts-label">Order</div>
-<div class="mts-count" id="mobItemCount">— items</div>
-</div>
-</div>
-<div class="mts-total">
-<span id="mobTotalAmt">$0.00</span>
-<svg class="mts-chev" viewBox="0 0 14 14" fill="none"><path d="M2 4l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-</div>
-</div>
-<div class="mts-expand" id="mobExpandBody"></div>
-</div>
-
 <div class="check-section">
 <div class="section-num">01</div>
 <div class="section-title-row"><h2>Contact</h2></div>
@@ -278,7 +261,6 @@ Back
 let _cart=[],_store=null,_discount=null,_selectedShipping=null,_selectedShippingName='',_shippingZones=[];
 let _stripe=null,_stripeConfigured=false,_stripeElements=null,_paymentElement=null,_clientSecret=null,_orderTotal=0;
 
-function toggleMobSummary(){document.getElementById('mobTopSum').classList.toggle('expanded');}
 function showError(msg){const el=document.getElementById('errBanner');el.textContent=msg;el.classList.add('show');window.scrollTo({top:0,behavior:'smooth'});}
 function hideError(){document.getElementById('errBanner').classList.remove('show');}
 
@@ -410,20 +392,8 @@ shipEl.style.color=shippingAmt===0?'var(--green)':'';
 shipEl.style.fontWeight=shippingAmt===0?'800':'';
 document.getElementById('sumTotal').textContent=SivraStore.fmtMoney(total);
 
-// Mobile compact summary
-const itemCount=_cart.reduce((s,i)=>s+(i.qty||0),0);
-document.getElementById('mobItemCount').textContent=itemCount+' item'+(itemCount!==1?'s':'');
-document.getElementById('mobTotalAmt').textContent=SivraStore.fmtMoney(total);
+// Sticky bottom bar
 document.getElementById('mpbAmt').textContent=SivraStore.fmtMoney(total);
-
-// Mobile expanded body — clone of summary minus title
-document.getElementById('mobExpandBody').innerHTML=itemsHtml+
-(_discount?'<div class="disc-applied"><div class="disc-chip"><span>✓ '+_discount.code+'</span></div></div>':'')+
-'<div class="sum-totals" style="margin-top:14px;padding-top:14px">'+
-'<div class="sum-row"><span>Subtotal</span><span>'+SivraStore.fmtMoney(subtotal)+'</span></div>'+
-(_discount?'<div class="sum-row discount"><span>Discount</span><span>-'+SivraStore.fmtMoney(discountAmt)+'</span></div>':'')+
-'<div class="sum-row"><span>Shipping</span><span style="'+(shippingAmt===0?'color:var(--green);font-weight:800':'')+'">'+(shippingAmt===null?'—':shippingAmt===0?'FREE':SivraStore.fmtMoney(shippingAmt))+'</span></div>'+
-'</div>';
 
 // Update pay button text
 const payText='Pay '+SivraStore.fmtMoney(total);
