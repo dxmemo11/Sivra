@@ -156,7 +156,7 @@ img{max-width:100%;display:block}
       <a class="footer-link" href="javascript:void(0)" onclick="location.href='sivra-order-status.html?store='+_storeSlug">Track order</a>
       <a class="footer-link" href="javascript:void(0)" onclick="goPage('faq')">FAQ</a>
       <a class="footer-link" href="javascript:void(0)" onclick="goPage('shipping-policy')">Shipping policy</a>
-      <a class="footer-link" href="javascript:void(0)" onclick="goPage('returns')">Returns</a>
+      <a class="footer-link" href="javascript:void(0)" onclick="goPage('refund-policy')">Returns</a>
     </div>
     <div>
       <div class="footer-heading">Legal</div>
@@ -295,64 +295,128 @@ async function loadStoreShell(){
 
 
 const _pageSlug = new URLSearchParams(location.search).get('page') || 'refund-policy';
+
+// ── EDIT THESE THREE LINES WITH YOUR REAL INFO ──────────────────────────
+const BUSINESS_NAME    = 'Our Store';
+const SUPPORT_EMAIL    = 'support@yourstore.com';
+const BUSINESS_ADDRESS = '[Your Business Address]';
+// ────────────────────────────────────────────────────────────────────────
+
 const DEFAULT_POLICIES = {
-  'refund-policy': { title:'Refund Policy', content:`<h2>Return & Refund Policy</h2>
-<p>We want you to be completely satisfied with your purchase. If you're not happy with your order for any reason, we're here to help.</p>
-<h3>Returns</h3>
-<p>You have 30 days from the date of delivery to return most items. To be eligible for a return, your item must be unused and in the same condition that you received it, in the original packaging.</p>
-<h3>Exchanges</h3>
-<p>We only replace items if they are defective or damaged. If you need to exchange an item for the same item, please contact us.</p>
+  'refund-policy': { title:'Refund & Returns Policy', content:`<h2>Refund & Returns Policy</h2>
+<p>We want every fan to be thrilled with their kit. If something's not right, we'll make it right.</p>
+<h3>30-day return window</h3>
+<p>You have 30 days from the date of delivery to request a return. To be eligible, items must be unworn, unwashed, and in their original packaging with all tags attached.</p>
+<h3>How to start a return</h3>
+<p>Email us at <a href="mailto:${SUPPORT_EMAIL}" style="color:#1a1a1a;text-decoration:underline">${SUPPORT_EMAIL}</a> with your order number and the reason for return. We'll send you instructions and a return address within 24–48 hours.</p>
+<h3>Wrong or defective items</h3>
+<p>If you received the wrong jersey, a damaged item, or a printing defect, contact us within 7 days of delivery with photos. We'll send a replacement at no cost or issue a full refund — whichever you prefer.</p>
 <h3>Refunds</h3>
-<p>Once your return is received and inspected, we will notify you of the approval or rejection of your refund. If approved, your refund will be processed within 5–10 business days.</p>
-<h3>Contact us</h3>
-<p>If you have questions about our refund policy, please contact our support team.</p>` },
-  'privacy-policy': { title:'Privacy Policy', content:`<h2>Privacy Policy</h2>
-<p>This Privacy Policy describes how we collect, use, and share information when you purchase from us or otherwise interact with us.</p>
-<h3>What personal information we collect</h3>
-<p>When you visit our store, we collect certain information about your device, including information about your web browser and IP address. When you make a purchase, we collect your name, billing address, shipping address, payment information, email address, and phone number.</p>
-<h3>How we use your personal information</h3>
-<p>We use the information we collect to fulfill orders, process payments, communicate with you about orders, and provide customer support.</p>
-<h3>Data retention</h3>
-<p>We retain your order information for our records unless you ask us to erase it.</p>` },
-  'terms-of-service': { title:'Terms of Service', content:`<h2>Terms of Service</h2>
-<p>By accessing this website, you agree to be bound by these Terms of Service.</p>
-<h3>Online store terms</h3>
-<p>By agreeing to these terms of service, you represent that you are at least the age of majority in your state or province of residence.</p>
-<h3>Products or services</h3>
-<p>Certain products may be available exclusively online through the website. These products or services may have limited quantities and are subject to return or exchange only according to our Refund Policy.</p>
-<h3>Modifications to the service</h3>
-<p>We reserve the right to modify or discontinue any product or service without notice.</p>` },
+<p>Once we receive and inspect your return, we'll send a confirmation email. Approved refunds are processed back to the original payment method within 5–10 business days. Original shipping costs are non-refundable unless the return is due to our error.</p>
+<h3>Sale items & customized kits</h3>
+<p>Items with custom name and number printing are made to order and cannot be returned unless defective. Final-sale items are clearly marked at checkout and cannot be returned.</p>
+<h3>Questions?</h3>
+<p>Email <a href="mailto:${SUPPORT_EMAIL}" style="color:#1a1a1a;text-decoration:underline">${SUPPORT_EMAIL}</a> and we'll get back to you within 24–48 hours.</p>` },
+
   'shipping-policy': { title:'Shipping Policy', content:`<h2>Shipping Policy</h2>
-<p>All orders are processed and shipped within 1–3 business days. You will receive a shipping confirmation email with tracking information once your order ships.</p>
+<p>Every order ships from our warehouse with full tracking. Here's what to expect.</p>
+<h3>Processing time</h3>
+<p>Orders are processed within 1–3 business days. Custom-printed jerseys (with name and number) take an additional 2–4 business days to produce before shipping.</p>
 <h3>Shipping times</h3>
-<p>Standard shipping typically takes 5–7 business days. Express shipping options may be available at checkout for faster delivery.</p>
-<h3>International shipping</h3>
-<p>We ship internationally. International orders may be subject to import taxes and customs duties, which are the responsibility of the recipient.</p>
+<p>Standard shipping: 5–10 business days within the United States, 10–20 business days internationally. Express options are available at checkout for faster delivery.</p>
+<h3>Tracking</h3>
+<p>You'll receive a tracking number by email as soon as your order ships. Allow 24–48 hours for tracking updates to populate after the label is created.</p>
+<h3>International orders, customs & duties</h3>
+<p>We ship worldwide. International customers are responsible for any customs duties, import taxes, or fees charged by their country. These are not included in the order total and are paid directly to the carrier or customs office on delivery.</p>
 <h3>Lost or damaged packages</h3>
-<p>If your package is lost or damaged in transit, please contact us immediately and we will work with the carrier to resolve the issue.</p>` },
+<p>If your tracking shows delivered but you haven't received it, check with neighbors and your local post office first, then contact us at <a href="mailto:${SUPPORT_EMAIL}" style="color:#1a1a1a;text-decoration:underline">${SUPPORT_EMAIL}</a>. For damaged packages, photograph the damage and contact us within 7 days of delivery.</p>` },
+
+  'privacy-policy': { title:'Privacy Policy', content:`<h2>Privacy Policy</h2>
+<p>Last updated: ${new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</p>
+<p>${BUSINESS_NAME} ("we", "us", "our") respects your privacy. This policy explains what information we collect and how we use it.</p>
+<h3>What we collect</h3>
+<p>When you visit our site, we automatically collect your IP address, browser type, device information, and pages viewed. When you place an order, we collect your name, email, billing and shipping address, phone number, and payment details (processed securely by our payment provider — we never store full card numbers).</p>
+<h3>How we use it</h3>
+<p>We use your information to fulfill orders, communicate with you about purchases, send order confirmations and shipping updates, prevent fraud, and improve our store. With your consent, we may also send marketing emails about new products and promotions, which you can unsubscribe from at any time.</p>
+<h3>Sharing</h3>
+<p>We share information only with service providers who help us run the business: payment processors (Stripe), shipping carriers, email services, and analytics providers. We do not sell your data to third parties.</p>
+<h3>Cookies</h3>
+<p>We use essential cookies to keep your cart and login working, and analytics cookies to understand how the site is used. You can disable non-essential cookies in your browser settings.</p>
+<h3>Your rights</h3>
+<p>You may request access to your data, ask for corrections, or request deletion at any time. Email <a href="mailto:${SUPPORT_EMAIL}" style="color:#1a1a1a;text-decoration:underline">${SUPPORT_EMAIL}</a> to make a request.</p>
+<h3>Contact</h3>
+<p>${BUSINESS_NAME}<br>${BUSINESS_ADDRESS}<br><a href="mailto:${SUPPORT_EMAIL}" style="color:#1a1a1a;text-decoration:underline">${SUPPORT_EMAIL}</a></p>` },
+
+  'terms-of-service': { title:'Terms of Service', content:`<h2>Terms of Service</h2>
+<p>Last updated: ${new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</p>
+<p>By using ${BUSINESS_NAME}, you agree to these terms. Please read them carefully.</p>
+<h3>Eligibility</h3>
+<p>You must be at least 18 years old, or the age of majority in your jurisdiction, to place an order. By purchasing, you confirm you meet this requirement.</p>
+<h3>Products & pricing</h3>
+<p>All prices are listed in the currency shown at checkout and exclude shipping and applicable taxes. We do our best to display accurate product images, descriptions, and stock levels, but minor variations in color or design may occur. We reserve the right to correct pricing or product errors at any time.</p>
+<h3>Orders</h3>
+<p>An order is confirmed only after payment is processed. We reserve the right to refuse or cancel any order at our discretion, including for suspected fraud, pricing errors, or stock unavailability. If your order is cancelled, you'll receive a full refund.</p>
+<h3>Intellectual property</h3>
+<p>All content on this site — logos, photos, copy, design — is owned by ${BUSINESS_NAME} or our licensors and may not be reproduced without permission. Team logos and likenesses are the property of their respective owners.</p>
+<h3>Limitation of liability</h3>
+<p>${BUSINESS_NAME} is not liable for any indirect, incidental, or consequential damages arising from the use of this site or our products, beyond the amount paid for the relevant order.</p>
+<h3>Governing law</h3>
+<p>These terms are governed by the laws of the jurisdiction where ${BUSINESS_NAME} is registered. Any disputes will be resolved there.</p>
+<h3>Changes</h3>
+<p>We may update these terms occasionally. Continued use of the site means you accept the updated terms.</p>
+<h3>Contact</h3>
+<p>${BUSINESS_NAME}, ${BUSINESS_ADDRESS} — <a href="mailto:${SUPPORT_EMAIL}" style="color:#1a1a1a;text-decoration:underline">${SUPPORT_EMAIL}</a></p>` },
+
   'contact': { title:'Contact Us', content:`<h2>Contact Us</h2>
-<p>We'd love to hear from you. Please reach out and we'll get back to you as soon as possible.</p>
-<div style="background:#f6f6f7;border-radius:8px;padding:24px;margin-top:20px">
-  <h3 style="margin-bottom:12px">Get in touch</h3>
-  <p style="color:#6d7175;margin-bottom:8px">Email us at the address in your order confirmation, or use our social media channels.</p>
-  <p style="color:#6d7175">We typically respond within 24–48 hours on business days.</p>
-</div>` },
+<p>Questions about an order, shipping, returns, or just want to say hi? We respond to every email — usually within 24 hours on business days.</p>
+<div style="background:#f6f6f7;border-radius:12px;padding:28px;margin:24px 0">
+  <h3 style="margin-bottom:14px;font-size:18px">Customer support</h3>
+  <p style="color:#303030;margin-bottom:6px;font-size:16px"><strong>Email:</strong> <a href="mailto:${SUPPORT_EMAIL}" style="color:#1a1a1a;text-decoration:underline">${SUPPORT_EMAIL}</a></p>
+  <p style="color:#6d7175;font-size:14px;margin-top:12px">We reply within 24–48 hours. Please include your order number for faster help.</p>
+</div>
+<div style="background:#fff;border:1px solid #e3e3e3;border-radius:12px;padding:28px;margin:24px 0">
+  <h3 style="margin-bottom:14px;font-size:18px">Business address</h3>
+  <p style="color:#303030;font-size:15px;line-height:1.7">${BUSINESS_NAME}<br>${BUSINESS_ADDRESS}</p>
+</div>
+<h3>Common questions</h3>
+<p>Before emailing, check our <a href="javascript:void(0)" onclick="goPage('faq')" style="color:#1a1a1a;text-decoration:underline">FAQ</a> — most answers are there. For order status, you can also <a href="javascript:void(0)" onclick="location.href='sivra-order-status.html?store='+_storeSlug" style="color:#1a1a1a;text-decoration:underline">track your order here</a>.</p>` },
+
   'faq': { title:'FAQ', content:`<h2>Frequently Asked Questions</h2>
-<details style="margin-bottom:12px;border:1px solid #e3e3e3;border-radius:8px;padding:14px">
+<details style="margin-bottom:12px;border:1px solid #e3e3e3;border-radius:8px;padding:16px" open>
+  <summary style="cursor:pointer;font-weight:600;font-size:15px">Are these jerseys authentic?</summary>
+  <p style="margin-top:10px;color:#4a4a4a;line-height:1.7">Our jerseys are made with the same premium fabric and construction as retail kits — moisture-wicking polyester, heat-pressed badges, and full stitching. We source directly to skip the retail markup.</p>
+</details>
+<details style="margin-bottom:12px;border:1px solid #e3e3e3;border-radius:8px;padding:16px">
+  <summary style="cursor:pointer;font-weight:600;font-size:15px">How long does shipping take?</summary>
+  <p style="margin-top:10px;color:#4a4a4a;line-height:1.7">Orders are processed in 1–3 business days. US shipping takes 5–10 business days, international 10–20. Custom-printed jerseys add 2–4 days for production. Tracking is sent by email when your order ships.</p>
+</details>
+<details style="margin-bottom:12px;border:1px solid #e3e3e3;border-radius:8px;padding:16px">
   <summary style="cursor:pointer;font-weight:600;font-size:15px">How do I track my order?</summary>
-  <p style="margin-top:10px;color:#6d7175">Once your order ships, you'll receive an email with tracking information. You can use this to track your package with the carrier.</p>
+  <p style="margin-top:10px;color:#4a4a4a;line-height:1.7">Once your order ships, you'll get an email with a tracking number. You can also <a href="javascript:void(0)" onclick="location.href='sivra-order-status.html?store='+_storeSlug" style="color:#1a1a1a;text-decoration:underline">look up your order here</a> using your order number and email.</p>
 </details>
-<details style="margin-bottom:12px;border:1px solid #e3e3e3;border-radius:8px;padding:14px">
+<details style="margin-bottom:12px;border:1px solid #e3e3e3;border-radius:8px;padding:16px">
+  <summary style="cursor:pointer;font-weight:600;font-size:15px">Can I return or exchange a jersey?</summary>
+  <p style="margin-top:10px;color:#4a4a4a;line-height:1.7">Yes — within 30 days of delivery, as long as the item is unworn and in original packaging. See our full <a href="javascript:void(0)" onclick="goPage('refund-policy')" style="color:#1a1a1a;text-decoration:underline">Refund Policy</a>. Custom-printed jerseys (with player names) are final sale unless defective.</p>
+</details>
+<details style="margin-bottom:12px;border:1px solid #e3e3e3;border-radius:8px;padding:16px">
+  <summary style="cursor:pointer;font-weight:600;font-size:15px">What sizes do you carry?</summary>
+  <p style="margin-top:10px;color:#4a4a4a;line-height:1.7">We carry adult sizes S through XXL and full kids sizing. Each product page has a detailed size chart — measurements run slightly slim, so if you're between sizes, we recommend going up.</p>
+</details>
+<details style="margin-bottom:12px;border:1px solid #e3e3e3;border-radius:8px;padding:16px">
   <summary style="cursor:pointer;font-weight:600;font-size:15px">Can I change or cancel my order?</summary>
-  <p style="margin-top:10px;color:#6d7175">Please contact us as soon as possible if you need to change or cancel your order. We can only accommodate changes before the order ships.</p>
+  <p style="margin-top:10px;color:#4a4a4a;line-height:1.7">Email <a href="mailto:${SUPPORT_EMAIL}" style="color:#1a1a1a;text-decoration:underline">${SUPPORT_EMAIL}</a> as fast as possible — we can usually update or cancel orders before they ship (within 24 hours of placing). Once shipped, we can't change them.</p>
 </details>
-<details style="margin-bottom:12px;border:1px solid #e3e3e3;border-radius:8px;padding:14px">
-  <summary style="cursor:pointer;font-weight:600;font-size:15px">What payment methods do you accept?</summary>
-  <p style="margin-top:10px;color:#6d7175">We currently accept manual payments including bank transfer. Online card payments are coming soon.</p>
-</details>
-<details style="margin-bottom:12px;border:1px solid #e3e3e3;border-radius:8px;padding:14px">
+<details style="margin-bottom:12px;border:1px solid #e3e3e3;border-radius:8px;padding:16px">
   <summary style="cursor:pointer;font-weight:600;font-size:15px">Do you ship internationally?</summary>
-  <p style="margin-top:10px;color:#6d7175">Yes! We ship to most countries. International shipping rates and times vary by destination.</p>
+  <p style="margin-top:10px;color:#4a4a4a;line-height:1.7">Yes, worldwide. Shipping rates and times vary by destination. Customs duties, if any, are charged by your local customs office and are the buyer's responsibility.</p>
+</details>
+<details style="margin-bottom:12px;border:1px solid #e3e3e3;border-radius:8px;padding:16px">
+  <summary style="cursor:pointer;font-weight:600;font-size:15px">What payment methods do you accept?</summary>
+  <p style="margin-top:10px;color:#4a4a4a;line-height:1.7">We accept all major credit and debit cards (Visa, Mastercard, Amex, Discover), Apple Pay, and Google Pay through our secure payment processor. Your card details never touch our servers.</p>
+</details>
+<details style="margin-bottom:12px;border:1px solid #e3e3e3;border-radius:8px;padding:16px">
+  <summary style="cursor:pointer;font-weight:600;font-size:15px">Still have a question?</summary>
+  <p style="margin-top:10px;color:#4a4a4a;line-height:1.7">Email us at <a href="mailto:${SUPPORT_EMAIL}" style="color:#1a1a1a;text-decoration:underline">${SUPPORT_EMAIL}</a> and we'll get back to you within 24–48 hours on business days.</p>
 </details>` }
 };
 

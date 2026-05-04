@@ -40,20 +40,21 @@
 <div class="footer-grid">
 <div>
 <div class="footer-brand">STORE</div>
-<div class="footer-desc">Authentic jerseys at a fraction of retail. Built for the fans, families, and kids who live for the game.</div>
+<div class="footer-desc">Authentic World Cup jerseys at a fraction of retail. Home, away, and kids kits for every nation — same premium quality, real fan prices.</div>
 <div class="footer-mission">Quality for every family</div>
 </div>
 <div><div class="footer-heading">Shop</div><a class="footer-link" onclick="SivraStore.goHome()">All products</a><span class="footer-coll-links"></span></div>
-<div><div class="footer-heading">Help</div><a class="footer-link" onclick="SivraStore.goPage('contact')">Contact</a><a class="footer-link" onclick="SivraStore.goPage('faq')">FAQ</a><a class="footer-link" onclick="SivraStore.goPage('shipping-policy')">Shipping</a><a class="footer-link" onclick="SivraStore.goPage('returns')">Returns</a></div>
+<div><div class="footer-heading">Help</div><a class="footer-link" onclick="SivraStore.goPage('contact')">Contact</a><a class="footer-link" onclick="SivraStore.goPage('faq')">FAQ</a><a class="footer-link" onclick="SivraStore.goPage('shipping-policy')">Shipping</a><a class="footer-link" onclick="SivraStore.goPage('refund-policy')">Returns</a></div>
 <div><div class="footer-heading">Legal</div><a class="footer-link" onclick="SivraStore.goPage('privacy-policy')">Privacy</a><a class="footer-link" onclick="SivraStore.goPage('refund-policy')">Refund</a><a class="footer-link" onclick="SivraStore.goPage('terms-of-service')">Terms</a></div>
 </div>
-<div class="footer-bottom"><span class="footer-copy">© 2026</span><span>Powered by Sivra</span></div>
+<div class="footer-bottom"><span class="footer-copy">© 2026 Our Store. All rights reserved.</span><span class="footer-addr">[Your Business Address]</span></div>
 </footer>
 
 <script src="storefront-app.js"></script>
 <script>
-// Auto-open drawer on load
-SivraStore.loadStoreData().then(()=>setTimeout(()=>SivraStore.openDrawer(),200));
+// Redirect to home with drawer open — standalone cart page was a stub
+const slug = SivraStore.getStoreSlug();
+location.replace('sivra-storefront.html?store=' + slug + '#cart');
 </script>
 <script src="storefront-tracker.js"></script>
 </body></html>

@@ -505,4 +505,50 @@ router.get('/:slug/menus', async (req, res) => {
   } catch(err) { res.json({ items: [] }); }
 });
 
+// ── NEWSLETTER SUBSCRIBE ──────────────────────────────────────────────────
+// POST /api/storefront/:slug/subscribe — adds subscriber to customers table with marketing flag
+router.post('/:slug/subscribe', async (req, res) => {
+  try {
+    const db = getDB();
+    const { email } = req.body;
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ error: 'Valid email required' });
+    }
+
+    const storeRes = await db.execute({
+      sql: `SELECT id FROM stores WHERE slug = ? AND status = 'active'`,
+      args: [req.params.slug]
+    });
+    if (!storeRes.rows.length) return res.status(404).json({ error: 'Store not found' });
+    const storeId = storeRes.rows[0].id;
+    const cleanEmail = email.toLowerCase().trim();
+
+    // Check if customer already exists for this store
+    const existing = await db.execute({
+      sql: `SELECT id, accepts_marketing FROM customers WHERE store_id = ? AND email = ?`,
+      args: [storeId, cleanEmail]
+    });
+
+    if (existing.rows.length) {
+      // Just flip the marketing flag if they already exist
+      await db.execute({
+        sql: `UPDATE customers SET accepts_marketing = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+        args: [existing.rows[0].id]
+      });
+    } else {
+      // Create a new customer record marked as a subscriber
+      await db.execute({
+        sql: `INSERT INTO customers (id, store_id, email, accepts_marketing) VALUES (?, ?, ?, 1)`,
+        args: [uuid(), storeId, cleanEmail]
+      });
+    }
+
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('Subscribe error:', e.message);
+    // Always succeed publicly — don't reveal whether the email already existed
+    res.json({ ok: true });
+  }
+});
+
 module.exports = router;

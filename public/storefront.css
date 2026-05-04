@@ -175,6 +175,8 @@ footer.store-footer{background:var(--grey-100);color:var(--black);padding:64px 2
 .footer-link{display:block;padding:5px 0;color:var(--grey-500);font-size:13px;cursor:pointer;transition:color 0.15s;font-weight:400;letter-spacing:-0.01em}
 .footer-link:hover{color:var(--black)}
 .footer-bottom{max-width:var(--max-w);margin:0 auto;padding-top:24px;border-top:1px solid var(--grey-200);display:flex;justify-content:space-between;align-items:center;color:var(--grey-500);font-size:12px;flex-wrap:wrap;gap:12px;font-weight:400;letter-spacing:-0.01em}
+.footer-addr{font-size:11px;color:var(--grey-500);font-weight:400;text-align:right}
+@media(max-width:640px){.footer-bottom{flex-direction:column;text-align:center}.footer-addr{text-align:center}}
 
 /* ── TOAST ───────────────────────────────────────── */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(29,29,31,0.92);backdrop-filter:blur(20px);color:var(--white);padding:13px 22px;font-size:14px;font-weight:500;border-radius:980px;box-shadow:var(--shadow-lg);opacity:0;transition:all 0.3s var(--ease);pointer-events:none;z-index:9999;letter-spacing:-0.01em}
